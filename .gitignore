@@ -1,0 +1,46 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Love2D build artifacts
+*.love
+*.exe
+*.app
+
+# Logs and temp
+*.log
+save/
+saves/
+tmp/
+
+# Claude Code
+.claude/
+.claude.json
+
+# Credentials
+.api-keys.json
+.credentials.json
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# Large binaries (keep tracked via LFS or skip)
+# *.png  (uncomment if you want to skip sprites)
+
+# Node
+node_modules/
+
+# LLM Arena (separate project)
+# Keep generate_lore_pdf.py but ignore its output is already tracked

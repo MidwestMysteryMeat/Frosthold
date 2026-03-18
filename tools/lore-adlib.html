@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IceRimworld — Lore Ad-Lib Editor</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --surface2: #0f3460;
+    --accent: #e94560;
+    --text: #e0e0e0;
+    --muted: #888;
+    --input-bg: #1a1a2e;
+    --input-border: #333;
+    --input-focus: #e94560;
+    --current: #534b62;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 { font-size: 1.3rem; color: var(--accent); }
+  header .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  button:hover { opacity: 0.85; }
+  button.secondary {
+    background: var(--surface2);
+    border: 1px solid var(--input-border);
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--input-border);
+    border-radius: 2px;
+    overflow: hidden;
+    width: 200px;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+  .progress-text { font-size: 0.8rem; color: var(--muted); }
+  nav {
+    background: var(--surface);
+    padding: 8px 24px;
+    border-bottom: 1px solid var(--input-border);
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 68px;
+    z-index: 99;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+  nav a:hover, nav a.active { background: var(--surface2); color: var(--text); }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  section {
+    margin-bottom: 40px;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid var(--input-border);
+  }
+  section h2 {
+    color: var(--accent);
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  section h2 .file-path {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: normal;
+    font-family: monospace;
+  }
+  section > p.desc {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+  }
+  .entry {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    border-left: 3px solid var(--surface2);
+  }
+  .entry.filled { border-left-color: #2ecc71; }
+  .entry.removed, .list-entry.removed {
+    opacity: 0.35;
+    border-left-color: #c0392b;
+    position: relative;
+  }
+  .entry.removed::after, .list-entry.removed::after {
+    content: 'REMOVED';
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    color: #c0392b;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .entry.removed input, .entry.removed textarea,
+  .list-entry.removed input, .list-entry.removed textarea {
+    pointer-events: none;
+    opacity: 0.4;
+  }
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .entry-id {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    background: rgba(233,69,96,0.15);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .btn-remove, .btn-restore {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+  }
+  .btn-remove {
+    background: rgba(192,57,43,0.2);
+    color: #e74c3c;
+  }
+  .btn-remove:hover { background: rgba(192,57,43,0.4); }
+  .btn-restore {
+    background: rgba(46,204,113,0.2);
+    color: #2ecc71;
+  }
+  .btn-restore:hover { background: rgba(46,204,113,0.4); }
+  .entry-meta {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .current-text {
+    background: var(--current);
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    margin-bottom: 8px;
+    color: #c0b8d0;
+    font-style: italic;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .current-text::before {
+    content: 'CURRENT: ';
+    color: var(--muted);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 0.7rem;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    background: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 2px rgba(233,69,96,0.2);
+  }
+  textarea { min-height: 60px; }
+  .list-entry {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    border-left: 3px solid var(--surface2);
+  }
+  .list-entry.filled { border-left-color: #2ecc71; }
+  .list-entry label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .list-current {
+    background: var(--current);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #c0b8d0;
+    margin-bottom: 6px;
+    font-style: italic;
+    word-break: break-word;
+  }
+  .list-current::before {
+    content: 'CURRENT: ';
+    color: var(--muted);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 0.7rem;
+  }
+  .sub-heading {
+    font-size: 0.95rem;
+    color: var(--text);
+    margin: 20px 0 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--input-border);
+  }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #2ecc71;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  @media (max-width: 700px) {
+    main { padding: 12px; }
+    section { padding: 12px; }
+    header { padding: 10px 12px; }
+    nav { padding: 6px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>IceRimworld Lore Ad-Lib Editor</h1>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+      <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-text" id="progressText">0 / 0 filled</span>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="secondary" onclick="clearAll()">Clear All</button>
+    <button class="secondary" onclick="loadJSON()">Import JSON</button>
+    <button onclick="exportJSON()">Export JSON</button>
+    <button onclick="exportLua()">Export Lua Patches</button>
+  </div>
+</header>
+
+<nav id="navBar"></nav>
+
+<main id="main"></main>
+
+<div class="toast" id="toast"></div>
+
+<input type="file" id="fileInput" accept=".json" style="display:none">
+
+<script>
+// =========================================================================
+// DATA — every lore string in the codebase
+// =========================================================================
+
+const SECTIONS = [
+
+// ---- 1. HISTORY ----
+{
+  id: 'history',
+  title: 'World History',
+  file: 'src/world/history.lua',
+  groups: [
+    {
+      heading: 'Civilizations',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'solari', current: { name: 'The Solari Dominion', desc: '' }},
+        { id: 'deepkin', current: { name: 'The Deepkin', desc: '' }},
+        { id: 'voidwatch', current: { name: 'The Voidwatch', desc: '' }},
+        { id: 'ironblood', current: { name: 'The Ironblood Clans', desc: '' }},
+        { id: 'ashwalker', current: { name: 'The Ash Walkers', desc: '' }},
+        { id: 'crystal', current: { name: 'The Crystal Shapers', desc: '' }},
+      ]
+    },
+    {
+      heading: 'Cataclysms',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'stellar_collapse', current: { name: 'The Star Dimmed', desc: "The system's star entered early decline. Temperatures plummeted over centuries." }},
+        { id: 'core_freeze', current: { name: 'The Core Freeze', desc: "The planet's molten core began to crystallize. Volcanic vents died one by one." }},
+        { id: 'void_storm', current: { name: 'The Void Storm', desc: "A wave of dark energy from deep space stripped the atmosphere's heat retention." }},
+        { id: 'orbital_shift', current: { name: 'The Great Drift', desc: "The planet's orbit shifted outward after a massive impact event." }},
+        { id: 'ice_plague', current: { name: 'The Creeping Ice', desc: "An alien crystalline organism consumed heat, spreading permafrost across the surface." }},
+      ]
+    },
+    {
+      heading: 'Ruin Types',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'city', current: { name: 'Buried City' }},
+        { id: 'lab', current: { name: 'Research Complex' }},
+        { id: 'vault', current: { name: 'Sealed Vault' }},
+        { id: 'temple', current: { name: 'Frozen Temple' }},
+        { id: 'factory', current: { name: 'Automated Factory' }},
+        { id: 'barracks', current: { name: 'Military Outpost' }},
+        { id: 'archive', current: { name: 'Data Archive' }},
+        { id: 'geothermal', current: { name: 'Geothermal Plant' }},
+      ]
+    },
+    {
+      heading: 'Relic Names',
+      type: 'list',
+      current: ['Memory Core','Thermal Prism','Star Fragment','Frozen Chronicle','Heat Stone','Iron Codex','Crystal Lens','Void Compass','Ancestor Mask','Magma Seed','Wind Harp','Stasis Key'],
+    },
+    {
+      heading: 'Era Event Templates (use %s for civ name)',
+      type: 'list',
+      current: [
+        'great war between %s and the northern wastes',
+        'golden age of %s lasting three centuries',
+        'plague that reduced %s to scattered camps',
+        'discovery of geothermal vents by %s engineers',
+        'construction of the Great Seal by %s artisans',
+        'first contact with offworld traders during %s rule',
+        'volcanic eruption that reshaped %s territory',
+        'civil war that split %s into rival factions',
+      ],
+    },
+    {
+      heading: 'History Summary Template',
+      type: 'list',
+      current: ['This world was once home to %s, who specialized in %s. Approximately %d years ago, %s. %s'],
+    },
+  ]
+},
+
+// ---- 2. FACTIONS ----
+{
+  id: 'factions',
+  title: 'Factions',
+  file: 'src/colony/factions.lua',
+  groups: [
+    {
+      heading: 'Faction Definitions',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'furnace_cult', current: { name: 'The Furnace Cult', desc: "Pyromantic zealots who worship the planet's core. Control fuel supplies." }},
+        { id: 'drift_nomads', current: { name: 'Drift Nomads', desc: 'Wandering survivors who know safe routes through blizzard corridors.' }},
+        { id: 'iron_holdfast', current: { name: 'The Iron Holdfast', desc: 'Militaristic enclave with advanced metallurgy. Demands tribute.' }},
+        { id: 'frost_scholars', current: { name: 'Frost Scholars', desc: "Scientists studying the planet's frozen ecology. Share research." }},
+        { id: 'void_cult', current: { name: 'The Congregation of the Void Beneath', desc: "Robed figures who worship something frozen deep below the permafrost. They offer strange gifts and stranger knowledge." }},
+      ]
+    }
+  ]
+},
+
+// ---- 3. CREATURES ----
+{
+  id: 'creatures',
+  title: 'Creatures',
+  file: 'src/creatures/creatures.lua',
+  groups: [
+    {
+      heading: 'Small Fauna',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'frost_hare', current: { name: 'Frost Hare' }},
+        { id: 'ice_fox', current: { name: 'Ice Fox' }},
+        { id: 'snow_grouse', current: { name: 'Snow Grouse' }},
+      ]
+    },
+    {
+      heading: 'Medium Fauna',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'tundra_wolf', current: { name: 'Tundra Wolf' }},
+        { id: 'glacier_bear', current: { name: 'Glacier Bear' }},
+        { id: 'ice_stalker', current: { name: 'Ice Stalker' }},
+        { id: 'frost_giant', current: { name: 'Frost Giant' }},
+        { id: 'yeti', current: { name: 'Yeti' }},
+        { id: 'wendigo', current: { name: 'Wendigo' }},
+        { id: 'ice_wraith', current: { name: 'Ice Wraith' }},
+        { id: 'dire_wolf', current: { name: 'Dire Wolf' }},
+        { id: 'mammoth', current: { name: 'Woolly Mammoth' }},
+        { id: 'sabertooth', current: { name: 'Sabertooth' }},
+      ]
+    },
+    {
+      heading: 'Megafauna',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'frost_titan', current: { name: 'Frost Titan' }},
+        { id: 'thermal_wurm', current: { name: 'Thermal Wurm' }},
+        { id: 'glacial_leviathan', current: { name: 'Glacial Leviathan' }},
+        { id: 'ancient_giant', current: { name: 'Ancient Giant' }},
+        { id: 'elder_wendigo', current: { name: 'Elder Wendigo' }},
+        { id: 'mountain_titan', current: { name: 'Mountain Titan' }},
+        { id: 'ice_colossus', current: { name: 'Ice Colossus' }},
+        { id: 'storm_giant', current: { name: 'Storm Giant' }},
+      ]
+    },
+    {
+      heading: 'Eldritch Horrors',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'the_hungering', current: { name: 'The Hungering' }},
+        { id: 'the_pale_king', current: { name: 'The Pale King' }},
+        { id: 'permafrost_god', current: { name: 'Permafrost God' }},
+        { id: 'void_wendigo', current: { name: 'Void Wendigo' }},
+      ]
+    },
+    {
+      heading: 'Eldritch Livestock',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'gore_shoat', current: { name: 'Gore Shoat', desc: 'A twisted piglet with too many eyes. Snuffles and roots in filth.' }},
+        { id: 'weeping_calf', current: { name: 'Weeping Calf', desc: 'Born crying a dark fluid. Its body swells with ichor sacs as it grows.' }},
+        { id: 'husk_pup', current: { name: 'Husk Pup', desc: 'Follows colonists like a loyal hound. Then the chitin starts growing.' }},
+        { id: 'void_minnow', current: { name: 'Void Minnow', desc: 'A palm-sized creature that floats slightly above the ground. It never stops growing.' }},
+        { id: 'pit_wyrm', current: { name: 'Pit Wyrm', desc: 'A finger-length worm. It coils and uncoils ceaselessly. It will not stay this small.' }},
+        { id: 'bile_mold', current: { name: 'Bile Mold', desc: '' }},
+        { id: 'thorn_polyp', current: { name: 'Thorn Polyp', desc: '' }},
+        { id: 'nerve_cluster', current: { name: 'Nerve Cluster', desc: '' }},
+        { id: 'rot_bloom', current: { name: 'Rot Bloom', desc: '' }},
+      ]
+    },
+    {
+      heading: 'Swarm Creatures',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'frost_beetle', current: { name: 'Frost Beetle' }},
+        { id: 'ice_locust', current: { name: 'Ice Locust' }},
+        { id: 'frost_wurm', current: { name: 'Frost Wurm' }},
+        { id: 'wendigo_spawn', current: { name: 'Wendigo Spawn' }},
+        { id: 'ice_imp', current: { name: 'Ice Imp' }},
+        { id: 'giant_rat', current: { name: 'Permafrost Rat' }},
+      ]
+    },
+  ]
+},
+
+// ---- 4. ELDRITCH NODES ----
+{
+  id: 'eldritch_nodes',
+  title: 'Eldritch Nodes',
+  file: 'src/creatures/eldritch_nodes.lua',
+  groups: [
+    {
+      heading: 'Eldritch Type Definitions',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'flesh', current: { name: 'Flesh', desc: 'A bloated, rooting mass. Snuffles and squeals as it grows.' }},
+        { id: 'ichor', current: { name: 'Ichor', desc: 'Weeps viscous fluid that burns like fuel. The tears never stop.' }},
+        { id: 'chitin', current: { name: 'Chitin', desc: 'Followed colonists like a pup. Then the chitin started growing.' }},
+        { id: 'void', current: { name: 'Void', desc: 'A palm-sized thing that floats above the ground. It never stops growing.' }},
+        { id: 'serpent', current: { name: 'Serpent', desc: 'A finger-length worm that coils ceaselessly. It fills rooms.' }},
+        { id: 'bile', current: { name: 'Bile', desc: 'A fermenting mass that secretes corrosive bile.' }},
+        { id: 'thorn', current: { name: 'Thorn', desc: 'Grows rigid barbed plates in layered formations.' }},
+        { id: 'nerve', current: { name: 'Nerve', desc: 'A pulsing cluster of exposed neural tissue. Unsettling to behold.' }},
+        { id: 'rot', current: { name: 'Rot', desc: 'A rapidly decomposing mass that reconstitutes itself endlessly.' }},
+      ]
+    },
+    {
+      heading: 'Growth Stage Names',
+      type: 'list',
+      current: ['Larva', 'Whelp', 'Juvenile', 'Mature', 'Ancient'],
+    },
+    {
+      heading: 'Event Flavor Strings',
+      type: 'list',
+      current: [
+        'A [name] has hatched from an eldritch egg. It writhes and squeals.',
+        'A [name] spore has been planted. It squirms and takes root.',
+        'It has rooted itself to the ground. It will not move again.',
+        'It is a grotesque, pulsing mass. But it provides.',
+        '[name] has broken free! It tears itself from the ground and shrieks. Hostile offspring pour from its body.',
+        '[name] has been slaughtered. N resources recovered from its body.',
+      ],
+    },
+  ]
+},
+
+// ---- 5. MEGABEASTS ----
+{
+  id: 'megabeasts',
+  title: 'Procedural Megabeasts',
+  file: 'src/creatures/megabeasts.lua',
+  groups: [
+    {
+      heading: 'Body Materials',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'living_ice', current: { name: 'Living Ice' }},
+        { id: 'obsidian', current: { name: 'Obsidian' }},
+        { id: 'frozen_gas', current: { name: 'Frozen Gas' }},
+        { id: 'crystalized', current: { name: 'Crystal' }},
+        { id: 'iron_flesh', current: { name: 'Iron Flesh' }},
+        { id: 'volcanic_rock', current: { name: 'Volcanic Stone' }},
+        { id: 'bone_chitin', current: { name: 'Bone Chitin' }},
+        { id: 'void_matter', current: { name: 'Void Matter' }},
+        { id: 'permafrost', current: { name: 'Permafrost' }},
+        { id: 'flesh_rot', current: { name: 'Rotting Flesh' }},
+      ]
+    },
+    {
+      heading: 'Body Forms',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'serpent', current: { name: 'Serpent' }},
+        { id: 'spider', current: { name: 'Arachnid' }},
+        { id: 'titan', current: { name: 'Titan' }},
+        { id: 'swarm_host', current: { name: 'Swarm Host' }},
+        { id: 'crawler', current: { name: 'Crawler' }},
+        { id: 'leviathan', current: { name: 'Leviathan' }},
+        { id: 'giant', current: { name: 'Giant' }},
+        { id: 'wendigo', current: { name: 'Wendigo' }},
+        { id: 'colossus', current: { name: 'Colossus' }},
+        { id: 'wraith', current: { name: 'Wraith' }},
+      ]
+    },
+    {
+      heading: 'Attack Types',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'frost_breath', current: { name: 'Frost Breath', desc: 'breathes freezing fog' }},
+        { id: 'toxic_spores', current: { name: 'Toxic Spores', desc: 'releases toxic spores' }},
+        { id: 'seismic_stomp', current: { name: 'Seismic Stomp', desc: 'shakes the earth' }},
+        { id: 'acid_spray', current: { name: 'Acid Spray', desc: 'sprays corrosive acid' }},
+        { id: 'void_howl', current: { name: 'Void Howl', desc: 'emits a maddening howl' }},
+        { id: 'ice_shards', current: { name: 'Ice Shards', desc: 'hurls razor ice' }},
+        { id: 'soul_rend', current: { name: 'Soul Rend', desc: 'tears at the soul' }},
+        { id: 'fear_scream', current: { name: 'Fear Scream', desc: 'screams with primal terror' }},
+        { id: 'ground_devour', current: { name: 'Ground Devour', desc: 'consumes the ground itself' }},
+        { id: 'blizzard_form', current: { name: 'Blizzard Form', desc: 'becomes a living blizzard' }},
+      ]
+    },
+    {
+      heading: 'Name Prefixes',
+      type: 'list',
+      current: ['Cryo','Glacio','Perma','Null','Void','Abyssal','Stellar','Shadow','Storm','Frost','Iron','Obsidian','Crystal','Dark','Eldritch','Primordial','Cyclopean','Stygian','Cthonic','Sightless','Nameless','Vast','Pallid','Fungal'],
+    },
+    {
+      heading: 'Name Suffixes',
+      type: 'list',
+      current: ['maw','fang','claw','blight','terror','doom','wrath','horror','dread','scourge','bane','fiend','howl','ruin','spawn','thing','mass','hunger','voice','form','mind'],
+    },
+    {
+      heading: 'Titles',
+      type: 'list',
+      current: ['the Eternal','the Forgotten','the Ancient','the Devourer','the Frozen','the Undying','the Awakened','the Hungering','Worldbreaker','Icecrusher','Deathbringer','the Sleeper','the Unnameable','That Which Waits','the Formless','Born of Permafrost','the Last Dream','Who Remembers'],
+    },
+  ]
+},
+
+// ---- 6. STRANGE MOODS ----
+{
+  id: 'strange_moods',
+  title: 'Strange Moods / Artifacts',
+  file: 'src/colonist/strange_moods.lua',
+  groups: [
+    {
+      heading: 'Artifact Prefixes',
+      type: 'list',
+      current: ['Winter','Frost','Glacial','Polar','Crystal','Iron','Obsidian','Midnight','Aurora','Storm','Void','Ember'],
+    },
+    {
+      heading: 'Artifact Suffixes',
+      type: 'list',
+      current: ['heart','bane','song','edge','crown','ward','fang','eye','breath','fury','tear','whisper'],
+    },
+    {
+      heading: 'Artifact Type Names',
+      type: 'table',
+      fields: ['name'],
+      entries: [
+        { id: 'weapon', current: { name: 'Weapon' }},
+        { id: 'armor', current: { name: 'Armor' }},
+        { id: 'tool', current: { name: 'Tool' }},
+        { id: 'decoration', current: { name: 'Masterwork' }},
+        { id: 'heater', current: { name: 'Thermal Device' }},
+      ]
+    },
+    {
+      heading: 'Event Flavor Strings',
+      type: 'list',
+      current: [
+        '[name] has entered a Frost Trance! They demand: [items]',
+        '[name] created "[artifact]", a legendary [type]!',
+        "[name]'s Frost Trance ended in failure. They are broken.",
+      ],
+    },
+  ]
+},
+
+// ---- 7. OVERWORLD ----
+{
+  id: 'overworld',
+  title: 'Overworld Expeditions',
+  file: 'src/exploration/overworld.lua',
+  groups: [
+    {
+      heading: 'Expedition Destinations',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'frozen_wastes', current: { name: 'Frozen Wastes', desc: 'Open tundra stretching to the horizon. Low danger, basic scavenging.' }},
+        { id: 'ice_caves', current: { name: 'Ice Caves', desc: 'Frozen cavern network. Metal veins and raw ice in abundance.' }},
+        { id: 'wolf_den', current: { name: 'Wolf Den', desc: 'Tundra wolf territory. Dangerous, but thermal cores cluster here.' }},
+        { id: 'abandoned_outpost', current: { name: 'Abandoned Outpost', desc: 'Ruins of a previous settlement. Salvageable components and equipment.' }},
+        { id: 'glacier_peak', current: { name: 'Glacier Peak', desc: 'Treacherous mountain ascent. Rare crystalline deposits at the summit.' }},
+        { id: 'thermal_vents', current: { name: 'Thermal Vents', desc: 'Geothermal fissures belching heat and gas. Rich fuel and core deposits.' }},
+        { id: 'deep_rift', current: { name: 'Deep Rift', desc: 'A chasm torn open by tectonic fury. Extreme danger. Unmatched rewards.' }},
+        { id: 'ancient_ruins', current: { name: 'Ancient Ruins', desc: 'Pre-frost civilization remnants buried under ice. Artifacts and knowledge.' }},
+      ]
+    }
+  ]
+},
+
+// ---- 8. ADLIB NAMES & BACKSTORIES ----
+{
+  id: 'adlib',
+  title: 'Ad-Lib Names & Backstories',
+  file: 'src/util/adlib.lua',
+  groups: [
+    {
+      heading: 'First Names',
+      type: 'list',
+      current: ['Soren','Kira','Voss','Mira','Hale','Fen','Brynn','Cade','Lira','Thane','Zara','Kael','Isa','Rowan','Petra','Oren','Vera','Drake','Nessa','Torin','Freya','Dag','Elke','Rune','Sigrid','Bjorn','Astrid','Leif','Ingrid','Erik','Hilda','Gunnar','Thyra','Ragnar','Solveig','Ulf','Liv','Ivar','Ylva','Arne','Sif','Torsten','Freja','Viggo','Eira'],
+    },
+    {
+      heading: 'Last Names',
+      type: 'list',
+      current: ['Coldforge','Ironheart','Stormborn','Frostwalker','Ashwood','Deepmine','Blackice','Snowmelt','Duskfall','Brightcoal','Windscour','Steelhand','Bonehill','Greyveil','Iceblood'],
+    },
+    {
+      heading: 'Syllables — Harsh',
+      type: 'list',
+      current: ['thor','grim','brok','hel','arn','drak','rok','hal','ulf','sven','bjorn','frey','stein','mund','vik','nord','val','rag','sig','gun','hild','kel','bran','stark'],
+    },
+    {
+      heading: 'Syllables — Soft',
+      type: 'list',
+      current: ['ae','li','tha','ren','si','el','na','ri','wyn','lor','fin','del','ala','myr','isa','ora','emi','una','ira','ova','ani','elu','ari','ola'],
+    },
+    {
+      heading: 'Syllables — Common',
+      type: 'list',
+      current: ['ar','el','or','in','an','al','en','ir','ol','un','eth','ith','oth','ash','esh','ros','val','ren','dor','kel','mar','fen','gal','bor','til','wen','cal','pyr'],
+    },
+    {
+      heading: 'Backstory Origin Templates ({place}, {job}, {duration}, {group}, {crime}, {relative}, {item})',
+      type: 'list',
+      current: [
+        'Fled {place} when the glaciers swallowed the lowlands.',
+        'Was a {job} in {place} before the Long Winter.',
+        'Wandered alone for {duration} before finding civilization.',
+        'Survived the collapse of {place} by sheer luck.',
+        'Deserted a {group} caravan heading south.',
+        'Was exiled from {place} for {crime}.',
+        'Left {place} to search for a missing {relative}.',
+        'Grew up in a bunker beneath {place}.',
+        'Washed ashore after a ship broke apart on the ice shelf.',
+        'Escaped a thermal wurm attack that killed everyone else.',
+        'Claims to remember the world before the frost. No one believes them.',
+        'Was found half-frozen by scouts, clutching a {item}.',
+      ],
+    },
+    {
+      heading: 'Cult Backstory Templates',
+      type: 'list',
+      current: [
+        'Was a scribe in {cult_place} before the whispers began.',
+        'Found a {cult_item} buried in the permafrost near {place}. Has not slept well since.',
+        'Served as {cult_rank} in a congregation beneath {cult_place}. Left after {cult_event}.',
+        'Wandered out of the deep ice after {duration}. Cannot explain how they survived.',
+        'Claims to have spoken with something beneath the glacier. Refuses to describe it.',
+        'Was exiled from {place} for performing {cult_rite} in the town square.',
+        'The only survivor of a research expedition into {cult_place}. Will not say what they found.',
+        'Carved symbols into the walls of {place} and was driven out. Says the symbols asked to be carved.',
+        'Woke one morning speaking a language no one recognized. It passed, but the knowledge stayed.',
+        'Followed a light beneath the ice for {duration}. Emerged changed.',
+        'Keeps a journal written in a script that shifts when you look away.',
+        'Their shadow does not always match their movements.',
+      ],
+    },
+    {
+      heading: 'Place Names (backstory fill)',
+      type: 'list',
+      current: ['Helgard','Frostheim','the Ashveil Settlements','Port Morrow','the Iron Basin','Coldmere','Duskhollow','the Northern Reach','Stonewall Keep','the Thermal Spires','Old Vethren','Glacier Point'],
+    },
+    {
+      heading: 'Jobs (backstory fill)',
+      type: 'list',
+      current: ['farmer','soldier','mechanic','doctor','miner','cook','teacher','hunter','trader','blacksmith','engineer','carpenter'],
+    },
+    {
+      heading: 'Durations (backstory fill)',
+      type: 'list',
+      current: ['three months','a year','two winters','longer than they can count','half a decade','since the Last Thaw'],
+    },
+    {
+      heading: 'Groups (backstory fill)',
+      type: 'list',
+      current: ['military','merchant','refugee','cult','research','scavenger'],
+    },
+    {
+      heading: 'Crimes (backstory fill)',
+      type: 'list',
+      current: ['speaking against the council','hoarding food','theft','striking an officer','refusing conscription','heresy'],
+    },
+    {
+      heading: 'Relatives (backstory fill)',
+      type: 'list',
+      current: ['brother','sister','daughter','son','partner','old mentor'],
+    },
+    {
+      heading: 'Clutched Items (backstory fill)',
+      type: 'list',
+      current: ['thermal core','rusted compass',"child's toy",'sealed letter','broken radio','faded photograph','small blade'],
+    },
+    {
+      heading: 'Cult Places (backstory fill)',
+      type: 'list',
+      current: ['the Hollow Beneath Frostheim','the Obsidian Cathedral','the Drowned Temple','a glacier crevasse that breathed','the Under-Ice','the Whispering Fissure',"Old Vethren's undercrypt",'a cave that was not there the next morning'],
+    },
+    {
+      heading: 'Cult Items (backstory fill)',
+      type: 'list',
+      current: ['stone tablet covered in spiraling glyphs','black idol with too many limbs','frozen eye that would not thaw','journal written in no known alphabet','mask carved from a single bone','sphere of dark glass that hums','tooth the size of a forearm'],
+    },
+    {
+      heading: 'Cult Ranks (backstory fill)',
+      type: 'list',
+      current: ['acolyte','watcher','keeper of the black text','tongue of the deep','dream-reader','void aspirant','threshold warden'],
+    },
+    {
+      heading: 'Cult Events (backstory fill)',
+      type: 'list',
+      current: ['the congregation began eating the walls','the elder spoke backward for three days and then dissolved','something answered back','the floor opened and did not close','they started to change','the idol wept'],
+    },
+    {
+      heading: 'Cult Rites (backstory fill)',
+      type: 'list',
+      current: ['the Rite of Opening','the Calling Below','a blood geometry','the Third Invocation','the feeding of shadows','the ice communion'],
+    },
+  ]
+},
+
+// ---- 9. TRAITS ----
+{
+  id: 'traits',
+  title: 'Colonist Traits',
+  file: 'src/util/adlib.lua',
+  groups: [
+    {
+      heading: 'Positive Traits',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'hardworking', current: { name: 'Hardworking', desc: 'works tirelessly' }},
+        { id: 'optimist', current: { name: 'Optimist', desc: 'keeps spirits up' }},
+        { id: 'brave', current: { name: 'Brave', desc: 'unflinching in danger' }},
+        { id: 'nurturing', current: { name: 'Nurturing', desc: 'cares for others' }},
+        { id: 'resourceful', current: { name: 'Resourceful', desc: 'makes do with less' }},
+        { id: 'stoic', current: { name: 'Stoic', desc: 'endures without complaint' }},
+        { id: 'quick', current: { name: 'Quick', desc: 'moves fast' }},
+        { id: 'eagle_eye', current: { name: 'Eagle-Eyed', desc: 'spots prey at distance' }},
+        { id: 'green_thumb', current: { name: 'Green Thumb', desc: 'can grow anything' }},
+        { id: 'iron_stomach', current: { name: 'Iron Stomach', desc: 'eats anything' }},
+      ]
+    },
+    {
+      heading: 'Negative Traits',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'lazy', current: { name: 'Lazy', desc: 'avoids exertion' }},
+        { id: 'pessimist', current: { name: 'Pessimist', desc: 'sees the worst' }},
+        { id: 'coward', current: { name: 'Coward', desc: 'flees from danger' }},
+        { id: 'glutton', current: { name: 'Glutton', desc: 'eats more than their share' }},
+        { id: 'pyromaniac', current: { name: 'Pyromaniac', desc: 'drawn to flames' }},
+        { id: 'thin_skinned', current: { name: 'Thin-Skinned', desc: 'suffers the cold' }},
+        { id: 'clumsy', current: { name: 'Clumsy', desc: 'drops things' }},
+        { id: 'insomniac', current: { name: 'Insomniac', desc: 'sleeps poorly' }},
+        { id: 'loner', current: { name: 'Loner', desc: 'dislikes company' }},
+        { id: 'volatile', current: { name: 'Volatile', desc: 'snaps under pressure' }},
+      ]
+    },
+    {
+      heading: 'Neutral Traits',
+      type: 'table',
+      fields: ['name', 'desc'],
+      entries: [
+        { id: 'teetotaler', current: { name: 'Teetotaler', desc: 'refuses drink' }},
+        { id: 'night_owl', current: { name: 'Night Owl', desc: 'prefers the dark hours' }},
+        { id: 'gourmand', current: { name: 'Gourmand', desc: 'appreciates fine food' }},
+        { id: 'ascetic', current: { name: 'Ascetic', desc: 'needs little comfort' }},
+        { id: 'scar_tissue', current: { name: 'Scarred', desc: 'carries old wounds' }},
+        { id: 'ex_soldier', current: { name: 'Ex-Soldier', desc: 'served before the frost' }},
+        { id: 'former_doc', current: { name: 'Former Doctor', desc: 'trained in medicine' }},
+        { id: 'tinkerer', current: { name: 'Tinkerer', desc: 'fidgets with machinery' }},
+        { id: 'occultist', current: { name: 'Occultist', desc: 'hears whispers from below the ice' }},
+        { id: 'void_touched', current: { name: 'Void-Touched', desc: 'survived contact with something not of this world' }},
+        { id: 'dreamer', current: { name: 'Dreamer', desc: 'speaks of places that do not exist' }},
+      ]
+    },
+  ]
+},
+
+// ---- 10. STORYTELLER EVENTS ----
+{
+  id: 'storyteller',
+  title: 'Storyteller Events',
+  file: 'src/storyteller/storyteller.lua',
+  groups: [
+    {
+      heading: 'Event Names & Flavor Text',
+      type: 'table',
+      fields: ['name', 'flavor'],
+      entries: [
+        { id: 'blizzard_warning', current: { name: 'Blizzard Warning', flavor: 'A blizzard sweeps in from the wastes!' }},
+        { id: 'whiteout', current: { name: 'Whiteout', flavor: 'Visibility drops to nothing. A whiteout engulfs the colony!' }},
+        { id: 'warm_front', current: { name: 'Warm Front', flavor: 'A warm front passes through. The ice thins.' }},
+        { id: 'aurora_borealis', current: { name: 'Aurora Borealis', flavor: 'The sky ignites with color. An aurora dances overhead.' }},
+        { id: 'wolf_pack', current: { name: 'Wolf Pack Sighting', flavor: 'A pack of N tundra wolves has been spotted nearby!' }},
+        { id: 'bear_sighting', current: { name: 'Glacier Bear', flavor: 'A glacier bear lumbers into view.' }},
+        { id: 'megafauna_approach', current: { name: 'Megafauna Approach', flavor: 'The ground shakes. A [name] approaches!' }},
+        { id: 'wanderer_joins', current: { name: 'Wanderer', flavor: 'A wanderer stumbles out of the snow and asks to join.' }},
+        { id: 'supply_cache', current: { name: 'Supply Cache Found', flavor: 'Scouts found a supply cache: +N resource!' }},
+        { id: 'food_blight', current: { name: 'Food Contamination', flavor: 'Stored food has spoiled in the cold. Lost N food.' }},
+        { id: 'merchant_visit', current: { name: 'Merchant Caravan', flavor: '[type] approaches from the wastes!' }},
+        { id: 'ice_plague', current: { name: 'Ice Plague Outbreak', flavor: 'A colonist shows signs of the Ice Plague! Quarantine immediately!' }},
+        { id: 'beast_raid', current: { name: 'Beast Assault', flavor: 'Hostile creatures are massing on the perimeter!' }},
+        { id: 'creature_siege', current: { name: 'Creature Siege', flavor: 'Burrowing creatures are tunneling toward the colony walls!' }},
+        { id: 'coordinated_attack', current: { name: 'Coordinated Attack', flavor: 'Multiple creature packs are converging from different directions!' }},
+        { id: 'the_swarm', current: { name: 'THE SWARM', flavor: 'THE SWARM IS COMING FROM ALL DIRECTIONS! THIS IS NOT A DRILL!' }},
+        { id: 'rescue_survivor', current: { name: 'Downed Survivor', flavor: 'Scouts found a survivor collapsed in the snow!' }},
+        { id: 'megabeast_awakening', current: { name: 'Megabeast Awakening', flavor: '[name] has awoken from the permafrost!' }},
+        { id: 'whispers_below', current: { name: 'Whispers Below', flavor: 'Something stirs beneath the colony.' }},
+        { id: 'cultist_wanderer', current: { name: 'Cultist Wanderer', flavor: 'A hooded wanderer emerges from the blizzard, muttering about what lies beneath.' }},
+        { id: 'madness_spread', current: { name: 'Creeping Madness', flavor: 'A wave of unease passes through the colony. N colonists affected.' }},
+        { id: 'void_rift_event', current: { name: 'Void Rift', flavor: '(uses eldritch adlib templates)' }},
+      ]
+    },
+  ]
+},
+
+// ---- 11. ADLIB FLAVOR TEMPLATES ----
+{
+  id: 'flavor',
+  title: 'Event Flavor Templates',
+  file: 'src/util/adlib.lua',
+  groups: [
+    {
+      heading: 'Blizzard Flavor (3 templates)',
+      type: 'list',
+      current: [
+        'The wind howls like a {adjective} beast from the {direction}.',
+        'Visibility drops. The frost bites {bodypart} first.',
+        'A {adjective} wall of white descends from the mountains.',
+      ],
+    },
+    {
+      heading: 'Creature Sighting Flavor (3)',
+      type: 'list',
+      current: [
+        'Tracks in the snow \u2014 {adjective}, fresh. Something {size} passed through.',
+        'A {adjective} shape moves at the edge of visibility.',
+        'The ground trembles. Something {adjective} stirs beneath the ice.',
+      ],
+    },
+    {
+      heading: 'Good Fortune Flavor (3)',
+      type: 'list',
+      current: [
+        'Against all odds, {good_thing}.',
+        'A stroke of luck: {good_thing}.',
+        'The frost gives back what it takes. {good_thing}.',
+      ],
+    },
+    {
+      heading: 'Dread Flavor (3)',
+      type: 'list',
+      current: [
+        'The aurora flickers and dies. An {adjective} silence follows.',
+        'Something is wrong. The colonists feel it in their {bodypart}.',
+        'A {adjective} sound echoes from deep beneath the permafrost.',
+      ],
+    },
+    {
+      heading: 'Eldritch Flavor (6)',
+      type: 'list',
+      current: [
+        'The ice groans in syllables. Not wind. Something {eldritch_adj}.',
+        'Stars appear in the wrong positions. One of them {eldritch_verb}.',
+        'A colonist wakes screaming about {eldritch_noun} beneath the glacier.',
+        'The shadows lengthen against the light source. They reach for the {bodypart}.',
+        'Something vast shifts beneath the colony. The floor {eldritch_verb} for a heartbeat.',
+        'The aurora turns {eldritch_color}. Shapes move within it that have too many {eldritch_limb}.',
+      ],
+    },
+    {
+      heading: 'Cult Arrival Flavor (4)',
+      type: 'list',
+      current: [
+        'Hooded figures emerge from the blizzard, chanting in a {eldritch_adj} monotone.',
+        'A group approaches bearing {cult_item}. They say they have been called here.',
+        'Pilgrims from {cult_place} arrive. Their eyes do not blink in unison.',
+        'Strangers kneel at the colony perimeter, drawing {eldritch_adj} symbols in the snow.',
+      ],
+    },
+    {
+      heading: 'Madness Flavor (5)',
+      type: 'list',
+      current: [
+        'A colonist stares at the ice for hours, whispering coordinates to no one.',
+        '{first_name} insists the walls are breathing. Others start to agree.',
+        'Three colonists drew the same symbol independently. None can explain it.',
+        'Someone has been rearranging stones in the night. The pattern {eldritch_verb}.',
+        'A colonist claims to have counted to a number that does not exist.',
+      ],
+    },
+    {
+      heading: 'Void Rift Flavor (3)',
+      type: 'list',
+      current: [
+        'The air splits open. {eldritch_color} light bleeds from the wound in space.',
+        'A rift tears through the permafrost. The cold from within is {eldritch_adj}.',
+        'Reality buckles. Something on the other side {eldritch_verb}.',
+      ],
+    },
+    {
+      heading: 'Dark Ritual Flavor (3)',
+      type: 'list',
+      current: [
+        'The occultists gather in a circle, murmuring words that make the air {eldritch_adj}.',
+        'By firelight, they open the black text. The words rearrange as they read.',
+        'The ritual begins. The ground beneath them {eldritch_verb}.',
+      ],
+    },
+    {
+      heading: 'Adjectives (fill pool)',
+      type: 'list',
+      current: ['terrifying','ancient','enormous','bone-white','shrieking','unnatural','freezing','rumbling','distant','familiar','hollow','wet','grinding','low','sharp'],
+    },
+    {
+      heading: 'Directions (fill pool)',
+      type: 'list',
+      current: ['north','northeast','the frozen wastes','the mountains','the glacier fields','the ice shelf','beyond the ridge'],
+    },
+    {
+      heading: 'Body Parts (fill pool)',
+      type: 'list',
+      current: ['fingers','toes','ears','the lungs','exposed skin','bones'],
+    },
+    {
+      heading: 'Sizes (fill pool)',
+      type: 'list',
+      current: ['large','massive','enormous','unsettlingly big','lumbering'],
+    },
+    {
+      heading: 'Good Things (fill pool)',
+      type: 'list',
+      current: ['scouts found a supply cache buried in the snow','a warm current pushes through the valley','a wanderer arrives with useful skills','the hunting party returns with a full haul','a vein of ore is exposed by the shifting ice'],
+    },
+    {
+      heading: 'Eldritch Adjectives (fill pool)',
+      type: 'list',
+      current: ['wrong','cyclopean','non-Euclidean','gelatinous','iridescent','impossible','nauseating','formless','ancient','sentient','translucent','pulsating','indescribable','alien','blasphemous'],
+    },
+    {
+      heading: 'Eldritch Verbs (fill pool)',
+      type: 'list',
+      current: ['blinks','pulses','writhes','shifts','watches','grows','breathes','unfolds','reaches','remembers','whispers','hungers','weeps','sings'],
+    },
+    {
+      heading: 'Eldritch Nouns (fill pool)',
+      type: 'list',
+      current: ['geometries','cities','faces','halls that extend forever','a name that cannot be pronounced','something that was waiting','the space between stars','a door that should not open','teeth in the walls','eyes in the permafrost'],
+    },
+    {
+      heading: 'Eldritch Colors (fill pool)',
+      type: 'list',
+      current: ['a color not found in nature','ultraviolet','black-green','the color of static','bruise-purple','corpse-light pale'],
+    },
+    {
+      heading: 'Eldritch Limbs (fill pool)',
+      type: 'list',
+      current: ['limbs','mouths','eyes','angles','segments','wings'],
+    },
+  ]
+},
+
+]; // end SECTIONS
+
+// =========================================================================
+// RENDERING
+// =========================================================================
+
+const STORAGE_KEY = 'icerimworld_lore_adlib';
+let saved = {};
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) saved = JSON.parse(raw);
+  } catch(e) { saved = {}; }
+}
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  updateProgress();
+}
+
+function getKey(sectionId, groupIdx, entryId, field) {
+  return `${sectionId}|${groupIdx}|${entryId || ''}|${field || ''}`;
+}
+
+function getListKey(sectionId, groupIdx, itemIdx) {
+  return `${sectionId}|${groupIdx}|list|${itemIdx}`;
+}
+
+function getVal(key) { return saved[key] || ''; }
+function setVal(key, val) {
+  if (val.trim()) saved[key] = val.trim();
+  else delete saved[key];
+  persist();
+}
+
+// Removal tracking
+function removeKey(sectionId, groupIdx, entryId) {
+  return `__removed|${sectionId}|${groupIdx}|${entryId}`;
+}
+function removeListKey(sectionId, groupIdx, itemIdx) {
+  return `__removed|${sectionId}|${groupIdx}|list|${itemIdx}`;
+}
+function isRemoved(rKey) { return saved[rKey] === true; }
+function markRemoved(rKey) { saved[rKey] = true; persist(); render(); }
+function unmarkRemoved(rKey) { delete saved[rKey]; persist(); render(); }
+
+function totalFields() {
+  let count = 0;
+  for (const sec of SECTIONS) {
+    for (let gi = 0; gi < sec.groups.length; gi++) {
+      const g = sec.groups[gi];
+      if (g.type === 'table') {
+        for (const e of g.entries) {
+          if (!isRemoved(removeKey(sec.id, gi, e.id))) {
+            count += g.fields.length;
+          }
+        }
+      } else if (g.type === 'list') {
+        for (let li = 0; li < g.current.length; li++) {
+          if (!isRemoved(removeListKey(sec.id, gi, li))) {
+            count++;
+          }
+        }
+      }
+    }
+  }
+  return count;
+}
+
+function filledFields() {
+  let count = 0;
+  for (const key in saved) {
+    if (key.startsWith('__removed|')) continue;
+    if (typeof saved[key] === 'string' && saved[key].trim()) count++;
+  }
+  return count;
+}
+
+function removedCount() {
+  let count = 0;
+  for (const key in saved) {
+    if (key.startsWith('__removed|') && saved[key] === true) count++;
+  }
+  return count;
+}
+
+function updateProgress() {
+  const total = totalFields();
+  const filled = filledFields();
+  const pct = total ? Math.round((filled / total) * 100) : 0;
+  const removed = removedCount();
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${filled} / ${total} filled (${pct}%)` + (removed ? ` | ${removed} removed` : '');
+
+  // Update entry styling
+  document.querySelectorAll('.entry, .list-entry').forEach(el => {
+    const inputs = el.querySelectorAll('input[type="text"], textarea');
+    let hasFill = false;
+    inputs.forEach(inp => { if (inp.value.trim()) hasFill = true; });
+    el.classList.toggle('filled', hasFill);
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function render() {
+  const main = document.getElementById('main');
+  const nav = document.getElementById('navBar');
+  let html = '';
+  let navHtml = '';
+
+  for (const sec of SECTIONS) {
+    navHtml += `<a href="#${sec.id}">${sec.title}</a>`;
+    html += `<section id="${sec.id}">`;
+    html += `<h2>${escHtml(sec.title)} <span class="file-path">${escHtml(sec.file)}</span></h2>`;
+
+    for (let gi = 0; gi < sec.groups.length; gi++) {
+      const g = sec.groups[gi];
+      html += `<h3 class="sub-heading">${escHtml(g.heading)}</h3>`;
+
+      if (g.type === 'table') {
+        for (const e of g.entries) {
+          const rKey = removeKey(sec.id, gi, e.id);
+          const removed = isRemoved(rKey);
+          html += `<div class="entry${removed ? ' removed' : ''}" data-section="${sec.id}" data-group="${gi}" data-entry="${e.id}">`;
+          html += `<div class="entry-header"><span class="entry-id">${escHtml(e.id)}</span>`;
+          if (removed) {
+            html += `<button class="btn-restore" onclick="unmarkRemoved('${escHtml(rKey)}')">Restore</button>`;
+          } else {
+            html += `<button class="btn-remove" onclick="markRemoved('${escHtml(rKey)}')">Remove</button>`;
+          }
+          html += `</div>`;
+          for (const f of g.fields) {
+            const key = getKey(sec.id, gi, e.id, f);
+            const cur = e.current[f] || '';
+            const val = getVal(key);
+            if (cur) {
+              html += `<div class="current-text">${escHtml(cur)}</div>`;
+            }
+            const isLong = cur.length > 60 || f === 'desc' || f === 'flavor';
+            if (isLong) {
+              html += `<textarea data-key="${escHtml(key)}" placeholder="Your ${f}...">${escHtml(val)}</textarea>`;
+            } else {
+              html += `<input type="text" data-key="${escHtml(key)}" placeholder="Your ${f}..." value="${escHtml(val)}">`;
+            }
+          }
+          html += `</div>`;
+        }
+      } else if (g.type === 'list') {
+        for (let li = 0; li < g.current.length; li++) {
+          const key = getListKey(sec.id, gi, li);
+          const rKey = removeListKey(sec.id, gi, li);
+          const removed = isRemoved(rKey);
+          const cur = g.current[li];
+          const val = getVal(key);
+          html += `<div class="list-entry${removed ? ' removed' : ''}" data-section="${sec.id}" data-group="${gi}" data-idx="${li}">`;
+          html += `<div class="entry-header"><label>#${li + 1}</label>`;
+          if (removed) {
+            html += `<button class="btn-restore" onclick="unmarkRemoved('${escHtml(rKey)}')">Restore</button>`;
+          } else {
+            html += `<button class="btn-remove" onclick="markRemoved('${escHtml(rKey)}')">Remove</button>`;
+          }
+          html += `</div>`;
+          html += `<div class="list-current">${escHtml(cur)}</div>`;
+          const isLong = cur.length > 60;
+          if (isLong) {
+            html += `<textarea data-key="${escHtml(key)}" placeholder="Your replacement...">${escHtml(val)}</textarea>`;
+          } else {
+            html += `<input type="text" data-key="${escHtml(key)}" placeholder="Your replacement..." value="${escHtml(val)}">`;
+          }
+          html += `</div>`;
+        }
+      }
+    }
+    html += `</section>`;
+  }
+
+  main.innerHTML = html;
+  nav.innerHTML = navHtml;
+
+  // Bind events
+  main.querySelectorAll('input[type="text"], textarea').forEach(el => {
+    el.addEventListener('input', () => {
+      setVal(el.dataset.key, el.value);
+    });
+  });
+
+  updateProgress();
+}
+
+// =========================================================================
+// IMPORT / EXPORT
+// =========================================================================
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(saved, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'icerimworld-lore.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('JSON exported!');
+}
+
+function loadJSON() {
+  document.getElementById('fileInput').click();
+}
+
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      saved = data;
+      persist();
+      render();
+      showToast('JSON imported! ' + filledFields() + ' fields, ' + removedCount() + ' removed.');
+    } catch(err) {
+      alert('Invalid JSON file.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+function clearAll() {
+  if (!confirm('Clear ALL your entries? This cannot be undone.')) return;
+  saved = {};
+  persist();
+  render();
+  showToast('All entries cleared.');
+}
+
+function exportLua() {
+  // Build a structured export that maps section/group/entry/field → new value
+  // Organized by file for easy patching
+  let output = '-- IceRimworld Lore Patch\n-- Generated from lore-adlib.html\n-- Apply these replacements to the listed files.\n\n';
+
+  for (const sec of SECTIONS) {
+    let sectionHasContent = false;
+    let sectionOutput = `-- ========== ${sec.file} ==========\n`;
+
+    for (let gi = 0; gi < sec.groups.length; gi++) {
+      const g = sec.groups[gi];
+      let groupHasContent = false;
+      let groupOutput = `-- ${g.heading}\n`;
+
+      if (g.type === 'table') {
+        for (const e of g.entries) {
+          const rKey = removeKey(sec.id, gi, e.id);
+          if (isRemoved(rKey)) {
+            groupOutput += `-- [${e.id}]: REMOVE ENTIRE ENTRY\n`;
+            groupHasContent = true;
+            continue;
+          }
+          for (const f of g.fields) {
+            const key = getKey(sec.id, gi, e.id, f);
+            const val = getVal(key);
+            if (val) {
+              groupOutput += `-- [${e.id}].${f}: "${val.replace(/"/g, '\\"')}"\n`;
+              groupHasContent = true;
+            }
+          }
+        }
+      } else if (g.type === 'list') {
+        for (let li = 0; li < g.current.length; li++) {
+          const rKey = removeListKey(sec.id, gi, li);
+          if (isRemoved(rKey)) {
+            groupOutput += `-- [${li + 1}]: REMOVE — was "${g.current[li].replace(/"/g, '\\"')}"\n`;
+            groupHasContent = true;
+            continue;
+          }
+          const key = getListKey(sec.id, gi, li);
+          const val = getVal(key);
+          if (val) {
+            groupOutput += `-- [${li + 1}]: "${val.replace(/"/g, '\\"')}"\n`;
+            groupHasContent = true;
+          }
+        }
+      }
+
+      if (groupHasContent) {
+        sectionOutput += groupOutput + '\n';
+        sectionHasContent = true;
+      }
+    }
+
+    if (sectionHasContent) {
+      output += sectionOutput + '\n';
+    }
+  }
+
+  if (filledFields() === 0 && removedCount() === 0) {
+    alert('No entries filled in or removed yet.');
+    return;
+  }
+
+  const blob = new Blob([output], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'icerimworld-lore-patch.lua';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Lua patch file exported!');
+}
+
+// =========================================================================
+// INIT
+// =========================================================================
+
+loadSaved();
+render();
+
+// Smooth scroll for nav
+document.getElementById('navBar').addEventListener('click', (e) => {
+  if (e.target.tagName === 'A') {
+    e.preventDefault();
+    const id = e.target.getAttribute('href').slice(1);
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+</script>
+
+</body>
+</html>

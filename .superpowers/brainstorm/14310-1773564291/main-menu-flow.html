@@ -1,0 +1,44 @@
+<h2>Main Menu: How should the new game flow work?</h2>
+<p class="subtitle">Currently everything is on one screen. RimWorld spreads setup across sequential screens. Which flow fits Frosthold?</p>
+
+<div class="section">
+  <h3>Current Frosthold Flow</h3>
+  <div style="display:flex;gap:8px;align-items:center;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:20px;flex-wrap:wrap;">
+    <div style="background:#2a2a3a;padding:8px 16px;border-radius:6px;border:1px solid #555;font-size:13px;">Main Menu<br><span style="color:#888;font-size:11px;">(scenario+difficulty+director)</span></div>
+    <span style="color:#666;">→</span>
+    <div style="background:#2a2a3a;padding:8px 16px;border-radius:6px;border:1px solid #555;font-size:13px;">Crew Select</div>
+    <span style="color:#666;">→</span>
+    <div style="background:#2a2a3a;padding:8px 16px;border-radius:6px;border:1px solid #555;font-size:13px;">Play</div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>RimWorld-style Sequential Screens</h3>
+      <p><strong>Main Menu</strong> (New Colony / Load / Options / Credits / Quit) → <strong>Choose Scenario</strong> → <strong>Choose Difficulty + AI Director</strong> → <strong>Landing Site</strong> (new!) → <strong>Crew Select</strong> → Play</p>
+      <p style="color:#aaa;font-size:13px;">Each screen focused on one decision. Matches RimWorld's pacing. Biggest change from current.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Hybrid: Clean Main Menu + Combined Setup</h3>
+      <p><strong>Main Menu</strong> (New Colony / Load / Options / Credits / Quit) → <strong>Setup Screen</strong> (scenario + difficulty + director, like current but polished) → <strong>Landing Site</strong> (new!) → <strong>Crew Select</strong> → Play</p>
+      <p style="color:#aaa;font-size:13px;">Adds a proper main menu and landing site, but keeps the 3-column setup for faster starts.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Full Sequential + World Generation</h3>
+      <p><strong>Main Menu</strong> → <strong>Scenario</strong> → <strong>Difficulty</strong> → <strong>AI Director</strong> → <strong>Create World</strong> (seed, map size, factions) → <strong>Landing Site</strong> → <strong>Crew Select</strong> → Play</p>
+      <p style="color:#aaa;font-size:13px;">Full RimWorld parity. Most screens to build, most player control. Could feel slow for repeat plays.</p>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:24px;">Which flow matches your vision? Or suggest a different split.</p>

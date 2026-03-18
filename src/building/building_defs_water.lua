@@ -1,0 +1,88 @@
+-- building_defs_water.lua — Water vehicles and structures for ocean/flooding maps
+local Tiles = require('src.world.tiles')
+
+return {
+    -- Rafts (basic water transport, no research needed)
+    raft = {
+        name = 'Raft', desc = 'Simple wooden platform. Floats on water. One colonist can ride it across bodies of water.',
+        w = 1, h = 1,
+        tile = Tiles.PONTOON or 74,
+        cost = { wood = 15 },
+        entitySpawn = 'water_vehicle',
+        waterVehicleType = 'raft',
+        capacity = 1,
+        speed = 0.5,
+        category = 'logistics',
+    },
+    rowboat = {
+        name = 'Rowboat', desc = 'Small wooden boat. Carries 2 colonists or 1 colonist with cargo across water.',
+        w = 1, h = 1,
+        tile = Tiles.PONTOON or 74,
+        cost = { wood = 25, hide = 5 },
+        entitySpawn = 'water_vehicle',
+        waterVehicleType = 'rowboat',
+        capacity = 2,
+        speed = 0.8,
+        category = 'logistics',
+    },
+    fishing_boat = {
+        name = 'Fishing Boat', desc = 'Equipped for deep water fishing. Produces food while stationed on water.',
+        w = 1, h = 1,
+        tile = Tiles.PONTOON or 74,
+        cost = { wood = 30, hide = 10, metal = 5 },
+        entitySpawn = 'water_vehicle',
+        waterVehicleType = 'fishing_boat',
+        capacity = 1,
+        speed = 0.6,
+        fishingYield = 2,
+        category = 'production',
+    },
+    cargo_barge = {
+        name = 'Cargo Barge', desc = 'Heavy transport barge. Slow but carries large amounts of materials across water.',
+        w = 2, h = 1,
+        tile = Tiles.PONTOON or 74,
+        cost = { wood = 40, metal = 15 },
+        entitySpawn = 'water_vehicle',
+        waterVehicleType = 'cargo_barge',
+        capacity = 6,
+        speed = 0.3,
+        category = 'logistics',
+    },
+    motorboat = {
+        name = 'Motorboat', desc = 'Powered watercraft. Fast transport across open water. Requires fuel.',
+        w = 1, h = 1,
+        tile = Tiles.PONTOON or 74,
+        cost = { metal = 20, components = 10, wood = 10 },
+        entitySpawn = 'water_vehicle',
+        waterVehicleType = 'motorboat',
+        capacity = 3,
+        speed = 2.0,
+        fuelRate = 0.05,
+        category = 'logistics',
+    },
+
+    -- Water structures
+    floating_platform = {
+        name = 'Floating Platform', desc = 'Large stable platform anchored on water. Buildable surface for structures.',
+        w = 3, h = 3,
+        tile = Tiles.PONTOON or 74,
+        cost = { wood = 30, metal = 10 },
+        category = 'structure',
+    },
+    water_pump_station = {
+        name = 'Water Pump Station', desc = 'Extracts fresh water from ocean. Must be placed on water tiles.',
+        w = 1, h = 1,
+        cost = { metal = 15, pipe = 5 },
+        entitySpawn = 'machine',
+        machineType = 'water_pump_station',
+        powerDraw = 10,
+        category = 'production',
+    },
+    seawall = {
+        name = 'Seawall', desc = 'Reinforced barrier that blocks water flow. Protects against flooding and waves.',
+        w = 1, h = 1,
+        tile = Tiles.SEALED_WALL or 77,
+        cost = { stone = 10, metal = 5 },
+        category = 'structure',
+    },
+}
