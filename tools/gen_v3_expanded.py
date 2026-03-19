@@ -22,7 +22,7 @@ from gen_pools_core import (
     RELATIONSHIP_TYPES,
     ROBOT_MODELS, ROBOT_CONDITIONS_HARDWARE, ROBOT_CONDITIONS_SOFTWARE,
     ROBOT_PARTS, ROBOT_SECRETS, SENTIENCE_LEVELS,
-    ROBOT_ECONOMIC, ROBOT_STATS,
+    ROBOT_ECONOMIC, ROBOT_STATS, ROBOT_MOTIVATIONS,
     generate_robot_stats,
     name, rname, robot_name, pronouns,
 )
@@ -395,6 +395,16 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
     # --- Secret ---
     robot_secret = R(ROBOT_SECRETS)
 
+    # --- Robot motivation (weighted by sentience -- higher sentience, more complex motivations) ---
+    # Standard/adaptive units get directive/obedience, higher sentience gets the full spectrum
+    if sentience_level in ("standard", "adaptive"):
+        robot_mot_pool = [m for m in ROBOT_MOTIVATIONS if m["type"] in ("directive", "obedience")]
+        if not robot_mot_pool:
+            robot_mot_pool = ROBOT_MOTIVATIONS
+    else:
+        robot_mot_pool = ROBOT_MOTIVATIONS
+    robot_motivation = R(robot_mot_pool)
+
     # --- Chassis description ---
     chassis_pool = [
         "Standard " + model_name + " frame. " + manufacturer + " branding partially worn. Serial number legible under UV light.",
@@ -629,6 +639,9 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         + sentience_behav[0].upper() + sentience_behav[1:] + "\n"
         "\n"
         + quirk + "\n"
+        "\n"
+        "**Motivation:** " + robot_motivation["motivation"]
+        + (" (hidden)" if robot_motivation["hidden"] else "") + "\n"
         "\n"
         "**Secret:** " + desig + " " + robot_secret
         + npc_line + "\n"

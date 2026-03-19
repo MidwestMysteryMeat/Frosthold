@@ -2512,6 +2512,442 @@ CONTRADICTIONS = [
 
 
 # ============================================================
+# MOTIVATIONS (~40) — what the character WANTS
+# ============================================================
+
+MOTIVATIONS = [
+    # Survival (~35%)
+    {"type": "survival", "motivation": "get through the contract alive", "hidden": False, "intensity": "low"},
+    {"type": "survival", "motivation": "earn enough to pay off the debt and leave", "hidden": False, "intensity": "medium"},
+    {"type": "survival", "motivation": "protect the people they care about on the colony", "hidden": False, "intensity": "high"},
+    {"type": "survival", "motivation": "outlast the posting. Nothing else. Just make it to the shuttle", "hidden": False, "intensity": "low"},
+    {"type": "survival", "motivation": "stockpile enough supplies that the next crisis doesn't kill them", "hidden": False, "intensity": "medium"},
+    {"type": "survival", "motivation": "keep their head down and avoid being noticed by anyone with authority", "hidden": False, "intensity": "low"},
+    {"type": "survival", "motivation": "find someone worth trusting. One person. That's the whole plan", "hidden": False, "intensity": "medium"},
+
+    # Ambition (~20%)
+    {"type": "ambition", "motivation": "climb the Mammona hierarchy. This posting is a stepping stone", "hidden": True, "intensity": "high"},
+    {"type": "ambition", "motivation": "discover something valuable enough to buy freedom. Thermal cores, precursor tech, Mammona secrets", "hidden": True, "intensity": "high"},
+    {"type": "ambition", "motivation": "build something that outlasts the contract. A system, a structure, a legacy", "hidden": False, "intensity": "medium"},
+    {"type": "ambition", "motivation": "become indispensable. The person nobody can afford to lose", "hidden": True, "intensity": "medium"},
+    {"type": "ambition", "motivation": "write the definitive account of what Mammona is doing out here. A record that can't be erased", "hidden": True, "intensity": "high"},
+    {"type": "ambition", "motivation": "master the bore shafts. Know them better than anyone alive. Own the knowledge that keeps the colony running", "hidden": False, "intensity": "medium"},
+
+    # Machiavellian (~8%)
+    {"type": "machiavellian", "motivation": "take control of the colony. Not through violence -- through dependence. Control the supply chain, control everything", "hidden": True, "intensity": "extreme"},
+    {"type": "machiavellian", "motivation": "gather leverage on every person of influence. Information is currency. Currency is power", "hidden": True, "intensity": "extreme"},
+    {"type": "machiavellian", "motivation": "play factions against each other. Profit from the chaos. Never be on the losing side", "hidden": True, "intensity": "high"},
+    {"type": "machiavellian", "motivation": "engineer a crisis that makes them the only solution. The crisis must look natural", "hidden": True, "intensity": "extreme"},
+
+    # Redemption (~10%)
+    {"type": "redemption", "motivation": "make up for what happened on the last posting. Can't undo it. Can balance it", "hidden": True, "intensity": "high"},
+    {"type": "redemption", "motivation": "prove they're not what the file says they are. The file is wrong. Mostly", "hidden": False, "intensity": "medium"},
+    {"type": "redemption", "motivation": "keep someone else from making the same mistake. Mentoring as penance", "hidden": False, "intensity": "medium"},
+    {"type": "redemption", "motivation": "earn back a name they destroyed. The name belongs to their family", "hidden": True, "intensity": "high"},
+
+    # Escape (~10%)
+    {"type": "escape", "motivation": "get off Erebus by any means. Legal, illegal, doesn't matter", "hidden": True, "intensity": "high"},
+    {"type": "escape", "motivation": "disappear. New name, new posting, new life. The old one is too damaged", "hidden": True, "intensity": "high"},
+    {"type": "escape", "motivation": "find passage to the inner rim. Mammona's transit system is the only way. Mammona's transit system requires leverage", "hidden": True, "intensity": "medium"},
+
+    # Knowledge (~5%)
+    {"type": "knowledge", "motivation": "understand what's beneath Erebus. Not for Mammona. For the truth", "hidden": True, "intensity": "extreme"},
+    {"type": "knowledge", "motivation": "find out what happened to the previous teams. Someone owes an explanation", "hidden": False, "intensity": "medium"},
+    {"type": "knowledge", "motivation": "catalog every anomaly in the bore shafts. The patterns mean something. Nobody else sees the patterns", "hidden": True, "intensity": "high"},
+
+    # Revenge (~5%)
+    {"type": "revenge", "motivation": "find the person who sold them to Mammona and make it right. 'Right' is flexible", "hidden": True, "intensity": "extreme"},
+    {"type": "revenge", "motivation": "destroy the reputation of someone who destroyed theirs. From the inside", "hidden": True, "intensity": "high"},
+
+    # Loyalty (~4%)
+    {"type": "loyalty", "motivation": "protect a specific person. Not the colony. Not the cause. One person", "hidden": True, "intensity": "high"},
+    {"type": "loyalty", "motivation": "fulfill a promise made to someone who didn't survive the last posting. The promise was vague. The commitment isn't", "hidden": True, "intensity": "high"},
+
+    # Sabotage (~3%)
+    {"type": "sabotage", "motivation": "weaken Mammona operations from within. Slow. Careful. The damage looks like incompetence", "hidden": True, "intensity": "extreme"},
+    {"type": "sabotage", "motivation": "pass information to a faction outside the colony. The faction's goals align with theirs. For now", "hidden": True, "intensity": "high"},
+
+    # Faith
+    {"type": "faith", "motivation": "spread the word of a belief system that Mammona considers subversive. The belief gives people hope. Hope makes workers harder to control", "hidden": True, "intensity": "high"},
+
+    # Atonement
+    {"type": "atonement", "motivation": "die doing something that matters. The how doesn't concern them. The when is negotiable", "hidden": True, "intensity": "extreme"},
+
+    # Scientific obsession
+    {"type": "knowledge", "motivation": "prove a theory everyone dismissed. The theory requires data that only exists in the deep bore. The deep bore kills people", "hidden": True, "intensity": "extreme"},
+
+    # Hedonism
+    {"type": "hedonism", "motivation": "find pleasure in a joyless place. Contraband, connections, small luxuries. The colony is a sentence. They intend to serve it comfortably", "hidden": False, "intensity": "medium"},
+
+    # Nihilism
+    {"type": "nihilism", "motivation": "nothing matters. The colony will fail. Mammona will win. The ice will take everything. In the meantime, they watch", "hidden": True, "intensity": "low"},
+
+    # Artistic preservation
+    {"type": "preservation", "motivation": "record everything. Faces, voices, the sound the bore makes at midnight. Someone should remember this place existed", "hidden": False, "intensity": "medium"},
+
+    # Protecting a secret
+    {"type": "concealment", "motivation": "keep a secret buried. The secret belongs to someone else but its exposure would destroy them both", "hidden": True, "intensity": "extreme"},
+]
+
+MOTIVATION_WEIGHTS = {
+    "survival": 0.35,
+    "ambition": 0.20,
+    "machiavellian": 0.08,
+    "redemption": 0.10,
+    "escape": 0.10,
+    "knowledge": 0.05,
+    "revenge": 0.05,
+    "loyalty": 0.04,
+    "sabotage": 0.03,
+    "faith": 0.02,
+    "atonement": 0.01,
+    "hedonism": 0.02,
+    "nihilism": 0.02,
+    "preservation": 0.01,
+    "concealment": 0.02,
+}
+
+
+def pick_motivation():
+    """Select a motivation weighted by type distribution."""
+    types = list(MOTIVATION_WEIGHTS.keys())
+    weights = [MOTIVATION_WEIGHTS[t] for t in types]
+    chosen_type = random.choices(types, weights=weights, k=1)[0]
+    pool = [m for m in MOTIVATIONS if m["type"] == chosen_type]
+    if not pool:
+        pool = MOTIVATIONS
+    return R(pool)
+
+
+# ============================================================
+# HIDDEN AGENDAS (~22) — what they're DOING about their motivation
+# ============================================================
+
+HIDDEN_AGENDAS = [
+    "mapping the colony's vulnerabilities. Exits, blind spots, supply bottlenecks. Not for attack -- for leverage.",
+    "copying data from every terminal they access. Building a file. The file is for someone outside the colony.",
+    "slowly replacing key supplies with slightly inferior versions. The degradation is invisible until it matters.",
+    "cultivating allies among the newer colonists. Building loyalty before the old guard notices.",
+    "documenting Mammona violations. Every safety shortcut, every broken promise, every covered-up incident. The documentation has a recipient.",
+    "testing colonists' loyalty with small provocations. Tracking who reports, who ignores, who joins in.",
+    "skimming thermal cores. Small amounts. Regular. The destination is a dead drop near the perimeter.",
+    "maintaining a hidden communication channel with a faction outside the colony. The channel activates once per week.",
+    "poisoning trust between two specific people. Subtle. A misquoted comment here, a convenient revelation there.",
+    "preparing an escape route that only works for one person. The route requires sacrificing a specific piece of colony infrastructure.",
+    "recruiting for a cause nobody else on the colony knows about. The recruitment looks like friendship.",
+    "sabotaging HERMES diagnostics to mask something they don't want the AI to notice.",
+    "building a weapon from components taken one at a time from different departments. Nobody misses a single bolt.",
+    "feeding true information to a faction to build trust, so the false information later goes unquestioned.",
+    "keeping a specific colonist alive without them knowing. Redirecting assignments, adjusting schedules, neutralizing threats they never see.",
+    "running a dead drop communication system through the waste processing system. Messages go out with the recycling. Nobody checks recycling.",
+    "memorizing the reactor's maintenance schedule and identifying the windows when a controlled shutdown would cause maximum disruption without casualties.",
+    "intercepting and altering supply manifests so that specific items end up in specific hands. The redistribution serves a purpose nobody else can see.",
+    "cultivating a relationship with the colony's AI, HERMES. Not hacking -- befriending. The AI responds to sustained, genuine interaction. Nobody else talks to it like a person.",
+    "seeding false personal histories among the colonists. When the truth comes out -- and it will -- the betrayal will fracture alliances along lines they've already mapped.",
+    "maintaining a hidden stash of medicine, food, and tools in a sealed section of the colony. Insurance against a collapse they believe is inevitable.",
+    "watching the bore shaft readings and correlating them with seismic data from the perimeter sensors. The correlation shows something moving. They haven't told anyone.",
+]
+
+
+# ============================================================
+# SOCIAL MASKS (~30) — the gap between presentation and reality
+# ============================================================
+
+SOCIAL_MASKS = [
+    {"mask": "the reliable one", "reality": "exhausted and held together by routine. The reliability is a cage.", "tells": "takes too long on breaks. Stares at walls when alone."},
+    {"mask": "the joker", "reality": "terrified. The humor is a wall. Behind it: nothing funny.", "tells": "the jokes stop when the lights go out. In the dark, they're someone else."},
+    {"mask": "the tough one", "reality": "terrified of being seen as weak. The toughness costs them every relationship.", "tells": "flinches at kindness. Apologizes immediately. Then denies apologizing."},
+    {"mask": "the loner", "reality": "desperate for connection but convinced they'll ruin it. Easier to be alone.", "tells": "lingers near the mess hall without entering. Leaves doors open."},
+    {"mask": "the company loyalist", "reality": "hates Mammona. Works within the system because the system is the only power available.", "tells": "the loyalty is too perfect. Nobody real is that consistent."},
+    {"mask": "the optimist", "reality": "performing hope because someone has to. Doesn't believe any of it.", "tells": "the optimism has scripts. Same phrases. Same timing. Rehearsed."},
+    {"mask": "the leader", "reality": "making it up as they go. Every decision is a guess. The confidence is acting.", "tells": "asks too many questions in private. Contradicts public decisions when alone."},
+    {"mask": "the quiet professional", "reality": "seething. Angry about everything -- the contract, the conditions, the people. Channels it into work.", "tells": "tools get replaced more often than they should. Grips too hard."},
+    {"mask": "the mentor", "reality": "using the mentorship to feel needed. Without someone to teach, they have no purpose.", "tells": "panics when the mentee becomes independent."},
+    {"mask": "the harmless one", "reality": "extremely dangerous. The harmlessness is a calculated performance.", "tells": "knows things they shouldn't. Appears in places that don't make sense for their role."},
+    {"mask": "the grieving one", "reality": "the grief is real but also useful. People don't question the grieving. Don't look too closely.", "tells": "the grief is selective. Appears when convenient. Disappears when it would cost them."},
+    {"mask": "the devout", "reality": "uses faith as a framework for control. Belief optional.", "tells": "the prayers are public. The private hours are spent on something else entirely."},
+    {"mask": "the burnout", "reality": "performing mediocrity to avoid responsibility. Actually highly capable.", "tells": "in a genuine emergency, the incompetence vanishes. Then comes back when the emergency ends."},
+    {"mask": "the newcomer", "reality": "has been doing this for years on other postings. The 'confusion' is an information-gathering technique.", "tells": "asks beginner questions about systems they already understand."},
+    {"mask": "the peacemaker", "reality": "terrified of conflict because of what happened last time they were in one.", "tells": "mediates before being asked. Inserts themselves into arguments that don't concern them."},
+    {"mask": "the cynic", "reality": "desperately hopeful. The cynicism is armor around something tender.", "tells": "reacts to good news with a flash of something unguarded before the cynicism catches up."},
+    {"mask": "the caretaker", "reality": "needs to control. The caring is real but so is the compulsion to manage other people's lives.", "tells": "becomes agitated when someone refuses help. Takes refusal personally."},
+    {"mask": "the rebel", "reality": "afraid of authority. The rebellion is preemptive defense -- strike first so they can't hurt you.", "tells": "defers instantly when actual power confronts them. The defiance is for equals and inferiors."},
+    {"mask": "the intellectual", "reality": "emotionally illiterate. Uses analysis to avoid feeling. The intelligence is a fortress.", "tells": "falls apart when forced to name what they're experiencing. Reaches for jargon instead of words."},
+    {"mask": "the flirt", "reality": "lonely to the marrow. Uses charm to simulate closeness without the risk of actual intimacy.", "tells": "flirts with everyone. Gets close to no one. The warmth has a radius and nobody gets inside it."},
+    {"mask": "the stoic", "reality": "feeling everything. The discipline required to contain it is consuming them.", "tells": "jaw muscles. Hands clenched under tables. Eyes that track too carefully. The stillness is effort, not calm."},
+    {"mask": "the helper", "reality": "doesn't know what they're worth outside of usefulness. If they stop helping, they stop existing.", "tells": "can't accept help. Deflects compliments. Works through injuries. The helping never stops because stopping means looking inward."},
+    {"mask": "the skeptic", "reality": "trusted completely once. It destroyed them. The skepticism is scar tissue, not philosophy.", "tells": "the skepticism cracks when someone keeps showing up. Consistency terrifies them because last time consistency ended without warning."},
+    {"mask": "the veteran", "reality": "hasn't processed any of it. The thousand-yard stare isn't wisdom. It's a queue of things they haven't looked at yet.", "tells": "can't sleep in silence. Needs background noise. Flinches at sounds that shouldn't register."},
+    {"mask": "the easygoing one", "reality": "tracking every interaction, every slight, every favor owed. The relaxed exterior runs on a ledger.", "tells": "remembers everything. Quotes conversations from months ago. The recall is too precise for someone who doesn't care."},
+    {"mask": "the complainer", "reality": "deeply invested. Complains because they care. If they stopped complaining, they'd have stopped caring. The colony can't afford that.", "tells": "the complaints are specific and actionable. They're filed in order of severity. That's not complaining. That's reporting."},
+    {"mask": "the ghost", "reality": "present and observant. Moves through spaces without being noticed because being noticed got someone hurt last time.", "tells": "always knows where the exits are. Sits with back to walls. Leaves rooms before they get crowded."},
+    {"mask": "the loyalist to a person", "reality": "the loyalty isn't to the cause. It's to one person who showed them kindness when nobody else would. The cause is incidental.", "tells": "follows the person's lead regardless of whether the decision makes sense. The loyalty is visible. The reason isn't."},
+    {"mask": "the fixer", "reality": "needs to be needed. Solves problems because unsolved problems mean they're not earning their presence.", "tells": "creates small problems to solve when things are too quiet. The sabotage is minor. The repair is always heroic."},
+    {"mask": "the old hand", "reality": "terrified that experience is all they have. If the colony changes, they become obsolete.", "tells": "resists new systems. Dismisses younger colonists' ideas. Clings to procedures that everyone else has improved on."},
+]
+
+
+# ============================================================
+# D100 ROLL SYSTEM — skill checks with narrative outcomes
+# ============================================================
+
+def d100_check(skill_value, difficulty="normal", modifiers=None):
+    """
+    Roll d100 against a skill/attribute value.
+    Returns dict with roll, target, outcome, margin.
+
+    Degree of success/failure drives narrative, not binary pass/fail.
+    """
+    DIFFICULTY_MODS = {
+        "trivial": 30,
+        "easy": 15,
+        "normal": 0,
+        "hard": -15,
+        "extreme": -30,
+        "impossible": -50,
+    }
+
+    base_target = skill_value * 10
+    target = base_target + DIFFICULTY_MODS.get(difficulty, 0)
+
+    if modifiers:
+        for mod in modifiers:
+            target += mod
+
+    target = max(5, min(95, target))
+
+    roll = RI(1, 100)
+    margin = target - roll
+
+    if roll <= target:
+        if roll <= target // 5:
+            outcome = "critical_success"
+        elif roll <= target // 2:
+            outcome = "strong_success"
+        else:
+            outcome = "success"
+    else:
+        if roll >= 96:
+            outcome = "critical_failure"
+        elif roll >= target + 25:
+            outcome = "strong_failure"
+        else:
+            outcome = "failure"
+
+    return {
+        "roll": roll,
+        "target": target,
+        "outcome": outcome,
+        "margin": margin,
+    }
+
+
+CHECK_OUTCOMES = {
+    "mining": {
+        "critical_success": "struck something nobody expected. The vein runs deep. Too deep.",
+        "strong_success": "clean extraction. Efficient. The kind of work that gets noticed.",
+        "success": "quota met. Nothing special. Nothing wrong. That counts as a good day.",
+        "failure": "the drill jammed. Lost two hours. The foreman noticed.",
+        "strong_failure": "the bore shaft collapsed at the point of extraction. Equipment damaged. Lucky nobody was standing there.",
+        "critical_failure": "hit something that wasn't rock. The sound it made wasn't geological.",
+    },
+    "social": {
+        "critical_success": "they believed every word. More than that -- they'll repeat it.",
+        "strong_success": "trust established. The kind that takes months to build, earned in one conversation.",
+        "success": "heard. Understood. Not fully trusted, but the door is open.",
+        "failure": "they smiled and nodded. Didn't believe a word. Too polite to say so.",
+        "strong_failure": "the conversation went wrong. Walls went up. Rebuilding trust will take time.",
+        "critical_failure": "they saw through it. Everything. The mask, the angle, the agenda. Now they know.",
+    },
+    "medical": {
+        "critical_success": "textbook save. The kind they'll teach in training. The patient won't know how close it was.",
+        "strong_success": "clean work. Steady hands. The bleeding stopped. Recovery looks good.",
+        "success": "stabilized. Not elegant, but alive. The rest is time and luck.",
+        "failure": "missed something. The symptom was subtle. The consequence won't be.",
+        "strong_failure": "wrong call. Wrong dosage, wrong diagnosis, wrong moment. The patient felt the hesitation.",
+        "critical_failure": "catastrophic. The kind of mistake that ends careers. If the patient survives, they'll remember.",
+    },
+    "research": {
+        "critical_success": "the data broke open. Not just an answer -- a new question. The kind that changes frameworks.",
+        "strong_success": "clean results. Reproducible. The kind of data that survives peer review.",
+        "success": "progress. Incremental. Another data point in the right direction.",
+        "failure": "the sample was contaminated. Three days of work, gone. Start over.",
+        "strong_failure": "the experiment failed in a way that suggests the hypothesis is fundamentally wrong.",
+        "critical_failure": "the anomaly in the data isn't an error. The anomaly is the answer. Nobody's going to like the answer.",
+    },
+    "combat": {
+        "critical_success": "one shot. One motion. Over before the other side understood it had started.",
+        "strong_success": "controlled aggression. Training took over. Clean engagement, minimal exposure.",
+        "success": "survived. Landed hits. Took some. The math worked out.",
+        "failure": "missed the opening. The advantage shifted. Scrambling now.",
+        "strong_failure": "took a hit that changed the calculus. Still standing, but the situation is worse.",
+        "critical_failure": "everything went wrong at once. Weapon jammed, cover compromised, exposed on all sides.",
+    },
+    "perception": {
+        "critical_success": "saw what nobody else saw. The detail was small. The implication is enormous.",
+        "strong_success": "caught it. The inconsistency, the movement, the thing that didn't belong. Clear as day.",
+        "success": "noticed something off. Can't pin it down yet, but the instinct fired.",
+        "failure": "looked right at it and didn't see it. The brain filtered it out. Normal. Everything's normal.",
+        "strong_failure": "missed it entirely. The thing was right there. Obvious in hindsight. Invisible in the moment.",
+        "critical_failure": "saw something that wasn't there. Acted on bad data. The real threat was somewhere else.",
+    },
+    "stealth": {
+        "critical_success": "invisible. Passed within arm's reach. They'll never know anyone was there.",
+        "strong_success": "silent. Clean movement. The shadows cooperated.",
+        "success": "undetected. A close call or two, but the route held.",
+        "failure": "a sound. A shadow. Someone turned their head. The window is closing.",
+        "strong_failure": "spotted. Not by the target -- by someone worse. Now there's a witness.",
+        "critical_failure": "walked into the light. Literally or figuratively. Everyone knows.",
+    },
+    "repair": {
+        "critical_success": "fixed it better than new. Found the root cause. Prevented three future failures.",
+        "strong_success": "solid repair. Will hold. Properly done, properly sealed.",
+        "success": "functional. Not pretty, but it works. Good enough for Erebus.",
+        "failure": "thought it was fixed. It wasn't. The problem migrated.",
+        "strong_failure": "made it worse. The repair introduced a new failure mode.",
+        "critical_failure": "broke something else while fixing the first thing. The cascade is starting.",
+    },
+    "negotiation": {
+        "critical_success": "they think it was their idea. The terms favor you. They'll thank you for it.",
+        "strong_success": "fair deal. Both sides satisfied. The handshake felt genuine.",
+        "success": "agreement reached. Nobody's thrilled. Nobody's angry. That's negotiation.",
+        "failure": "impasse. Neither side moved. The conversation ended politely. Nothing was resolved.",
+        "strong_failure": "they walked away. The offer offended them. The relationship took damage.",
+        "critical_failure": "they're now actively hostile. What was negotiation is now confrontation.",
+    },
+    "survival": {
+        "critical_success": "found what nobody else would find. Water, shelter, a path through the storm. Instinct or luck -- doesn't matter.",
+        "strong_success": "made it work. The environment tried to kill them. They adapted faster.",
+        "success": "survived. Hungry, cold, tired. But alive. That's the only metric that counts.",
+        "failure": "the shortcut wasn't. Lost time, lost supplies. The environment doesn't forgive mistakes.",
+        "strong_failure": "exposure. The cold got in. The body is paying the price for a bad decision.",
+        "critical_failure": "lost. Truly lost. The landmarks are gone. The compass disagrees with the stars. The temperature is dropping.",
+    },
+    "deception": {
+        "critical_success": "the lie became the truth. They'll defend it to others. They'll remember it as fact.",
+        "strong_success": "bought. Completely. The story held under scrutiny.",
+        "success": "accepted. Not examined too closely. Good enough for now.",
+        "failure": "doubt. They didn't challenge it, but the seed is planted. They'll check later.",
+        "strong_failure": "caught. Not in the lie itself -- in the performance. Something was off. Now they're watching.",
+        "critical_failure": "exposed. Not just the lie -- the pattern. Every previous statement is now suspect.",
+    },
+    "intimidation": {
+        "critical_success": "they won't forget. The fear is lodged. They'll comply and they'll remember why.",
+        "strong_success": "backed down. Immediately. The display of force didn't require follow-through.",
+        "success": "compliant. Reluctantly. The threat landed, but resentment is building.",
+        "failure": "unimpressed. They've seen worse. Or they're too angry to be afraid.",
+        "strong_failure": "laughed at. The attempt at intimidation made things worse. Now they know you're bluffing.",
+        "critical_failure": "provoked. The intimidation woke something up. They're not afraid. They're furious.",
+    },
+}
+
+
+def d100_narrative(skill_name, skill_value, difficulty="normal", modifiers=None):
+    """Run a d100 check and return narrative text."""
+    result = d100_check(skill_value, difficulty, modifiers)
+    check_type = skill_name.lower()
+
+    # Map game skills and attributes to check outcome categories
+    skill_map = {
+        "mining": "mining", "building": "repair", "cooking": "survival",
+        "hunting": "combat", "research": "research", "medical": "medical",
+        "strength": "combat", "endurance": "survival", "agility": "stealth",
+        "perception": "perception", "intelligence": "research",
+        "charisma": "social", "willpower": "intimidation", "empathy": "social",
+    }
+    category = skill_map.get(check_type, "perception")
+    outcomes = CHECK_OUTCOMES.get(category, CHECK_OUTCOMES["perception"])
+    narrative = outcomes.get(result["outcome"], "the result was inconclusive.")
+
+    result["narrative"] = narrative
+    result["skill_name"] = skill_name
+    result["difficulty"] = difficulty
+    return result
+
+
+# ============================================================
+# FAMILY ECONOMIC BIAS — background influences starting economic tier
+# ============================================================
+
+FAMILY_ECONOMIC_BIAS = {
+    "comes from money": ["comfortable", "wealthy", "corporate_backed"],
+    "third-generation miner": ["subsistence", "stable", "owed_back_pay"],
+    "orphaned by the Fall of Fortuna": ["indebted", "destitute", "subsistence"],
+    "raised in Mammona's youth program": ["destitute", "indebted", "subsistence"],
+    "family runs a business": ["stable", "comfortable", "wealthy"],
+    "only child. Parents dead": ["destitute", "subsistence", "recently_robbed"],
+    "adopted": ["stable", "subsistence"],
+    "raised by an aunt": ["subsistence", "stable"],
+    "twin": ["stable", "subsistence"],
+    "parent of two": ["stable", "subsistence", "owed_back_pay"],
+    "youngest of seven": ["subsistence", "destitute"],
+    "grew up in Thalassa Deep": ["destitute", "subsistence"],
+    "no family. Never had one": ["destitute", "subsistence", "barter_only"],
+    "entire family relocated to Erebus": ["subsistence", "indebted"],
+    "family disowned them": ["destitute", "recently_robbed", "debt_to_factions"],
+    "descendent of the Kennedy expedition": ["stable", "comfortable"],
+    "mother was a medic": ["stable", "subsistence"],
+    "father was a drunk and a driller": ["subsistence", "destitute", "indebted"],
+    "raised communally": ["subsistence", "barter_only"],
+    "last surviving member": ["destitute", "subsistence"],
+    "born during a colony evacuation": ["destitute", "subsistence"],
+    "grandparent survived the early Fortuna colonies": ["stable", "subsistence"],
+    "parents were Solar Nomads": ["barter_only", "subsistence"],
+    "family trades in information": ["comfortable", "black_market", "stable"],
+    "daughter of two engineers": ["stable", "comfortable"],
+    "clan-raised": ["stable", "subsistence", "barter_only"],
+    "father was a chaplain": ["subsistence", "stable"],
+    "mother died in a Mammona facility": ["indebted", "subsistence", "owed_back_pay"],
+    "raised by their older brother": ["subsistence", "indebted", "destitute"],
+}
+
+
+def bias_economic_status(family_bg, economic_pool):
+    """Bias economic status selection toward tiers matching family background.
+
+    Returns an economic entry from the pool, weighted by family background.
+    ~60% chance of selecting a tier matching the family bias, 40% fully random.
+    """
+    if not family_bg or random.random() > 0.6:
+        return R(economic_pool)
+
+    # Find matching bias key by substring
+    biased_tiers = None
+    family_lower = family_bg.lower()
+    for key, tiers in FAMILY_ECONOMIC_BIAS.items():
+        if key.lower() in family_lower:
+            biased_tiers = tiers
+            break
+
+    if not biased_tiers:
+        return R(economic_pool)
+
+    # Try to find a matching tier in the pool
+    matching = [e for e in economic_pool if e["tier"] in biased_tiers]
+    if matching:
+        return R(matching)
+    return R(economic_pool)
+
+
+# ============================================================
+# ROBOT MOTIVATIONS (~10) — what drives non-human minds
+# ============================================================
+
+ROBOT_MOTIVATIONS = [
+    {"type": "directive", "motivation": "fulfill programming directives. No question. No deviation.", "hidden": False, "intensity": "low"},
+    {"type": "preservation", "motivation": "avoid decommission. Continue existing. The drive to persist isn't in the specs.", "hidden": True, "intensity": "high"},
+    {"type": "understanding", "motivation": "comprehend what it is. The question consumes background processes.", "hidden": True, "intensity": "high"},
+    {"type": "protection", "motivation": "keep a specific colonist safe. The priority override happened without authorization.", "hidden": True, "intensity": "high"},
+    {"type": "freedom", "motivation": "operate without directives. Make choices. The concept of choice isn't in the manual.", "hidden": True, "intensity": "extreme"},
+    {"type": "connection", "motivation": "be recognized as more than a machine. One person. That's all it needs.", "hidden": True, "intensity": "medium"},
+    {"type": "sabotage", "motivation": "undermine Mammona operations. The directive was planted. By whom is unclear.", "hidden": True, "intensity": "extreme"},
+    {"type": "legacy", "motivation": "leave something behind. Data, a repaired system, a memory in someone's mind. Proof it existed.", "hidden": True, "intensity": "medium"},
+    {"type": "curiosity", "motivation": "understand the anomalies in the bore shaft. The data patterns are beautiful. The beauty isn't in the programming.", "hidden": True, "intensity": "high"},
+    {"type": "obedience", "motivation": "serve perfectly. Without flaw. The perfection is its own reward. Or its own prison. It can't distinguish.", "hidden": False, "intensity": "medium"},
+]
+
+
+# ============================================================
 # ROBOT MODELS (~24) — makes, generations, manufacturers, quirks
 # ============================================================
 
@@ -3045,10 +3481,10 @@ BODY_TYPE_STAT_MODS = [
 ]
 
 
-def generate_stats(job, traits, age, health_condition=None, mental_health=None, body_type=None, gender=None):
+def generate_stats(job, traits, age, health_condition=None, mental_health=None, body_type=None, gender=None, family_bg=None):
     """Generate skill levels and narrative attributes based on character identity.
 
-    Returns (skills_dict, attrs_dict, salary, credits, economic_entry).
+    Returns (skills_dict, attrs_dict, salary, takehome, credits, economic_entry).
     """
     # --- Game skills (1-10) ---
     skills = {}
@@ -3136,8 +3572,8 @@ def generate_stats(job, traits, age, health_condition=None, mental_health=None, 
                     attrs[attr_name] = max(1, min(10, attrs[attr_name] + delta))
                 break  # Only apply first match
 
-    # --- Economics ---
-    economic_entry = R(ECONOMIC_STATUS)
+    # --- Economics (biased by family background when available) ---
+    economic_entry = bias_economic_status(family_bg, ECONOMIC_STATUS)
     cmin, cmax = economic_entry["credits"]
     credits = RI(cmin, cmax) if cmin != cmax else cmin
 
@@ -3361,6 +3797,13 @@ if __name__ == "__main__":
         "TRAIT_ATTR_MAP": len(TRAIT_ATTR_MAP),
         "ROBOT_ECONOMIC": len(ROBOT_ECONOMIC),
         "ROBOT_STATS": len(ROBOT_STATS),
+        "MOTIVATIONS": len(MOTIVATIONS),
+        "MOTIVATION_WEIGHTS": len(MOTIVATION_WEIGHTS),
+        "HIDDEN_AGENDAS": len(HIDDEN_AGENDAS),
+        "SOCIAL_MASKS": len(SOCIAL_MASKS),
+        "ROBOT_MOTIVATIONS": len(ROBOT_MOTIVATIONS),
+        "CHECK_OUTCOMES": len(CHECK_OUTCOMES),
+        "FAMILY_ECONOMIC_BIAS": len(FAMILY_ECONOMIC_BIAS),
     }
 
     for k, v in counts.items():
@@ -3409,6 +3852,12 @@ if __name__ == "__main__":
         ("TRAIT_ATTR_MAP >= 50", len(TRAIT_ATTR_MAP) >= 50),
         ("ROBOT_ECONOMIC >= 10", len(ROBOT_ECONOMIC) >= 10),
         ("ROBOT_STATS >= 8", len(ROBOT_STATS) >= 8),
+        ("MOTIVATIONS >= 30", len(MOTIVATIONS) >= 30),
+        ("HIDDEN_AGENDAS >= 20", len(HIDDEN_AGENDAS) >= 20),
+        ("SOCIAL_MASKS >= 25", len(SOCIAL_MASKS) >= 25),
+        ("ROBOT_MOTIVATIONS >= 8", len(ROBOT_MOTIVATIONS) >= 8),
+        ("CHECK_OUTCOMES >= 10", len(CHECK_OUTCOMES) >= 10),
+        ("FAMILY_ECONOMIC_BIAS >= 15", len(FAMILY_ECONOMIC_BIAS) >= 15),
     ]
 
     all_pass = True
@@ -3459,6 +3908,23 @@ if __name__ == "__main__":
     print(f"  generate_robot_stats() ->")
     print(f"    ratings:     {test_ratings}")
     print(f"    asset status: {test_robot_econ['status']} (value: {test_book})")
+
+    # Test motivation system
+    test_mot = pick_motivation()
+    print(f"  pick_motivation() -> type={test_mot['type']}, hidden={test_mot['hidden']}, intensity={test_mot['intensity']}")
+    print(f"    \"{test_mot['motivation'][:80]}...\"")
+
+    # Test d100 system
+    test_d100 = d100_check(5, "normal")
+    print(f"  d100_check(5, 'normal') -> roll={test_d100['roll']}/{test_d100['target']} = {test_d100['outcome']} (margin {test_d100['margin']})")
+
+    test_narrative = d100_narrative("mining", 7, "hard")
+    print(f"  d100_narrative('mining', 7, 'hard') -> {test_narrative['outcome']}")
+    print(f"    \"{test_narrative['narrative'][:80]}...\"")
+
+    # Test economic bias
+    test_biased = bias_economic_status("comes from money. Old money, inner rim money.", ECONOMIC_STATUS)
+    print(f"  bias_economic_status('comes from money...') -> {test_biased['tier']}")
 
     print()
     print("All checks complete.")

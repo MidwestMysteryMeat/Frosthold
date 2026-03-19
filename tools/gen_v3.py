@@ -30,7 +30,8 @@ from gen_pools_core import (
     CHARACTER_WEIGHTS, CHARACTER_WEIGHT_KEYS,
     ECONOMIC_STATUS, SALARY_RANGES, MAMMONA_DEDUCTION_TOTAL, MAMMONA_DEDUCTIONS,
     GAME_SKILLS, NARRATIVE_ATTRIBUTES,
-    generate_stats,
+    MOTIVATIONS, MOTIVATION_WEIGHTS, HIDDEN_AGENDAS, SOCIAL_MASKS,
+    generate_stats, pick_motivation, d100_narrative, bias_economic_status,
     name, rname, robot_name, pronouns, pick_traits,
 )
 
@@ -1790,13 +1791,27 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         if hidden_behavioral:
             hidden_behavioral = gender_replace(hidden_behavioral, gender)
 
-    # --- Stats & Economics ---
+    # --- Motivation ---
+    motivation = pick_motivation()
+
+    # --- Hidden agenda (25% chance) ---
+    hidden_agenda = None
+    if random.random() < 0.25:
+        hidden_agenda = R(HIDDEN_AGENDAS)
+
+    # --- Social mask (60% chance) ---
+    social_mask = None
+    if random.random() < 0.60:
+        social_mask = R(SOCIAL_MASKS)
+
+    # --- Stats & Economics (with family-biased economic status) ---
     skills, attrs, salary, takehome, credits, economic_entry = generate_stats(
         job, traits, age,
         health_condition=health_cond,
         mental_health=mental_health_cond,
         body_type=body_type,
         gender=gender,
+        family_bg=family_bg,
     )
 
     # --- Template fill kwargs ---
@@ -1935,6 +1950,9 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         "credits": credits,
         "salary": salary,
         "salary_takehome": takehome,
+        "motivation": motivation,
+        "hidden_agenda": hidden_agenda,
+        "social_mask": social_mask,
     }
     ctx.add_npc(npc_data)
 
@@ -1983,6 +2001,28 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     else:
         econ_line = f"Credits: {credits:,} | No salary — {economic_entry['tier']}"
 
+    # Format motivation line
+    mot_hidden = " (hidden)" if motivation["hidden"] else ""
+    motivation_line = f"{motivation['motivation']}{mot_hidden}"
+
+    # Format hidden agenda line
+    agenda_line = hidden_agenda if hidden_agenda else "None apparent"
+
+    # Format social mask line
+    if social_mask:
+        mask_line = f"Presents as {social_mask['mask']}. Actually: {social_mask['reality']} Tell: {social_mask['tells']}"
+    else:
+        mask_line = "None -- what you see is close to what you get"
+
+    # Generate a sample d100 check using their best skill
+    best_skill = max(skills, key=skills.get)
+    best_val = skills[best_skill]
+    sample_difficulty = R(["normal", "hard", "easy"])
+    sample_check = d100_narrative(best_skill, best_val, sample_difficulty)
+    check_line = (f"{best_skill.capitalize()} ({best_val}) vs {sample_difficulty}: "
+                  f"rolled {sample_check['roll']}/{sample_check['target']} -- "
+                  f"{sample_check['outcome'].replace('_', ' ')}")
+
     output = f"""## NPC: {first} {last}
 **Gender:** {gender_label} | **Age:** {age} | **Occupation:** {job}
 **Traits:** {trait_str}
@@ -1999,6 +2039,10 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
 **Identity:**
 {body_clean}. {genetic_clean}. {family_clean}.
+
+**Motivation:** {motivation_line}
+**Hidden Agenda:** {agenda_line}
+**Social Mask:** {mask_line}
 
 **Background:**
 {backstory}
@@ -2021,6 +2065,9 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         output += f"\n\n{condition_block}"
 
     output += f"""
+
+**Sample Check:** {check_line}
+{sample_check['narrative']}
 
 **Quest Hook:**
 {quest_hook}"""
