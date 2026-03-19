@@ -1160,12 +1160,27 @@ FORMAL_TONES = {"clinical", "corporate_dystopia", "military"}
 
 
 def enforce_contractions(text, tone):
-    """Contract formal English into natural speech. Formal tones keep formal phrasing."""
+    """Contract formal English into natural speech. Formal tones keep formal phrasing.
+
+    Uses word-boundary-aware regex to prevent partial matches like
+    "There'sn'thing" (from "There is nothing") or "That'sn't" (from
+    "That is not").  Longer phrases are processed first so that
+    "there is not" matches before "there is" or "is not" can fire
+    independently.
+    """
     import re
     if tone not in FORMAL_TONES:
-        for formal, contracted in CONTRACTION_MAP.items():
-            text = text.replace(formal, contracted)
-            text = text.replace(formal.capitalize(), contracted.capitalize())
+        # Sort by length descending so longer phrases match first
+        sorted_pairs = sorted(CONTRACTION_MAP.items(),
+                              key=lambda x: len(x[0]), reverse=True)
+        for formal, contracted in sorted_pairs:
+            pattern = re.compile(r'\b' + re.escape(formal) + r'\b',
+                                 re.IGNORECASE)
+            def _replace(m, _contracted=contracted):
+                if m.group(0)[0].isupper():
+                    return _contracted[0].upper() + _contracted[1:]
+                return _contracted
+            text = pattern.sub(_replace, text)
     # Clean up double punctuation (always, regardless of tone).
     # Replace exactly 2 dots (not 3+ ellipsis) with a single dot.
     text = re.sub(r'(?<!\.)\.\.(?!\.)', '.', text)

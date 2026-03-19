@@ -838,6 +838,8 @@ class Context:
         self.items_used = set()
         self.sensory_used = set()
         self.nicknames_used = set()
+        self.robot_dialogue_used = set()
+        self.robot_quest_hooks_used = set()
         self.npcs = []
         self.pieces = []
         self.history_events = []
@@ -1006,6 +1008,56 @@ def safe_format(template, **kwargs):
                 else:
                     result.append('{' + field_name + '}')
         return ''.join(result)
+
+
+def gender_replace(text, gender):
+    """Replace generic they/their in pool text with NPC's actual pronouns.
+
+    Physical details and habits use 'they/their' as a generic placeholder
+    for the NPC.  When the NPC has a known gender, swap to the correct
+    pronouns -- but ONLY for subject/possessive uses that clearly refer to
+    the NPC, not for object-of-verb uses like "Dismantles them" where
+    'them' refers to things, not the person.
+
+    Safe to replace:
+      - "they're"  (subject contraction -- always the NPC)
+      - "their X"  (possessive -- the NPC's body part / possession)
+      - "they " at start of sentence / after ". " (subject position)
+    NOT safe to replace:
+      - "them" after verbs like Dismantles/shutting/Smooths/Folds/Burns
+        (refers to objects, not the NPC)
+    """
+    import re
+    if gender not in ("M", "F"):
+        return text
+
+    he_she = "he" if gender == "M" else "she"
+    He_She = "He" if gender == "M" else "She"
+    his_her = "his" if gender == "M" else "her"
+    His_Her = "His" if gender == "M" else "Her"
+    him_her = "him" if gender == "M" else "her"
+    hes_shes = "he's" if gender == "M" else "she's"
+    Hes_Shes = "He's" if gender == "M" else "She's"
+
+    # "they're" / "They're" -- always the NPC as subject
+    text = text.replace("they're", hes_shes).replace("They're", Hes_Shes)
+
+    # "their" as possessive -- always the NPC's possession/body part
+    text = text.replace("their ", his_her + " ").replace("Their ", His_Her + " ")
+
+    # "they" as subject: at start of string, or after ". " or "-- " or "; "
+    text = re.sub(r'(?:^|(?<=\. ))They ', He_She + ' ', text)
+    text = re.sub(r'(?:^|(?<=\. ))they ', he_she + ' ', text)
+    text = re.sub(r'(?<=-- )They ', He_She + ' ', text)
+    text = re.sub(r'(?<=-- )they ', he_she + ' ', text)
+    text = re.sub(r'(?<=; )They ', He_She + ' ', text)
+    text = re.sub(r'(?<=; )they ', he_she + ' ', text)
+
+    # "keeps them warm" -- "them" = NPC
+    text = text.replace("keeps them ", "keeps " + him_her + " ")
+
+    # Do NOT replace "them" in other positions (Dismantles them, Smooths them, etc.)
+    return text
 
 
 def fix_nb_verbs(text, gender):
@@ -1504,9 +1556,11 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
     # --- Habit ---
     habit = ctx.pick_fresh(HABITS, "HABITS")
+    habit = gender_replace(habit, gender)
 
     # --- Physical detail ---
     physical = ctx.pick_fresh(PHYSICAL, "PHYSICAL")
+    physical = gender_replace(physical, gender)
 
     # --- Debt ---
     debt = R(DEBTS)
@@ -1996,14 +2050,33 @@ def _datapad_research_log(ctx, tone, first, last, g, gl, gp, go, loc):
 
     entries = []
 
-    # Entry 1: Discovery
+    # Entry 1: Discovery (randomized opening)
+    opening_variants = [
+        f"""The samples aren't behaving. That's not the right word. Samples don't behave. They exhibit properties. These are exhibiting properties outside any reference material available to me. {lo} -- or what the brief says is {lo} -- has a thermal signature that inverts at night. It shouldn't have a thermal signature at all.
+
+Ran the spectrograph three times. Same result. The crystalline structure shifts at the molecular level when the temperature drops below -20C. Not fracturing. Reorganizing. Like it's adapting.""",
+
+        f"""The readings don't make sense. Not wrong -- they make sense, just not in any framework I was trained in. {lo} is producing output that the spectrometer interprets as noise. It isn't noise. Noise is random. This has structure. Mathematical structure. The kind that implies a system behind it.
+
+I ran the analysis twice. Both times the software flagged the data as 'instrument error.' The instrument is fine. I calibrated it this morning. The data is accurate. The data is also impossible.""",
+
+        f"""I wasn't looking for anomalies. I was running standard assays on material recovered from {loc}. That's what makes this worse. A standard assay. Routine. And then the mass spectrometer returned a molecular weight that doesn't correspond to any element on the periodic table.
+
+Not a compound. Not an alloy. An element. One that shouldn't exist. {lo} has been sitting in this lab for two weeks and nobody noticed because nobody ran the right test. I ran the right test. I wish I hadn't.""",
+
+        f"""Something is wrong with the control group. The control group should be the one thing that's not wrong. That's what 'control' means. The baseline samples from {loc} are changing at the same rate as the experimental ones. No stimulus. No exposure. Sealed containers, inert atmosphere, stable temperature.
+
+They're changing anyway. And they're changing in the same direction as {lo}. Like there's a signal I can't see. Like the experiment is running itself.""",
+
+        f"""Day one, the numbers were clean. Day two, the numbers were clean but different. Day three, the numbers were clean, different, and impossible. I'm on day five now and I've stopped calling them numbers. They're a sequence. {lo} is outputting a sequence that my equipment translates into data.
+
+Data implies encoding. Encoding implies intent. I am not comfortable with what that implies about {lo}. I am less comfortable with what it implies about the people who sent me here to study it.""",
+    ]
     entries.append(f"""Day {day}.
 
 {ctx.fresh_sensory(tone)}
 
-The samples aren't behaving. That's not the right word. Samples don't behave. They exhibit properties. These are exhibiting properties outside any reference material available to me. {lo} -- or what the brief says is {lo} -- has a thermal signature that inverts at night. It shouldn't have a thermal signature at all.
-
-Ran the spectrograph three times. Same result. The crystalline structure shifts at the molecular level when the temperature drops below -20C. Not fracturing. Reorganizing. Like it's adapting.
+{R(opening_variants)}
 
 -- {first} {last}, Lab {RI(1, 4)}""")
 
@@ -2556,73 +2629,132 @@ If you find this, do not file a report. Reports go to Mammona. Mammona already k
 
 
 def _datapad_unsent_letters(ctx, tone, first, last, g, gl, gp, go, loc):
-    """Letters to someone back home that were NEVER SENT. Hope -> doubt -> fear -> acceptance -> the one that says too much."""
+    """Unsent letters home. 4 structural variants to avoid repetition across batches."""
     recipient_first, _, _ = ctx.fresh_name()
-    months_in = RI(1, 4)
     brand = R(BRAND_NAMES) if BRAND_NAMES else "Sunny Fizz"
     job = R(JOBS)
     prev_loc = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
 
+    variant = R(["classic", "angry", "practical", "apologetic"])
+
+    if variant == "classic":
+        return _unsent_classic(ctx, tone, first, last, g, gl, gp, go, loc,
+                               recipient_first, brand, job, prev_loc)
+    elif variant == "angry":
+        return _unsent_angry(ctx, tone, first, last, g, gl, gp, go, loc,
+                             recipient_first, brand, job, prev_loc)
+    elif variant == "practical":
+        return _unsent_practical(ctx, tone, first, last, g, gl, gp, go, loc,
+                                 recipient_first, brand, job, prev_loc)
+    else:
+        return _unsent_apologetic(ctx, tone, first, last, g, gl, gp, go, loc,
+                                  recipient_first, brand, job, prev_loc)
+
+
+def _unsent_classic(ctx, tone, first, last, g, gl, gp, go, loc,
+                    recipient_first, brand, job, prev_loc):
+    """Variant 1 -- Hope deteriorating to desperation."""
     entries = []
 
-    # Entry 1: Hope
+    # Entry 1: Hope (randomized)
+    opener_pool = [
+        f"I made it. {R(['The shuttle was fourteen hours late', 'The transit was rough -- two people got sick in cryo', 'Landing was ugly, but the hull held'])} and I'm here. {loc}.",
+        f"Writing this from the bunk. First night. {loc} is {R(['colder than the briefing suggested', 'exactly what I expected, which is the problem', 'real now, not just a name on a contract'])}.",
+        f"The shuttle touched down at {R(['0400', '0600', '2200'])} and {loc} was waiting. {R(['Grey. Quiet. Cold.', 'Wind like a blade. Ice like a mirror.', 'Smaller than the brochure. Colder than the warning.'])}",
+    ]
+    colony_detail = R([
+        f"The colony is smaller than the briefing suggested. {RI(15, 40)} people, maybe.",
+        f"There's about {RI(20, 50)} of us. The {brand} machine works. That's the highlight.",
+        f"Met the shift lead. {R(['Quiet type.', 'Barely looked at me.', 'Said welcome like it was an apology.'])}",
+    ])
     entries.append(f"""{recipient_first},
 
-I made it. The shuttle was fourteen hours late and the landing was rough enough to crack a viewport, but I'm here. {loc}. It's -- it's cold. I know I said I was ready for the cold. I wasn't. Nobody is. But the pay is real and the contract is signed and in {RI(8, 18)} months I'll be back with enough credits to clear the debt and start over.
+{R(opener_pool)} {R(["It's cold. I knew it would be cold. I wasn't ready.", "The pay is real and the contract is signed.", "I keep telling myself this is temporary."])} In {RI(8, 18)} months I'll be back with enough credits to {R(["clear the debt", "start over", "get us out"])}.
 
-The colony is smaller than the briefing suggested. {RI(15, 40)} people, maybe. The {brand} machine in the corridor works, which feels like a good sign. I've got a bunk, a locker, and a view of ice in every direction. It's not home. But it'll buy us home.
+{colony_detail} I've got a bunk, a locker, and {R(["a view of ice in every direction", "nothing resembling a window", "a ceiling low enough to touch"])}.
 
-I'll send this when the comms window opens. Miss you.
+{R(["Miss you.", "I'll write again soon.", "Thinking of you."])}
 
 -- {first}
 
-[This letter was found folded inside a maintenance manual. It was never sent.]""")
+[{R(["This letter was found folded inside a maintenance manual.", "Found tucked into a boot.", "Discovered in a locker during reassignment."])} It was never sent.]""")
 
     # Entry 2: Doubt
+    quiet_detail = R([
+        f"the quiet between the hours that's different. On {prev_loc} the quiet was just quiet. Here it has a texture.",
+        f"the way the walls feel closer at night. Not physically. But my body thinks so.",
+        f"the sound the generator makes at 0300. Like it's breathing. Machines don't breathe.",
+    ])
     entries.append(f"""{recipient_first},
 
-I started three versions of this. Deleted them. The first was too honest. The second was too cheerful. This is the third, which means it's the one where I don't know what to be.
+{R(["I started three versions of this. Deleted them.", "I don't know how to write this letter.", "I've been carrying this blank page for a week."])} {R(["The first was too honest. The second was too cheerful.", "Everything I write sounds like a lie or a cry for help.", "The words I need don't exist in the language we share."])}
 
-Work's fine. I'm a {job} here, same as {prev_loc}. The hours are long but the hours were always long. It's the quiet between the hours that's different. On {prev_loc} the quiet was just quiet. Here it has a texture. Like the air is thicker. Like the walls are paying attention.
+Work's fine. I'm a {job} here{R([', same as ' + prev_loc, '', ', for now'])}. {R(["The hours are long but the hours were always long.", "I've done worse for less.", "The routine helps."])} It's {quiet_detail}
 
-That sounds crazy. I'm not crazy. I'm just tired and far away and the comms window keeps getting delayed and I don't know if you got my last letter because I don't know if I sent my last letter.
-
-I found it in my pocket yesterday. Folded. Stamped. Ready to go. Still in my pocket.
-
-I'll send them both. Tomorrow.
+{R(["That sounds crazy. I'm not crazy.", "I know how this reads. I'm fine.", "Don't worry about me."])} I'm just {R(["tired and far away", "adjusting", "learning the shape of this place"])}.
 
 -- {first}
 
-[Found between the mattress and the bunk frame. Unsent.]""")
+[{R(["Found between the mattress and the bunk frame.", "Folded into the back of a photograph.", "Slipped inside a ration wrapper."])} Unsent.]""")
 
     # Entry 3: Fear
     entries.append(f"""{recipient_first},
 
-Don't come here. I know we talked about it -- you joining me after the first rotation, filing for a couples contract. Don't. Stay on {R(["Novaris-3", "Rhea-2", "Karnaith"])}. Stay where there's sunlight and noise and people who laugh because things are funny and not because the alternative is screaming.
+{R(["Don't come here.", "I need you to stay where you are.", "Promise me you won't follow me."])} {R([
+    "I know we talked about it -- you joining me after the first rotation. Don't.",
+    "Whatever plan we had, forget it. Stay where you are.",
+    "If anyone offers you a contract for " + loc + ", tear it up.",
+])} Stay on {R(["Novaris-3", "Rhea-2", "Karnaith"])}. Stay where there's {R(["sunlight and noise", "people who sleep through the night", "gravity that feels honest"])}.
 
 {ctx.fresh_sensory(tone)}
 
-Something is wrong with this place. I can't tell you what because I don't have words for it yet. It's not the cold, it's not the work, it's not Mammona. It's underneath all of that. Like a sound you can't hear but your body hears. Like a dream you can't remember but your hands remember.
+Something is wrong with this place. {R([
+    "I can't tell you what because I don't have words for it yet.",
+    "Not broken-wrong. Alive-wrong. Like the ground knows I'm standing on it.",
+    "The kind of wrong that doesn't show up on instruments but your bones know.",
+])} {R([
+    "It's not the cold, it's not the work, it's not Mammona. It's underneath all of that.",
+    "Everyone here feels it. Nobody says it. That silence is louder than the drill.",
+    "I wake up at the same time every night and the walls are humming.",
+])}
 
-I'm fine. I want you to know that. I'm fine. I'm writing this letter to tell you I'm fine and to tell you not to come here and those two things together should tell you everything.
+I'm fine. {R(["I want you to know that.", "That's the official version.", "For now."])}
 
 -- {first}
 
-[Found in the recycling queue. Never sent. The paper shows signs of having been crumpled and then smoothed flat multiple times.]""")
+[{R([
+    "Found in the recycling queue. Never sent.",
+    "Recovered from a sealed envelope in the waste processor.",
+    "Found crumpled in the pocket of a jacket left on a hook.",
+])}]""")
 
     # Entry 4: Acceptance
+    feature_detail = R([
+        "the walls hum at a frequency that isn't on any diagnostic chart",
+        "HERMES says good morning in a voice that almost but doesn't quite sound like a person",
+        "the perimeter lights flicker at 0200 every night like something is testing them",
+        "I can hear my own heartbeat when I walk past Section D",
+        "the coffee tastes different depending on which corridor I drink it in",
+    ])
     entries.append(f"""{recipient_first},
 
-I stopped counting the days. Not because I gave up. Because the days stopped being countable. Time works differently here. Not in a dramatic way. In a quiet way. A shift feels like four hours or fourteen hours and both feelings are true. The clock says eight. The clock is the least convincing thing in the room.
+{R([
+    "I stopped counting the days. Not because I gave up. Because the days stopped being countable.",
+    "Time moves differently here. I don't mean metaphorically. The clocks disagree with each other.",
+    "I've been here long enough that 'here' has stopped feeling like a place and started feeling like a state of being.",
+])}
 
-I've made peace with some things. The cold. The food. The way {R([
-    "the walls hum at a frequency that isn't on any diagnostic chart",
-    "HERMES says good morning in a voice that almost but doesn't quite sound like a person",
-    "the perimeter lights flicker at 0200 every night like something is testing them",
-    "I can hear my own heartbeat when I walk past Section D",
-])}. These are just facts now. Features of the landscape. I've stopped asking why and started asking how long.
+I've made peace with some things. The cold. The food. The way {feature_detail}. {R([
+    "These are just facts now. Features of the landscape.",
+    "I've stopped fighting it. That's not the same as accepting it.",
+    "You learn to live inside the strangeness. Or the strangeness learns to live inside you.",
+])}
 
-I love you. I think about you in the mornings before the shift starts, when the generator is warming up and the ice on the viewport catches the emergency lighting and for a few seconds the world is almost beautiful.
+{R([
+    "I love you. I think about you in the mornings before the shift starts.",
+    "I still remember your face. That's what I hold onto.",
+    "You're the only real thing left. Everything else here is approximation.",
+])}
 
 -- {first}
 
@@ -2632,33 +2764,455 @@ I love you. I think about you in the mornings before the shift starts, when the 
     final_options = [
         f"""{recipient_first},
 
-I know what's underneath. I've known for a while. I think everyone here knows. We just don't say it. Saying it would make it real, and real things have to be dealt with, and nobody wants to deal with this because dealing with it would mean admitting that Mammona sent us here knowing. That the contract, the pay, the rotation schedule -- all of it is a framework built around a single purpose, and the purpose isn't mining.
+I know what's underneath. {R([
+    "I've known for a while. I think everyone here knows.",
+    "Mammona knows. They've always known. The contract is a leash, not a lifeline.",
+    "The drill isn't looking for resources. It's looking for something else.",
+])} {R([
+    "Saying it would make it real, and real things have to be dealt with.",
+    "I can't write it down. Writing it down makes it permanent.",
+    "The words exist but putting them in order would break something.",
+])}
 
-I'm not going to name it. Not because I'm scared of Mammona reading this. Because I'm scared of what you'd do if you knew. You'd come here. You'd come here to get me. And you can't come here.
-
-Burn this letter. Burn all of them. Forget my name if you must.
-
-I love you. I love you. I love you. I'm writing it three times because I don't know if I'll get to say it again.
-
--- {first}
-
-[This letter was found inside the lining of a jacket. The jacket was hanging on a hook in Hab {RI(1, 12)}. The bunk was made. The locker was empty. The owner's contract status reads: ACTIVE.]""",
-
-        f"""{recipient_first},
-
-I can hear the letters I didn't send. All of them. Folded up in pockets and books and empty food containers around this colony, and I can hear them waiting to be read. That's not a metaphor. I can feel the words, sitting in the dark, patient. Like they know something I wrote in them that I didn't know I was writing.
-
-The last letter -- the one about not coming here -- I need you to listen to that one. But I also need you to know that it's already too late for the reason I wrote it. What I was afraid of -- you coming here and finding out what this place is -- that's already happened. Not to you. To me. I found out. And now I'm--
-
-There's no word for what I've become. I'm still {first}. I think. The parts that love you haven't changed. The parts that remember your face and your voice and the way you hum when you're reading. Those parts are intact. But there are new parts now. And the new parts know things the old parts didn't. And I can't unknow them.
-
-Don't come.
+{R([
+    "Burn this letter. Burn all of them. Forget my name if you must.",
+    "Don't look for me. If I come back, I'll find you. If I don't, remember me as I was.",
+    "I love you more than I'm afraid. That has to be enough.",
+])}
 
 -- {first}
 
-[Found folded into a paper crane and placed on the windowsill of the observation deck. Facing outward. As if meant for someone approaching from outside.]""",
+[{R([
+    "This letter was found inside the lining of a jacket. The bunk was made. The locker was empty. Contract status: ACTIVE.",
+    "Found folded into a paper crane on the observation deck windowsill. Facing outward.",
+    "Discovered sealed inside a wall panel during renovation. The panel had not been opened in years.",
+])}]""",
     ]
     entries.append(R(final_options))
+
+    return entries
+
+
+def _unsent_angry(ctx, tone, first, last, g, gl, gp, go, loc,
+                  recipient_first, brand, job, prev_loc):
+    """Variant 2 -- Resentful, shifting to protective. Short, clipped sentences."""
+    entries = []
+
+    # Entry 1: Resentment
+    entries.append(f"""{recipient_first},
+
+{R([
+    "You knew. You knew what this place was and you let me sign.",
+    "The recruiter smiled when I signed. Same smile you had.",
+    "I'm here because of you. Let's not pretend otherwise.",
+])} {loc}. {R([
+    "It's exactly as bad as the rumors said. Worse, actually, because the rumors were optimistic.",
+    "Cold doesn't begin to cover it. Cold is a season. This is a condition.",
+    "The brochure should just say 'we're sorry' and leave it at that.",
+])}
+
+{R([
+    "Don't write back. I won't read it.",
+    "I'm not looking for sympathy. I'm looking for an explanation.",
+    "This isn't a letter. It's a receipt.",
+])}
+
+-- {first}
+
+[{R(["Found crumpled near the recycler.", "Torn in half, then taped back together.", "Written on the back of a Mammona safety pamphlet."])}]""")
+
+    # Entry 2: Grudging detail
+    entries.append(f"""{recipient_first},
+
+{R([
+    "Fine. I'll tell you what it's like since you asked. You didn't ask. I'm telling you anyway.",
+    "I said I wouldn't write again. I lied. I'm good at that. Learned from the best.",
+    "Another letter I won't send. These are becoming a habit.",
+])}
+
+{R([
+    f"The work is {job}. Same thing I did on {prev_loc} except here the equipment is older and the people are quieter.",
+    f"I work the {R(['day', 'night', 'double'])} shift. The food is NutriLoaf. The coffee is brown water. The {brand} machine is the best thing here.",
+    f"My bunkmate doesn't talk. I respect that. Talking requires having something to say.",
+])}
+
+{ctx.fresh_sensory(tone)}
+
+{R([
+    "The anger is fading. I don't know what's replacing it. Something heavier.",
+    "I'm starting to understand why you did it. That makes it worse.",
+    "This place has a way of making grudges feel small.",
+])}
+
+-- {first}
+
+[Unsent. {R(["Folded neatly.", "Edges worn from handling.", "Ink smudged."])}]""")
+
+    # Entry 3: Shift toward concern
+    entries.append(f"""{recipient_first},
+
+{R([
+    "Something happened last night that I can't explain to anyone here.",
+    "I'm not angry anymore. I'm scared. Those are different.",
+    "I need to say this before whatever is happening to me finishes happening.",
+])}
+
+{R([
+    f"Don't come to {loc}. I know I said I didn't want to hear from you. I'm saying something different now. Don't come here.",
+    f"If Mammona offers you a contract -- any contract, any posting -- don't take it. Walk away. Run if you must.",
+    f"Stay away from anything connected to {loc}. Anything. Anyone who mentions it. Any company that operates near it.",
+])}
+
+{ctx.fresh_sensory(tone)}
+
+{R([
+    "The anger was easier. The anger made sense. What I'm feeling now doesn't have a name.",
+    "I can't protect you from here. This letter is the closest I can get.",
+    "I was wrong to blame you. I was wrong about a lot of things. I'm right about this: stay away.",
+])}
+
+-- {first}
+
+[{R(["Found in a boot, tightly rolled.", "Hidden behind a wall panel.", "Tucked into a medical kit."])}]""")
+
+    # Entry 4: Something breaking
+    entries.append(f"""{recipient_first},
+
+{R([
+    "I've been thinking about what I'd say if I saw you. The list changes every day.",
+    "The person who wrote that first letter -- the angry one -- I don't recognize them anymore.",
+    "I forgive you. That's not generosity. I just don't have room for it anymore.",
+])}
+
+{R([
+    "This place takes things from you. Not all at once. A little each day. Things you didn't know you had until they're gone.",
+    f"I used to dream about {prev_loc}. Now I dream about corridors I've never walked. They feel more real than the ones I walk every day.",
+    "The colony is changing. Or I'm changing. The difference is academic.",
+])}
+
+{R([
+    "If I said I loved you it would sound like goodbye. So I won't.",
+    "You were the last person I was angry at. Now I'm not angry at anyone. That should feel like progress.",
+    "I miss the version of me that could be angry about small things.",
+])}
+
+-- {first}
+
+[{R(["Unsent. Ink faded.", "Found pressed between pages of a maintenance manual.", "Discovered during bunk reassignment."])}]""")
+
+    # Entry 5: Final -- protective warning
+    entries.append(f"""{recipient_first},
+
+{R([
+    f"This is the last one. Not because I'm done writing. Because writing these letters is the last honest thing I do here and I need to stop before {loc} takes that too.",
+    "I don't have much time. Not in the dramatic sense. In the sense that I can feel myself becoming someone who wouldn't write this letter. So I'm writing it now.",
+    "You won't understand this letter. That's the point. If you understood it, it would mean you'd been here. And you can't come here.",
+])}
+
+{R([
+    "Whatever you hear about me -- about this posting, about what happened here -- believe the version where I was trying to protect you. That's the true one.",
+    "I'm leaving this where someone will find it. Not for you. For whoever comes next. So they know that someone here was still trying.",
+    "If my name shows up on a manifest or a report or a memorial, don't look into it. Remember me from before. The before-version was better.",
+])}
+
+{R([
+    "I'm sorry. For the anger and for everything after it.",
+    "Take care of yourself. That's not a platitude. It's the only thing I have left to give.",
+    "Goodbye, " + recipient_first + ". The word feels different when you mean it.",
+])}
+
+-- {first}
+
+[{R([
+    "Found inside the hull plating near an airlock. The writer had to remove two bolts to place it there.",
+    "Recovered from a sealed envelope addressed to a transit hub that no longer exists.",
+    "This letter was found. The writer was not.",
+])}]""")
+
+    return entries
+
+
+def _unsent_practical(ctx, tone, first, last, g, gl, gp, go, loc,
+                      recipient_first, brand, job, prev_loc):
+    """Variant 3 -- Logistics and updates that become coded messages. Clinical becoming cryptic."""
+    entries = []
+    section = R(["A", "B", "C", "D", "E", "F"])
+
+    # Entry 1: Practical update
+    entries.append(f"""{recipient_first},
+
+{R([
+    "Posting update. Contract terms as discussed.",
+    "Status report. You asked me to keep you informed.",
+    "Quick note before the comms window closes.",
+])} {R([
+    f"Arrived {loc}, Day 1. Assigned {job}. Hab {RI(1, 16)}, bunk {R(['upper', 'lower'])}.",
+    f"Transit complete. {loc} is operational. My assignment is {job}, Section {section}.",
+    f"On site. Equipment functional. Personnel: {RI(18, 45)} total. My shift is {R(['06-14', '14-22', '22-06'])}.",
+])}
+
+{R([
+    f"Rations adequate. {brand} available. Medical on site. Standard Mammona package.",
+    f"Facilities are basic but serviceable. Generator runs steady. Water recycler operational.",
+    f"Living conditions match the contract spec. Barely.",
+])}
+
+{R([
+    "Will update next cycle.",
+    "More when I know more.",
+    "End of report.",
+])}
+
+-- {first}
+
+[{R(["Found in outgoing mail, unstamped.", "Recovered from a data pad, draft folder.", "Written on regulation paper. Never filed."])}]""")
+
+    # Entry 2: Details with edges
+    entries.append(f"""{recipient_first},
+
+{R([
+    "Follow-up to previous. Some observations.",
+    "Week two. Adjusting to the routine.",
+    "Continuing the record as agreed.",
+])}
+
+{R([
+    f"Inventory discrepancy: manifest lists {RI(40, 80)} crates, I count {RI(35, 75)}. Difference unaccounted for. Quartermaster says normal variance. Normal variance is 2%. This is {RI(6, 15)}%.",
+    f"Section {section} access restricted as of Day {RI(5, 12)}. No memo. No announcement. The door just locked. I asked. Nobody asked.",
+    f"Night shift reports sounds from the bore shaft between 0200-0400. Maintenance says drill harmonics. The drill doesn't run at night.",
+])}
+
+{ctx.fresh_sensory(tone)}
+
+{R([
+    "Noting for the record.",
+    "I'm keeping my own counts now. Separate ledger.",
+    "Something here doesn't add up. That might be the point.",
+])}
+
+-- {first}
+
+[Unsent.]""")
+
+    # Entry 3: Coded observations
+    entries.append(f"""{recipient_first},
+
+{R([
+    "Read this carefully.",
+    "The following is accurate. Interpret accordingly.",
+    "I'm going to describe what I see. What I mean is something else.",
+])}
+
+{R([
+    f"The weather has been stable. [There are no weather patterns inside a colony.] The garden is growing well. [There is no garden.] The neighbors are friendly. [The word 'friendly' is doing a lot of work in that sentence.]",
+    f"Equipment inspection passed on all counts. [I was not permitted to inspect Section {section}.] All personnel accounted for. [Define 'accounted for.'] Morale is adequate. [Mammona's word, not mine.]",
+    f"The mail system is functioning normally. [These letters aren't going through the mail system.] I'm in good health. [By the standards of this posting, everyone is in good health until they aren't.] Work continues. [The nature of the work has changed. I can't say how.]",
+])}
+
+{R([
+    "If you understand what I'm not saying, you'll know what to do.",
+    "Read between the lines. Then burn the lines.",
+    "I trust you to hear what I can't write.",
+])}
+
+-- {first}
+
+[{R([
+    "Found folded into a complex pattern -- specific folds appear intentional, possibly encoding additional information.",
+    "Written in two colors of ink. The color changes correspond to no obvious pattern.",
+    "Margins contain numbers that don't match any colony reference system.",
+])}]""")
+
+    # Entry 4: The mask slipping
+    entries.append(f"""{recipient_first},
+
+{R([
+    "I've been writing these like reports because reports are safe. Reports have structure. What's happening doesn't have structure.",
+    "I can't keep doing this in code. Either you understand or you don't. Here it is plain.",
+    "The practical format was a coping mechanism. The mechanism is failing.",
+])}
+
+{ctx.fresh_sensory(tone)}
+
+{R([
+    f"Mammona is not mining {loc}. I don't know what they're doing. I know it requires people. I know the people don't always leave. I know the books are wrong in ways that are too precise to be accidental.",
+    f"I've been documenting everything. Times, dates, inventory numbers, personnel movements. The pattern is there. I can see it. What I can't see is the reason. The reason is underground.",
+    f"Three people have 'transferred' since I arrived. The shuttle hasn't come. Nobody questions this. I questioned it once. The look I got was the most honest communication I've had on this posting.",
+])}
+
+{R([
+    "I need you to remember everything I've written. If something happens, the details matter.",
+    "Keep these letters. Keep them somewhere safe. They're evidence of something.",
+    "I'm done being careful. Careful people disappear quietly.",
+])}
+
+-- {first}
+
+[{R(["Found in a waterproof container buried outside the perimeter.", "Hidden inside a modified data pad with a false back.", "Sealed in an envelope addressed to a law firm that went bankrupt three years ago."])}]""")
+
+    # Entry 5: Final -- the document itself is the message
+    entries.append(f"""{recipient_first},
+
+{R([
+    f"Attached to this letter you will find nothing. The attachment was removed. By me. Before I hid this. The attachment is in a different location. If you're reading this, contact the following and say my name: {R(FACTION_NAMES)}.",
+    f"I've stopped writing reports and started writing instructions. Step one: do not come to {loc}. Step two: contact {R(FACTION_NAMES)}. Step three: give them the number on the back of this letter. Step four: forget my name. Step five: there is no step five. You'll understand when you get to step four.",
+    f"This letter is the last piece of a set. If you have all of them, you have coordinates. Not in the text. In the paper. I folded them. The creases are a map. I learned that trick from someone here. Someone who was here before us. Someone who left this way because it was the only way to leave.",
+])}
+
+{R([
+    "I love you. That's not code for anything. It's the one true sentence in all of these letters.",
+    "Don't mourn me yet. Don't celebrate either. Just remember.",
+    "Whatever happens next, I was here. I saw it. These letters prove it.",
+])}
+
+-- {first}
+
+[{R([
+    "This letter was found in a sealed container welded to the underside of a cargo pod. The weld was professional. The container was waterproof, fireproof, and bore no markings.",
+    "Found inside a hollowed-out copy of a Mammona employee handbook. Pages 47-52 had been replaced with this letter and four pages of numbers.",
+    "Recovered from the personal effects of " + first + " " + last + ". Effects were found. " + first + " was not.",
+])}]""")
+
+    return entries
+
+
+def _unsent_apologetic(ctx, tone, first, last, g, gl, gp, go, loc,
+                       recipient_first, brand, job, prev_loc):
+    """Variant 4 -- Writer is hiding something they did. Each letter tries to confess but can't."""
+    entries = []
+
+    # Entry 1: Casual, but something is off
+    entries.append(f"""{recipient_first},
+
+{R([
+    "Hey. I know it's been a while.",
+    "I should have written sooner. I don't have a good excuse.",
+    "I owe you a letter. I owe you more than that.",
+])} {R([
+    f"I'm on {loc} now. New posting. Clean start. That's what I'm calling it.",
+    f"{loc}. Different planet, same job, same Mammona. Different me. Maybe.",
+    f"I took a contract on {loc}. I had reasons. The reasons made sense at the time.",
+])}
+
+{R([
+    "There's something I need to tell you. Not in this letter. In the next one. I promise.",
+    "I've been rehearsing a conversation with you in my head. The rehearsal always goes badly.",
+    "I'll explain everything. Soon. When I find the right words.",
+])}
+
+-- {first}
+
+[{R(["Found under a pillow.", "Tucked into a locker door hinge.", "Written on the back of a shift schedule."])} Never sent.]""")
+
+    # Entry 2: Getting closer to the truth, then retreating
+    entries.append(f"""{recipient_first},
+
+{R([
+    f"I said I'd explain. I'm going to try. Bear with me.",
+    f"Okay. Here goes. The reason I left {prev_loc} --",
+    f"You deserve the truth. I'm going to give you the truth. Starting now.",
+])}
+
+{R([
+    f"When I was on {prev_loc}, I did something. Not something illegal. Something worse than illegal. Something that I can't take back and can't make right and can't explain without you looking at me the way I look at myself.",
+    f"Before I shipped out, there was a choice. Not a big dramatic choice. A quiet one. The kind where you pick the easy option and tell yourself it was the only option. It wasn't. I knew it wasn't. I picked it anyway.",
+    f"Remember when I said I had to leave {prev_loc} because of the contract? That was true. The part I left out was why the contract was the only option left.",
+])}
+
+{R([
+    "I can't finish this sentence. I've tried four times.",
+    "I was going to tell you everything. I got to the hard part and stopped.",
+    "The next letter. I'll say it in the next letter.",
+])}
+
+{ctx.fresh_sensory(tone)}
+
+-- {first}
+
+[Unsent. {R(["Edges torn, as if partially destroyed then reconsidered.", "Written in pencil, parts erased and rewritten.", "Multiple crossed-out lines visible."])}]""")
+
+    # Entry 3: Deflection through describing the colony
+    entries.append(f"""{recipient_first},
+
+{R([
+    "I know I said I'd tell you. I will. But first let me tell you about this place.",
+    "Not ready yet. Instead, let me describe where I am. So you can picture it.",
+    "I'm stalling. I know I'm stalling. Let me stall a little longer.",
+])}
+
+{R([
+    f"{loc} is the kind of place that makes you understand why Mammona pays what it pays. {RI(15, 40)} people, one generator, and enough ice to bury a city. The {brand} machine is the closest thing to joy.",
+    f"The colony runs on routine. Wake, work, eat, sleep. The routine keeps the thinking at bay. I've become very fond of routine.",
+    f"I work as a {job}. The work is honest. That's more than I can say for the person doing it.",
+])}
+
+{ctx.fresh_sensory(tone)}
+
+{R([
+    "I'll tell you soon. I mean it this time.",
+    "The thing I need to say is getting heavier. I carry it everywhere.",
+    "Every letter I write that doesn't contain the truth makes the truth harder to tell.",
+])}
+
+-- {first}
+
+[{R(["Unsent. Folded but not sealed.", "Found in a stack of blank paper, as if hidden.", "Written on both sides. The second side is almost illegible."])}]""")
+
+    # Entry 4: Almost there
+    _breach_type = R(["containment breach", "shaft collapse", "contamination", "evacuation failure"])
+    _consequence = R(["admitting what I'd been doing", "losing everything", "prison -- or worse"])
+    entries.append(f"""{recipient_first},
+
+{R([
+    f"Okay. No more stalling. What I did on {prev_loc}:",
+    f"You need to know this. Even if you hate me after.",
+    f"I'm going to write it fast, before I lose the nerve again.",
+])}
+
+{R([
+    f"I knew about the {_breach_type}. Before it happened. I had the data. I could have warned people. I didn't, because warning them would have meant explaining how I got the data, and explaining that would have meant {_consequence}.",
+    f"Someone trusted me with something on {prev_loc}. Information. The kind that could have saved people. I traded it. Not for credits. For a transfer. For survival. My survival. Not theirs.",
+    f"I left someone behind. On {prev_loc}. Not by accident. By choice. They were counting on me and I calculated the odds and I walked away. The math was right. The math is always right. The math doesn't account for the sound they made when they realized I wasn't coming back.",
+])}
+
+{R([
+    "There. I said it. I can't unsay it.",
+    "That's what I've been carrying. Now you're carrying it too. I'm sorry for that.",
+    "I keep hoping that writing it down will make it lighter. It doesn't.",
+])}
+
+-- {first}
+
+[{R(["Written in a single sitting. No corrections. No hesitation marks.", "The pen pressed hard enough to score the paper beneath.", "Found sealed with wax. The seal was never broken."])}]""")
+
+    # Entry 5: Final -- the confession completed
+    entries.append(f"""{recipient_first},
+
+{R([
+    f"I told you the what. Here's the why: there is no why. I was scared and selfish and alive and those three things together are the whole explanation.",
+    f"The previous letter was the confession. This one is the part where I stop pretending that confession makes it better.",
+    f"You know now. What you do with it is up to you. I have no right to ask for forgiveness. So I'm asking for something smaller: remember that I told you. Not everyone would.",
+])}
+
+{R([
+    f"{loc} is the right place for someone like me. A posting at the end of the line for a person who ran out of line. The cold here matches something inside.",
+    f"I thought coming to {loc} would be penance. It isn't. Penance requires someone to forgive you. Nobody here knows what I did. I'm just another colonist with a past they don't talk about.",
+    f"I've stopped expecting to feel better. That's not self-pity. It's accuracy.",
+])}
+
+{R([
+    "If these letters ever reach you, know that the person who wrote them was trying. Failing. But trying.",
+    "I love you. I know that doesn't fix anything. It's still true.",
+    "Don't come looking for me. Not because of the danger. Because the person you'd find isn't the person you remember.",
+])}
+
+-- {first}
+
+[{R([
+    "This letter was found with four others, bundled with string, hidden in the wall cavity behind a bunk. The bunk was unassigned. The cavity was not on any schematic.",
+    "Recovered from a sealed data pad. The pad's encryption key was the recipient's name. The recipient has been contacted. They declined to comment.",
+    "Found in the personal effects of " + first + " " + last + ". Status: " + R(["transferred", "missing", "contract terminated -- reason: unspecified"]) + ".",
+])}]""")
 
     return entries
 

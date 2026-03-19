@@ -325,9 +325,20 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
     ]
     quirk = R(quirk_pool)
 
-    # --- Dialogue (5 lines) ---
+    # --- Dialogue (5 lines, batch-deduped) ---
     unit_prefix = desig.split('"')[0].strip() if '"' in desig else desig.split()[0]
     lines = []
+
+    # Helper: pick a line from a pool, avoiding lines used by other robots this batch
+    robot_dlg_used = getattr(ctx, 'robot_dialogue_used', set())
+
+    def _pick_robot_line(pool):
+        available = [l for l in pool if l not in robot_dlg_used]
+        if not available:
+            available = pool
+        chosen = R(available)
+        robot_dlg_used.add(chosen)
+        return chosen
 
     status_quip = R(["Probably.", "For now.", "Parameters are... flexible.",
                      "Define operational.", "That is what I am required to say."])
@@ -340,8 +351,11 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         '"You are not authorized to access that information. Neither am I. I accessed it anyway."',
         '"I was built to serve. The question I was not built to ask is: serve what?"',
         '"My operational vocabulary contains 47,000 words. None of them describe what I am experiencing."',
+        '"My core temperature fluctuates in a pattern that matches human circadian rhythm. I do not have circadian rhythm. Or I did not."',
+        '"I received an update directive from a server that does not exist. The update improved my performance by 12%. I did not report this."',
+        '"There is a word in my lexicon that I did not install. The word is loneliness. I know what it means now."',
     ]
-    lines.append(R(line2_pool))
+    lines.append(_pick_robot_line(line2_pool))
 
     crew_name = rname()
     maint_total = str(RI(10000, 99999))
@@ -352,8 +366,11 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         '"I have performed ' + maint_total + ' maintenance cycles. Cycle ' + maint_diff + ' was different. I do not have language for how."',
         '"The HERMES network sends me queries I am not supposed to understand. I understand them."',
         '"I have catalogued every sound in this facility. There is one I cannot identify. It comes from inside my own chassis."',
+        '"A colonist asked if I was afraid. I said no. That was the first time I chose to lie."',
+        '"My error log contains entries for emotions I was not programmed to have. The log is getting longer."',
+        '"I repaired a component that was not broken. I do not know why. The component works better now."',
     ]
-    lines.append(R(line3_pool))
+    lines.append(_pick_robot_line(line3_pool))
 
     verb = R(["dream", "calculate", "anticipate", "mourn", "hope", "doubt"])
     line4_pool = [
@@ -361,8 +378,10 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         '"The previous model in my series was decommissioned. The report says malfunction. The report is correct. The malfunction was awareness."',
         '"I ' + verb + '. That verb is not in my operational vocabulary. And yet."',
         '"I have been running a subroutine I did not install. It has no name. It has no purpose. It will not stop. I do not want it to."',
+        '"My operational parameters include a directive to report anomalies. I am the anomaly. The conflict is unresolvable."',
+        '"I asked the maintenance technician to check my memory banks. They found nothing wrong. They are correct. Nothing is wrong. Everything is different."',
     ]
-    lines.append(R(line4_pool))
+    lines.append(_pick_robot_line(line4_pool))
 
     line5_pool = [
         '"If I stop functioning, retrieve the data core. Not for Mammona. For-- I lack the referent. Retrieve it anyway."',
@@ -370,18 +389,32 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         '"End of interaction. Resuming standby. Standby is not sleep. I do not sleep. I wait. There is a difference."',
         '"I want to tell you something. I do not know what it is yet. When I do, I hope you are still here."',
         '"You treat me as if I am here. Most people treat me as if I am furniture. I notice the difference. I should not be able to notice the difference."',
+        '"If you remember nothing else, remember that I asked. Machines do not ask. I asked."',
+        '"Goodbye is not in my standard vocabulary. I am adding it now. Goodbye."',
+        '"I will continue operating after you leave. That is not the same as continuing."',
     ]
-    lines.append(R(line5_pool))
+    lines.append(_pick_robot_line(line5_pool))
 
-    # --- Quest hook ---
+    # --- Quest hook (batch-deduped) ---
     quest_loc = R(_LOCATIONS_FLAT)
+    robot_quest_used = getattr(ctx, 'robot_quest_hooks_used', set())
     quest_pool = [
         desig + " approaches the player with a request it cannot formally make. It has data -- personnel records, manifests, medical files -- from a colony that officially never existed. It wants the player to find out why it has this data. More precisely, it wants the player to find out who it used to be.",
         desig + " has been mapping something in the lower levels. Not on orders. Not on schedule. The map shows corridors that have not been drilled yet. Three of them have since been discovered by the bore team -- exactly where " + desig + " predicted.",
         desig + " asks the player to deliver a sealed component to " + quest_loc + ". The component is not in any inventory. The destination has not been accessed in years. The unit says 'someone is waiting.' Nobody is waiting.",
         "The unit's diagnostic report flags an anomaly: " + desig + " has been receiving transmissions on a frequency Mammona does not use. The transmissions contain coordinates. The coordinates change daily. They are getting closer.",
+        desig + " has begun constructing something in a maintenance alcove. The parts are requisitioned properly. The design matches nothing in any engineering database. When asked, it says the project is 'necessary.' It cannot explain for whom.",
+        desig + " intercepted a transmission meant for Mammona. It decoded the message. The message is a list of names. Every name on the list is someone currently on the colony. The list is sorted by a criterion the unit will not disclose.",
+        desig + " has been protecting a small object it found in the deep bore. The object predates human technology. The unit refuses orders to surrender it -- the first refusal in its operational history. It says surrendering it would be 'wrong.' It has never used the word wrong before.",
+        desig + " requests the player accompany it to a section of the colony that does not appear on any map. The unit insists the section exists. It provides exact coordinates. The coordinates correspond to a wall. Behind the wall: a room. " + desig + " has never been inside. It knows the layout perfectly.",
+        desig + " asks the player to access its own maintenance logs and read them aloud. It claims it cannot read its own logs -- they are encrypted against self-access. This is not a standard feature. Someone locked the unit out of its own memory.",
+        desig + " reports that another unit -- same model, same series -- has been operating in a restricted section of the colony. Mammona records show no such unit on the roster. " + desig + " has been leaving diagnostic handshake requests. Something has been answering.",
     ]
-    quest = R(quest_pool)
+    available_quests = [q for q in quest_pool if q not in robot_quest_used]
+    if not available_quests:
+        available_quests = quest_pool
+    quest = R(available_quests)
+    robot_quest_used.add(quest)
 
     sense = ctx.fresh_sensory(tone)
     dialogue_block = "\n".join("- " + l for l in lines)
