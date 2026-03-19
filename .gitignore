@@ -36,6 +36,9 @@ __pycache__/
 *.pyo
 .venv/
 
+# Generator world state
+world_state*.json
+
 # Large binaries (keep tracked via LFS or skip)
 # *.png  (uncomment if you want to skip sprites)
 
