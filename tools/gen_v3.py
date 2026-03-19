@@ -639,6 +639,164 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
 
 # ============================================================
+# QUEST DATA — imported from gen_pools_quest.py
+# ============================================================
+
+from gen_pools_quest import QUEST_ARCHETYPES, COLONY_SECTIONS, REWARD_TYPES
+
+
+# ============================================================
+# QUEST GENERATOR
+# ============================================================
+
+def gen_quest(ctx, tone=None, planet=None, era=None):
+    """
+    Compositional quest generator.
+    Picks an archetype, fills template slots with context-appropriate values,
+    applies tone blending and sensory details, adds NPC dialogue.
+    """
+    # --- Tone blending ---
+    if tone:
+        primary = tone
+        secondary = pick_tone()
+        # Avoid same tone for secondary
+        if secondary == primary:
+            secondary = pick_tone()
+    else:
+        primary, secondary = pick_tone_blend()
+
+    # --- Pick archetype ---
+    archetype_keys = list(QUEST_ARCHETYPES.keys())
+    archetype_key = ctx.pick_fresh(archetype_keys, "quest_archetypes")
+    archetype = QUEST_ARCHETYPES[archetype_key]
+    genre = archetype["genre"]
+
+    # --- NPC for the quest ---
+    # Try cross-referencing an existing NPC from this batch
+    existing_npc = ctx.get_random_npc()
+    if existing_npc:
+        npc_full = existing_npc["name"]
+        parts = npc_full.split()
+        npc_first = parts[0] if parts else npc_full
+    else:
+        first, last, gender = ctx.fresh_name()
+        npc_full = f"{first} {last}"
+        npc_first = first
+
+    # --- Location ---
+    location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
+
+    # --- Faction ---
+    faction_keys = list(FACTIONS.keys())
+    faction_key = R(faction_keys)
+    faction_data = FACTIONS[faction_key]
+    faction_name = faction_data["name"]
+
+    # --- Item ---
+    item = R(ITEMS)
+
+    # --- Section ---
+    section = R(COLONY_SECTIONS)
+
+    # --- Sensory detail from primary tone ---
+    sense = ctx.fresh_sensory(primary)
+
+    # --- Lore reference ---
+    lore = R(LORE)
+
+    # --- Secret ---
+    secret = R(SECRETS)
+
+    # --- Event ---
+    events = filter_events_by_era(era)
+    event = R(events)
+
+    # --- Template fill dict ---
+    fill = dict(
+        npc=npc_full,
+        npc_first=npc_first,
+        location=location,
+        faction=faction_name,
+        item=item,
+        section=section,
+        sensory=sense,
+        lore=lore,
+        secret=secret,
+        event=event,
+    )
+
+    # --- Fill archetype templates ---
+    quest_name = safe_format(R(archetype["name_pool"]), **fill)
+    trigger = safe_format(archetype["trigger"], **fill)
+    setup = safe_format(archetype["setup"], **fill)
+    objectives = [safe_format(obj, **fill) for obj in archetype["objectives"]]
+    choice_block = safe_format(R(archetype["choices"]), **fill)
+    twist = safe_format(R(archetype["twists"]), **fill)
+
+    # --- Additional sensory detail from secondary tone ---
+    sense2 = ctx.fresh_sensory(secondary)
+
+    # --- Apply contractions ---
+    trigger = enforce_contractions(trigger, primary)
+    setup = enforce_contractions(setup, primary)
+    objectives = [enforce_contractions(obj, primary) for obj in objectives]
+    choice_block = enforce_contractions(choice_block, primary)
+    twist = enforce_contractions(twist, primary)
+
+    # --- Dialogue lines ---
+    primary_trait = None
+    if existing_npc and existing_npc.get("traits"):
+        primary_trait = existing_npc["traits"][0]
+
+    quest_dialogue_contexts = ["confession", "warning", "observation", "plea"]
+    line1_ctx = R(quest_dialogue_contexts)
+    line2_ctx = R([c for c in quest_dialogue_contexts if c != line1_ctx])
+    d_line1 = get_dialogue(line1_ctx, primary, primary_trait)
+    d_line2 = get_dialogue(line2_ctx, primary, primary_trait)
+
+    # --- Reward ---
+    reward_cores = RI(3, 15)
+    reward_type = safe_format(R(REWARD_TYPES), **fill)
+
+    # --- Format objectives ---
+    obj_block = "\n".join(f"{i+1}. {obj}" for i, obj in enumerate(objectives))
+
+    # --- Build output ---
+    output = f"""## QUEST: {quest_name}
+**Genre:** {genre.replace('_', ' ').title()} | **Tone:** {primary} / {secondary}
+**Location:** {location} | **Faction:** {faction_name}
+
+**Trigger:**
+{trigger}
+
+**Setup:**
+{setup}
+
+{sense2}
+
+**Objectives:**
+{obj_block}
+
+**The Choice:**
+{choice_block}
+
+**Twist:**
+{twist}
+
+**Dialogue During Quest:**
+- {npc_first}: "{d_line1}"
+- Player: [Respond / Stay Silent / Leave]
+- {npc_first}: "{d_line2}"
+
+**Reward:** {reward_cores} thermal cores, {reward_type}"""
+
+    # --- Log in context ---
+    ctx.world.log_generation("quest", quest_name)
+
+    return output
+
+
+# ============================================================
 # GENERATORS REGISTRY
 # ============================================================
 
@@ -646,6 +804,7 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 # gen_func signature: gen_func(ctx, tone=None, planet=None, era=None) -> str
 GENERATORS = {
     "npc": (gen_npc, "NPC"),
+    "quest": (gen_quest, "Quest"),
 }
 
 # Weighted type distribution for random selection
