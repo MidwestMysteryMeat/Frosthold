@@ -1794,6 +1794,13 @@ GENERATORS = {
     "history": (gen_history, "History Event"),
 }
 
+# Import expanded generators (robot, company, vehicle, weapon, artifact, entity, location, faction)
+try:
+    from gen_v3_expanded import EXPANDED_GENERATORS
+    GENERATORS.update(EXPANDED_GENERATORS)
+except ImportError:
+    pass  # expanded generators optional
+
 # Weighted type distribution for random selection
 GENERATOR_WEIGHTS = {
     "npc": 3,
