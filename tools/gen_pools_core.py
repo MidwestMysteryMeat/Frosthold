@@ -2178,6 +2178,264 @@ GENETICS = [
 
 
 # ============================================================
+# HEALTH CONDITIONS (~45) — chronic, acute, injury, environmental
+# ============================================================
+
+HEALTH_CONDITIONS = [
+    # Chronic pain / musculoskeletal
+    {"condition": "chronic pain — lower back", "visible": True, "behavioral": "moves carefully. Stands when others sit. Takes longer on ladders. Never complains."},
+    {"condition": "partial deafness — left ear", "visible": False, "behavioral": "always positions people on the right side. Turns the whole head to listen. Misses alarms sometimes."},
+    {"condition": "Type 1 diabetes", "visible": False, "behavioral": "checks blood sugar on a battered monitor between shifts. Hoards ration packs. Terrified of supply disruptions."},
+    {"condition": "epilepsy — controlled", "visible": False, "behavioral": "takes medication at exactly the same time every day. Carries emergency doses. Won't go anywhere alone below level 3."},
+    {"condition": "chronic migraines", "visible": False, "behavioral": "disappears for hours. Dark room. No noise. Comes back pale and functional. Doesn't discuss it."},
+    {"condition": "asthma", "visible": False, "behavioral": "keeps an inhaler in every room they work in. The cold makes it worse. The dust makes it worse. Everything here makes it worse."},
+    {"condition": "rheumatoid arthritis — hands", "visible": True, "behavioral": "morning stiffness lasts two hours. Wraps the knuckles in heated tape. Works through it. Grip strength is half what it was."},
+    {"condition": "Crohn's disease", "visible": False, "behavioral": "knows every bathroom in the colony by distance. Maps routes accordingly. The NutriLoaf is agony. Eats it anyway."},
+    {"condition": "tinnitus — high-frequency", "visible": False, "behavioral": "constant ringing. Can't hear it in noisy environments. Seeks out noisy environments. Silence is the enemy."},
+    {"condition": "chronic vertigo", "visible": False, "behavioral": "grips railings like they're load-bearing promises. Won't look down ladders. Gets through the day by staring at fixed points."},
+    # Injury / post-surgical
+    {"condition": "radiation sickness — early stage", "visible": True, "behavioral": "hair thinning. Bruises that don't heal. Still works full shifts. The dosimeter readings are 'within parameters.'"},
+    {"condition": "frostbite damage — three toes", "visible": False, "behavioral": "walks different in the cold. Checks boots obsessively. The missing toes ache before storms. Better than a barometer."},
+    {"condition": "chemical lung — bore shaft exposure", "visible": True, "behavioral": "coughs in the morning. Wet, heavy. Doesn't stop for ten minutes. Then fine until the next morning."},
+    {"condition": "tremor — essential, not fear", "visible": True, "behavioral": "hands shake at rest. Steady under load. Can thread a needle if it matters. The shaking is genetic, not psychological. People assume otherwise."},
+    {"condition": "torn rotator cuff — never repaired", "visible": False, "behavioral": "can't lift the right arm above the shoulder. Learned to do everything left-handed or low. Compensates so well most people don't notice."},
+    {"condition": "old femur fracture — pinned", "visible": False, "behavioral": "metal rod in the left leg. Sets off the security scanner every time. Has a card. Shows it. Nobody reads it."},
+    {"condition": "spinal compression — L4-L5", "visible": True, "behavioral": "shorter than they used to be. Lost two centimeters to the vertebrae compressing. The pain is constant and low, like background radiation."},
+    {"condition": "nerve damage — left hand", "visible": False, "behavioral": "can't feel the last two fingers. Drops things. Small things. Has learned not to hold anything irreplaceable with the left hand."},
+    {"condition": "shrapnel fragments — abdomen", "visible": False, "behavioral": "three pieces of metal still in there. Too close to the artery to remove. Shows up on scans like a constellation."},
+    # Respiratory / environmental
+    {"condition": "silicosis — stage 1", "visible": True, "behavioral": "rock dust in the lungs. Years of drilling without proper filters. The cough is dry and persistent. Gets worse in confined spaces."},
+    {"condition": "chronic sinusitis", "visible": False, "behavioral": "can't smell anything. Hasn't been able to for two years. Doesn't know when food's gone bad. Relies on others to check."},
+    {"condition": "vocal cord scarring", "visible": True, "behavioral": "voice comes out ragged, half-volume. Chemical exposure on a previous posting. Speaks less because speaking costs effort."},
+    # Cardiovascular
+    {"condition": "arrhythmia — intermittent", "visible": False, "behavioral": "heart skips. Happens under stress, or when it's cold, or for no reason at all. Pauses mid-sentence when it happens. Waits. Continues."},
+    {"condition": "peripheral artery disease", "visible": False, "behavioral": "legs cramp on long walks. Stops and pretends to check equipment while the pain passes. Gets to the same places. Takes longer."},
+    {"condition": "hypertension — unmedicated", "visible": False, "behavioral": "the colony ran out of their medication eight weeks ago. Hasn't told the medic it's back. Headaches every afternoon. Nosebleeds at night."},
+    # Vision / hearing
+    {"condition": "macular degeneration — early onset", "visible": False, "behavioral": "central vision going soft. Can still see peripherally. Reads by holding text at arm's length. Hasn't told anyone. Won't."},
+    {"condition": "bilateral hearing loss — noise-induced", "visible": False, "behavioral": "twenty years of drill floors. Reads lips without realizing they're doing it. Sits where they can see faces. Gets called a good listener."},
+    {"condition": "nystagmus", "visible": True, "behavioral": "eyes move in small involuntary cycles. Doesn't affect their vision. Makes other people uncomfortable. They've stopped caring about that."},
+    # Autoimmune / systemic
+    {"condition": "psoriasis — severe", "visible": True, "behavioral": "skin cracks and flakes in the dry colony air. Worse in winter. It's always winter. Keeps their sleeves down and their collar up."},
+    {"condition": "lupus — managed", "visible": False, "behavioral": "joint pain that migrates. Wrists today, knees tomorrow. The fatigue comes in waves. Plans around the waves. Doesn't explain."},
+    {"condition": "Raynaud's syndrome", "visible": True, "behavioral": "fingers go white and numb in the cold. On Erebus. Where it's always cold. Carries hand warmers everywhere. The chemical ones that last four hours. Does the math on the remaining supply."},
+    # Digestive / nutritional
+    {"condition": "celiac disease", "visible": False, "behavioral": "most colony rations contain grain. Eats them anyway. Pays for it. The alternatives are worse. Keeps a log of which ration packs are safe. The log is short."},
+    {"condition": "chronic gastritis", "visible": False, "behavioral": "can't eat on an empty stomach. Can't eat on a full stomach. Has worked out a schedule. Eight small meals. The mess hall runs three sittings."},
+    {"condition": "scurvy — subclinical", "visible": True, "behavioral": "gums bleed. Bruises don't heal. The supply ship is late and the colony ran out of anything resembling fruit six weeks ago."},
+    # Sleep disorders (medical)
+    {"condition": "sleep apnea — untreated", "visible": False, "behavioral": "stops breathing twenty times a night. Wakes up exhausted. Bunkmates have gotten used to the silence-then-gasp pattern. Nobody's gotten used to it."},
+    {"condition": "restless leg syndrome", "visible": False, "behavioral": "legs won't stay still after 2100. Walks the corridors. Night shift knows them by their footsteps. Has logged more kilometers than anyone on the colony."},
+    # Dental
+    {"condition": "chronic dental abscess", "visible": False, "behavioral": "swollen jaw, right side. The colony doesn't have a dentist. The medic drained it once. It came back. Eats on the left side. Doesn't smile wide."},
+    {"condition": "broken molar — impacted", "visible": False, "behavioral": "cracked tooth they can't get treated. Pain comes and goes. When it comes, they go quiet. Very quiet. Then it passes."},
+    # Neurological
+    {"condition": "peripheral neuropathy — feet", "visible": False, "behavioral": "can't feel the ground properly. Walks flat-footed, careful. Checks their boots for rocks by hand because they can't feel them. Tripped twice last month."},
+    {"condition": "post-concussion syndrome", "visible": False, "behavioral": "headaches, light sensitivity, trouble concentrating. Three months since the accident. Should be better by now. Isn't. The medic says give it time. Time doesn't help."},
+    # Repetitive strain / occupational
+    {"condition": "carpal tunnel — both wrists", "visible": False, "behavioral": "wrists locked in splints at night. Takes them off for shift. The numbness starts around hour four. Types with two fingers by hour eight."},
+    {"condition": "miner's elbow — bilateral", "visible": True, "behavioral": "can't fully extend either arm. Swelling in the joints from years of vibration tools. Arms bent at all times. Looks like they're always ready to swing."},
+    {"condition": "chronic shoulder impingement", "visible": False, "behavioral": "overhead work is agony. Asks for the low jobs. Doesn't explain why. Gets called lazy by people who don't know."},
+    # Skin / exposure
+    {"condition": "contact dermatitis — chemical", "visible": True, "behavioral": "hands raw and cracked from bore shaft chemicals. Double-gloves. Triple-gloves. The reaction gets through anyway. Washes with cold water because hot water makes it worse."},
+    {"condition": "frostbite scarring — face", "visible": True, "behavioral": "waxy patches on the cheeks and nose where the tissue died and regrew wrong. Sensation is dull there. Doesn't feel the cold on those spots. Feels everything else."},
+]
+
+
+# ============================================================
+# MENTAL HEALTH (~45) — behavior, not labels
+# ============================================================
+
+MENTAL_HEALTH = [
+    # Mood disorders
+    {"condition": "depression", "visible": False, "hidden_signs": "eats alone. Stopped maintaining their quarters. The bunk is made because habit, not care. Functional. That's the word they use. Functional.", "coping": "keeps moving. Stops moving and it gets worse. So they don't stop."},
+    {"condition": "bipolar — manic phase", "visible": True, "hidden_signs": "hasn't slept in three days but is sharper than anyone in the room. Ideas coming fast. Too fast. The crash will come. Everyone who knows them is waiting for it.", "coping": "medication when available. The supply ship is late."},
+    {"condition": "bipolar — depressive phase", "visible": False, "hidden_signs": "same person who rewired the comms array in eight hours is now lying in the bunk staring at the ceiling. Can't get up. Won't try. The ceiling stares back.", "coping": "routine. The routine is the rope they follow back. When the routine breaks, they break."},
+    {"condition": "anxiety — generalized", "visible": False, "hidden_signs": "triple-checks everything. Runs scenarios. What if the generator fails. What if the supply ship doesn't come. What if the bore shaft hits something. Exhausting to live inside.", "coping": "lists. Makes lists of lists. The lists help. Losing a list does not help."},
+    {"condition": "panic disorder", "visible": False, "hidden_signs": "hits without warning. Heart hammering, vision tunneling, hands tingling. Sits down wherever they are. Counts backward from a hundred. Has gotten to eighty-six. Then it passes.", "coping": "counting. Grounding. Five things they can see. Four they can touch. Works until it doesn't."},
+    # Trauma responses
+    {"condition": "PTSD — combat", "visible": False, "hidden_signs": "fine until a door slams or the drill changes pitch. Then somewhere else for thirty seconds. Comes back sweating.", "coping": "breathing exercises taught by a medic on the last posting. They work sometimes."},
+    {"condition": "PTSD — accident", "visible": False, "hidden_signs": "won't go near heavy machinery. Took a desk job. Nobody asks why the best mechanic on the posting won't touch an engine.", "coping": "distance. Physical distance from the thing that happened."},
+    {"condition": "complex PTSD", "visible": False, "hidden_signs": "flinches from kindness. Expects the cost. Watches for the angle. There's always an angle.", "coping": "control. Controls everything they can. Schedule, food, bunk arrangement. The things they can't control keep them up at night."},
+    {"condition": "PTSD — medical", "visible": False, "hidden_signs": "can't go to the infirmary. Won't let the medic touch them. Self-treats cuts with a stolen kit in their bunk. The stitches are uneven but they hold.", "coping": "avoidance. Complete, thorough avoidance. Hasn't had a checkup in fourteen months."},
+    # Psychotic spectrum
+    {"condition": "schizophrenia — managed", "visible": False, "hidden_signs": "takes medication that Mammona classifies as 'non-essential.' The colony medic disagrees. Quietly. The voices are quiet when medicated. Without medication, they're not voices — they're instructions.", "coping": "medication. Routine. A bunkmate who knows the signs before they do."},
+    {"condition": "schizoaffective", "visible": False, "hidden_signs": "the line between what Erebus does to people and what the condition does is getting harder to draw. The medic has stopped trying. Both are real. Both are getting worse.", "coping": "journaling. Writes down what's real. Checks against yesterday's entry. When they match, it's a good day."},
+    {"condition": "psychotic episodes — intermittent", "visible": False, "hidden_signs": "most of the time, sharp as anyone. Then a bad week comes and the walls start talking. Or the walls were always talking and now they can hear it. Erebus makes the distinction academic.", "coping": "a bunkmate who's memorized the pattern. First sign: they stop eating. Second sign: they start answering questions nobody asked."},
+    # Personality / behavioral
+    {"condition": "OCD — contamination", "visible": True, "hidden_signs": "washes hands until they crack and bleed. On Erebus, with the contamination, the bore shaft, the things in the ice — the compulsion isn't entirely irrational. That makes it worse.", "coping": "rituals. The rituals take longer each week."},
+    {"condition": "OCD — checking", "visible": True, "hidden_signs": "locks the same door five times. Checks the reactor gauges in a pattern. Can't leave a room without verifying every panel. The colony thinks they're thorough. They're drowning.", "coping": "the pattern. If the pattern holds, the day holds. If someone interrupts the pattern, it starts over."},
+    {"condition": "ADHD — unmedicated", "visible": True, "hidden_signs": "brilliant in bursts. Unreliable in stretches. Started six projects. Finished two. The two were exceptional.", "coping": "caffeine. Structure imposed by others. Falls apart during downtime."},
+    {"condition": "borderline traits", "visible": False, "hidden_signs": "relationships burn bright and burn out. Best friend on Monday. Not speaking by Friday. The intensity of attachment scares people. Scares them too.", "coping": "distance. Preemptive distance. Leaves before being left. It still hurts but at least they chose it."},
+    # Substance-related
+    {"condition": "alcoholism — functional", "visible": False, "hidden_signs": "never drunk. Never sober. The line between is where they live. Performance is fine. Nobody asks because nobody wants to cover their shifts.", "coping": "the bottle in the locker. The backup bottle behind the panel. The emergency bottle they won't tell you about."},
+    {"condition": "voidbloom dependency", "visible": True, "hidden_signs": "the pupils. The way they stand too still. The moments where they're listening to something nobody else can hear. Erebus sounds different through voidbloom. Clearer. That's the problem.", "coping": "rationing. One dose in the evening. Never before shift. The rule holds. Most weeks."},
+    {"condition": "stimulant dependency — occupational", "visible": False, "hidden_signs": "started with double shifts. Needed something to stay sharp. Now needs it to stay normal. The dose has tripled. The medic prescribes it. Mammona reimburses it. Nobody calls it what it is.", "coping": "the next pill. And the one after that. And the schedule that says when."},
+    # Neurodivergent
+    {"condition": "autism — late-diagnosed", "visible": False, "hidden_signs": "reads technical manuals for comfort. Misses social cues but reads machines like other people read faces. Overstimulated by the mess hall. Understimulated by everything else.", "coping": "routine. Sameness. The colony's rigid schedule is accidentally therapeutic."},
+    {"condition": "autism — undiagnosed", "visible": False, "hidden_signs": "has a system for everything. Eats the same meal at the same time. Wears the same shirt. The system holds the world together. When people disrupt the system, the world gets very loud.", "coping": "the system. When the system works, everything works. When it doesn't, they go silent and wait until it does."},
+    # Dissociative
+    {"condition": "dissociative episodes", "visible": False, "hidden_signs": "gaps. Minutes, sometimes hours. Comes back mid-sentence, mid-task, mid-step. Doesn't always know it happened. Others do.", "coping": "writes timestamps on their hand. Checks them. The gaps between timestamps tell the story."},
+    {"condition": "depersonalization", "visible": False, "hidden_signs": "watches their own hands work and doesn't recognize them. Steps outside themselves during conversation. Present but observing from a distance. Like watching a recording of a life that belongs to someone else.", "coping": "physical sensation. Holds ice. The cold brings them back. On Erebus, there's no shortage of cold."},
+    # Grief / adjustment
+    {"condition": "complicated grief", "visible": False, "hidden_signs": "the person died two years ago. The grief hasn't moved. Keeps their shift schedule. Sets a place at the mess table. Talks about them in present tense.", "coping": "preservation. Keeping everything the same. If nothing changes, maybe the loss isn't real."},
+    {"condition": "acute grief", "visible": True, "hidden_signs": "recent. Raw. Can't look at the empty bunk without stopping. Works through it because stopping means feeling it. The colony gives them space. Space doesn't help.", "coping": "work. Twelve-hour shifts. Fourteen. The exhaustion is a mercy. Sleep without dreams."},
+    {"condition": "survivor's guilt", "visible": False, "hidden_signs": "made it out. Others didn't. Can't explain why. Doesn't eat well. Gives things away. Takes the dangerous shifts. Not suicidal — just not sure they deserved to survive.", "coping": "penance dressed up as volunteering. Takes the shifts nobody wants. Does the jobs nobody asks for. Keeps a tally nobody sees."},
+    # Anxiety spectrum
+    {"condition": "agoraphobia", "visible": True, "hidden_signs": "won't cross the open ground between hab modules. Takes the long way through corridors. Every time. Arrives late to everything. Doesn't explain.", "coping": "walls. Follows walls. Hand on the surface. As long as there's a wall, there's a boundary. The open ice is the enemy."},
+    {"condition": "claustrophobia — developed on posting", "visible": True, "hidden_signs": "didn't used to have it. Three months in the deep bore cured that. Now the walls are too close in every room. Sleeps near the door. Near the exit. Near the way out.", "coping": "knowing where the exits are. Every room, every corridor. First thing they check. Last thing they forget."},
+    {"condition": "social anxiety", "visible": False, "hidden_signs": "speaks fine one-on-one. Groups shut them down. The mess hall at peak hours is a war zone. Eats early or late. Never during the rush.", "coping": "scheduling. Gets there first. Leaves before the crowd. Has mapped the colony's traffic patterns better than logistics has."},
+    {"condition": "hypervigilance", "visible": True, "hidden_signs": "scans every room on entry. Counts exits. Notes who's standing where. Tracks movement in the periphery. Exhausting. Can't turn it off. Hasn't felt safe since before they can remember.", "coping": "position. Back to the wall. Clear sightlines. Nearest exit within three steps. The preparation is the armor."},
+    # Anger / behavioral
+    {"condition": "intermittent explosive episodes", "visible": True, "hidden_signs": "fine for weeks. Then a trigger — a dropped wrench, a wrong word — and the rage hits like a pressure blowout. Regret comes after. Always after.", "coping": "isolation when they feel it building. Walks the perimeter. Hits the wall in Section C where nobody goes. The dents are evidence."},
+    {"condition": "anger — chronic, controlled", "visible": False, "hidden_signs": "angry all the time. Not at anything specific. At the cold. At Mammona. At the situation. At themselves. Keeps it locked down so tight the pressure is visible in the jaw.", "coping": "physical work. Swings a pick until the anger converts to exhaustion. The conversion rate isn't great but it's all they've got."},
+    # Compulsive / behavioral
+    {"condition": "hoarding — supplies", "visible": True, "hidden_signs": "ration packs under the bunk. Medical supplies behind a panel. Three backup flashlights. Not greed — terror. Lived through a supply failure on the last posting. Won't live through another unprepared.", "coping": "the cache. Knowing it's there. Checking it every night. One item missing and the panic starts."},
+    {"condition": "disordered eating — restriction", "visible": False, "hidden_signs": "doesn't eat. Or eats and throws it up. Or eats one thing. The portion is getting smaller. Lost weight they didn't have to lose. Says they're not hungry. Nobody's hungry on Erebus.", "coping": "control. Everything else here is out of their control. What goes into their body is the one thing they can decide."},
+    # Paranoia
+    {"condition": "paranoia — situational", "visible": False, "hidden_signs": "trusts nobody new. Checks their bunk for tampering. Watches who talks to whom and logs it. On Erebus, where Mammona is lying, HERMES is compromised, and something's moving in the ice — is it paranoia or pattern recognition?", "coping": "information. Collects it. Hoards it. Cross-references it. The data is the defense. Whether the conclusions are right is a different question."},
+    {"condition": "paranoia — worsening", "visible": True, "hidden_signs": "started with reasonable suspicion. Mammona lies. That's a fact. But now it's everyone. The medic, the cook, the bunkmate. The network of deceit gets bigger every week. The worst part: some of it's probably true.", "coping": "verification. Tests. Small lies told to specific people to see where they surface. The testing is getting more elaborate."},
+    # Trauma-adjacent
+    {"condition": "moral injury", "visible": False, "hidden_signs": "did something on orders. Something that was wrong. Knew it was wrong at the time. Did it anyway. The orders don't help. The justification doesn't help. It's in the hands. In what the hands did.", "coping": "atonement without naming it. Takes the worst jobs. Gives things away. Doesn't believe they deserve comfort. The colony thinks they're selfless."},
+    {"condition": "burnout — terminal", "visible": True, "hidden_signs": "used to care. About the work, the people, the colony. Now shows up. Does the minimum. Goes back to the bunk. The caring burned out somewhere around month fourteen. Nothing left to burn.", "coping": "nothing. That's the problem. The coping mechanisms burned out too."},
+    # Insomnia (psychological)
+    {"condition": "insomnia — psychological", "visible": True, "hidden_signs": "tired all the time. Can't sleep. Body wants sleep. Brain refuses. Lies in the bunk counting ceiling bolts. Has counted them all. Recounts.", "coping": "exhaustion. Works until they can't stand. Falls into the bunk. Gets four hours. The four hours are not enough."},
+    # Phobias (setting-specific)
+    {"condition": "phobia — the dark below", "visible": False, "hidden_signs": "won't go below level 2. Took a surface posting at half the pay. Everyone thinks it's the cold they're avoiding. It's not the cold. It's what's in the dark under the colony.", "coping": "light. Carries three flashlights. Batteries checked twice a day. The dark can't get them if there's always light."},
+    {"condition": "phobia — the ice", "visible": True, "hidden_signs": "won't walk on open ice. Won't touch it. Won't look at it if they can help it. Something happened on the ice. They won't say what. The ice remembers even if they don't.", "coping": "corridors. Enclosed paths. The covered walkway between modules. Never the open ground."},
+    # Self-harm / ideation (handled with care)
+    {"condition": "self-harm history", "visible": False, "hidden_signs": "old scars on the forearms, hidden under sleeves. Hasn't done it in two years. The urge comes back when things get bad. Sits on their hands. Literally. Sits on their hands until it passes.", "coping": "the ice trick. Holds ice until it hurts. Pain without damage. The medic taught them. It works. Most of the time."},
+    {"condition": "suicidal ideation — passive", "visible": False, "hidden_signs": "doesn't want to die. Doesn't want to live either. Exists in the space between. Takes risks that aren't quite reckless. Stands at edges a second too long. Hasn't made a plan. Hasn't ruled one out.", "coping": "the next shift. Gets through this shift. Then the next one. The horizon is twelve hours away. Beyond that is fog."},
+    # Adjustment
+    {"condition": "adjustment disorder", "visible": False, "hidden_signs": "three months on Erebus and still flinching at every sound. Hasn't settled. Hasn't adapted. The colony says give it time. Time is making it worse, not better.", "coping": "routine from the old posting. Same wake-up time. Same meal order. Importing structure from a place that doesn't exist anymore."},
+]
+
+
+# ============================================================
+# GENETIC DISORDERS (~22) — inherited, affects behavior
+# ============================================================
+
+GENETIC_DISORDERS = [
+    {"condition": "sickle cell trait", "visible": False, "behavioral": "the cold is worse for them than for others. Mammona's medical screening should've caught it. Didn't. Or did and sent them anyway."},
+    {"condition": "color blindness — red-green", "visible": False, "behavioral": "learned the control panels by position, not color. Faster than anyone at the console. For different reasons."},
+    {"condition": "hypermobility syndrome", "visible": False, "behavioral": "joints that bend too far. Useful in tight spaces. Pays for it with dislocations. Pops a shoulder back in without pausing the conversation."},
+    {"condition": "hereditary hemochromatosis", "visible": False, "behavioral": "too much iron in the blood. Needs regular bloodletting. The medic obliges. On a colony that trades in thermal cores, blood is still the oldest currency."},
+    {"condition": "familial insomnia", "visible": True, "behavioral": "genetic. The family doesn't sleep well. On Erebus, where nobody sleeps well, they fit right in. Except their version is worse. Much worse."},
+    {"condition": "Marfan syndrome", "visible": True, "behavioral": "tall, thin, long fingers. Joint pain on cold mornings — every morning. Reaches things nobody else can reach. Pays for it in aching wrists by end of shift."},
+    {"condition": "hereditary neuropathy — hands", "visible": False, "behavioral": "numbness that started in the fingertips and crept up. Genetic. Their parent had it. Drops small tools. Carries everything in a belt pouch so the fumbling doesn't matter."},
+    {"condition": "congenital deafness — one ear", "visible": False, "behavioral": "born deaf on the right side. Learned to compensate so well most people don't know. Sits in the same chair at every meeting. The chair on the left end."},
+    {"condition": "dwarfism — proportionate", "visible": True, "behavioral": "short. Built for mine shafts. Mammona recruited them for the height. Or the lack of it. Gets to places nobody else fits. Gets overlooked in other ways."},
+    {"condition": "cystic fibrosis — managed", "visible": False, "behavioral": "lung function at sixty percent. Manages with medication and chest physio every morning. The medic does it. The medic is gentle. The colony air makes everything harder."},
+    {"condition": "Factor V Leiden", "visible": False, "behavioral": "blood clots too easily. Wears compression wraps on long shifts. Can't sit still for more than two hours. Walks the corridors during breaks. The walking isn't exercise — it's prevention."},
+    {"condition": "phenylketonuria", "visible": False, "behavioral": "can't metabolize certain proteins. Colony rations are a minefield. Reads every ingredient label. Some of the labels are in languages they don't speak. Eats carefully. Always carefully."},
+    {"condition": "hereditary tremor", "visible": True, "behavioral": "head tremor. Mild but visible. Gets worse when tired. Holds their chin to stop it during meetings. The tremor doesn't affect their hands. Their hands are steady."},
+    {"condition": "early-onset arthritis", "visible": True, "behavioral": "thirty-four years old with sixty-year-old joints. Genetic. Both parents had it. The cold on Erebus accelerated the timeline. Uses heated wraps. The wraps use power the colony can't spare."},
+    {"condition": "Ehlers-Danlos — hypermobile type", "visible": False, "behavioral": "skin that bruises from a firm handshake. Joints that subluxate during sleep. Wakes up with a dislocated finger and pushes it back without fully waking. Morning routine."},
+    {"condition": "genetic cold intolerance", "visible": True, "behavioral": "body doesn't regulate temperature the way it should. Mammona's cold resistance screening cleared them. The screening was wrong. Wears four layers when everyone else wears two. Still cold."},
+    {"condition": "genetic cold tolerance", "visible": False, "behavioral": "doesn't feel it the way others do. Walks the perimeter in standard gear while others freeze in thermal suits. Mammona tested them three times. The results were real. The colony doesn't trust it."},
+    {"condition": "hereditary chronic fatigue", "visible": False, "behavioral": "exhaustion that sleep doesn't fix. The family calls it 'the tiredness.' Every generation has it. Works through it. Lies down during breaks. Gets up before anyone sees."},
+    {"condition": "albinism — oculocutaneous", "visible": True, "behavioral": "light skin, light hair, light eyes that water in any brightness. The colony's fluorescent lights are too much. Wears tinted goggles indoors. The dark is easier. The dark on Erebus is something else."},
+    {"condition": "heterochromia — complete", "visible": True, "behavioral": "one brown eye, one grey-blue. Genetic. Their mother had it. People stare. They've stopped noticing the staring. Or stopped caring. Same thing, eventually."},
+    {"condition": "hereditary high pain threshold", "visible": False, "behavioral": "doesn't feel pain the way others do. Useful until it isn't. Walked on a broken metatarsal for a week before the medic caught it. The bone set crooked."},
+    {"condition": "polydactyly — surgically corrected", "visible": False, "behavioral": "born with six fingers on each hand. Removed as an infant. The scars are small and old. The sixth finger's ghost still itches when it's cold."},
+]
+
+
+# ============================================================
+# BODY TYPES (~28) — physical build and variation
+# ============================================================
+
+BODY_TYPES = [
+    "built for endurance, not speed. Wide shoulders, short legs, center of gravity low enough to work in wind.",
+    "thin in a way that suggests metabolism, not hunger. Eats constantly. Burns it off by existing.",
+    "heavy. Solid. The kind of weight that's half muscle and half refusal to care what anyone thinks.",
+    "small enough to fit in maintenance crawlspaces. Mammona recruited them for exactly this reason.",
+    "tall enough to bang their head on every hatch on the colony. Has a permanent mark on the forehead.",
+    "average in every measurable way. The kind of person security cameras don't remember.",
+    "built like a distance runner. Long limbs, no bulk. Covers ground fast. Doesn't win fights.",
+    "stocky and scarred. The scars are from work, not combat. Work on Erebus IS combat.",
+    "wiry. All tendon and bone. Looks fragile. Isn't. Outlasts people twice their size on shift.",
+    "carries weight in the midsection. Doesn't care. Strongest grip on the colony.",
+    "compact and precise. Every movement economical. Trained or military — the efficiency doesn't come naturally.",
+    "lanky and awkward on flat ground. Climbs like something that evolved for vertical surfaces.",
+    "broad-backed from decades of physical labor. Stands with feet apart, hands ready. Even at rest.",
+    "gaunt since the supply shortage. Used to be heavier. The clothes don't fit right anymore.",
+    "muscular in a functional way. Not gym muscle — hauling, digging, surviving muscle.",
+    "dense and low to the ground. Legs like pit props. Doesn't get knocked down. Doesn't get pushed back.",
+    "narrow-shouldered and quick. Turns sideways through gaps. Faster in corridors than in open space.",
+    "soft around the edges. Colony life hasn't hardened them physically. Something else did the hardening.",
+    "barrel-chested with arms that don't hang straight. Too much muscle in the way. Useful in a mine. Useless in a crawlspace.",
+    "lean from stress, not exercise. Jaw sharp. Collarbones visible. Eats enough. Doesn't keep it.",
+    "built like their mother. Same frame, same posture, same way of standing in doorways. Genetic blueprint.",
+    "body shaped by a decade of cryo pods. The muscles atrophied and rebuilt wrong. Asymmetric. Functional but wrong.",
+    "tall and broad in a way that fills doorframes. Has to duck, turn sideways, squeeze through. The colony wasn't built for them.",
+    "small hands, small frame, big voice. The voice doesn't match the body. Carries further than it should.",
+    "aging body that hasn't caught up with the mind. Still moves like they're thirty. Pays for it at night.",
+    "child-sized from a growth disorder. Full adult. Full capability. Gets underestimated by everyone once. Once.",
+    "scarred across the torso from an industrial accident. The skin pulled tight when it healed. Moves stiff on cold mornings. Loosens up by noon.",
+    "hands too big for the body. Knuckles wide, fingers thick. Good for gripping. Bad for anything delicate. Gentle anyway.",
+]
+
+
+# ============================================================
+# CHARACTER WEIGHTS — archetype biases, not templates
+# ============================================================
+
+CHARACTER_WEIGHTS = {
+    "survivor": {
+        "trait_bias": ["Tough", "Resourceful", "Stoic", "Enduring", "Self-Sufficient"],
+        "tone_family": "state",
+        "health_chance": 0.5,
+        "mental_chance": 0.3,
+    },
+    "intellectual": {
+        "trait_bias": ["Analytical", "Inventive", "Detail-Oriented", "Curious", "Pattern Reader"],
+        "tone_family": "psychological",
+        "health_chance": 0.3,
+        "mental_chance": 0.3,
+    },
+    "broken": {
+        "trait_bias": ["Scarred", "Volatile", "Self-Destructive", "Nihilist", "Guilt-Ridden"],
+        "tone_family": "horror",
+        "health_chance": 0.7,
+        "mental_chance": 0.7,
+    },
+    "idealist": {
+        "trait_bias": ["Kind", "Honest", "Nurturing", "Empathetic", "Trustworthy"],
+        "tone_family": "emotional",
+        "health_chance": 0.2,
+        "mental_chance": 0.2,
+    },
+    "operator": {
+        "trait_bias": ["Calm Under Fire", "Careful", "Combat Veteran", "Vigilant", "Alert"],
+        "tone_family": "genre",
+        "health_chance": 0.3,
+        "mental_chance": 0.4,
+    },
+    "haunted": {
+        "trait_bias": ["Void-Touched", "Sees-Things", "Hears-the-Hum", "Anomaly-Sensitive", "Dream-Walker"],
+        "tone_family": "horror",
+        "health_chance": 0.4,
+        "mental_chance": 0.6,
+    },
+    "company_man": {
+        "trait_bias": ["Mammona-Loyal", "Careful", "Diplomatic", "Observant", "Frugal"],
+        "tone_family": "genre",
+        "health_chance": 0.2,
+        "mental_chance": 0.2,
+    },
+    "rebel": {
+        "trait_bias": ["Reckless", "Short Fuse", "Fearless", "Iron Will", "Defiant"],
+        "tone_family": "state",
+        "health_chance": 0.4,
+        "mental_chance": 0.3,
+    },
+}
+
+CHARACTER_WEIGHT_KEYS = list(CHARACTER_WEIGHTS.keys())
+
+
+# ============================================================
 # CONTRADICTIONS (~35) — the gap between claim and behavior
 # ============================================================
 
@@ -2259,6 +2517,11 @@ if __name__ == "__main__":
         "FAMILY": len(FAMILY),
         "GENETICS": len(GENETICS),
         "CONTRADICTIONS": len(CONTRADICTIONS),
+        "HEALTH_CONDITIONS": len(HEALTH_CONDITIONS),
+        "MENTAL_HEALTH": len(MENTAL_HEALTH),
+        "GENETIC_DISORDERS": len(GENETIC_DISORDERS),
+        "BODY_TYPES": len(BODY_TYPES),
+        "CHARACTER_WEIGHTS": len(CHARACTER_WEIGHTS),
     }
 
     for k, v in counts.items():
@@ -2291,6 +2554,10 @@ if __name__ == "__main__":
         ("FAMILY >= 25", len(FAMILY) >= 25),
         ("GENETICS >= 12", len(GENETICS) >= 12),
         ("CONTRADICTIONS >= 25", len(CONTRADICTIONS) >= 25),
+        ("HEALTH_CONDITIONS >= 35", len(HEALTH_CONDITIONS) >= 35),
+        ("MENTAL_HEALTH >= 35", len(MENTAL_HEALTH) >= 35),
+        ("GENETIC_DISORDERS >= 18", len(GENETIC_DISORDERS) >= 18),
+        ("BODY_TYPES >= 20", len(BODY_TYPES) >= 20),
     ]
 
     all_pass = True

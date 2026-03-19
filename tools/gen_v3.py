@@ -26,6 +26,8 @@ from gen_pools_core import (
     HABITS, PHYSICAL, DEBTS, SECRETS, LORE, LOCKED_LORE,
     RELATIONSHIP_TYPES, ARC_PROGRESSIONS, ARC_STAGES,
     PASSIONS, FEARS, LOVES, FAMILY, GENETICS,
+    HEALTH_CONDITIONS, MENTAL_HEALTH, GENETIC_DISORDERS, BODY_TYPES,
+    CHARACTER_WEIGHTS, CHARACTER_WEIGHT_KEYS,
     name, rname, robot_name, pronouns, pick_traits,
 )
 
@@ -1572,8 +1574,49 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     # --- Job ---
     job = ctx.pick_fresh(JOBS, "JOBS")
 
+    # --- Character weight (archetype bias) ---
+    character_weight = None
+    weight_data = None
+    if random.random() < 0.5:  # 50% chance of an archetype bias
+        character_weight = R(CHARACTER_WEIGHT_KEYS)
+        weight_data = CHARACTER_WEIGHTS[character_weight]
+
     # --- Traits ---
     traits = pick_traits()
+
+    # --- Apply character weight bias to traits ---
+    if weight_data and weight_data.get("trait_bias"):
+        # Try to swap in one biased trait (doesn't force, just biases)
+        bias_pool = weight_data["trait_bias"]
+        candidate = R(bias_pool)
+        # Check if candidate is in the right category and doesn't conflict
+        all_trait_pools = TRAITS_P + TRAITS_N + TRAITS_X
+        if candidate in all_trait_pools:
+            conflicts = False
+            for t in traits:
+                for a, b in TRAIT_CONFLICTS:
+                    if (candidate == a and t == b) or (candidate == b and t == a):
+                        conflicts = True
+                        break
+                if conflicts:
+                    break
+            if not conflicts and candidate not in traits:
+                # Replace one trait of the same category if possible
+                if candidate in TRAITS_P and any(t in TRAITS_P for t in traits):
+                    for i, t in enumerate(traits):
+                        if t in TRAITS_P:
+                            traits[i] = candidate
+                            break
+                elif candidate in TRAITS_N and any(t in TRAITS_N for t in traits):
+                    for i, t in enumerate(traits):
+                        if t in TRAITS_N:
+                            traits[i] = candidate
+                            break
+                elif candidate in TRAITS_X:
+                    if len(traits) > 2 and traits[-1] in TRAITS_X:
+                        traits[-1] = candidate
+                    elif len(traits) <= 2:
+                        traits.append(candidate)
 
     # --- Faction ---
     faction_keys = list(FACTIONS.keys())
@@ -1649,6 +1692,58 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     genetic_detail = ctx.pick_fresh(GENETICS, "GENETICS")
     genetic_detail = gender_replace(genetic_detail, gender)
 
+    # --- Body type ---
+    body_type = ctx.pick_fresh(BODY_TYPES, "BODY_TYPES")
+    body_type = gender_replace(body_type, gender)
+
+    # --- Health condition ---
+    health_chance = weight_data["health_chance"] if weight_data else 0.35
+    health_cond = None
+    health_cond_text = None
+    if random.random() < health_chance:
+        health_cond = R(HEALTH_CONDITIONS)
+        health_cond_text = f"{health_cond['condition']}: {health_cond['behavioral']}"
+        health_cond_text = gender_replace(health_cond_text, gender)
+
+    # --- Mental health ---
+    mental_chance = weight_data["mental_chance"] if weight_data else 0.3
+    mental_health_cond = None
+    mental_health_text = None
+    if random.random() < mental_chance:
+        mental_health_cond = R(MENTAL_HEALTH)
+        mh_behavior = mental_health_cond["hidden_signs"]
+        mh_coping = mental_health_cond.get("coping", "")
+        mental_health_text = f"{mh_behavior}"
+        if mh_coping:
+            mental_health_text += f" {mh_coping}"
+        mental_health_text = gender_replace(mental_health_text, gender)
+
+    # --- Genetic disorder ---
+    genetic_disorder = None
+    genetic_disorder_text = None
+    if random.random() < 0.15:
+        genetic_disorder = R(GENETIC_DISORDERS)
+        genetic_disorder_text = f"{genetic_disorder['condition']}: {genetic_disorder['behavioral']}"
+        genetic_disorder_text = gender_replace(genetic_disorder_text, gender)
+
+    # --- Hidden condition (affects behavior, not labeled) ---
+    hidden_condition = None
+    hidden_behavioral = None
+    if random.random() > 0.6:  # 40% chance
+        hidden_pool = MENTAL_HEALTH + HEALTH_CONDITIONS
+        hidden_entry = R(hidden_pool)
+        hidden_condition = hidden_entry.get("condition", "")
+        # Extract behavioral text without the label
+        if "hidden_signs" in hidden_entry:
+            hidden_behavioral = hidden_entry["hidden_signs"]
+            coping = hidden_entry.get("coping", "")
+            if coping:
+                hidden_behavioral += f" {coping}"
+        elif "behavioral" in hidden_entry:
+            hidden_behavioral = hidden_entry["behavioral"]
+        if hidden_behavioral:
+            hidden_behavioral = gender_replace(hidden_behavioral, gender)
+
     # --- Template fill kwargs ---
     # Strip trailing period from habit for templates that add their own punctuation
     habit_bare = habit.rstrip(".")
@@ -1673,6 +1768,11 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     backstory_parts = [origin, trauma, middle, secret_line]
     if sense:
         backstory_parts.append(sense)
+
+    # --- Weave hidden condition into backstory as behavioral detail ---
+    if hidden_behavioral:
+        backstory_parts.append(hidden_behavioral)
+
     backstory = "\n\n".join(backstory_parts)
 
     # --- Apply contractions ---
@@ -1682,6 +1782,13 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     love_status = enforce_contractions(love_status, tone)
     family_bg = enforce_contractions(family_bg, tone)
     genetic_detail = enforce_contractions(genetic_detail, tone)
+    body_type = enforce_contractions(body_type, tone)
+    if health_cond_text:
+        health_cond_text = enforce_contractions(health_cond_text, tone)
+    if mental_health_text:
+        mental_health_text = enforce_contractions(mental_health_text, tone)
+    if genetic_disorder_text:
+        genetic_disorder_text = enforce_contractions(genetic_disorder_text, tone)
 
     # --- Fix NB pronoun verb conjugation ---
     backstory = fix_nb_verbs(backstory, gender)
@@ -1690,6 +1797,13 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     love_status = fix_nb_verbs(love_status, gender)
     family_bg = fix_nb_verbs(family_bg, gender)
     genetic_detail = fix_nb_verbs(genetic_detail, gender)
+    body_type = fix_nb_verbs(body_type, gender)
+    if health_cond_text:
+        health_cond_text = fix_nb_verbs(health_cond_text, gender)
+    if mental_health_text:
+        mental_health_text = fix_nb_verbs(mental_health_text, gender)
+    if genetic_disorder_text:
+        genetic_disorder_text = fix_nb_verbs(genetic_disorder_text, gender)
 
     # --- Arc stage (most start stable, some arrive mid-arc) ---
     arc_stage = "stable"
@@ -1748,6 +1862,12 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         "love": love_status,
         "family": family_bg,
         "genetics": genetic_detail,
+        "body_type": body_type,
+        "health_condition": health_cond["condition"] if health_cond else None,
+        "mental_health": mental_health_cond["condition"] if mental_health_cond else None,
+        "genetic_disorder": genetic_disorder["condition"] if genetic_disorder else None,
+        "hidden_condition": hidden_condition,
+        "character_weight": character_weight,
         "faction": faction_key,
         "tone": tone,
         "alive": True,
@@ -1771,15 +1891,29 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     # Clean up trailing punctuation for identity composition
     genetic_clean = genetic_detail.rstrip(".")
     family_clean = family_bg.rstrip(".")
+    body_clean = body_type.rstrip(".")
+
+    # Build health/condition lines (only visible/stated conditions appear here)
+    condition_lines = []
+    if health_cond_text:
+        condition_lines.append(f"**Health:** {health_cond_text}")
+    if mental_health_text and mental_health_cond and mental_health_cond.get("visible"):
+        # Only show mental health in the sheet if it's visible
+        condition_lines.append(f"**Mental Health:** {mental_health_cond['condition']} — {mental_health_text}")
+    if genetic_disorder_text and genetic_disorder and genetic_disorder.get("visible"):
+        condition_lines.append(f"**Genetic:** {genetic_disorder_text}")
+    condition_block = "\n".join(condition_lines) if condition_lines else ""
+
+    weight_display = f" | **Archetype:** {character_weight}" if character_weight else ""
 
     output = f"""## NPC: {first} {last}
 **Gender:** {gender_label} | **Age:** {age} | **Occupation:** {job}
 **Traits:** {trait_str}
-**Faction:** {faction_name}{arc_display}
+**Faction:** {faction_name}{arc_display}{weight_display}
 **Tone:** {tone}
 
 **Identity:**
-{genetic_clean}. {family_clean}.
+{body_clean}. {genetic_clean}. {family_clean}.
 
 **Background:**
 {backstory}
@@ -1796,7 +1930,12 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
 **Physical:** {physical}
 **Habit:** {habit}
-**Debt:** {debt}
+**Debt:** {debt}"""
+
+    if condition_block:
+        output += f"\n\n{condition_block}"
+
+    output += f"""
 
 **Quest Hook:**
 {quest_hook}"""
