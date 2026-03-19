@@ -370,12 +370,283 @@ def filter_events_by_era(era):
 
 
 # ============================================================
+# SAFE FORMAT HELPER
+# ============================================================
+
+def safe_format(template, **kwargs):
+    """Format template, leaving unfilled placeholders as-is."""
+    import string
+    try:
+        return template.format(**kwargs)
+    except KeyError:
+        formatter = string.Formatter()
+        result = []
+        for literal, field_name, format_spec, conversion in formatter.parse(template):
+            result.append(literal)
+            if field_name is not None:
+                if field_name in kwargs:
+                    result.append(str(kwargs[field_name]))
+                else:
+                    result.append('{' + field_name + '}')
+        return ''.join(result)
+
+
+# ============================================================
+# BODY PARTS & TRAUMA CAUSES (for backstory template slots)
+# ============================================================
+
+BODY_PARTS = [
+    "left arm", "right arm", "left hand", "right hand", "left shoulder",
+    "right shoulder", "jaw", "temple", "neck", "ribs", "left knee",
+    "right knee", "lower back", "left eye", "right eye", "scalp",
+    "forearm", "shin", "collarbone", "sternum", "wrist",
+]
+
+TRAUMA_CAUSES = [
+    "a mining collapse on the deep bore",
+    "a cryo pod malfunction during transit",
+    "a reactor coolant leak in the engine bay",
+    "a barricade breach during a raid",
+    "an accident with a drill bit that shouldn't have been running",
+    "a fight in the supply cache that nobody reported",
+    "a contamination exposure nobody warned them about",
+    "a shuttle crash on approach to the colony",
+    "a Mammona 'training exercise' that used live rounds",
+    "a confrontation with something in the bore shaft",
+    "an airlock malfunction during EVA",
+    "a chemical spill in the processing bay",
+    "a skinwalker encounter on the perimeter",
+    "shrapnel from a detonation charge set too early",
+    "a fall from the scaffolding during a night shift",
+]
+
+
+# ============================================================
+# QUEST HOOKS
+# ============================================================
+
+QUEST_HOOKS = [
+    "After day 15, {first} starts leaving notes in the common room. Each one contains a single coordinate.",
+    "{first} asks the player to retrieve {item} from {location}. Simple job. Except the room has been sealed since before the colony arrived.",
+    "Every third shift, {first} disappears for two hours. {g} comes back smelling like copper and ozone.",
+    "{first} insists someone on the colony isn't who they say they are. {g} has evidence. It's convincing.",
+    "A sealed drive arrives addressed to {first}. {g} won't open it alone. Needs a witness.",
+    "{first} wants to reach {location} before anyone else does. Won't say why. Offers everything {gl} has.",
+    "Someone is leaving {first} threats. Written in a script that matches the precursor glyphs.",
+    "{first} has been hearing the same frequency as the deep bore. In {gp} sleep. Getting louder.",
+    "A dead colonist's data pad contains a message for {first}. Timestamped three days from now.",
+    "{first} found {item} in a place it shouldn't be. Now {gl} can't stop dreaming about where it came from.",
+    "{first} needs help destroying something before Mammona finds it. The window is closing.",
+    "Someone {first} thought was dead just walked into the colony. {g} isn't happy to see them.",
+]
+
+
+# ============================================================
+# NPC GENERATOR
+# ============================================================
+
+def gen_npc(ctx, tone=None, planet=None, era=None):
+    """
+    Compositional NPC backstory engine.
+    Builds a unique character from independent slots: origin, career,
+    trauma, secret, habit, physical, debt, traits, and relationships.
+    """
+    # --- Tone ---
+    if not tone:
+        tone = pick_tone()
+
+    # --- Identity ---
+    first, last, gender = ctx.fresh_name()
+    g, gl, gp, go = pronouns(gender)
+    age = RI(22, 58)
+    gender_label = {"M": "Male", "F": "Female", "NB": "Non-binary"}[gender]
+
+    # --- Job ---
+    job = ctx.pick_fresh(JOBS, "JOBS")
+
+    # --- Traits ---
+    traits = pick_traits()
+
+    # --- Faction ---
+    faction_keys = list(FACTIONS.keys())
+    if planet:
+        valid_keys = [
+            k for k in faction_keys
+            if planet in FACTIONS[k].get("territory", [])
+        ]
+        if valid_keys:
+            faction_keys = valid_keys
+    faction_key = R(faction_keys)
+    faction_data = FACTIONS[faction_key]
+    faction_name = faction_data["name"]
+
+    # --- Location (previous posting) ---
+    prev_location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
+    location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
+
+    # --- Previous job ---
+    prev_job = ctx.pick_fresh(JOBS, "JOBS")
+    if prev_job == job:
+        prev_job = ctx.pick_fresh(JOBS, "JOBS")
+
+    # --- Event ---
+    events = filter_events_by_era(era)
+    event = R(events)
+
+    # --- Item ---
+    item = R(ITEMS)
+
+    # --- Lore reference ---
+    lore = R(LORE)
+
+    # --- Secret ---
+    secret = R(SECRETS)
+
+    # --- Habit ---
+    habit = ctx.pick_fresh(HABITS, "HABITS")
+
+    # --- Physical detail ---
+    physical = ctx.pick_fresh(PHYSICAL, "PHYSICAL")
+
+    # --- Debt ---
+    debt = R(DEBTS)
+
+    # --- Body part & trauma cause ---
+    body_part = R(BODY_PARTS)
+    trauma_cause = R(TRAUMA_CAUSES)
+
+    # --- Years (for backstory filler) ---
+    years = str(RI(2, 14))
+
+    # --- Brand ---
+    brand = R(BRAND_NAMES) if BRAND_NAMES else "Sunny Fizz"
+
+    # --- Template fill kwargs ---
+    # Strip trailing period from habit for templates that add their own punctuation
+    habit_bare = habit.rstrip(".")
+    fill = dict(
+        first=first, last=last, g=g, gl=gl, gp=gp, go=go,
+        faction=faction_name, prev_location=prev_location,
+        prev_job=prev_job, event=event, item=item, lore=lore,
+        secret=secret, habit=habit_bare, body_part=body_part,
+        trauma_cause=trauma_cause, years=years, brand=brand,
+        location=location,
+    )
+
+    # --- Build backstory from templates ---
+    origin = safe_format(R(ORIGINS), **fill)
+    trauma = safe_format(R(TRAUMAS), **fill)
+    middle = safe_format(R(MIDDLES), **fill)
+    secret_line = safe_format(R(SECRET_TEMPLATES), **fill)
+
+    # Add a sensory detail for atmosphere
+    sense = ctx.fresh_sensory(tone)
+
+    backstory_parts = [origin, trauma, middle, secret_line]
+    if sense:
+        backstory_parts.append(sense)
+    backstory = "\n\n".join(backstory_parts)
+
+    # --- Apply contractions ---
+    backstory = enforce_contractions(backstory, tone)
+
+    # --- Dialogue lines ---
+    primary_trait = traits[0] if traits else None
+    dialogue_contexts = ["greeting", "warning", "confession", "observation", "rumor"]
+    # Add varied contexts based on tone
+    extra_contexts = ["complaint", "memory", "threat", "plea", "joke", "prayer"]
+    dialogue_contexts.append(R(extra_contexts))
+    if random.random() > 0.5:
+        dialogue_contexts.append(R(extra_contexts))
+
+    dialogue_lines = []
+    used_lines = set()
+    for dctx in dialogue_contexts:
+        line = get_dialogue(dctx, tone, primary_trait)
+        if line not in used_lines and line != "...":
+            dialogue_lines.append(line)
+            used_lines.add(line)
+
+    # --- Relationship wiring ---
+    relationship_text = ""
+    other_npc = ctx.get_random_npc()
+    if other_npc:
+        rel_type = R(RELATIONSHIP_TYPES)
+        other_name = other_npc["name"]
+        rel_label = rel_type.replace("_", " ")
+        relationship_text = f"{rel_label} of {other_name}"
+        # Wire the relationship into both NPCs' data
+        other_npc.setdefault("relationships", {})[f"{first}_{last}"] = rel_type
+
+    # --- Quest hook ---
+    hook_fill = dict(
+        first=first, g=g, gl=gl, gp=gp, go=go,
+        item=R(ITEMS), location=R(LOCATIONS_FLAT),
+    )
+    quest_hook = safe_format(R(QUEST_HOOKS), **hook_fill)
+    quest_hook = enforce_contractions(quest_hook, tone)
+
+    # --- Register NPC in context ---
+    npc_data = {
+        "name": f"{first} {last}",
+        "id": f"{first.lower()}_{last.lower()}",
+        "gender": gender,
+        "age": age,
+        "job": job,
+        "traits": traits,
+        "faction": faction_key,
+        "tone": tone,
+        "alive": True,
+        "location": location,
+        "arc_stage": "stable",
+        "relationships": {},
+    }
+    if relationship_text and other_npc:
+        rel_type_used = R(RELATIONSHIP_TYPES)
+        npc_data["relationships"][other_npc["id"]] = rel_type_used
+    ctx.add_npc(npc_data)
+
+    # --- Also persist to world state ---
+    ctx.world.set_npc(npc_data["id"], npc_data)
+
+    # --- Format output ---
+    trait_str = ", ".join(traits)
+    dialogue_block = "\n".join(f'- "{line}"' for line in dialogue_lines)
+
+    connection_line = f"**Connection:** {relationship_text}" if relationship_text else "**Connection:** None yet — first in batch"
+
+    output = f"""## NPC: {first} {last}
+**Gender:** {gender_label} | **Age:** {age} | **Occupation:** {job}
+**Traits:** {trait_str}
+**Faction:** {faction_name}
+**Physical:** {physical}
+**Habit:** {habit}
+**Debt:** {debt}
+**Tone:** {tone}
+
+**Background:**
+{backstory}
+
+**Dialogue:**
+{dialogue_block}
+
+{connection_line}
+
+**Quest Hook:**
+{quest_hook}"""
+
+    return output
+
+
+# ============================================================
 # GENERATORS REGISTRY
 # ============================================================
 
 # Populated by Tasks 4-9. Each entry: gen_type -> (gen_func, label)
 # gen_func signature: gen_func(ctx, tone=None, planet=None, era=None) -> str
-GENERATORS = {}
+GENERATORS = {
+    "npc": (gen_npc, "NPC"),
+}
 
 # Weighted type distribution for random selection
 GENERATOR_WEIGHTS = {
