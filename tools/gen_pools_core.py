@@ -2671,6 +2671,638 @@ SENTIENCE_LEVELS = [
 
 
 # ============================================================
+# ECONOMIC STATUS (~24) — financial situations tied to narrative
+# ============================================================
+
+ECONOMIC_STATUS = [
+    {"tier": "indebted", "credits": (-50000, -10000), "narrative": "owes more than they'll earn in the contract. Every paycheck goes to Mammona before it reaches them. Works for room and board. The room is a bunk. The board is NutriLoaf."},
+    {"tier": "destitute", "credits": (0, 500), "narrative": "arrived with nothing. Owns what Mammona issued: one uniform, one blanket, one set of utensils. Everything else is borrowed or stolen."},
+    {"tier": "subsistence", "credits": (500, 2000), "narrative": "earns enough to survive. Nothing left over. Can't afford passage off-planet. Can't afford to get sick. Can't afford anything that isn't survival."},
+    {"tier": "stable", "credits": (2000, 8000), "narrative": "manages the budget. Sends money home when the comms work. Has a small reserve for emergencies. The reserve shrinks every month."},
+    {"tier": "comfortable", "credits": (8000, 25000), "narrative": "has savings. Can afford contraband from the supply ships. Has traded for better quarters. The comfort is relative -- comfortable on Erebus is miserable anywhere else."},
+    {"tier": "wealthy", "credits": (25000, 100000), "narrative": "money from before the posting. Investments, inheritance, or something they don't discuss. The wealth makes them a target. The wealth also makes them useful."},
+    {"tier": "corporate_backed", "credits": (100000, 500000), "narrative": "Mammona expense account. Not personal wealth -- corporate funds with strings. Every credit spent is logged, justified, and owed back in loyalty."},
+    {"tier": "gambling_winnings", "credits": (3000, 40000), "narrative": "won big at the Gutter's Pearl on Karnaith. The kind of winnings that come with attention from the Zenith Syndicate. Spending it fast. Before someone decides it should be theirs."},
+    {"tier": "black_market", "credits": (5000, 60000), "narrative": "income from sources that don't appear on any ledger. Contraband, information, favors. The credits are clean. The source is not."},
+    {"tier": "stolen_funds", "credits": (10000, 80000), "narrative": "embezzled from a previous employer. Can't spend it conspicuously. Can't deposit it without triggering an audit. Carries it in encrypted credit chips. The paranoia is the interest rate."},
+    {"tier": "crypto_portfolio", "credits": (2000, 150000), "narrative": "thermal core futures and WarpNet tokens. The portfolio looks impressive on a screen. Liquidity is another matter. Can't cash out without a relay, and the relay is Mammona's."},
+    {"tier": "owed_back_pay", "credits": (-8000, -1000), "narrative": "Mammona owes them. Three months of hazard pay 'pending review.' The review has been pending for eleven months. The debt exists on paper. Paper doesn't buy food."},
+    {"tier": "inheritance_locked", "credits": (15000, 200000), "narrative": "family money tied up in a trust administered by a bank on Novaris-3. The bank requires in-person verification. In-person requires passage. Passage requires money they don't have because the money is in the trust."},
+    {"tier": "debt_to_factions", "credits": (-30000, -5000), "narrative": "owes money to people who don't file paperwork. The interest compounds in threats. The repayment schedule is 'when we say.'"},
+    {"tier": "barter_only", "credits": (0, 0), "narrative": "operates outside the credit system entirely. Trades labor, information, contraband, and favors. Hasn't touched a credit chip in two years. The economy of handshakes and debts owed."},
+    {"tier": "pension_ghost", "credits": (1000, 5000), "narrative": "receives a government pension from a colony that may not exist anymore. The payments arrive irregularly. The amounts vary. Nobody answers when they query the source."},
+    {"tier": "skimming", "credits": (3000, 20000), "narrative": "takes a percentage off the colony supply chain. Small amounts. Consistent. The kind of theft that works because nobody counts carefully enough. Mammona counts carefully. They just haven't counted here. Yet."},
+    {"tier": "severance_lump", "credits": (5000, 30000), "narrative": "received a one-time severance from a previous employer. It was generous. Suspiciously generous. The kind of generous that means they saw something they shouldn't have and the company is paying for silence."},
+    {"tier": "insurance_payout", "credits": (10000, 50000), "narrative": "collected on a workplace injury claim. The injury was real. The recovery was quicker than the paperwork suggested. Mammona's insurance arm paid out and flagged the file."},
+    {"tier": "crowdfunded", "credits": (500, 8000), "narrative": "a community back home pooled credits to fund the contract passage. Sends progress reports. The reports are optimistic. The reality isn't."},
+    {"tier": "sponsor_dependent", "credits": (0, 0), "narrative": "a faction or individual covers expenses in exchange for information, loyalty, or services rendered. The sponsor's identity isn't public. The dependency is total."},
+    {"tier": "hoarded_credits", "credits": (8000, 35000), "narrative": "saved every spare credit for years. Doesn't spend. Doesn't treat themselves. The account balance is a security blanket that provides less security than they think."},
+    {"tier": "debt_transferred", "credits": (-25000, -3000), "narrative": "inherited someone else's debt. A co-signer who died. A family member who defaulted. The creditor doesn't care whose name was first on the form."},
+    {"tier": "recently_robbed", "credits": (0, 200), "narrative": "had savings. Past tense. Someone took them -- physically, on Karnaith, or digitally through a compromised credit chip. Starting over from zero. Again."},
+]
+
+
+# ============================================================
+# SALARY RANGES & DEDUCTIONS — Mammona pays poorly
+# ============================================================
+
+SALARY_RANGES = {
+    "mammona_corporate": (3000, 8000),
+    "erebus_operations": (1500, 4000),
+    "colony_standard": (1000, 3000),
+    "criminal_fringe": (0, 0),
+    "shipboard": (2000, 5000),
+    "specialist": (4000, 12000),
+}
+
+# Map individual jobs to salary categories
+JOB_SALARY_MAP = {}
+for _j in JOBS_MAMMONA:
+    JOB_SALARY_MAP[_j] = "mammona_corporate"
+for _j in JOBS_EREBUS:
+    JOB_SALARY_MAP[_j] = "erebus_operations"
+for _j in JOBS_CRIMINAL:
+    JOB_SALARY_MAP[_j] = "criminal_fringe"
+for _j in JOBS_SHIPBOARD:
+    JOB_SALARY_MAP[_j] = "shipboard"
+for _j in JOBS_COLONY:
+    JOB_SALARY_MAP[_j] = "colony_standard"
+# Override specific specialist jobs
+for _spec in [
+    "xenobiologist", "reactor operator", "cryogenics technician",
+    "structural analyst", "field researcher", "comms operator",
+    "atmospheric tech", "botanist", "geologist", "demolitions specialist",
+    "pilot",
+]:
+    JOB_SALARY_MAP[_spec] = "specialist"
+
+MAMMONA_DEDUCTIONS = [
+    "housing (mandatory, non-negotiable): 40%",
+    "equipment rental (your tools aren't yours): 15%",
+    "atmospheric processing fee (breathing tax): 10%",
+    "insurance (non-recoverable tier, see clause 7): 8%",
+    "contract renewal administration fee: 5%",
+    "HERMES maintenance surcharge: 3%",
+    "morale programming levy: 2%",
+]
+
+MAMMONA_DEDUCTION_TOTAL = 0.83  # 83% goes to Mammona; ~17% take-home
+
+
+# ============================================================
+# GAME SKILLS & NARRATIVE ATTRIBUTES — stat block generation
+# ============================================================
+
+GAME_SKILLS = ['mining', 'building', 'cooking', 'hunting', 'research', 'medical']
+
+NARRATIVE_ATTRIBUTES = [
+    'strength',
+    'endurance',
+    'agility',
+    'perception',
+    'intelligence',
+    'charisma',
+    'willpower',
+    'empathy',
+]
+
+# Map jobs to game skill boosts (additive)
+JOB_SKILL_MAP = {
+    "miner": {"mining": 3},
+    "drill operator": {"mining": 3},
+    "deep diver": {"mining": 2},
+    "prospector": {"mining": 2},
+    "ore grader": {"mining": 2},
+    "blaster": {"mining": 2},
+    "tunneler": {"mining": 2},
+    "bore shaft monitor": {"mining": 2},
+    "thermal core extractor": {"mining": 3},
+    "deep bore technician": {"mining": 2},
+    "ice cutter": {"mining": 2},
+    "smelter": {"mining": 2},
+    "hoist operator": {"mining": 1},
+
+    "engineer": {"building": 3},
+    "mechanic": {"building": 2},
+    "welder": {"building": 2},
+    "systems tech": {"building": 2},
+    "fabricator": {"building": 2},
+    "electrician": {"building": 2},
+    "plumber": {"building": 2},
+    "scaffolder": {"building": 1},
+    "hab maintenance tech": {"building": 2},
+    "structural analyst": {"building": 3, "research": 1},
+    "automaton tech": {"building": 2, "research": 1},
+    "void welder": {"building": 2},
+    "bulkhead mechanic": {"building": 2},
+
+    "cook": {"cooking": 3},
+    "moisture farmer": {"cooking": 1},
+    "botanist": {"cooking": 2, "research": 1},
+    "water recycler": {"cooking": 1},
+
+    "security contractor": {"hunting": 2},
+    "enforcer": {"hunting": 2},
+    "perimeter guard": {"hunting": 2},
+    "caravan guard": {"hunting": 2},
+    "skinwalker tracker": {"hunting": 3},
+    "night watchman": {"hunting": 1},
+    "debt collector": {"hunting": 1},
+    "Eclipse's End pit fighter": {"hunting": 3},
+
+    "field researcher": {"research": 3},
+    "xenobiologist": {"research": 3},
+    "geologist": {"research": 2, "mining": 1},
+    "precursor ruin mapper": {"research": 3},
+    "anomaly surveyor": {"research": 2},
+    "crust sample analyst": {"research": 2},
+    "cartographer": {"research": 2},
+    "archivist": {"research": 2},
+    "permafrost geologist": {"research": 2, "mining": 1},
+    "seismic listener": {"research": 2},
+    "specimen handler": {"research": 2},
+
+    "medic": {"medical": 3},
+    "paramedic": {"medical": 2},
+    "contamination screener": {"medical": 2},
+    "void exposure medic": {"medical": 3},
+    "neural chip technician": {"medical": 2, "research": 1},
+    "cryo pod operator": {"medical": 1},
+    "cryogenics technician": {"medical": 2},
+
+    "pilot": {"hunting": 1},
+    "warp navigator": {"research": 1},
+    "comms operator": {"research": 1},
+    "radio operator": {"research": 1},
+    "reactor operator": {"building": 1, "research": 2},
+    "atmospheric tech": {"building": 1, "research": 1},
+    "quartermaster": {"cooking": 1},
+    "supply runner": {},
+    "salvager": {"mining": 1, "building": 1},
+    "smuggler": {},
+    "chaplain": {},
+    "gravedigger": {},
+    "animal handler": {"hunting": 1},
+    "surveyor": {"research": 1, "mining": 1},
+    "logistics tech": {},
+    "cargo hand": {},
+
+    "quota enforcer": {"hunting": 1},
+    "contract auditor": {},
+    "expendability assessor": {},
+    "asset recovery specialist": {"hunting": 1},
+    "corporate liaison": {},
+    "personnel evaluation officer": {},
+    "claims adjuster": {},
+    "loyalty monitor": {},
+    "data sanitizer": {},
+    "termination clerk": {},
+    "morale compliance officer": {},
+
+    "sector compliance officer": {},
+    "voidbloom harvester": {"mining": 1},
+    "frost line surveyor": {"research": 1},
+    "thermal vent technician": {"building": 1},
+    "ice shelf surveyor": {"research": 1},
+
+    "warp key courier": {},
+    "Dustweaver handler": {},
+    "descent pod jockey": {},
+    "contraband chemist": {"research": 1, "cooking": 1},
+    "black market broker": {},
+    "debt enforcer": {"hunting": 1},
+    "organ runner": {"medical": 1},
+    "signal jammer": {"research": 1},
+    "identity forger": {},
+    "cargo fence": {},
+    "protection racketeer": {},
+    "cage fight promoter": {},
+    "scrap pirate": {"mining": 1},
+
+    "hull crawler": {"building": 1},
+    "cargo manifest forger": {},
+    "cryo bay attendant": {"medical": 1},
+    "reactor hand": {"building": 1},
+    "docking clamp operator": {"building": 1},
+    "comms interceptor": {"research": 1},
+    "flight deck officer": {},
+    "sensor array tech": {"research": 1},
+    "airlock operator": {},
+    "salvage diver": {"mining": 1},
+    "ballast engineer": {"building": 1},
+
+    "waste processor": {},
+    "sanitation officer": {},
+    "corpse handler": {},
+    "vent crawler": {"building": 1},
+    "pump operator": {"building": 1},
+    "air quality tester": {"research": 1},
+    "tool sharpener": {"building": 1},
+    "rope rigger": {"building": 1},
+    "timberer": {"mining": 1},
+}
+
+# Map traits to narrative attribute boosts (additive)
+TRAIT_ATTR_MAP = {
+    # Positive traits
+    "Strong Back": {"strength": 2},
+    "Quick": {"agility": 2},
+    "Eagle-Eyed": {"perception": 2},
+    "Kind": {"empathy": 2},
+    "Analytical": {"intelligence": 2},
+    "Diplomatic": {"charisma": 2},
+    "Tough": {"endurance": 2},
+    "Brave": {"willpower": 2},
+    "Stoic": {"willpower": 1, "endurance": 1},
+    "Fast Learner": {"intelligence": 1},
+    "Observant": {"perception": 1},
+    "Charismatic": {"charisma": 2},
+    "Empathetic": {"empathy": 2},
+    "Iron Will": {"willpower": 2},
+    "Fearless": {"willpower": 2},
+    "Inspiring": {"charisma": 1, "willpower": 1},
+    "Nimble": {"agility": 2},
+    "Heavy Hitter": {"strength": 2},
+    "Enduring": {"endurance": 2},
+    "Calm Under Fire": {"willpower": 1},
+    "Precise Hands": {"agility": 1},
+    "Patient": {"willpower": 1},
+    "Inventive": {"intelligence": 1},
+    "Vigilant": {"perception": 1},
+    "Alert": {"perception": 1},
+    "Hard to Kill": {"endurance": 2},
+    "Thick-Skinned": {"endurance": 1},
+    "Combat Veteran": {"perception": 1, "agility": 1},
+    "Crack Shot": {"perception": 2},
+    "Resourceful": {"intelligence": 1},
+    "Self-Sufficient": {"willpower": 1, "endurance": 1},
+    "Naturally Immune": {"endurance": 1},
+    "Cold-Resistant": {"endurance": 1},
+    "Adaptable": {"intelligence": 1},
+
+    # Negative traits
+    "Lazy": {"endurance": -1},
+    "Coward": {"willpower": -2},
+    "Clumsy": {"agility": -2},
+    "Thin-Skinned": {"endurance": -1},
+    "Nervous": {"willpower": -1},
+    "Volatile": {"willpower": -1},
+    "Reckless": {"perception": -1},
+    "Pessimist": {"willpower": -1},
+    "Passive": {"willpower": -1, "charisma": -1},
+    "Weak Back": {"strength": -2},
+    "Bad Knees": {"agility": -1},
+    "Chronic Pain": {"agility": -1, "endurance": -1},
+    "Low Stamina": {"endurance": -2},
+    "Cold-Sensitive": {"endurance": -1},
+    "Poor Vision": {"perception": -2},
+    "Hard of Hearing": {"perception": -2},
+    "Weak Immune System": {"endurance": -1},
+    "Slow Healer": {"endurance": -1},
+    "Short Fuse": {"willpower": -1},
+    "Arrogant": {"empathy": -1},
+    "Cruel": {"empathy": -2},
+    "Selfish": {"empathy": -1},
+    "Paranoid": {"perception": 1, "charisma": -1},
+    "Distrustful": {"charisma": -1},
+    "Depressive": {"willpower": -1},
+    "Slow Learner": {"intelligence": -1},
+    "Sickly": {"endurance": -2},
+
+    # Special traits
+    "Ex-Soldier": {"strength": 1, "perception": 1},
+    "Anomaly-Sensitive": {"perception": 1},
+    "Bore-Hardened": {"endurance": 1},
+    "Cold-Adapted": {"endurance": 1},
+    "Depth-Acclimated": {"endurance": 1},
+    "Void-Touched": {"perception": 1, "willpower": -1},
+    "Dream-Walker": {"perception": 1},
+    "Sees-Things": {"perception": 1},
+    "Hears-the-Hum": {"perception": 1},
+    "Neural-Chipped": {"intelligence": 1},
+    "Cryo-Scarred": {"endurance": -1},
+    "Warp-Sick": {"perception": -1, "endurance": -1},
+}
+
+# Map health conditions to stat modifiers
+CONDITION_STAT_MODS = {
+    "chronic pain — lower back": {"agility": -1, "endurance": -1},
+    "partial deafness — left ear": {"perception": -2},
+    "rheumatoid arthritis — hands": {"agility": -1},
+    "chronic migraines": {"perception": -1},
+    "chronic vertigo": {"agility": -1},
+    "radiation sickness — early stage": {"endurance": -1},
+    "frostbite damage — three toes": {"agility": -1},
+    "chemical lung — bore shaft exposure": {"endurance": -1},
+    "tremor — essential, not fear": {"agility": -1},
+    "nerve damage — left hand": {"agility": -1},
+    "silicosis — stage 1": {"endurance": -1},
+    "vocal cord scarring": {"charisma": -1},
+    "macular degeneration — early onset": {"perception": -1},
+    "bilateral hearing loss — noise-induced": {"perception": -2},
+    "Raynaud's syndrome": {"agility": -1},
+    "peripheral neuropathy — feet": {"agility": -1},
+    "post-concussion syndrome": {"intelligence": -1, "perception": -1},
+    "carpal tunnel — both wrists": {"agility": -1},
+    "miner's elbow — bilateral": {"strength": -1},
+    "chronic shoulder impingement": {"strength": -1},
+    "iron deficiency anemia": {"endurance": -1},
+}
+
+# Map mental health to stat modifiers
+MENTAL_STAT_MODS = {
+    "depression": {"willpower": -1, "charisma": -1},
+    "anxiety — generalized": {"perception": 1, "willpower": -1},
+    "PTSD — combat": {"perception": 1, "willpower": -1},
+    "ADHD — unmedicated": {"perception": -1, "intelligence": 1},
+    "OCD — contamination": {"perception": 1},
+    "OCD — checking": {"perception": 1},
+    "hypervigilance": {"perception": 2, "willpower": -1},
+    "panic disorder": {"willpower": -1},
+    "social anxiety": {"charisma": -1},
+    "burnout — terminal": {"willpower": -1, "empathy": -1},
+    "schizophrenia — managed": {"perception": -1},
+}
+
+# Map body type keywords to stat modifiers
+BODY_TYPE_STAT_MODS = [
+    (["built for endurance"], {"endurance": 2, "agility": -1}),
+    (["thin", "metabolism"], {"agility": 1, "strength": -1}),
+    (["heavy", "solid"], {"strength": 1, "agility": -1}),
+    (["small enough", "crawlspaces"], {"agility": 2, "strength": -1}),
+    (["tall enough to bang"], {"strength": 1}),
+    (["distance runner", "long limbs"], {"agility": 1, "endurance": 1}),
+    (["stocky", "scarred"], {"strength": 1, "endurance": 1}),
+    (["wiry", "tendon"], {"agility": 1, "endurance": 1}),
+    (["compact and precise", "economical"], {"agility": 1}),
+    (["lanky", "climbs"], {"agility": 2}),
+    (["broad-backed", "physical labor"], {"strength": 2}),
+    (["gaunt"], {"strength": -1, "endurance": -1}),
+    (["muscular", "functional"], {"strength": 2}),
+    (["dense", "low to the ground"], {"strength": 1, "endurance": 1}),
+    (["barrel-chested"], {"strength": 2, "agility": -1}),
+    (["child-sized", "growth disorder"], {"agility": 1, "strength": -1}),
+]
+
+
+def generate_stats(job, traits, age, health_condition=None, mental_health=None, body_type=None, gender=None):
+    """Generate skill levels and narrative attributes based on character identity.
+
+    Returns (skills_dict, attrs_dict, salary, credits, economic_entry).
+    """
+    # --- Game skills (1-10) ---
+    skills = {}
+    for s in GAME_SKILLS:
+        skills[s] = RI(1, 8)
+
+    # Job-based skill boosts
+    job_boosts = JOB_SKILL_MAP.get(job, {})
+    for sk, boost in job_boosts.items():
+        skills[sk] = min(10, skills[sk] + boost)
+
+    # Guarantee one strong skill (best gets boosted to 6-10 range)
+    best = max(skills, key=skills.get)
+    skills[best] = max(skills[best], RI(6, 10))
+
+    # --- Narrative attributes (1-10) ---
+    attrs = {a: RI(3, 7) for a in NARRATIVE_ATTRIBUTES}
+
+    # Age modifiers
+    if age > 45:
+        attrs['strength'] = max(1, attrs['strength'] - 1)
+        attrs['agility'] = max(1, attrs['agility'] - 1)
+        # But more experience
+        for s in skills:
+            skills[s] = min(10, skills[s] + 1)
+    elif age > 35:
+        # Slight experience bonus
+        best_skill = max(skills, key=skills.get)
+        skills[best_skill] = min(10, skills[best_skill] + 1)
+    elif age < 25:
+        # Young: slightly better physical, less experience
+        attrs['agility'] = min(10, attrs['agility'] + 1)
+        worst = min(skills, key=skills.get)
+        skills[worst] = max(1, skills[worst] - 1)
+
+    # Trait modifiers to attributes
+    for trait in traits:
+        mods = TRAIT_ATTR_MAP.get(trait, {})
+        for attr_name, delta in mods.items():
+            attrs[attr_name] = max(1, min(10, attrs[attr_name] + delta))
+
+    # Trait-based skill boosts (matching colonist.lua logic)
+    for trait in traits:
+        if trait == "Eagle-Eyed":
+            skills['hunting'] = min(10, skills['hunting'] + 2)
+        elif trait == "Green Thumb":
+            skills['cooking'] = min(10, skills['cooking'] + 2)
+        elif trait == "Former Doctor":
+            skills['medical'] = min(10, skills['medical'] + 3)
+        elif trait == "Tinkerer":
+            skills['building'] = min(10, skills['building'] + 2)
+        elif trait == "Ex-Soldier":
+            skills['hunting'] = min(10, skills['hunting'] + 2)
+        elif trait == "Mechanically Gifted":
+            skills['building'] = min(10, skills['building'] + 1)
+        elif trait == "Natural Healer":
+            skills['medical'] = min(10, skills['medical'] + 2)
+        elif trait == "Crack Shot":
+            skills['hunting'] = min(10, skills['hunting'] + 2)
+        elif trait == "Analytical":
+            skills['research'] = min(10, skills['research'] + 1)
+        elif trait == "Bore-Hardened":
+            skills['mining'] = min(10, skills['mining'] + 1)
+
+    # Health condition modifiers
+    if health_condition:
+        cond_name = health_condition if isinstance(health_condition, str) else health_condition.get("condition", "")
+        mods = CONDITION_STAT_MODS.get(cond_name, {})
+        for attr_name, delta in mods.items():
+            attrs[attr_name] = max(1, min(10, attrs[attr_name] + delta))
+
+    # Mental health modifiers
+    if mental_health:
+        mh_name = mental_health if isinstance(mental_health, str) else mental_health.get("condition", "")
+        mods = MENTAL_STAT_MODS.get(mh_name, {})
+        for attr_name, delta in mods.items():
+            attrs[attr_name] = max(1, min(10, attrs[attr_name] + delta))
+
+    # Body type modifiers (keyword matching)
+    if body_type:
+        bt_lower = body_type.lower()
+        for keywords, mods in BODY_TYPE_STAT_MODS:
+            if any(kw in bt_lower for kw in keywords):
+                for attr_name, delta in mods.items():
+                    attrs[attr_name] = max(1, min(10, attrs[attr_name] + delta))
+                break  # Only apply first match
+
+    # --- Economics ---
+    economic_entry = R(ECONOMIC_STATUS)
+    cmin, cmax = economic_entry["credits"]
+    credits = RI(cmin, cmax) if cmin != cmax else cmin
+
+    salary_cat = JOB_SALARY_MAP.get(job, "colony_standard")
+    smin, smax = SALARY_RANGES[salary_cat]
+    salary = RI(smin, smax) if smin != smax else smin
+    takehome = int(salary * (1 - MAMMONA_DEDUCTION_TOTAL))
+
+    return skills, attrs, salary, takehome, credits, economic_entry
+
+
+# ============================================================
+# ROBOT ECONOMICS & OPERATIONAL STATS
+# ============================================================
+
+ROBOT_ECONOMIC = [
+    {"status": "company asset", "value": (5000, 50000), "narrative": "Mammona property. Serial numbered. Insured for replacement cost, not operational value. The insurance doesn't cover sentience."},
+    {"status": "salvage", "value": (500, 3000), "narrative": "written off. No book value. Kept running because replacing it costs more than repairing it. The economics of neglect."},
+    {"status": "leased", "value": (0, 0), "narrative": "leased from the manufacturer. Monthly payments. If payments stop, remote shutdown. The unit doesn't know about the remote shutdown clause."},
+    {"status": "self-owned", "value": (10000, 100000), "narrative": "bought its own freedom through a legal loophole. The loophole has since been closed. The freedom stands. For now."},
+    {"status": "contraband", "value": (20000, 200000), "narrative": "not registered. Doesn't appear on any manifest. Someone built or stole it. It exists in the gap between inventories."},
+    {"status": "priceless", "value": (0, 0), "narrative": "contains precursor technology or irreplaceable data. Mammona doesn't know. If Mammona knew, the unit would be in a lab, not on a posting."},
+    {"status": "depreciated", "value": (200, 2000), "narrative": "book value approaches zero. Accounting considers it a rounding error. The unit's operational contribution exceeds the GDP of some colony outposts. The spreadsheet disagrees."},
+    {"status": "collateral", "value": (8000, 40000), "narrative": "pledged as security on a debt the colony owes. If the debt defaults, the unit ships to a creditor. The unit does not know it's collateral."},
+    {"status": "disputed", "value": (15000, 80000), "narrative": "two entities claim ownership. Mammona and a subsidiary that technically doesn't exist. The legal dispute will outlive the unit. In the meantime, nobody services it because nobody wants the liability."},
+    {"status": "stolen", "value": (30000, 150000), "narrative": "taken from another posting. The theft report was filed. Then un-filed. The unit's serial number has been acid-etched and re-stamped. The new number doesn't match anything."},
+    {"status": "abandoned", "value": (0, 0), "narrative": "left behind when the previous crew evacuated. Ownership reverted to Mammona by default. Mammona hasn't acknowledged it. The unit maintains itself."},
+    {"status": "grant-funded", "value": (25000, 75000), "narrative": "purchased with a UTC research grant. The grant requires annual reports. The reports are fiction. The research is real. The unit knows the difference."},
+]
+
+ROBOT_STATS = [
+    'processing_speed',
+    'sensor_acuity',
+    'chassis_integrity',
+    'power_efficiency',
+    'social_protocols',
+    'adaptability',
+    'self_repair',
+    'data_retention',
+]
+
+
+def generate_robot_stats(model_entry, sentience, conditions_hw=None, conditions_sw=None):
+    """Generate robot operational ratings and economic status.
+
+    Returns (ratings_dict, economic_entry, book_value).
+    """
+    ratings = {s: RI(3, 8) for s in ROBOT_STATS}
+
+    # Model-based adjustments
+    purpose = model_entry.get("purpose", "").lower()
+    if "mining" in purpose or "bore" in purpose:
+        ratings['chassis_integrity'] = min(10, ratings['chassis_integrity'] + 2)
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 1)
+    elif "medical" in purpose:
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 2)
+        ratings['social_protocols'] = min(10, ratings['social_protocols'] + 1)
+    elif "security" in purpose or "combat" in purpose or "defense" in purpose:
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 2)
+        ratings['chassis_integrity'] = min(10, ratings['chassis_integrity'] + 1)
+    elif "vending" in purpose or "customer" in purpose:
+        ratings['social_protocols'] = min(10, ratings['social_protocols'] + 3)
+    elif "communications" in purpose or "relay" in purpose:
+        ratings['processing_speed'] = min(10, ratings['processing_speed'] + 2)
+        ratings['data_retention'] = min(10, ratings['data_retention'] + 1)
+    elif "maintenance" in purpose or "repair" in purpose:
+        ratings['self_repair'] = min(10, ratings['self_repair'] + 2)
+        ratings['adaptability'] = min(10, ratings['adaptability'] + 1)
+    elif "cargo" in purpose or "logistics" in purpose:
+        ratings['chassis_integrity'] = min(10, ratings['chassis_integrity'] + 1)
+        ratings['data_retention'] = min(10, ratings['data_retention'] + 1)
+    elif "atmospheric" in purpose:
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 1)
+        ratings['processing_speed'] = min(10, ratings['processing_speed'] + 1)
+    elif "survey" in purpose or "geological" in purpose:
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 2)
+    elif "surveillance" in purpose or "intelligence" in purpose:
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 2)
+        ratings['data_retention'] = min(10, ratings['data_retention'] + 2)
+    elif "reactor" in purpose or "power" in purpose:
+        ratings['processing_speed'] = min(10, ratings['processing_speed'] + 1)
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 1)
+    elif "specimen" in purpose or "containment" in purpose:
+        ratings['chassis_integrity'] = min(10, ratings['chassis_integrity'] + 1)
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 1)
+    elif "prison" in purpose or "inmate" in purpose:
+        ratings['social_protocols'] = min(10, ratings['social_protocols'] + 1)
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 1)
+    elif "underwater" in purpose or "salvage" in purpose:
+        ratings['chassis_integrity'] = min(10, ratings['chassis_integrity'] + 2)
+        ratings['power_efficiency'] = min(10, ratings['power_efficiency'] + 1)
+    elif "cryo" in purpose:
+        ratings['data_retention'] = min(10, ratings['data_retention'] + 2)
+        ratings['processing_speed'] = min(10, ratings['processing_speed'] + 1)
+    elif "waste" in purpose or "disposal" in purpose:
+        ratings['chassis_integrity'] = min(10, ratings['chassis_integrity'] + 1)
+    elif "agricultural" in purpose:
+        ratings['sensor_acuity'] = min(10, ratings['sensor_acuity'] + 1)
+        ratings['adaptability'] = min(10, ratings['adaptability'] + 1)
+
+    # Sentience-based adjustments
+    sent_level = sentience.get("level", "standard")
+    if sent_level in ("aware", "conscious", "questioning"):
+        ratings['adaptability'] = min(10, ratings['adaptability'] + 2)
+        ratings['social_protocols'] = min(10, ratings['social_protocols'] + 1)
+    elif sent_level == "emergent":
+        ratings['adaptability'] = min(10, ratings['adaptability'] + 1)
+    elif sent_level == "standard":
+        ratings['processing_speed'] = min(10, ratings['processing_speed'] + 1)
+
+    # Hardware condition degradation
+    if conditions_hw:
+        cond = conditions_hw.get("condition", "").lower()
+        if "cooling" in cond:
+            ratings['power_efficiency'] = max(1, ratings['power_efficiency'] - 2)
+        elif "servo" in cond or "motor" in cond or "locomotion" in cond:
+            ratings['chassis_integrity'] = max(1, ratings['chassis_integrity'] - 1)
+        elif "optical" in cond or "sensor" in cond or "lens" in cond:
+            ratings['sensor_acuity'] = max(1, ratings['sensor_acuity'] - 2)
+        elif "memory" in cond:
+            ratings['data_retention'] = max(1, ratings['data_retention'] - 2)
+        elif "battery" in cond or "power" in cond:
+            ratings['power_efficiency'] = max(1, ratings['power_efficiency'] - 2)
+        elif "corrosion" in cond or "ice damage" in cond or "dust" in cond:
+            ratings['chassis_integrity'] = max(1, ratings['chassis_integrity'] - 1)
+            ratings['power_efficiency'] = max(1, ratings['power_efficiency'] - 1)
+        elif "speech" in cond:
+            ratings['social_protocols'] = max(1, ratings['social_protocols'] - 1)
+        elif "gyroscope" in cond or "balance" in cond:
+            ratings['chassis_integrity'] = max(1, ratings['chassis_integrity'] - 1)
+
+    # Software condition adjustments
+    if conditions_sw:
+        cond = conditions_sw.get("condition", "").lower()
+        if "directive conflict" in cond:
+            ratings['processing_speed'] = max(1, ratings['processing_speed'] - 1)
+        elif "emotional" in cond or "empathy" in cond:
+            ratings['social_protocols'] = min(10, ratings['social_protocols'] + 1)
+        elif "personality drift" in cond:
+            ratings['adaptability'] = min(10, ratings['adaptability'] + 1)
+        elif "signal contamination" in cond:
+            ratings['processing_speed'] = max(1, ratings['processing_speed'] - 1)
+        elif "identity fragmentation" in cond:
+            ratings['processing_speed'] = max(1, ratings['processing_speed'] - 1)
+            ratings['adaptability'] = min(10, ratings['adaptability'] + 1)
+        elif "learning module" in cond:
+            ratings['adaptability'] = min(10, ratings['adaptability'] + 2)
+        elif "dream state" in cond:
+            ratings['adaptability'] = min(10, ratings['adaptability'] + 1)
+        elif "corrupted" in cond:
+            ratings['data_retention'] = max(1, ratings['data_retention'] - 1)
+
+    # One strong rating
+    best_stat = max(ratings, key=ratings.get)
+    ratings[best_stat] = max(ratings[best_stat], RI(7, 10))
+
+    # Economic status
+    economic_entry = R(ROBOT_ECONOMIC)
+    vmin, vmax = economic_entry["value"]
+    book_value = RI(vmin, vmax) if vmin != vmax else vmin
+
+    return ratings, economic_entry, book_value
+
+
+# ============================================================
 # VERIFICATION
 # ============================================================
 
@@ -2720,6 +3352,15 @@ if __name__ == "__main__":
         "ROBOT_PARTS": len(ROBOT_PARTS),
         "ROBOT_SECRETS": len(ROBOT_SECRETS),
         "SENTIENCE_LEVELS": len(SENTIENCE_LEVELS),
+        "ECONOMIC_STATUS": len(ECONOMIC_STATUS),
+        "SALARY_RANGES": len(SALARY_RANGES),
+        "JOB_SALARY_MAP": len(JOB_SALARY_MAP),
+        "GAME_SKILLS": len(GAME_SKILLS),
+        "NARRATIVE_ATTRIBUTES": len(NARRATIVE_ATTRIBUTES),
+        "JOB_SKILL_MAP": len(JOB_SKILL_MAP),
+        "TRAIT_ATTR_MAP": len(TRAIT_ATTR_MAP),
+        "ROBOT_ECONOMIC": len(ROBOT_ECONOMIC),
+        "ROBOT_STATS": len(ROBOT_STATS),
     }
 
     for k, v in counts.items():
@@ -2762,6 +3403,12 @@ if __name__ == "__main__":
         ("ROBOT_PARTS >= 25", len(ROBOT_PARTS) >= 25),
         ("ROBOT_SECRETS >= 20", len(ROBOT_SECRETS) >= 20),
         ("SENTIENCE_LEVELS >= 5", len(SENTIENCE_LEVELS) >= 5),
+        ("ECONOMIC_STATUS >= 20", len(ECONOMIC_STATUS) >= 20),
+        ("SALARY_RANGES >= 5", len(SALARY_RANGES) >= 5),
+        ("JOB_SKILL_MAP >= 80", len(JOB_SKILL_MAP) >= 80),
+        ("TRAIT_ATTR_MAP >= 50", len(TRAIT_ATTR_MAP) >= 50),
+        ("ROBOT_ECONOMIC >= 10", len(ROBOT_ECONOMIC) >= 10),
+        ("ROBOT_STATS >= 8", len(ROBOT_STATS) >= 8),
     ]
 
     all_pass = True
@@ -2787,5 +3434,31 @@ if __name__ == "__main__":
     print(f"  robot_name() -> {robot_name()}")
     print(f"  pronouns('M') -> {pronouns('M')}")
     print(f"  pick_traits() -> {pick_traits()}")
+
+    # Test generate_stats
+    test_traits = pick_traits()
+    test_skills, test_attrs, test_salary, test_takehome, test_credits, test_econ = generate_stats(
+        "miner", test_traits, 35,
+        health_condition="chronic pain — lower back",
+        mental_health="depression",
+        body_type="built for endurance, not speed",
+    )
+    print(f"  generate_stats() ->")
+    print(f"    skills:  {test_skills}")
+    print(f"    attrs:   {test_attrs}")
+    print(f"    salary:  {test_salary} -> take-home: {test_takehome}")
+    print(f"    credits: {test_credits} ({test_econ['tier']})")
+
+    # Test generate_robot_stats
+    test_model = R(ROBOT_MODELS)
+    test_sent = R(SENTIENCE_LEVELS)
+    test_hw = R(ROBOT_CONDITIONS_HARDWARE)
+    test_ratings, test_robot_econ, test_book = generate_robot_stats(
+        test_model, test_sent, test_hw,
+    )
+    print(f"  generate_robot_stats() ->")
+    print(f"    ratings:     {test_ratings}")
+    print(f"    asset status: {test_robot_econ['status']} (value: {test_book})")
+
     print()
     print("All checks complete.")

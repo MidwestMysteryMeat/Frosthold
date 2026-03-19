@@ -28,6 +28,9 @@ from gen_pools_core import (
     PASSIONS, FEARS, LOVES, FAMILY, GENETICS,
     HEALTH_CONDITIONS, MENTAL_HEALTH, GENETIC_DISORDERS, BODY_TYPES,
     CHARACTER_WEIGHTS, CHARACTER_WEIGHT_KEYS,
+    ECONOMIC_STATUS, SALARY_RANGES, MAMMONA_DEDUCTION_TOTAL, MAMMONA_DEDUCTIONS,
+    GAME_SKILLS, NARRATIVE_ATTRIBUTES,
+    generate_stats,
     name, rname, robot_name, pronouns, pick_traits,
 )
 
@@ -1787,6 +1790,15 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         if hidden_behavioral:
             hidden_behavioral = gender_replace(hidden_behavioral, gender)
 
+    # --- Stats & Economics ---
+    skills, attrs, salary, takehome, credits, economic_entry = generate_stats(
+        job, traits, age,
+        health_condition=health_cond,
+        mental_health=mental_health_cond,
+        body_type=body_type,
+        gender=gender,
+    )
+
     # --- Template fill kwargs ---
     # Strip trailing period from habit for templates that add their own punctuation
     habit_bare = habit.rstrip(".")
@@ -1917,6 +1929,12 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         "location": location,
         "arc_stage": arc_stage,
         "relationships": {},
+        "skills": skills,
+        "attributes": attrs,
+        "economic_status": economic_entry["tier"],
+        "credits": credits,
+        "salary": salary,
+        "salary_takehome": takehome,
     }
     ctx.add_npc(npc_data)
 
@@ -1949,11 +1967,35 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
     weight_display = f" | **Archetype:** {character_weight}" if character_weight else ""
 
+    # Format skill and attribute lines
+    skill_line = " | ".join(f"{s.capitalize()}: {v}" for s, v in skills.items())
+    attr_abbrev = {
+        'strength': 'STR', 'endurance': 'END', 'agility': 'AGI',
+        'perception': 'PER', 'intelligence': 'INT', 'charisma': 'CHA',
+        'willpower': 'WIL', 'empathy': 'EMP',
+    }
+    attr_line = " | ".join(f"{attr_abbrev[a]}: {v}" for a, v in attrs.items())
+
+    # Format economic line
+    econ_narrative = economic_entry["narrative"]
+    if salary > 0:
+        econ_line = f"Credits: {credits:,} | Monthly: {salary:,} (after Mammona deductions: ~{takehome:,})"
+    else:
+        econ_line = f"Credits: {credits:,} | No salary — {economic_entry['tier']}"
+
     output = f"""## NPC: {first} {last}
 **Gender:** {gender_label} | **Age:** {age} | **Occupation:** {job}
 **Traits:** {trait_str}
 **Faction:** {faction_name}{arc_display}{weight_display}
 **Tone:** {tone}
+
+**Stats:**
+{skill_line}
+{attr_line}
+
+**Economic:**
+{econ_line}
+{econ_narrative}
 
 **Identity:**
 {body_clean}. {genetic_clean}. {family_clean}.

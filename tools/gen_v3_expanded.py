@@ -22,6 +22,8 @@ from gen_pools_core import (
     RELATIONSHIP_TYPES,
     ROBOT_MODELS, ROBOT_CONDITIONS_HARDWARE, ROBOT_CONDITIONS_SOFTWARE,
     ROBOT_PARTS, ROBOT_SECRETS, SENTIENCE_LEVELS,
+    ROBOT_ECONOMIC, ROBOT_STATS,
+    generate_robot_stats,
     name, rname, robot_name, pronouns,
 )
 
@@ -564,6 +566,35 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
 
     parts_block = "\n".join(parts_lines)
 
+    # --- Operational ratings & economic status ---
+    ratings, robot_econ_entry, book_value = generate_robot_stats(
+        model_entry,
+        sentience,
+        conditions_hw=hw_condition if has_hw else None,
+        conditions_sw=sw_condition if has_sw else None,
+    )
+
+    # Format ratings line
+    rating_abbrev = {
+        'processing_speed': 'Processing',
+        'sensor_acuity': 'Sensors',
+        'chassis_integrity': 'Chassis',
+        'power_efficiency': 'Power',
+        'social_protocols': 'Social',
+        'adaptability': 'Adapt',
+        'self_repair': 'Repair',
+        'data_retention': 'Memory',
+    }
+    ratings_line = " | ".join(rating_abbrev[k] + ": " + str(v) for k, v in ratings.items())
+
+    # Format asset status
+    asset_status = robot_econ_entry["status"]
+    asset_narrative = robot_econ_entry["narrative"]
+    if book_value > 0:
+        asset_value_str = "{:,}".format(book_value) + " credits"
+    else:
+        asset_value_str = "no book value"
+
     output = (
         "## UNIT: " + desig + "\n"
         "**Model:** " + model_name + " | **Manufacturer:** " + manufacturer + "\n"
@@ -571,6 +602,13 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         "**Sentience:** " + sentience_level + " | **Tone:** " + tone + "\n"
         "\n"
         + sense + "\n"
+        "\n"
+        "**Operational Ratings:**\n"
+        + ratings_line + "\n"
+        "\n"
+        "**Asset Status:**\n"
+        + asset_status.capitalize() + " | Book Value: " + asset_value_str + "\n"
+        + asset_narrative + "\n"
         "\n"
         "**Chassis:**\n"
         + chassis + "\n"
