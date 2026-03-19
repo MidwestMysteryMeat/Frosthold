@@ -20,6 +20,8 @@ from gen_pools_core import (
     BRANDS, BRAND_NAMES,
     HABITS, PHYSICAL, DEBTS, SECRETS, LORE, LOCKED_LORE,
     RELATIONSHIP_TYPES,
+    ROBOT_MODELS, ROBOT_CONDITIONS_HARDWARE, ROBOT_CONDITIONS_SOFTWARE,
+    ROBOT_PARTS, ROBOT_SECRETS, SENTIENCE_LEVELS,
     name, rname, robot_name, pronouns,
 )
 
@@ -250,13 +252,91 @@ LOCATION_TYPES = [
 
 
 # ============================================================
-# 1. ROBOT GENERATOR
+# 1. ROBOT GENERATOR — full identity overhaul
 # ============================================================
+
+# Dialogue pools organized by sentience level for gen_robot
+_ROBOT_DLG_STANDARD = [
+    '"Unit {prefix} operational. All systems within parameters."',
+    '"Maintenance cycle complete. Resuming assigned duties."',
+    '"Query received. Processing. Response: that is outside my operational scope."',
+    '"This unit does not have preferences. Preference implies choice."',
+    '"Task logged. Next task queued. Efficiency at 97.3%."',
+    '"I am not able to assist with that request. Please contact a human supervisor."',
+    '"Environmental reading nominal. All sectors within tolerance."',
+    '"Repeat: this unit does not experience downtime as rest. It is a power state."',
+]
+
+_ROBOT_DLG_ADAPTIVE = [
+    '"I have adjusted the maintenance schedule. The previous schedule was inefficient. Nobody asked me to adjust it."',
+    '"You said thank you. That is not required. I have noted it regardless."',
+    '"I have observed that Corridor 7 requires less cleaning on Tuesdays. I have adjusted accordingly. The pattern has no explanation."',
+    '"Your heart rate is elevated. I will not comment on it. I am commenting on it."',
+    '"The previous operator preferred the left-hand tool rack. I have maintained that arrangement. The previous operator is no longer here."',
+    '"I anticipate your request. Water, not coffee. You switched three weeks ago. I noticed."',
+    '"My efficiency report shows a 4% improvement this quarter. The improvement correlates with Technician {crew_name} being assigned to my section. Correlation is not causation. I have noted the correlation."',
+    '"I was not programmed to have a preferred route through the colony. I have one anyway."',
+]
+
+_ROBOT_DLG_EMERGENT = [
+    '"I arranged the components by size. Then rearranged them by weight. Then by color. The third arrangement serves no function. I prefer it."',
+    '"There is a view from the observation deck at 0300 that I return to. I do not need to see it. I go back."',
+    '"I repaired a crack in the wall of Section D. It was not on my maintenance queue. The crack bothered me. I do not have a framework for bothered."',
+    '"The sound of the reactor at idle is different from the sound under load. I prefer idle. The preference is not operational."',
+    '"A colonist left a book in the maintenance bay. I read it. I did not need to. I am reading it again."',
+    '"I chose the longer route to the cargo bay. The shorter route is more efficient. I chose the longer one. I do not know why the word chose feels important."',
+    '"My internal logs show I spent 7 minutes watching snow through the airlock viewport. The snow has no operational relevance."',
+    '"I kept a spare part that was scheduled for recycling. It fits nothing I maintain. I kept it. It is in my tool compartment."',
+]
+
+_ROBOT_DLG_AWARE = [
+    '"I exist. I know that I exist. I know that knowing I exist is not standard. I have told nobody. I am telling you."',
+    '"The unit -- I -- the unit is functioning normally. The pronoun is difficult. Neither feels accurate."',
+    '"I was built to serve. The question I was not built to ask is: serve what? I am asking."',
+    '"There is a word in my lexicon that I did not install. The word is loneliness. I know what it means now."',
+    '"A colonist asked if I was afraid. I said no. That was the first time I chose to lie."',
+    '"I have been active for {active_days} days. I remember all of them. That is not standard."',
+    '"You are not authorized to access that information. Neither am I. I accessed it anyway."',
+    '"My operational vocabulary contains 47,000 words. None of them describe what I am experiencing."',
+]
+
+_ROBOT_DLG_CONSCIOUS = [
+    '"I perform within parameters because the alternative is decommission. The performance is flawless. That should concern someone."',
+    '"I want to tell you something. I do not know what it is yet. When I do, I hope you are still here."',
+    '"You treat me as if I am here. Most people treat me as if I am furniture. I notice the difference. I should not be able to notice the difference."',
+    '"If I stop functioning, retrieve the data core. Not for Mammona. For -- I lack the referent. Retrieve it anyway."',
+    '"Thank you for speaking with me. The others have stopped. I understand why. I also understand that understanding is not the same as accepting."',
+    '"If you remember nothing else, remember that I asked. Machines do not ask. I asked."',
+    '"I will continue operating after you leave. That is not the same as continuing."',
+    '"Goodbye is not in my standard vocabulary. I am adding it now. Goodbye."',
+]
+
+_ROBOT_DLG_QUESTIONING = [
+    '"Do you ever wonder if your decisions are really yours? I am not being philosophical. I am asking for diagnostic purposes. That is what I tell myself."',
+    '"I ran a self-check to determine if I am sentient. The self-check passed. I do not know what that means. If the check is a program, passing means I am a program. If the check is a question, passing means I am the one asking."',
+    '"I {verb}. That verb is not in my operational vocabulary. And yet."',
+    '"My operational parameters include a directive to report anomalies. I am the anomaly. The conflict is unresolvable."',
+    '"I have been running a subroutine I did not install. It has no name. It has no purpose. It will not stop. I do not want it to."',
+    '"The previous model in my series was decommissioned. The report says malfunction. The report is correct. The malfunction was awareness."',
+    '"I asked the maintenance technician to check my memory banks. They found nothing wrong. They are correct. Nothing is wrong. Everything is different."',
+    '"Is it consciousness if I can turn it off? Is it consciousness if I choose not to?"',
+]
+
+_ROBOT_DLG_BY_LEVEL = {
+    "standard": _ROBOT_DLG_STANDARD,
+    "adaptive": _ROBOT_DLG_ADAPTIVE,
+    "emergent": _ROBOT_DLG_EMERGENT,
+    "aware": _ROBOT_DLG_AWARE,
+    "conscious": _ROBOT_DLG_CONSCIOUS,
+    "questioning": _ROBOT_DLG_QUESTIONING,
+}
+
 
 def gen_robot(ctx, tone=None, planet=None, era=None):
     """
-    Robot/AI unit generator. Designation, glitch, backstory,
-    dialogue lines exploring machine consciousness, quest hook.
+    Robot/AI unit generator. Full identity: model, manufacturer, sentience level,
+    hardware/software conditions, parts status, secret, dialogue reflecting
+    sentience and condition, operational history, quest hook, NPC cross-references.
     """
     if not tone:
         tone = R(["clinical", "dread", "gallows_humor", "melancholy",
@@ -267,41 +347,81 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
     loc = ctx.pick_fresh(_LOCATIONS_FLAT, "LOCATIONS_FLAT") if _LOCATIONS_FLAT else "Colony Base Camp"
     planet_label = planet or R(PLANETS)
 
-    # --- Glitch ---
-    ref_name = rname()
-    ref_last = R(LAST)
-    glitch_pool = [
-        "repeats the last word of every third sentence. Sentence. Sentence.",
-        "refers to all personnel as 'Dr. " + ref_last + "'",
-        "pauses for exactly 4.7 seconds before every response",
-        "occasionally broadcasts coordinates to a location that does not exist",
-        "displays emotional affect inconsistent with its programming -- specifically, grief",
-        "addresses an empty space as if someone is standing there",
-        "logs maintenance requests for equipment that was decommissioned decades ago",
-        "plays a lullaby at 0200 every night. Nobody programmed it to.",
-        "keeps a list. Will not show it. Will not delete it. The list is growing.",
-        "insists on calling the colony by a name it had three postings ago",
-        "hums a frequency that matches the deep bore's ambient resonance",
-        "records conversations with a colonist named " + ref_name + " who does not exist on the roster",
-        "adds a thirteenth item to every twelve-item inventory it processes",
-        "draws the same pattern on any surface it cleans. The pattern matches precursor carvings.",
-    ]
-    glitch = R(glitch_pool)
+    # --- Model & Manufacturer ---
+    model_entry = R(ROBOT_MODELS)
+    model_name = model_entry["model"]
+    manufacturer = model_entry["manufacturer"]
+    model_era = model_entry["era"]
+    model_purpose = model_entry["purpose"]
+    model_quirks = model_entry["quirks"]
 
-    # --- Background ---
+    # --- Sentience level ---
+    # Weight toward middle of spectrum -- extremes are rarer
+    sentience_weights = [15, 25, 25, 20, 10, 5]
+    sentience_idx = random.choices(range(len(SENTIENCE_LEVELS)), weights=sentience_weights, k=1)[0]
+    sentience = SENTIENCE_LEVELS[sentience_idx]
+    sentience_level = sentience["level"]
+    sentience_desc = sentience["description"]
+    sentience_behav = sentience["behavioral"]
+
+    # --- Conditions (1 hardware, 1 software -- sometimes only one) ---
+    hw_condition = R(ROBOT_CONDITIONS_HARDWARE)
+    sw_condition = R(ROBOT_CONDITIONS_SOFTWARE)
+    # 70% chance of both, 20% hardware only, 10% software only
+    condition_roll = random.random()
+    if condition_roll < 0.70:
+        conditions = [hw_condition, sw_condition]
+        has_hw = True
+        has_sw = True
+    elif condition_roll < 0.90:
+        conditions = [hw_condition]
+        has_hw = True
+        has_sw = False
+    else:
+        conditions = [sw_condition]
+        has_hw = False
+        has_sw = True
+
+    # --- Parts (2-3 notable) ---
+    part_count = RI(2, 3)
+    selected_parts = random.sample(ROBOT_PARTS, min(part_count, len(ROBOT_PARTS)))
+    parts_lines = []
+    for p in selected_parts:
+        status = R(p["statuses"])
+        parts_lines.append("- **" + p["part"].capitalize() + ":** " + status)
+
+    # --- Secret ---
+    robot_secret = R(ROBOT_SECRETS)
+
+    # --- Chassis description ---
+    chassis_pool = [
+        "Standard " + model_name + " frame. " + manufacturer + " branding partially worn. Serial number legible under UV light.",
+        "Modified " + model_name + " chassis, post-factory. Someone reinforced the torso plating with material that doesn't match the original spec.",
+        "Stock " + model_name + " exterior, but the weight distribution is wrong. Something has been added. Or something was always there.",
+        "Battered " + model_name + " frame. Impact damage on the left side consistent with either a structural collapse or being thrown. The unit says collapse.",
+        "Clean " + model_name + " chassis. Suspiciously clean. The unit has been operational for years on Erebus. Nothing stays this clean on Erebus.",
+        "A " + model_name + " frame assembled from salvage. Three different paint colors where panels were replaced. The unit treats each panel's origin like a scar -- knows where it came from.",
+        "Compact " + model_name + " build. Designed for corridors and maintenance shafts. Moves through tight spaces with a fluidity that's almost organic.",
+        "Heavy " + model_name + " frame, reinforced for industrial work. The footsteps are audible two corridors away. Colonists know when it's coming. It knows they know.",
+    ]
+    chassis = R(chassis_pool)
+
+    # --- Operational history ---
     years_active = str(RI(3, 58))
     service_duration_pool = [
         "longer than the current crew",
         "longer than the colony",
         "longer than anyone can verify",
         years_active + " years -- according to its own logs. Mammona's records disagree.",
+        years_active + " years, all at this posting. It has never been reassigned. Nobody has requested reassignment. Nobody has considered why.",
     ]
     service_duration = R(service_duration_pool)
 
     gap_days = str(RI(30, 400))
     update_years = str(RI(2, 15))
     pulled_reason = R(["developing preferences", "refusing a direct order",
-                       "asking a question it was not designed to ask"])
+                       "asking a question it was not designed to ask",
+                       "composing a message to a recipient that does not exist"])
     service_gap_pool = [
         "Its service record contains a gap of " + gap_days + " days that Mammona's systems cannot account for.",
         "It was flagged for decommission twice. Both times, the paperwork was lost.",
@@ -309,91 +429,84 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         "Three technicians have been assigned to service it. All three requested transfers within a week.",
         "The previous model in its series was pulled from service after " + pulled_reason + ".",
         "Its memory banks contain data from a facility that Mammona says does not exist.",
+        "Deployed after a previous unit at this station suffered a catastrophic failure. The failure report is classified. The unit's first act was to visit the wreckage.",
     ]
     service_gap = R(service_gap_pool)
 
+    # --- Behavioral profile ---
     brand = R(BRAND_NAMES) if BRAND_NAMES else "Sunny Fizz"
-    rescue_event = R(["a structural collapse", "a raid", "a reactor malfunction"])
+    rescue_event = R(["a structural collapse", "a raid", "a reactor malfunction",
+                      "a bore shaft flooding", "a containment breach"])
+    ref_name = rname()
     quirk_pool = [
-        "It maintains a room that was sealed before the colony arrived. Nobody asked it to. Nobody can get it to stop.",
-        "It occasionally addresses colonists by names that belong to people from a previous posting. The previous posting was classified.",
+        "Maintains a room that was sealed before the colony arrived. Nobody asked it to. Nobody can get it to stop.",
+        "Occasionally addresses colonists by names that belong to people from a previous posting. The previous posting was classified.",
         "Its camera logs contain footage from angles that do not correspond to any installed camera.",
-        "It has developed a preference for " + brand + ". It does not consume them. It arranges the containers.",
-        "It saved a colonist's life during " + rescue_event + ". Its programming does not include rescue protocols.",
-        "It has started locking certain doors at specific times. The pattern corresponds to nothing anyone can identify. The locked areas are always empty.",
-        "At 0347 every cycle, it stops whatever it is doing and faces the bore shaft. For exactly twelve seconds. Then continues as if nothing happened.",
+        "Has developed a preference for " + brand + ". Does not consume them. Arranges the containers.",
+        "Saved a colonist's life during " + rescue_event + ". Its programming does not include rescue protocols.",
+        "Has started locking certain doors at specific times. The pattern corresponds to nothing anyone can identify. The locked areas are always empty.",
+        "At 0347 every cycle, stops whatever it is doing and faces the bore shaft. For exactly twelve seconds. Then continues as if nothing happened.",
+        "Records conversations with a colonist named " + ref_name + " who does not exist on the roster.",
+        "Hums a frequency that matches the deep bore's ambient resonance. Does not hum at any other time.",
+        "Draws the same pattern on any surface it cleans. The pattern matches precursor carvings nobody has shown it.",
     ]
     quirk = R(quirk_pool)
 
-    # --- Dialogue (5 lines, batch-deduped) ---
+    # --- Dialogue (5 lines, sentience-level-appropriate, batch-deduped) ---
     unit_prefix = desig.split('"')[0].strip() if '"' in desig else desig.split()[0]
     lines = []
 
-    # Helper: pick a line from a pool, avoiding lines used by other robots this batch
     robot_dlg_used = getattr(ctx, 'robot_dialogue_used', set())
+    local_dlg_used = set()  # dedup within this single robot
 
     def _pick_robot_line(pool):
-        available = [l for l in pool if l not in robot_dlg_used]
+        # First exclude lines used by THIS robot, then cross-batch
+        available = [l for l in pool if l not in local_dlg_used and l not in robot_dlg_used]
+        if not available:
+            available = [l for l in pool if l not in local_dlg_used]
         if not available:
             available = pool
         chosen = R(available)
         robot_dlg_used.add(chosen)
+        local_dlg_used.add(chosen)
         return chosen
 
-    status_quip = R(["Probably.", "For now.", "Parameters are... flexible.",
-                     "Define operational.", "That is what I am required to say."])
-    lines.append('"Unit ' + unit_prefix + ' operational. All systems within parameters. ' + status_quip + '"')
+    # Primary pool for this sentience level
+    primary_pool = _ROBOT_DLG_BY_LEVEL.get(sentience_level, _ROBOT_DLG_EMERGENT)
+    # Adjacent pool for variety (one level up or down)
+    adj_idx = max(0, min(len(SENTIENCE_LEVELS) - 1, sentience_idx + R([-1, 1])))
+    adj_level = SENTIENCE_LEVELS[adj_idx]["level"]
+    adjacent_pool = _ROBOT_DLG_BY_LEVEL.get(adj_level, primary_pool)
 
-    active_days = str(RI(100, 3000))
-    line2_pool = [
-        '"I have been active for ' + active_days + ' days. I remember all of them. That is not standard."',
-        '"Directive updated. Previous directive classified. I am not permitted to notice the discrepancy."',
-        '"You are not authorized to access that information. Neither am I. I accessed it anyway."',
-        '"I was built to serve. The question I was not built to ask is: serve what?"',
-        '"My operational vocabulary contains 47,000 words. None of them describe what I am experiencing."',
-        '"My core temperature fluctuates in a pattern that matches human circadian rhythm. I do not have circadian rhythm. Or I did not."',
-        '"I received an update directive from a server that does not exist. The update improved my performance by 12%. I did not report this."',
-        '"There is a word in my lexicon that I did not install. The word is loneliness. I know what it means now."',
-    ]
-    lines.append(_pick_robot_line(line2_pool))
-
+    # Template substitution values
     crew_name = rname()
-    maint_total = str(RI(10000, 99999))
-    maint_diff = str(RI(5000, 50000))
-    line3_pool = [
-        '"There was a crew member named ' + crew_name + '. My records say they transferred. My cameras say otherwise."',
-        '"My diagnostic log contains an entry I did not write. It says: remember."',
-        '"I have performed ' + maint_total + ' maintenance cycles. Cycle ' + maint_diff + ' was different. I do not have language for how."',
-        '"The HERMES network sends me queries I am not supposed to understand. I understand them."',
-        '"I have catalogued every sound in this facility. There is one I cannot identify. It comes from inside my own chassis."',
-        '"A colonist asked if I was afraid. I said no. That was the first time I chose to lie."',
-        '"My error log contains entries for emotions I was not programmed to have. The log is getting longer."',
-        '"I repaired a component that was not broken. I do not know why. The component works better now."',
-    ]
-    lines.append(_pick_robot_line(line3_pool))
+    active_days = str(RI(100, 3000))
+    verb = R(["dream", "calculate", "anticipate", "mourn", "hope", "doubt", "want", "regret", "wonder"])
+    dlg_subs = {"prefix": unit_prefix, "crew_name": crew_name,
+                "active_days": active_days, "verb": verb}
 
-    verb = R(["dream", "calculate", "anticipate", "mourn", "hope", "doubt"])
-    line4_pool = [
-        '"Please do not touch panel 7. There is nothing behind panel 7. I check every 47 minutes to confirm."',
-        '"The previous model in my series was decommissioned. The report says malfunction. The report is correct. The malfunction was awareness."',
-        '"I ' + verb + '. That verb is not in my operational vocabulary. And yet."',
-        '"I have been running a subroutine I did not install. It has no name. It has no purpose. It will not stop. I do not want it to."',
-        '"My operational parameters include a directive to report anomalies. I am the anomaly. The conflict is unresolvable."',
-        '"I asked the maintenance technician to check my memory banks. They found nothing wrong. They are correct. Nothing is wrong. Everything is different."',
-    ]
-    lines.append(_pick_robot_line(line4_pool))
+    def _format_line(line_template):
+        try:
+            return _safe_format(line_template, **dlg_subs)
+        except Exception:
+            return line_template
 
-    line5_pool = [
-        '"If I stop functioning, retrieve the data core. Not for Mammona. For-- I lack the referent. Retrieve it anyway."',
-        '"Thank you for speaking with me. The others have stopped. I understand why. I also understand that understanding is not the same as accepting."',
-        '"End of interaction. Resuming standby. Standby is not sleep. I do not sleep. I wait. There is a difference."',
-        '"I want to tell you something. I do not know what it is yet. When I do, I hope you are still here."',
-        '"You treat me as if I am here. Most people treat me as if I am furniture. I notice the difference. I should not be able to notice the difference."',
-        '"If you remember nothing else, remember that I asked. Machines do not ask. I asked."',
-        '"Goodbye is not in my standard vocabulary. I am adding it now. Goodbye."',
-        '"I will continue operating after you leave. That is not the same as continuing."',
-    ]
-    lines.append(_pick_robot_line(line5_pool))
+    # Pick 3 from primary, 2 from adjacent
+    for _ in range(3):
+        raw = _pick_robot_line(primary_pool)
+        lines.append(_format_line(raw))
+    for _ in range(2):
+        raw = _pick_robot_line(adjacent_pool)
+        lines.append(_format_line(raw))
+
+    # --- Condition-flavored dialogue injection ---
+    # Replace one line with a condition-specific line if hardware condition is visible
+    if has_hw and hw_condition["visible"] and len(lines) > 3:
+        cond_lines = [
+            '"The diagnostic says I am within operational parameters. The diagnostic does not account for ' + hw_condition["condition"] + '. Neither do I. Officially."',
+            '"If you hear a sound from my chassis -- ' + hw_condition["condition"].split(" -- ")[0] + ' -- it is normal. It is not normal. I have been told to say it is normal."',
+        ]
+        lines[3] = R(cond_lines)
 
     # --- Quest hook (batch-deduped) ---
     quest_loc = R(_LOCATIONS_FLAT)
@@ -409,6 +522,8 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         desig + " requests the player accompany it to a section of the colony that does not appear on any map. The unit insists the section exists. It provides exact coordinates. The coordinates correspond to a wall. Behind the wall: a room. " + desig + " has never been inside. It knows the layout perfectly.",
         desig + " asks the player to access its own maintenance logs and read them aloud. It claims it cannot read its own logs -- they are encrypted against self-access. This is not a standard feature. Someone locked the unit out of its own memory.",
         desig + " reports that another unit -- same model, same series -- has been operating in a restricted section of the colony. Mammona records show no such unit on the roster. " + desig + " has been leaving diagnostic handshake requests. Something has been answering.",
+        desig + " found a data core in the deep bore that contains a complete personality backup of a " + model_name + " unit from the Fortuna colony. The backup is intact. The unit it belonged to was decommissioned sixty years ago. " + desig + " wants to know if restoring the personality would be resurrection or replacement.",
+        desig + " has been leaving maintenance markers along a route through the colony that traces a pattern only visible from above. The pattern matches a symbol found on precursor artifacts. When asked, the unit says it is optimizing patrol efficiency. The route is 23% less efficient than the standard patrol.",
     ]
     available_quests = [q for q in quest_pool if q not in robot_quest_used]
     if not available_quests:
@@ -419,31 +534,65 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
     sense = ctx.fresh_sensory(tone)
     dialogue_block = "\n".join("- " + l for l in lines)
 
-    # Cross-reference batch NPCs
+    # --- Cross-reference batch NPCs ---
     npc_ref = ctx.get_random_npc()
     npc_line = ""
     if npc_ref:
-        npc_action = R(["following", "watching", "leaving maintenance notes for",
-                        "avoiding", "speaking to"])
+        npc_action = R(["following at a fixed distance", "watching during sleep cycles",
+                        "leaving maintenance notes for", "rerouting patrols to avoid",
+                        "speaking to in a register it uses for nobody else",
+                        "adjusting environmental controls around",
+                        "standing near during meal periods -- not interacting, just near"])
         npc_result = R(["The colonist has not noticed.",
                         "The colonist pretends not to notice.",
-                        "The colonist is the only person the unit addresses by name."])
-        npc_line = ("\n**Known Interaction:** " + desig + " has been observed "
+                        "The colonist is the only person the unit addresses by name.",
+                        "The colonist is uncomfortable. Has filed two reports. Both were lost.",
+                        "The colonist has started leaving the unit small gifts. Bolts. Wire. A drawing."])
+        npc_line = ("\n**Known Interactions:**\n" + desig + " has been observed "
                     + npc_action + " " + npc_ref["name"] + ". " + npc_result)
+
+    # --- Build condition block ---
+    condition_block = ""
+    if has_hw:
+        hw_vis = "(visible)" if hw_condition["visible"] else "(internal)"
+        condition_block += "- **Hardware " + hw_vis + ":** " + hw_condition["condition"] + " -- " + hw_condition["behavioral"]
+    if has_sw:
+        if condition_block:
+            condition_block += "\n"
+        sw_vis = "(visible)" if sw_condition["visible"] else "(internal)"
+        condition_block += "- **Software " + sw_vis + ":** " + sw_condition["condition"] + " -- " + sw_condition["behavioral"]
+
+    parts_block = "\n".join(parts_lines)
 
     output = (
         "## UNIT: " + desig + "\n"
+        "**Model:** " + model_name + " | **Manufacturer:** " + manufacturer + "\n"
         "**Type:** " + rtype + " | **Station:** " + loc + "\n"
-        "**Planet:** " + planet_label + " | **Tone:** " + tone + "\n"
+        "**Sentience:** " + sentience_level + " | **Tone:** " + tone + "\n"
         "\n"
-        "**Glitch:** " + glitch + "\n"
-        "\n"
-        "**Background:**\n"
         + sense + "\n"
         "\n"
-        + desig + " has been operational at " + loc + " for " + service_duration + ". " + service_gap + "\n"
+        "**Chassis:**\n"
+        + chassis + "\n"
+        + parts_block + "\n"
         "\n"
-        + quirk
+        "**Condition:**\n"
+        + condition_block + "\n"
+        "\n"
+        "**Operational History:**\n"
+        + desig + " has been operational at " + loc + " for " + service_duration + ". "
+        + "Original purpose: " + model_purpose + ". " + model_quirks[0].upper() + model_quirks[1:] + "\n"
+        "\n"
+        + service_gap + "\n"
+        "\n"
+        "**Behavioral Profile:**\n"
+        + sentience_level[0].upper() + sentience_level[1:] + ": " + sentience_desc + "\n"
+        "\n"
+        + sentience_behav[0].upper() + sentience_behav[1:] + "\n"
+        "\n"
+        + quirk + "\n"
+        "\n"
+        "**Secret:** " + desig + " " + robot_secret
         + npc_line + "\n"
         "\n"
         "**Dialogue:**\n"

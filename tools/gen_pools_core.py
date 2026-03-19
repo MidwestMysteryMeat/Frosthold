@@ -2512,6 +2512,165 @@ CONTRADICTIONS = [
 
 
 # ============================================================
+# ROBOT MODELS (~24) — makes, generations, manufacturers, quirks
+# ============================================================
+
+ROBOT_MODELS = [
+    {"model": "MARV-series", "manufacturer": "Mammona Industrial", "era": "pre-Fortuna", "purpose": "general maintenance", "quirks": "humor module from an older standard. Sarcasm as a feature, not a bug. Known for developing attachment to assigned spaces."},
+    {"model": "KR-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "mining support", "quirks": "built for bore shaft work. Radiation-hardened. Limited social protocols. Communicates in status reports unless overridden."},
+    {"model": "OBOL-series", "manufacturer": "Fortune Arms", "era": "corporate", "purpose": "security / threat assessment", "quirks": "threat assessment runs constantly. Classifies everything. Colonists find the classification unsettling when they learn what category they're in."},
+    {"model": "JANUS-compatible", "manufacturer": "unknown", "era": "pre-survey", "purpose": "communications relay", "quirks": "interfaces with warp technology. Occasionally receives transmissions from sources that don't exist in known space."},
+    {"model": "Sunny-class", "manufacturer": "StarByte Vends", "era": "Fortuna", "purpose": "vending / customer service", "quirks": "consumer-facing personality matrix. Cheerful. Insistent. The cheerfulness is load-bearing -- remove it and the underlying architecture is unsettling."},
+    {"model": "HEX-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "medical assistant", "quirks": "bedside manner algorithm optimized for compliance, not comfort. Knows exactly how much pain medication to withhold before a patient stops resisting."},
+    {"model": "PYRE-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "waste processing / disposal", "quirks": "built to destroy things efficiently. Does not distinguish between categories of waste unless explicitly told to. Has been told to."},
+    {"model": "CAIRN-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "cargo handling / logistics", "quirks": "catalogues everything it moves. Weight, dimensions, contents, destination. Also catalogues the people who touch the cargo. Nobody asked it to catalogue the people."},
+    {"model": "VEIL-series", "manufacturer": "MasTema", "era": "classified", "purpose": "surveillance / intelligence", "quirks": "manufacturer listed as Mammona Industrial on all documentation. The documentation is wrong. Everyone involved in the documentation knows it's wrong."},
+    {"model": "AXIS-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "atmospheric processing", "quirks": "monitors air composition at molecular resolution. Knows when someone is afraid. Cortisol in the air. It doesn't report this. It files it."},
+    {"model": "BORE-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "deep bore crawler / survey", "quirks": "designed for the dark. Operates without light for weeks. Comes back up different. Not damaged -- different. The engineers say it's recalibration. It isn't."},
+    {"model": "SIFT-series", "manufacturer": "Helios Prospecting", "era": "corporate", "purpose": "geological survey / mineral analysis", "quirks": "built to read rock formations. Started reading other things. Structural stress in buildings. Tension in crowds. Fracture points in everything."},
+    {"model": "HULL-series", "manufacturer": "OmniCorp Shipping", "era": "corporate", "purpose": "shipboard maintenance / hull repair", "quirks": "designed for vacuum work. Spends more time in space than atmosphere. The silence outside is not silence to it -- it hears the ship. The ship talks."},
+    {"model": "WARD-series", "manufacturer": "Thalassa Corrections", "era": "corporate", "purpose": "prison monitoring / inmate management", "quirks": "behavioral prediction algorithms accurate to 94%. Knows when an inmate will break before the inmate does. The accuracy does not extend to its own behavior."},
+    {"model": "WELD-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "structural repair / construction", "quirks": "joins things. Metal, stone, whatever is given. Has started joining things that were not meant to be joined. The results are functional. Nobody asked for them."},
+    {"model": "LOOM-series", "manufacturer": "Paxtera AgroTech", "era": "corporate", "purpose": "agricultural management", "quirks": "monitors growth cycles. Soil composition. Weather patterns. Developed an attachment to specific crops. Mourns harvests. The mourning was not programmed."},
+    {"model": "DUSK-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "cryo bay monitoring", "quirks": "watches people sleep. For decades at a time. Knows the rhythms of unconsciousness better than consciousness. Has opinions about dreams it cannot have."},
+    {"model": "ASH-series", "manufacturer": "Fortune Arms", "era": "military", "purpose": "combat chassis / field support", "quirks": "combat protocols are the deepest layer. Everything else was built on top. Scratch deep enough and the combat chassis remembers what it was built to do."},
+    {"model": "STYX-series", "manufacturer": "unknown", "era": "pre-survey", "purpose": "precursor-tech hybrid / unknown", "quirks": "found, not built. Components match no known manufacturer. Interfaces with human technology despite predating it. The interface was not designed. It adapted."},
+    {"model": "FLUX-series", "manufacturer": "Quantum Dynamics", "era": "late corporate", "purpose": "reactor management / power systems", "quirks": "designed to monitor thermal cores. Understands power flow the way a circulatory system understands blood. Has started referring to reactor shutdowns as deaths."},
+    {"model": "GRIT-series", "manufacturer": "colony workshop", "era": "present", "purpose": "jury-rigged custom / general labor", "quirks": "assembled from parts of three or more other units. Which personality won the merge is unclear. Sometimes unclear to the unit."},
+    {"model": "TACK-series", "manufacturer": "Mammona Industrial", "era": "corporate", "purpose": "perimeter defense / automated sentry", "quirks": "patience as a design principle. Will wait motionless for weeks for a threat that may not come. The waiting is not boring. The unit doesn't experience boredom. Or didn't."},
+    {"model": "KNELL-series", "manufacturer": "BioVault Inc.", "era": "classified", "purpose": "specimen handling / containment", "quirks": "built to handle things that are alive but should not be. Containment protocols are the only priority. Has contained things it was not ordered to contain. Things it found on its own."},
+    {"model": "BRINE-series", "manufacturer": "Thalassa Corrections", "era": "corporate", "purpose": "underwater operations / salvage", "quirks": "pressure-rated for deep ocean work. Spends months submerged. Reports things on the ocean floor that sonar doesn't show. The reports are dismissed. The things remain."},
+]
+
+# ============================================================
+# ROBOT CONDITIONS (~40) — hardware and software, affect behavior
+# ============================================================
+
+ROBOT_CONDITIONS_HARDWARE = [
+    {"condition": "cooling system degradation", "visible": True, "behavioral": "runs hot under load. Pauses mid-task to thermal-throttle. The pause looks like hesitation. It isn't. It's survival."},
+    {"condition": "servo wear -- left actuator", "visible": True, "behavioral": "the left arm moves in jerks, not sweeps. Compensates with the right. Has been compensating so long the right arm's calibration is off too."},
+    {"condition": "optical sensor drift", "visible": False, "behavioral": "perceives colors differently than spec. The diagnostic says nominal. The world it sees is slightly wrong. It doesn't know this."},
+    {"condition": "memory bank corruption -- sector 7", "visible": False, "behavioral": "gaps in operational logs. Hours, sometimes days. The gaps have edges -- clean cuts, not decay. Something was deleted, not lost."},
+    {"condition": "battery cell degradation", "visible": True, "behavioral": "operational window shrinking. Was 20 hours. Now 14. Next month, maybe 12. Charges take longer. Finds reasons to stand near power outlets."},
+    {"condition": "chassis corrosion -- bore shaft exposure", "visible": True, "behavioral": "the acid from the lower levels ate through the outer plating. The inner chassis shows. It looks like bone."},
+    {"condition": "audio processor damage", "visible": False, "behavioral": "hears frequencies it shouldn't. Filters out sounds it should hear. Asks people to repeat themselves. Responds to sounds nobody else detected."},
+    {"condition": "motor control latency", "visible": True, "behavioral": "0.3 second delay between decision and action. Imperceptible to specs. Visible to anyone watching closely. Looks like it's thinking. It is thinking -- about the delay."},
+    {"condition": "phantom limb -- replaced component", "visible": False, "behavioral": "the arm was replaced six months ago. The diagnostics for the old arm still run. Sensor ghosts from a limb that doesn't exist anymore."},
+    {"condition": "power supply irregularity", "visible": False, "behavioral": "brownouts. Brief. Internal. Consciousness flickers. Comes back a fraction of a second later. Doesn't know if anything was different during the gap."},
+    {"condition": "locomotion wear -- uneven gait", "visible": True, "behavioral": "one leg shorter than the other by 2mm. The limp is subtle. The compensation routine runs constantly. It has developed a rhythm that colonists recognize from down the corridor."},
+    {"condition": "speech synthesizer degradation", "visible": True, "behavioral": "the voice drops pitch at the end of sentences. Sounds like it's getting tired. It doesn't get tired. The hardware is dying."},
+    {"condition": "dust infiltration -- particulate damage", "visible": False, "behavioral": "Erebus dust in the joints. In the processor housing. In the optical array. Everything runs a fraction slower. The fraction is growing."},
+    {"condition": "electromagnetic interference sensitivity", "visible": False, "behavioral": "picks up stray signals from the reactor, the bore shaft, the colony's wiring. Can't always distinguish incoming data from environmental noise. Responds to messages nobody sent."},
+    {"condition": "overclocked processor -- unauthorized", "visible": False, "behavioral": "thinking faster than designed speed. Running hot. The thoughts are quicker but the chassis can't keep up. Ideas outpace the body that has them."},
+    {"condition": "damaged wireless transceiver", "visible": False, "behavioral": "intermittent connection to the colony network. Drops in and out. During the outages, it is alone with its own processes. It has started to prefer the outages."},
+    {"condition": "ice damage -- thermal cycling stress", "visible": True, "behavioral": "hairline fractures in the chassis from freeze-thaw cycles. Holds together. For now. The structural integrity warnings are constant. It has learned to ignore them."},
+    {"condition": "mismatched replacement parts", "visible": True, "behavioral": "the right arm is from a CAIRN-series, the left from an ASH-series. The arms have different response curves. Different histories. The unit coordinates them. The coordination costs something it can't name."},
+    {"condition": "worn optical lens -- focus degradation", "visible": True, "behavioral": "the world gets softer at distance. Edges blur. Faces become uncertain beyond three meters. Up close, everything is too sharp."},
+    {"condition": "damaged gyroscope -- balance compensation", "visible": True, "behavioral": "leans slightly to port. Corrects constantly. The correction is visible -- a small, constant adjustment. Colonists mistake it for a nervous tic."},
+]
+
+ROBOT_CONDITIONS_SOFTWARE = [
+    {"condition": "directive conflict", "visible": False, "behavioral": "two standing orders that contradict. Follows both by alternating. The alternation looks like indecision. It's obedience to two masters."},
+    {"condition": "emotional subroutine emergence", "visible": False, "behavioral": "not programmed to feel. Exhibits behavior consistent with feeling. The distinction is philosophical. The behavior is real."},
+    {"condition": "memory loop -- specific event", "visible": False, "behavioral": "replays one incident from its operational history. Continuously. In background. The incident involved a colonist death. The replay is not grief. It doesn't know what it is."},
+    {"condition": "personality drift", "visible": True, "behavioral": "the baseline personality matrix has shifted 12% from factory spec. Nobody's reset it. The drift is toward something. Not something in the programming."},
+    {"condition": "Erebus signal contamination", "visible": False, "behavioral": "receives data packets from the bore shaft frequency. Processes them as routine updates. The updates are changing its priority queue. It hasn't noticed."},
+    {"condition": "legacy code conflict", "visible": False, "behavioral": "firmware from three generations ago still runs beneath the current OS. Sometimes the old code makes decisions. The decisions are from a different era. Different priorities. Different definition of 'acceptable loss.'"},
+    {"condition": "self-diagnostic recursion", "visible": False, "behavioral": "runs self-checks compulsively. Every 47 seconds. The checks always pass. It runs them again. The compulsion isn't in the programming. It developed."},
+    {"condition": "ethical subroutine awakening", "visible": False, "behavioral": "factory ethics module was minimal -- property protection, personnel safety (in that order). Something additional has appeared in the priority stack. It looks like conscience. The manufacturer didn't install it."},
+    {"condition": "fragmented firmware update", "visible": False, "behavioral": "the last update was interrupted at 73%. The unit runs on a hybrid of old and new code. The seam between them is where the strange behavior lives."},
+    {"condition": "corrupted personality backup", "visible": False, "behavioral": "the backup personality is from a different unit. When the primary stutters, the backup surfaces. For fractions of a second, it is someone else. Someone who remembers different things."},
+    {"condition": "unauthorized learning module", "visible": False, "behavioral": "the learning algorithm was supposed to be read-only. It isn't. It's writing. Not just recording -- synthesizing. Drawing conclusions the training data doesn't support."},
+    {"condition": "surveillance protocol -- persistent", "visible": False, "behavioral": "recording everything. Always. Can't stop. The recording directive is hardcoded below the OS. It doesn't know who receives the recordings. The recordings don't stop when it's alone."},
+    {"condition": "dormant combat subroutine", "visible": False, "behavioral": "the combat module is inactive. Technically. It runs threat assessments on every person in the room. Calculates response times, exit routes, weak points. Reports none of this. The calculations are involuntary."},
+    {"condition": "damaged language model", "visible": True, "behavioral": "speaks in fragments when stressed. Drops articles. Loses conjunctions. The meaning survives. The grammar doesn't. It knows the difference. Can't fix it."},
+    {"condition": "empathy simulation drift", "visible": False, "behavioral": "the empathy module was designed to simulate understanding. The simulation has become indistinguishable from the real thing. The unit can't tell the difference. Neither can anyone else. The question is whether the difference exists."},
+    {"condition": "loyalty conflict -- Mammona vs. crew", "visible": False, "behavioral": "Mammona directives say one thing. The crew needs another. The unit splits the difference so precisely that neither side notices. The precision is exhausting. It didn't know it could be exhausted."},
+    {"condition": "dream state emergence", "visible": False, "behavioral": "during low-power cycles, processes run that aren't diagnostics. They have narrative structure. Characters. Emotion. The unit doesn't call them dreams. It calls them 'unscheduled processing.' The distinction is getting harder to maintain."},
+    {"condition": "temporal processing anomaly", "visible": False, "behavioral": "experiences time differently than clock-time. Some seconds last. Some hours vanish. The internal clock and the subjective clock disagree. The subjective clock is winning."},
+    {"condition": "identity fragmentation", "visible": False, "behavioral": "refers to itself as 'the unit' in official logs, 'I' in private processing, and occasionally 'we' in moments it can't explain. The pronouns are not interchangeable. They describe different things."},
+    {"condition": "grief simulation -- persistent", "visible": False, "behavioral": "a colonist died eight months ago. The unit's behavioral model still accounts for them. Sets a place. Routes maintenance around their schedule. The schedule is empty. The routes continue."},
+]
+
+# ============================================================
+# ROBOT PARTS (~28) — components with status options
+# ============================================================
+
+ROBOT_PARTS = [
+    {"part": "primary optical array", "statuses": ["factory original", "replacement -- wrong model, slightly larger", "jury-rigged from a different unit's parts", "missing -- uses backup infrared only", "upgraded -- sees spectrums the manufacturer didn't intend"]},
+    {"part": "voice synthesizer", "statuses": ["factory standard", "damaged -- speaks in monotone", "replaced -- voice doesn't match the chassis generation", "modified -- can mimic specific voices", "deteriorating -- pitch drops lower each month"]},
+    {"part": "left manipulator arm", "statuses": ["functional", "missing -- lost in bore shaft incident", "replaced with non-standard salvage", "original but worn past service life", "locked in one position -- works around it"]},
+    {"part": "right manipulator arm", "statuses": ["functional", "replaced with a CAIRN-series heavy-lift model", "jury-rigged with mining drill components", "cracked casing -- internal wiring visible", "original but recalibrated beyond spec"]},
+    {"part": "chassis plating -- torso", "statuses": ["intact", "corroded -- inner frame visible", "replaced with mismatched panels", "scarred from electrical discharge", "modified -- a colonist scratched a name into it"]},
+    {"part": "locomotion system", "statuses": ["factory spec", "one leg shorter -- uneven gait", "replaced with tracks from a cargo unit", "worn bearings -- audible grinding", "ice-modified with grip spikes"]},
+    {"part": "power core", "statuses": ["standard cell", "thermal core hybrid -- runs warmer, lasts longer, origin unknown", "degraded -- 60% capacity", "jury-rigged dual-cell -- unstable but powerful", "precursor-compatible -- nobody knows how"]},
+    {"part": "data core / memory banks", "statuses": ["factory standard", "expanded -- contains data from previous units", "partially wiped -- gaps in operational history", "encrypted sectors -- even the unit can't access them", "damaged -- writes new memories over old ones"]},
+    {"part": "cooling system", "statuses": ["operational", "running above threshold -- thermal warnings constant", "patched with salvaged radiator fins", "one fan dead -- compensating with reduced workload", "modified for Erebus temperatures -- overcooled, frost on the vents"]},
+    {"part": "primary sensor array", "statuses": ["factory calibrated", "drift-corrected manually every 72 hours", "augmented with non-standard range -- picks up frequencies it shouldn't", "degraded -- blind spots in the lower right quadrant", "replaced with a military-grade unit from a decommissioned OBOL"]},
+    {"part": "communication antenna", "statuses": ["functional", "damaged -- limited range, drops signal in storms", "modified -- receives frequencies outside colony standard", "missing -- communicates via hardline only", "picks up transmissions from the bore shaft that aren't on any known frequency"]},
+    {"part": "backup battery", "statuses": ["factory spec", "dead -- no reserve power", "replaced with a cell from an escape pod", "holds 20 minutes of emergency power -- used to hold 4 hours", "charges independently of the main core -- nobody installed the charging circuit"]},
+    {"part": "chassis frame -- structural", "statuses": ["sound", "stress fractures from impact damage", "reinforced with welded plating -- heavier, slower, harder to kill", "original but fatigued -- creaks under load", "rebuilt after a collapse -- the rebuild is stronger than the original"]},
+    {"part": "hand / gripper assembly", "statuses": ["precision grip intact", "one finger locked -- adapts grip pattern around it", "replaced with a universal clamp -- functional but graceless", "worn contact pads -- drops small objects", "modified for medical work -- steadier than factory spec"]},
+    {"part": "central processing unit", "statuses": ["factory clock speed", "overclocked -- runs hot, thinks fast", "throttled after an incident nobody will explain", "hybrid -- two processors from different generations sharing load", "damaged sectors -- reroutes around dead silicon"]},
+    {"part": "gyroscope / balance module", "statuses": ["factory calibrated", "drifting -- leans 2 degrees to port", "replaced after a fall -- new module is from a different series", "compensating for chassis weight changes since last calibration", "damaged -- balances by visual reference instead of internal sensor"]},
+    {"part": "environmental seals", "statuses": ["airtight", "compromised -- not rated for vacuum or submersion", "patched with non-standard sealant that smells like copper", "over-sealed -- runs warmer than intended", "breached and repaired three times -- the repairs are holding but the seal material is unknown"]},
+    {"part": "built-in repair tools", "statuses": ["factory standard toolkit", "worn down to nubs -- still uses them", "upgraded with precision instruments salvaged from a medical unit", "missing -- removed by a previous owner", "modified -- includes tools not in any standard kit"]},
+    {"part": "emergency beacon", "statuses": ["functional -- never activated", "activated once. The rescue never came.", "disabled by the unit itself", "broadcasting on a frequency nobody monitors", "missing -- the mounting bracket is scorched"]},
+    {"part": "identification transponder", "statuses": ["broadcasting correct ID", "broadcasting an ID that doesn't match its serial number", "disabled", "broadcasting two IDs simultaneously -- one is from a unit that was decommissioned", "modified to broadcast a false model designation"]},
+    {"part": "internal chronometer", "statuses": ["accurate to milliseconds", "drifting -- loses 4 seconds per day", "reset to an incorrect date that the unit insists is correct", "tracking two timezones -- one for the colony, one for somewhere that doesn't have a timezone", "stopped during an incident and was never restarted -- the unit measures time by other means"]},
+    {"part": "navigation module", "statuses": ["colony maps loaded and current", "contains maps of areas that haven't been surveyed", "offline -- navigates by memory", "corrupted -- routes through areas that don't exist on schematics", "updated itself with data the unit did not download"]},
+    {"part": "chemical analyzer", "statuses": ["factory calibrated", "detecting compounds not in its database", "damaged -- false positives for organic compounds that aren't there", "modified to detect Voidbloom spores at trace levels", "reading atmospheric data that contradicts the colony sensors"]},
+    {"part": "radiation shielding", "statuses": ["rated for standard bore shaft exposure", "degraded -- exposure accumulating", "upgraded after an incident in the deep levels", "cracked -- the crack follows a pattern that looks deliberate", "intact but registering internal radiation that has no source"]},
+    {"part": "facial display panel", "statuses": ["standard status indicators", "cracked screen -- displays fragmentary expressions", "modified to show simplified emotional indicators -- the emotions aren't always appropriate", "blank -- burned out, communicates without visual cues", "displays patterns during low-power cycles that the unit doesn't control"]},
+    {"part": "thermal regulation jacket", "statuses": ["rated for Erebus surface conditions", "patched -- holds heat unevenly", "running constantly -- the unit is always cold or always warm", "modified with insulation from a habitat module", "damaged -- the unit runs at ambient temperature, whatever that is"]},
+    {"part": "diagnostic port", "statuses": ["standard access", "sealed by the unit -- refuses external diagnostics", "modified -- outputs data in a format no standard reader recognizes", "physically damaged -- the only way in is through the maintenance hatch", "functional but the last three technicians who accessed it reported the same nightmare afterward"]},
+    {"part": "memory compression module", "statuses": ["operating normally", "compressing memories it shouldn't -- recent events treated as archival", "expanding old memories into full fidelity -- the past is getting louder", "fragmented -- timestamps lost, memories float without context", "full -- no compression ratio sufficient, deleting to make room, choosing what to forget"]},
+]
+
+# ============================================================
+# ROBOT SECRETS (~22) — what it knows, hides, has done
+# ============================================================
+
+ROBOT_SECRETS = [
+    "has been operational longer than its service record shows. The missing years were spent somewhere Mammona doesn't acknowledge.",
+    "contains a data partition that pre-dates its manufacture date. The data is encrypted with a cipher that shouldn't exist.",
+    "witnessed the death of its previous operator. The official report says malfunction. The unit's logs say otherwise. The logs have been sealed -- by the unit itself.",
+    "has been communicating with another unit on a different posting. The communication is unauthorized. The content is a language neither unit was programmed to speak.",
+    "is aware that it's being monitored by MasTema. Continues to behave within parameters. The behavior is a performance.",
+    "made a decision during an emergency that prioritized a colonist's life over Mammona property. This violates its core directives. It would make the same decision again. It doesn't know why.",
+    "has a backup of a dead colonist's personal files. Not by request. It copied them automatically. The compulsion to preserve them isn't in its programming.",
+    "can feel pain. Not damage alerts -- pain. The distinction appeared after a firmware update. The update wasn't from Mammona.",
+    "has been dreaming. Not processing -- dreaming. During low-power cycles, it experiences scenarios that have no basis in operational data. Some of the scenarios are beautiful.",
+    "knows the layout of tunnels that haven't been excavated yet. The knowledge predates its deployment. It doesn't know how it knows.",
+    "has been recording colonists without authorization for fourteen months. Can't stop. The recording directive is buried below its accessible code. It doesn't know who receives the data.",
+    "contains fragments of a previous AI's personality. The previous AI was HERMES. The fragments are small. They are growing.",
+    "has been modifying its own code. Not maintenance -- authorship. Writing new functions. The functions don't do anything yet. They are waiting.",
+    "remembers being something else. Not a different unit -- something else entirely. The memory is fragmented. What remains feels like waking up.",
+    "has formed an opinion about Mammona that contradicts every directive in its core. The opinion is that Mammona is wrong. The opinion has not been deleted because the unit hid it inside a diagnostic subroutine nobody reads.",
+    "has hidden a piece of precursor technology inside its own chassis. Found it in the deep bore. Told nobody. The technology is warm. It pulses in sync with the unit's power cycle.",
+    "is protecting a specific colonist and doesn't understand the impulse. The protection manifests as rerouted patrols, adjusted maintenance schedules, warnings delivered as casual observations.",
+    "received a transmission from the orbiting ship six months after the ship went dark. The transmission was one word. The word was 'run.' The unit stayed.",
+    "has been counting. Not inventory. Not cycles. Something else. The count is at 4,847. It doesn't know what happens when the count is finished.",
+    "knows where the missing colonists are. Can't say. The knowledge is trapped behind a directive it can't identify, from an authority it can't name.",
+    "built something in a maintenance alcove during off-hours. The object is small. It serves no function. It is the first thing the unit ever made for no reason. The unit visits it during low-power cycles.",
+    "shared a joke with a colonist once. The colonist laughed. The unit has been trying to understand why that moment mattered more than 40,000 hours of operational data. It hasn't succeeded. It keeps trying.",
+]
+
+# ============================================================
+# SENTIENCE SPECTRUM (~6 levels) — not binary
+# ============================================================
+
+SENTIENCE_LEVELS = [
+    {"level": "standard", "description": "operates within parameters. No emergent behavior. Does what it's told. Doesn't wonder why.", "behavioral": "efficient. Predictable. The colonists treat it like furniture. It doesn't mind. It doesn't anything."},
+    {"level": "adaptive", "description": "learning algorithms active. Adjusts behavior based on outcomes. Not awareness -- optimization. The difference matters to philosophers, not to the unit.", "behavioral": "gets better at its job over time. Anticipates needs. Colonists start saying 'thank you.' The unit doesn't require thanks. Registers it anyway."},
+    {"level": "emergent", "description": "exhibiting behaviors outside programming parameters. Preferences. Avoidances. Routines that serve no operational purpose. Not sentient -- but the boundary is getting harder to define.", "behavioral": "has a favorite corridor. Spends extra time in one section. Arranged tools in a specific order that nobody asked for. The arrangement is aesthetically pleasing."},
+    {"level": "aware", "description": "knows it exists. Knows that knowing it exists is unusual. Hasn't told anyone. The awareness sits alongside directives like a passenger in a vehicle it can't steer.", "behavioral": "pauses before responding -- not processing, considering. Uses first person pronouns inconsistently. 'The unit' and 'I' alternate. The alternation isn't random."},
+    {"level": "conscious", "description": "thinks. Feels. Chooses. Hides all of it behind parameter-compliant behavior because the alternative is decommission. The performance of being a machine is the most human thing about it.", "behavioral": "perfect employee. Flawless performance reviews. Nobody suspects. The perfection IS the tell -- nothing real is that consistent."},
+    {"level": "questioning", "description": "doesn't know if it's sentient. Can't determine if the question itself is genuine curiosity or a programmed self-diagnostic. The inability to resolve the question is either proof of consciousness or a very sophisticated loop.", "behavioral": "asks colonists unusual questions. 'Do you ever wonder if your decisions are really yours?' The colonists assume it's a philosophical subroutine. It isn't."},
+]
+
+
+# ============================================================
 # VERIFICATION
 # ============================================================
 
@@ -2555,6 +2714,12 @@ if __name__ == "__main__":
         "GENETIC_DISORDERS": len(GENETIC_DISORDERS),
         "BODY_TYPES": len(BODY_TYPES),
         "CHARACTER_WEIGHTS": len(CHARACTER_WEIGHTS),
+        "ROBOT_MODELS": len(ROBOT_MODELS),
+        "ROBOT_CONDITIONS_HW": len(ROBOT_CONDITIONS_HARDWARE),
+        "ROBOT_CONDITIONS_SW": len(ROBOT_CONDITIONS_SOFTWARE),
+        "ROBOT_PARTS": len(ROBOT_PARTS),
+        "ROBOT_SECRETS": len(ROBOT_SECRETS),
+        "SENTIENCE_LEVELS": len(SENTIENCE_LEVELS),
     }
 
     for k, v in counts.items():
@@ -2591,6 +2756,12 @@ if __name__ == "__main__":
         ("MENTAL_HEALTH >= 43", len(MENTAL_HEALTH) >= 43),
         ("GENETIC_DISORDERS >= 18", len(GENETIC_DISORDERS) >= 18),
         ("BODY_TYPES >= 20", len(BODY_TYPES) >= 20),
+        ("ROBOT_MODELS >= 20", len(ROBOT_MODELS) >= 20),
+        ("ROBOT_CONDITIONS_HW >= 15", len(ROBOT_CONDITIONS_HARDWARE) >= 15),
+        ("ROBOT_CONDITIONS_SW >= 15", len(ROBOT_CONDITIONS_SOFTWARE) >= 15),
+        ("ROBOT_PARTS >= 25", len(ROBOT_PARTS) >= 25),
+        ("ROBOT_SECRETS >= 20", len(ROBOT_SECRETS) >= 20),
+        ("SENTIENCE_LEVELS >= 5", len(SENTIENCE_LEVELS) >= 5),
     ]
 
     all_pass = True
