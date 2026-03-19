@@ -1336,6 +1336,7 @@ def _get_inverse_relationship(rel_type):
         "saved_life_of": "owes_life_to", "owes_life_to": "saved_life_of",
         "commanding_officer": "subordinate", "subordinate": "commanding_officer",
         "widowed_by": "killed",
+        "ward": "guardian", "guardian": "ward",
     }
     return INVERSES.get(rel_type, rel_type)
 
@@ -1489,6 +1490,48 @@ def _generate_relationship_history(npc, other, rel_type):
         "fears": [
             f"avoids {other_first} when possible, won't say why",
             f"something about {other_first} isn't right, hasn't been since {R(LOCATIONS_FLAT)}",
+        ],
+        "friend": [
+            "bonded over night shifts",
+            f"one of the few people they trust on {R(LOCATIONS_FLAT)}",
+            f"met on {R(LOCATIONS_FLAT)}, been solid since",
+        ],
+        "best_friend": [
+            "the one person on this posting worth staying for",
+            "would take a bullet. Has, actually.",
+            f"inseparable since {R(LOCATIONS_FLAT)}, no explanation needed",
+        ],
+        "childhood_friend": [
+            f"grew up together on {R(LOCATIONS_FLAT)}, different people now, still the same underneath",
+            f"knew each other before the colonies, before any of this",
+        ],
+        "old_flame": [
+            "history. The complicated kind. Both pretend it's simple now.",
+            f"something happened between them on {R(LOCATIONS_FLAT)}, ended before either was ready",
+        ],
+        "bunkmate": [
+            "share a wall and a sleep schedule, know each other's nightmares",
+            f"assigned quarters together on {R(LOCATIONS_FLAT)}, didn't choose it",
+        ],
+        "drinking_buddy": [
+            "share whatever passes for alcohol on this posting, the conversation's the real intoxicant",
+            f"started drinking together after the {R(LOCATIONS_FLAT)} incident, haven't stopped",
+        ],
+        "business_partner": [
+            f"professional arrangement from {R(LOCATIONS_FLAT)}, nothing personal",
+            "split the margins, split the risk, don't ask each other personal questions",
+        ],
+        "informant": [
+            "information flows one way, payment flows the other",
+            f"feeds them intel from the {R(LOCATIONS_FLAT)} operation, for a price",
+        ],
+        "ward": [
+            f"took responsibility after the {R(LOCATIONS_FLAT)} incident, didn't ask to, did anyway",
+            f"looks after {other_first}, nobody assigned the role",
+        ],
+        "guardian": [
+            f"someone's looking out for them since {R(LOCATIONS_FLAT)}, they didn't ask, might not know",
+            f"{other_first} stepped in when nobody else would",
         ],
     }
     pool = templates.get(rel_type, [f"connected through shared history on {R(LOCATIONS_FLAT)}"])

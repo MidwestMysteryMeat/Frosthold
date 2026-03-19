@@ -1932,6 +1932,9 @@ RELATIONSHIP_TYPES = [
     "killed", "killed_by", "witnessed_death_of",
     "saved_life_of", "owes_life_to", "shares_secret_with",
     "suspects", "trusts", "fears",
+    "friend", "best_friend", "childhood_friend", "old_flame",
+    "bunkmate", "drinking_buddy", "business_partner",
+    "informant", "ward", "guardian",
 ]
 
 ARC_PROGRESSIONS = {
@@ -2239,6 +2242,27 @@ HEALTH_CONDITIONS = [
     # Skin / exposure
     {"condition": "contact dermatitis — chemical", "visible": True, "behavioral": "hands raw and cracked from bore shaft chemicals. Double-gloves. Triple-gloves. The reaction gets through anyway. Washes with cold water because hot water makes it worse."},
     {"condition": "frostbite scarring — face", "visible": True, "behavioral": "waxy patches on the cheeks and nose where the tissue died and regrew wrong. Sensation is dull there. Doesn't feel the cold on those spots. Feels everything else."},
+    # Acute / common illnesses
+    {"condition": "recurring bronchitis", "visible": True, "behavioral": "the cough comes back every few weeks. Wet, rattling. Works through it. The cold air doesn't help. Nothing helps except time and time is Mammona's."},
+    {"condition": "chronic flu symptoms", "visible": True, "behavioral": "always slightly ill. Runny nose, low fever, aches. The colony medic calls it 'environmental adjustment.' It's been eight months of adjusting."},
+    {"condition": "pneumonia — recovering", "visible": True, "behavioral": "breathing sounds wrong. Shallow, careful. Supposed to be on rest. Rest isn't an option on a Mammona posting."},
+    {"condition": "food poisoning — recurring", "visible": False, "behavioral": "the NutriLoaf doesn't agree with them. Or the water. Or something in the air. Spends twenty minutes in the bathroom every morning. Has memorized which stalls are cleanest."},
+    {"condition": "stomach ulcer", "visible": False, "behavioral": "eats small meals. Avoids anything acidic. The pain hits mid-shift. Works through it with a hand pressed flat against the abdomen."},
+    {"condition": "kidney stones — passed two already", "visible": False, "behavioral": "drinks water constantly. Carries a bottle everywhere. The fear of another one is worse than the stones themselves."},
+    {"condition": "chronic ear infection", "visible": False, "behavioral": "tilts head when listening. The infected ear leaks sometimes. Cotton wadding, changed twice a shift."},
+    {"condition": "strep — recurring", "visible": True, "behavioral": "throat raw every few weeks. Voice drops to a rasp. The colony doesn't have the antibiotics to kill it properly, just enough to beat it back."},
+    {"condition": "allergies — dust and mold", "visible": True, "behavioral": "sneezing fits in the lower corridors. Eyes red and streaming. The air filtration handles the big particulates. Not the small ones."},
+    {"condition": "allergies — chemical sensitivity", "visible": False, "behavioral": "certain cleaning agents cause hives. The colony uses three types. Two of them are the wrong ones."},
+    {"condition": "iron deficiency anemia", "visible": True, "behavioral": "pale even by Erebus standards. Tired in a way sleep doesn't fix. The medic prescribed supplements. The supplements were in the last supply shipment. The last supply shipment didn't arrive."},
+    {"condition": "UTI — chronic", "visible": False, "behavioral": "the colony water recycler is the suspected cause. Half the colony has had one. Nobody talks about it. Everyone knows."},
+    {"condition": "hernia — inguinal", "visible": False, "behavioral": "lifts wrong and pays for it. Should have had surgery before the posting. Mammona's pre-deployment medical is a checkbox, not an examination."},
+    {"condition": "varicose veins — legs", "visible": True, "behavioral": "stands for twelve-hour shifts. The legs swell. Compression wraps fashioned from spare bandages. Sits whenever possible. Sitting isn't often possible."},
+    {"condition": "gallstones", "visible": False, "behavioral": "attacks come without warning. Doubled over, grey-faced, unable to speak. Passes in an hour. The next one could be tomorrow or next month."},
+    {"condition": "tension headaches — daily", "visible": False, "behavioral": "presses fingers into temples between tasks. The fluorescent lighting makes it worse. Everything on Erebus is fluorescent."},
+    {"condition": "acid reflux", "visible": False, "behavioral": "sleeps propped up on extra blankets. The NutriLoaf is the worst for it. NutriLoaf is most of what's available."},
+    {"condition": "ingrown toenail — infected", "visible": False, "behavioral": "limps slightly. Won't go to medical because medical will bench them and benched means no pay and no pay means the debt grows."},
+    {"condition": "cold sores — stress-triggered", "visible": True, "behavioral": "flare up before every supply ship arrival. The stress shows on the face before the mind admits it."},
+    {"condition": "vitamin D deficiency", "visible": True, "behavioral": "no sunlight on Erebus. Bone aches. Fatigue. The UV lamps in the mess hall run for two hours a day. Not enough. Never enough."},
 ]
 
 
@@ -2308,6 +2332,15 @@ MENTAL_HEALTH = [
     {"condition": "suicidal ideation — passive", "visible": False, "hidden_signs": "doesn't want to die. Doesn't want to live either. Exists in the space between. Takes risks that aren't quite reckless. Stands at edges a second too long. Hasn't made a plan. Hasn't ruled one out.", "coping": "the next shift. Gets through this shift. Then the next one. The horizon is twelve hours away. Beyond that is fog."},
     # Adjustment
     {"condition": "adjustment disorder", "visible": False, "hidden_signs": "three months on Erebus and still flinching at every sound. Hasn't settled. Hasn't adapted. The colony says give it time. Time is making it worse, not better.", "coping": "routine from the old posting. Same wake-up time. Same meal order. Importing structure from a place that doesn't exist anymore."},
+    # Additional conditions
+    {"condition": "seasonal affective disorder", "visible": False, "hidden_signs": "on Erebus there are no seasons. It's always dark. It's always winter. The condition has no off-switch here. It just IS.", "coping": "the UV lamp. Two hours a day. Sits under it in the mess hall. Doesn't talk during those two hours."},
+    {"condition": "misophonia", "visible": False, "hidden_signs": "certain sounds trigger rage. The chewing. The drill harmonic. The way the generator clicks before cycling. Wears ear protection more than the job requires.", "coping": "isolation. Eats alone. Works alone when possible. The colony isn't built for alone."},
+    {"condition": "trichotillomania", "visible": True, "hidden_signs": "pulls hair when stressed. Eyebrows first, then scalp. Wears a beanie. The beanie hides it. Mostly.", "coping": "keeps hands busy. Always holding something. A pen, a bolt, a stone. When the hands are empty, they go to the hair."},
+    {"condition": "selective mutism — stress-triggered", "visible": True, "hidden_signs": "speaks normally most days. Under pressure, the words stop. Not can't — won't. Or the body won't. The distinction matters to nobody except them.", "coping": "writes notes when it happens. Carries a pad. The handwriting is steady even when the voice isn't."},
+    {"condition": "PMDD", "visible": False, "hidden_signs": "three days a month the world is ending. Not metaphorically. Hormonal. The colony medic doesn't stock the right medication. 'Non-essential,' the form says.", "coping": "tracking. Knows the days. Warns the bunkmate. Survives them."},
+    {"condition": "body dysmorphia", "visible": False, "hidden_signs": "avoids reflective surfaces. On Erebus, with the ice and the viewport glass, reflections are everywhere. Positions herself carefully in every room.", "coping": "functionality. The body works. It carries, it lifts, it survives. What it looks like is irrelevant. Keeps telling herself that."},
+    {"condition": "derealization — chronic", "visible": False, "hidden_signs": "the world looks flat. Like a projection. Touches walls to confirm they're solid. On Erebus, where reality IS questionable, the disorder and the environment agree.", "coping": "texture. Rough surfaces. Cold metal. Things that feel real against the skin."},
+    {"condition": "maladaptive daydreaming", "visible": False, "hidden_signs": "gone for minutes at a time. Eyes open, hands still, somewhere else entirely. The somewhere else is better than here. Always is.", "coping": "the daydreams. That IS the coping. The problem and the solution are the same thing."},
 ]
 
 
@@ -2554,8 +2587,8 @@ if __name__ == "__main__":
         ("FAMILY >= 25", len(FAMILY) >= 25),
         ("GENETICS >= 12", len(GENETICS) >= 12),
         ("CONTRADICTIONS >= 25", len(CONTRADICTIONS) >= 25),
-        ("HEALTH_CONDITIONS >= 35", len(HEALTH_CONDITIONS) >= 35),
-        ("MENTAL_HEALTH >= 35", len(MENTAL_HEALTH) >= 35),
+        ("HEALTH_CONDITIONS >= 55", len(HEALTH_CONDITIONS) >= 55),
+        ("MENTAL_HEALTH >= 43", len(MENTAL_HEALTH) >= 43),
         ("GENETIC_DISORDERS >= 18", len(GENETIC_DISORDERS) >= 18),
         ("BODY_TYPES >= 20", len(BODY_TYPES) >= 20),
     ]
