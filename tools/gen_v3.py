@@ -443,6 +443,236 @@ QUEST_HOOKS = [
 
 
 # ============================================================
+# RELATIONSHIP WEB — bidirectional NPC wiring
+# ============================================================
+
+def _get_inverse_relationship(rel_type):
+    """Map asymmetric relationships to their inverse. Symmetric types return themselves."""
+    INVERSES = {
+        "mentor": "protege", "protege": "mentor",
+        "parent": "child", "child": "parent",
+        "debtor": "creditor", "creditor": "debtor",
+        "blackmailer": "blackmailed_by", "blackmailed_by": "blackmailer",
+        "betrayed_by": "betrayer_of", "betrayer_of": "betrayed_by",
+        "killed": "killed_by", "killed_by": "killed",
+        "saved_life_of": "owes_life_to", "owes_life_to": "saved_life_of",
+        "commanding_officer": "subordinate", "subordinate": "commanding_officer",
+        "widowed_by": "killed",
+    }
+    return INVERSES.get(rel_type, rel_type)
+
+
+def _generate_relationship_history(npc, other, rel_type):
+    """Generate a 1-sentence history for the relationship between two NPCs."""
+    other_first = other["name"].split()[0]
+    npc_first = npc["name"].split()[0]
+    templates = {
+        "partner": [
+            f"met on {R(LOCATIONS_FLAT)} during a double shift",
+            "started quietly, nobody noticed for months",
+            f"bonded over shared rations on {R(LOCATIONS_FLAT)}",
+        ],
+        "ex_partner": [
+            f"separated after {R(LOCATIONS_FLAT)}",
+            "it ended badly, nobody talks about it",
+            "split over a disagreement about what they saw in the bore shaft",
+        ],
+        "spouse": [
+            f"married in a brief ceremony on {R(LOCATIONS_FLAT)}",
+            "colony records list them as bonded, no ceremony on file",
+        ],
+        "widowed_by": [
+            f"{other_first} didn't come back from the last survey run",
+            f"lost {other_first} during the {R(LOCATIONS_FLAT)} incident",
+        ],
+        "parent": [
+            f"raised {other_first} on {R(LOCATIONS_FLAT)} before the transfer",
+            f"{other_first} was born mid-transit, no birth planet on file",
+        ],
+        "child": [
+            f"grew up on {R(LOCATIONS_FLAT)}, hasn't spoken to {other_first} in years",
+            f"followed {other_first} into the same line of work",
+        ],
+        "sibling": [
+            f"grew up together on {R(LOCATIONS_FLAT)}",
+            "same parents, different postings, reunited by accident",
+            "don't look alike but finish each other's sentences",
+        ],
+        "adopted_family": [
+            f"took {other_first} in after {R(LOCATIONS_FLAT)}",
+            "not blood, but closer than blood",
+        ],
+        "mentor": [
+            f"trained {other_first} on {R(LOCATIONS_FLAT)}",
+            f"taught {other_first} everything about the bore systems",
+            f"took {other_first} under wing after the previous mentor vanished",
+        ],
+        "protege": [
+            f"learned the trade from {other_first} on {R(LOCATIONS_FLAT)}",
+            f"{other_first} saw potential, nobody else did",
+        ],
+        "rival": [
+            f"competing since {R(LOCATIONS_FLAT)}",
+            "same job, different methods",
+            f"both applied for the same posting on {R(LOCATIONS_FLAT)}, neither forgot",
+        ],
+        "nemesis": [
+            f"this goes back to {R(LOCATIONS_FLAT)}, and it's personal",
+            "one of them crossed a line, the other one remembers",
+        ],
+        "debtor": [
+            R(["owes for shuttle passage", "owes for a medical procedure", "owes for silence"]),
+            f"borrowed heavily before the {R(LOCATIONS_FLAT)} posting",
+        ],
+        "creditor": [
+            f"lent resources during the {R(LOCATIONS_FLAT)} crisis",
+            "keeps a ledger, never forgets a debt",
+        ],
+        "blackmailer": [
+            f"knows what {other_first} did on {R(LOCATIONS_FLAT)}",
+            f"has documentation that Mammona would pay to see",
+        ],
+        "blackmailed_by": [
+            f"{other_first} has leverage, and they both know it",
+            "pays in silence and favors",
+        ],
+        "co_conspirator": [
+            f"planned something together on {R(LOCATIONS_FLAT)} that can't be undone",
+            "share a secret that would get them both spaced",
+        ],
+        "betrayed_by": [
+            f"{other_first} sold them out on {R(LOCATIONS_FLAT)}",
+            f"trusted {other_first} with something important, regrets it",
+        ],
+        "betrayer_of": [
+            f"made a choice on {R(LOCATIONS_FLAT)} that {other_first} hasn't forgiven",
+            "did what needed doing, doesn't apologize for it",
+        ],
+        "crew_mate": [
+            f"served together on {R(LOCATIONS_FLAT)}",
+            "same shift rotation for two years running",
+            f"pulled the same detail on the {R(LOCATIONS_FLAT)} transit",
+        ],
+        "former_crew": [
+            f"used to run together on {R(LOCATIONS_FLAT)}, before things changed",
+            "the crew dissolved, the memories didn't",
+        ],
+        "commanding_officer": [
+            f"gave {other_first} orders on {R(LOCATIONS_FLAT)}",
+            f"ran the operation that {other_first} survived",
+        ],
+        "subordinate": [
+            f"took orders from {other_first} on {R(LOCATIONS_FLAT)}",
+            f"followed {other_first} into a situation that went wrong",
+        ],
+        "lover_secret": [
+            "nobody on the colony knows about this",
+            f"started on {R(LOCATIONS_FLAT)}, kept it quiet since",
+        ],
+        "unrequited": [
+            f"watches {other_first} across the mess hall, says nothing",
+            f"wrote letters to {other_first} that were never sent",
+        ],
+        "estranged": [
+            f"haven't spoken since {R(LOCATIONS_FLAT)}",
+            "same colony, different worlds",
+        ],
+        "killed": [
+            f"it happened on {R(LOCATIONS_FLAT)}, officially an accident",
+            "the details are in a sealed file somewhere",
+        ],
+        "killed_by": [
+            f"the killing happened on {R(LOCATIONS_FLAT)}, the silence happened after",
+        ],
+        "witnessed_death_of": [
+            f"was there when it happened on {R(LOCATIONS_FLAT)}",
+            "saw everything, reported nothing",
+        ],
+        "saved_life_of": [
+            f"pulled {other_first} out of a collapsed section on {R(LOCATIONS_FLAT)}",
+            f"intervened during the {R(LOCATIONS_FLAT)} incident",
+        ],
+        "owes_life_to": [
+            f"would be dead without {other_first}, and they both know it",
+            f"{other_first} dragged them out of {R(LOCATIONS_FLAT)} alive",
+        ],
+        "shares_secret_with": [
+            f"both know what's in Section {R(['A','B','C','D','E','F'])}",
+            f"found something on {R(LOCATIONS_FLAT)} that they agreed never to report",
+        ],
+        "suspects": [
+            f"watches {other_first} too closely during shift changes",
+            f"keeps notes on {other_first}'s movements",
+        ],
+        "trusts": [
+            f"the only person on {R(LOCATIONS_FLAT)} worth trusting",
+            f"would follow {other_first} into the bore shaft, no questions",
+        ],
+        "fears": [
+            f"avoids {other_first} when possible, won't say why",
+            f"something about {other_first} isn't right, hasn't been since {R(LOCATIONS_FLAT)}",
+        ],
+    }
+    pool = templates.get(rel_type, [f"connected through shared history on {R(LOCATIONS_FLAT)}"])
+    return R(pool)
+
+
+def wire_relationships(ctx):
+    """Wire NPCs in a batch into a relationship web. Bidirectional."""
+    npcs = ctx.npcs
+    if len(npcs) < 2:
+        return
+    for npc in npcs:
+        n_rels = RI(1, min(3, len(npcs) - 1))
+        others = [o for o in npcs if o["id"] != npc["id"] and o["id"] not in npc.get("relationships", {})]
+        if not others:
+            continue
+        for other in random.sample(others, min(n_rels, len(others))):
+            rel_type = R(RELATIONSHIP_TYPES)
+            history = _generate_relationship_history(npc, other, rel_type)
+            # Set bidirectional
+            npc.setdefault("relationships", {})[other["id"]] = {
+                "type": rel_type, "status": "active", "history": history,
+            }
+            inverse = _get_inverse_relationship(rel_type)
+            other.setdefault("relationships", {})[npc["id"]] = {
+                "type": inverse, "status": "active", "history": history,
+            }
+
+
+# ============================================================
+# ARC-STAGE DIALOGUE TONES
+# ============================================================
+
+ARC_STAGE_TONE_MAP = {
+    "desperate": "desperate",
+    "broken": "numb",
+    "paranoid": "paranoid",
+    "vengeful": "furious",
+    "contaminated": "cosmic_horror",
+    "changed": "cosmic_horror",
+    "obsessed": "obsession",
+    "lost": "isolation",
+    "violent": "furious",
+    "sick": "body_horror",
+    "stressed": "desperate",
+    "suspicious": "paranoid",
+    "grief": "melancholy",
+    "betrayed": "furious",
+    "rebuilt": "tender",
+    "loyal": "tender",
+    "curious": "clinical",
+    "healthy": "gallows_humor",
+}
+
+
+def get_arc_dialogue_tone(npc):
+    """Get tone override based on NPC's arc stage. Returns None for stable/unknown."""
+    stage = npc.get("arc_stage", "stable")
+    return ARC_STAGE_TONE_MAP.get(stage)
+
+
+# ============================================================
 # NPC GENERATOR
 # ============================================================
 
@@ -551,8 +781,18 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     # --- Apply contractions ---
     backstory = enforce_contractions(backstory, tone)
 
-    # --- Dialogue lines ---
+    # --- Arc stage (most start stable, some arrive mid-arc) ---
+    arc_stage = "stable"
+    if random.random() < 0.25:
+        arc_stage = R(ARC_STAGES)
+
+    # --- Dialogue lines (arc-stage tone override) ---
     primary_trait = traits[0] if traits else None
+    dialogue_tone = tone
+    arc_tone = ARC_STAGE_TONE_MAP.get(arc_stage)
+    if arc_tone:
+        dialogue_tone = arc_tone
+
     dialogue_contexts = ["greeting", "warning", "confession", "observation", "rumor"]
     # Add varied contexts based on tone
     extra_contexts = ["complaint", "memory", "threat", "plea", "joke", "prayer"]
@@ -563,12 +803,12 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     dialogue_lines = []
     used_lines = set()
     for dctx in dialogue_contexts:
-        line = get_dialogue(dctx, tone, primary_trait)
+        line = get_dialogue(dctx, dialogue_tone, primary_trait)
         if line not in used_lines and line != "...":
             dialogue_lines.append(line)
             used_lines.add(line)
 
-    # --- Relationship wiring ---
+    # --- Preliminary relationship text (wire_relationships fills the full web later) ---
     relationship_text = ""
     other_npc = ctx.get_random_npc()
     if other_npc:
@@ -576,8 +816,6 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         other_name = other_npc["name"]
         rel_label = rel_type.replace("_", " ")
         relationship_text = f"{rel_label} of {other_name}"
-        # Wire the relationship into both NPCs' data
-        other_npc.setdefault("relationships", {})[f"{first}_{last}"] = rel_type
 
     # --- Quest hook ---
     hook_fill = dict(
@@ -599,12 +837,9 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         "tone": tone,
         "alive": True,
         "location": location,
-        "arc_stage": "stable",
+        "arc_stage": arc_stage,
         "relationships": {},
     }
-    if relationship_text and other_npc:
-        rel_type_used = R(RELATIONSHIP_TYPES)
-        npc_data["relationships"][other_npc["id"]] = rel_type_used
     ctx.add_npc(npc_data)
 
     # --- Also persist to world state ---
@@ -616,14 +851,16 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
     connection_line = f"**Connection:** {relationship_text}" if relationship_text else "**Connection:** None yet — first in batch"
 
+    arc_display = f" | **Arc Stage:** {arc_stage}" if arc_stage != "stable" else ""
+
     output = f"""## NPC: {first} {last}
 **Gender:** {gender_label} | **Age:** {age} | **Occupation:** {job}
 **Traits:** {trait_str}
-**Faction:** {faction_name}
+**Faction:** {faction_name}{arc_display}
 **Physical:** {physical}
 **Habit:** {habit}
 **Debt:** {debt}
-**Tone:** {tone}
+**Tone:** {tone} | **Dialogue Tone:** {dialogue_tone}
 
 **Background:**
 {backstory}
@@ -683,6 +920,20 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
         first, last, gender = ctx.fresh_name()
         npc_full = f"{first} {last}"
         npc_first = first
+
+    # --- Relationship context ---
+    rel_context = ""
+    if existing_npc and existing_npc.get("relationships"):
+        rel_ids = list(existing_npc["relationships"].keys())
+        rel_id = R(rel_ids)
+        rel_npc = next((n for n in ctx.npcs if n["id"] == rel_id), None)
+        if rel_npc:
+            rel = existing_npc["relationships"][rel_id]
+            rel_data = rel if isinstance(rel, dict) else {"type": rel, "history": ""}
+            rel_label = rel_data.get("type", str(rel)).replace("_", " ")
+            rel_history = rel_data.get("history", "")
+            history_suffix = f" {rel_history}." if rel_history else ""
+            rel_context = f"\n**Connection:** {npc_full} is the {rel_label} of {rel_npc['name']}.{history_suffix}"
 
     # --- Location ---
     location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
@@ -789,7 +1040,7 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
 - Player: [Respond / Stay Silent / Leave]
 - {npc_first}: "{d_line2}"
 
-**Reward:** {reward_cores} thermal cores, {reward_type}"""
+**Reward:** {reward_cores} thermal cores, {reward_type}{rel_context}"""
 
     # --- Log in context ---
     ctx.world.log_generation("quest", quest_name)
@@ -1865,6 +2116,9 @@ def generate_batch(size, ctx=None, tone=None, planet=None, era=None):
         if content is not None:
             pieces.append((content, label, gen_type))
 
+    # Wire NPCs into a relationship web after all pieces are generated
+    wire_relationships(ctx)
+
     return pieces
 
 
@@ -1879,16 +2133,32 @@ def generate_world(ctx, tone=None, planet=None, era=None):
 
     pieces = []
 
-    # World generation order: locations, factions, NPCs, quests, datapads, etc.
-    world_plan = [
+    # World generation order: locations, factions, NPCs, then wire relationships,
+    # then quests (so quests can reference wired relationships), then datapads.
+    pre_wire_plan = [
         ("location", 2),
         ("faction", 1),
         ("npc", 4),
+    ]
+    post_wire_plan = [
         ("quest", 2),
         ("datapad", 3),
     ]
 
-    for gen_type, count in world_plan:
+    for gen_type, count in pre_wire_plan:
+        if gen_type not in GENERATORS:
+            continue
+        for _ in range(count):
+            content, label, gtype = generate_piece(
+                gen_type=gen_type, ctx=ctx, tone=tone, planet=planet, era=era,
+            )
+            if content is not None:
+                pieces.append((content, label, gtype))
+
+    # Wire NPCs into a relationship web before generating quests
+    wire_relationships(ctx)
+
+    for gen_type, count in post_wire_plan:
         if gen_type not in GENERATORS:
             continue
         for _ in range(count):
@@ -1899,8 +2169,9 @@ def generate_world(ctx, tone=None, planet=None, era=None):
                 pieces.append((content, label, gtype))
 
     # Fill remaining types if available
+    planned_types = {p[0] for p in pre_wire_plan + post_wire_plan}
     for gen_type in GENERATORS:
-        if gen_type not in [p[0] for p in world_plan]:
+        if gen_type not in planned_types:
             content, label, gtype = generate_piece(
                 gen_type=gen_type, ctx=ctx, tone=tone, planet=planet, era=era,
             )
