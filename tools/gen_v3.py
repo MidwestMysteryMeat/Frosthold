@@ -837,6 +837,7 @@ class Context:
         self.locations_used = set()
         self.items_used = set()
         self.sensory_used = set()
+        self.nicknames_used = set()
         self.npcs = []
         self.pieces = []
         self.history_events = []
@@ -1005,6 +1006,133 @@ def safe_format(template, **kwargs):
                 else:
                     result.append('{' + field_name + '}')
         return ''.join(result)
+
+
+def fix_nb_verbs(text, gender):
+    """Fix verb conjugation for non-binary They/them pronouns.
+
+    Templates use He/She/They as subject with singular verb forms.
+    When the subject is They, the verb needs plural conjugation.
+    """
+    if gender != "NB":
+        return text
+    fixes = [
+        ("They taps", "They tap"), ("they taps", "they tap"),
+        ("They hasn't", "They haven't"), ("they hasn't", "they haven't"),
+        ("They doesn't", "They don't"), ("they doesn't", "they don't"),
+        ("They wasn't", "They weren't"), ("they wasn't", "they weren't"),
+        ("They isn't", "They aren't"), ("they isn't", "they aren't"),
+        ("They has ", "They have "), ("they has ", "they have "),
+        ("They was ", "They were "), ("they was ", "they were "),
+        ("They does ", "They do "), ("they does ", "they do "),
+        ("They goes", "They go"), ("they goes", "they go"),
+        ("They carries", "They carry"), ("they carries", "they carry"),
+        ("They drinks", "They drink"), ("they drinks", "they drink"),
+        ("They writes", "They write"), ("they writes", "they write"),
+        ("They keeps", "They keep"), ("they keeps", "they keep"),
+        ("They checks", "They check"), ("they checks", "they check"),
+        ("They sleeps", "They sleep"), ("they sleeps", "they sleep"),
+        ("They flinches", "They flinch"), ("they flinches", "they flinch"),
+        ("They hums", "They hum"), ("they hums", "they hum"),
+        ("They works", "They work"), ("they works", "they work"),
+        ("They says", "They say"), ("they says", "they say"),
+        ("They knows", "They know"), ("they knows", "they know"),
+        ("They makes", "They make"), ("they makes", "they make"),
+        ("They takes", "They take"), ("they takes", "they take"),
+        ("They comes", "They come"), ("they comes", "they come"),
+        ("They looks", "They look"), ("they looks", "they look"),
+        ("They seems", "They seem"), ("they seems", "they seem"),
+        ("They feels", "They feel"), ("they feels", "they feel"),
+        ("They stops", "They stop"), ("they stops", "they stop"),
+        ("They starts", "They start"), ("they starts", "they start"),
+        ("They gets", "They get"), ("they gets", "they get"),
+        ("They thinks", "They think"), ("they thinks", "they think"),
+        ("They calls", "They call"), ("they calls", "they call"),
+        ("They walks", "They walk"), ("they walks", "they walk"),
+        ("They leaves", "They leave"), ("they leaves", "they leave"),
+        ("They lives", "They live"), ("they lives", "they live"),
+        ("They tells", "They tell"), ("they tells", "they tell"),
+        ("They runs", "They run"), ("they runs", "they run"),
+        ("They finds", "They find"), ("they finds", "they find"),
+        ("They asks", "They ask"), ("they asks", "they ask"),
+        ("They gives", "They give"), ("they gives", "they give"),
+        ("They sees", "They see"), ("they sees", "they see"),
+        ("They wants", "They want"), ("they wants", "they want"),
+        ("They needs", "They need"), ("they needs", "they need"),
+        ("They tries", "They try"), ("they tries", "they try"),
+        ("They turns", "They turn"), ("they turns", "they turn"),
+        ("They puts", "They put"), ("they puts", "they put"),
+        ("They moves", "They move"), ("they moves", "they move"),
+        ("They stands", "They stand"), ("they stands", "they stand"),
+        ("They sits", "They sit"), ("they sits", "they sit"),
+        ("They holds", "They hold"), ("they holds", "they hold"),
+        ("They plays", "They play"), ("they plays", "they play"),
+        ("They falls", "They fall"), ("they falls", "they fall"),
+        ("They watches", "They watch"), ("they watches", "they watch"),
+        ("They reaches", "They reach"), ("they reaches", "they reach"),
+        ("They wishes", "They wish"), ("they wishes", "they wish"),
+        ("They refuses", "They refuse"), ("they refuses", "they refuse"),
+        ("They prefers", "They prefer"), ("they prefers", "they prefer"),
+        ("They owns", "They own"), ("they owns", "they own"),
+        ("They shows", "They show"), ("they shows", "they show"),
+        ("They sends", "They send"), ("they sends", "they send"),
+        ("They brings", "They bring"), ("they brings", "they bring"),
+        ("They hears", "They hear"), ("they hears", "they hear"),
+        ("They loves", "They love"), ("they loves", "they love"),
+        ("They eats", "They eat"), ("they eats", "they eat"),
+        ("They fights", "They fight"), ("they fights", "they fight"),
+        ("They dies", "They die"), ("they dies", "they die"),
+        ("They reads", "They read"), ("they reads", "they read"),
+        ("They speaks", "They speak"), ("they speaks", "they speak"),
+        ("They lies", "They lie"), ("they lies", "they lie"),
+        ("They counts", "They count"), ("they counts", "they count"),
+        ("They trades", "They trade"), ("they trades", "they trade"),
+        ("They signs", "They sign"), ("they signs", "they sign"),
+        ("They helps", "They help"), ("they helps", "they help"),
+        ("They dreams", "They dream"), ("they dreams", "they dream"),
+        ("They offers", "They offer"), ("they offers", "they offer"),
+        # Handle "has" at end of sentence (no trailing space)
+        ("They has.", "They have."), ("they has.", "they have."),
+        ("They has,", "They have,"), ("they has,", "they have,"),
+        ("They was.", "They were."), ("they was.", "they were."),
+        ("They was,", "They were,"), ("they was,", "they were,"),
+        ("They does.", "They do."), ("they does.", "they do."),
+        ("They does,", "They do,"), ("they does,", "they do,"),
+    ]
+    for wrong, right in fixes:
+        text = text.replace(wrong, right)
+    return text
+
+
+def format_relationship(rel_type, other_name):
+    """Format a relationship for display with proper phrasing per type."""
+    special = {
+        "killed": f"killed {other_name}",
+        "killed_by": f"killed by {other_name}",
+        "betrayed_by": f"betrayed by {other_name}",
+        "betrayer_of": f"betrayed {other_name}",
+        "saved_life_of": f"saved the life of {other_name}",
+        "owes_life_to": f"owes their life to {other_name}",
+        "shares_secret_with": f"shares a secret with {other_name}",
+        "witnessed_death_of": f"witnessed the death of {other_name}",
+        "blackmailer": f"blackmailing {other_name}",
+        "blackmailed_by": f"blackmailed by {other_name}",
+        "fears": f"fears {other_name}",
+        "trusts": f"trusts {other_name}",
+        "suspects": f"suspects {other_name}",
+        "crew_mate": f"crew mate of {other_name}",
+        "former_crew": f"former crew mate of {other_name}",
+        "commanding_officer": f"commanding officer of {other_name}",
+        "co_conspirator": f"co-conspirator with {other_name}",
+        "lover_secret": f"secret lover of {other_name}",
+        "unrequited": f"unrequited feelings for {other_name}",
+        "estranged": f"estranged from {other_name}",
+        "adopted_family": f"adopted family of {other_name}",
+        "widowed_by": f"widowed by {other_name}",
+    }
+    if rel_type in special:
+        return special[rel_type]
+    return f"{rel_type.replace('_', ' ')} of {other_name}"
 
 
 # ============================================================
@@ -1396,6 +1524,9 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     # --- Apply contractions ---
     backstory = enforce_contractions(backstory, tone)
 
+    # --- Fix NB pronoun verb conjugation ---
+    backstory = fix_nb_verbs(backstory, gender)
+
     # --- Arc stage (most start stable, some arrive mid-arc) ---
     arc_stage = "stable"
     if random.random() < 0.25:
@@ -1429,8 +1560,7 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     if other_npc:
         rel_type = R(RELATIONSHIP_TYPES)
         other_name = other_npc["name"]
-        rel_label = rel_type.replace("_", " ")
-        relationship_text = f"{rel_label} of {other_name}"
+        relationship_text = format_relationship(rel_type, other_name)
 
     # --- Quest hook ---
     hook_fill = dict(
@@ -1439,6 +1569,7 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     )
     quest_hook = safe_format(R(QUEST_HOOKS), **hook_fill)
     quest_hook = enforce_contractions(quest_hook, tone)
+    quest_hook = fix_nb_verbs(quest_hook, gender)
 
     # --- Register NPC in context ---
     npc_data = {
@@ -1545,10 +1676,11 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
         if rel_npc:
             rel = existing_npc["relationships"][rel_id]
             rel_data = rel if isinstance(rel, dict) else {"type": rel, "history": ""}
-            rel_label = rel_data.get("type", str(rel)).replace("_", " ")
+            rel_type_str = rel_data.get("type", str(rel))
             rel_history = rel_data.get("history", "")
             history_suffix = f" {rel_history}." if rel_history else ""
-            rel_context = f"\n**Connection:** {npc_full} is the {rel_label} of {rel_npc['name']}.{history_suffix}"
+            rel_display = format_relationship(rel_type_str, rel_npc['name'])
+            rel_context = f"\n**Connection:** {npc_full} -- {rel_display}.{history_suffix}"
 
     # --- Location ---
     location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
@@ -1988,7 +2120,13 @@ I want to go home. I keep saying that word -- home -- and each time it means les
 
 
 def _datapad_memo_chain(ctx, tone, first, last, g, gl, gp, go, loc):
-    """Corporate directive -> site acknowledges -> incident occurs -> reclassification -> memo forbidding discussion -> final memo from different department."""
+    """Corporate memo chain with 4 structural variants to avoid repetition."""
+    variant = R(["standard", "investigation", "equipment_req", "safety_audit"])
+    return _memo_chain_variant(variant, ctx, tone, first, last, g, gl, gp, go, loc)
+
+
+def _memo_chain_variant(variant, ctx, tone, first, last, g, gl, gp, go, loc):
+    """Dispatch to a memo chain variant. Each has different structure, length, and departments."""
     dept = RI(1, 99)
     dept2 = RI(1, 99)
     ref = f"MM-{RI(1000, 9999)}"
@@ -2003,8 +2141,9 @@ def _datapad_memo_chain(ctx, tone, first, last, g, gl, gp, go, loc):
 
     entries = []
 
-    # Entry 1: Corporate directive
-    entries.append(f"""**FROM:** Regional Operations, Dept. {dept}
+    if variant == "standard":
+        # Original: directive -> acknowledge -> incident -> reclassification -> comms ban -> MasTema assessment
+        entries.append(f"""**FROM:** Regional Operations, Dept. {dept}
 **TO:** Site Management, {loc}
 **RE:** Operational Parameters Update -- Ref {ref}
 **CLASSIFICATION:** Internal / Do Not Distribute
@@ -2024,8 +2163,7 @@ Regional Operations
 Mammona Mining Corporation
 *"Building Tomorrow's Foundation"*""")
 
-    # Entry 2: Site acknowledges
-    entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
+        entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
 **TO:** Regional Operations, Dept. {dept}
 **RE:** RE: Operational Parameters Update -- Ref {ref}
 **CLASSIFICATION:** Internal
@@ -2040,71 +2178,46 @@ Regarding HERMES patch: installed. Two terminals in {section} displaying anomalo
 
 -- {manager_first} {manager_last}""")
 
-    # Entry 3: Incident occurs
-    entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
+        incident = R([
+            f"During routine extraction in {site}, drill team encountered a cavity at {RI(80, 300)}m depth. Cavity was not on geological survey. Cavity contains structures. The structures are not natural. Drill team has been reassigned to surface duties pending further instruction.",
+            f"Thermal core output from {site} spiked {RI(300, 800)}% above baseline for {RI(2, 10)} minutes. During the spike, {RI(2, 5)} personnel reported nosebleeds, disorientation, and 'a feeling of being observed.' Equipment readings have returned to normal. Personnel have not.",
+            f"Three colonists attempted to access the sealed sublevel beneath {site}. They had no authorization, no tools, and no explanation for their behavior. Each reported 'being asked to come downstairs.' All three named different people as having asked them. All three people named are deceased.",
+        ])
+        entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
 **TO:** Regional Operations, Dept. {dept}
 **RE:** URGENT -- Incident Report, {site}
 **CLASSIFICATION:** Restricted
 
 Incident occurred at {RI(0, 23):02d}:{RI(0, 59):02d} today. Details:
 
-{R([
-    f"During routine extraction in {site}, drill team encountered a cavity at {RI(80, 300)}m depth. Cavity was not on geological survey. Cavity contains structures. The structures are not natural. Drill team has been reassigned to surface duties pending further instruction.",
-    f"Personnel in Section {section} reported simultaneous auditory phenomenon at 0300. {RI(7, 15)} individuals described identical sound: low-frequency tone, duration {RI(4, 30)} seconds. Sound does not correspond to any mechanical system on site. HERMES has no record of the event.",
-    f"Thermal core output from {site} spiked {RI(300, 800)}% above baseline for {RI(2, 10)} minutes. During the spike, {RI(2, 5)} personnel reported nosebleeds, disorientation, and 'a feeling of being observed.' Equipment readings have returned to normal. Personnel have not.",
-    f"Three colonists attempted to access the sealed sublevel beneath {site}. They had no authorization, no tools, and no explanation for their behavior. Each reported 'being asked to come downstairs.' All three named different people as having asked them. All three people named are deceased.",
-])}
+{incident}
 
 Awaiting instruction. Please advise.
 
 -- {manager_first} {manager_last}""")
 
-    # Entry 4: Language reclassification
-    entries.append(f"""**FROM:** Regional Operations, Dept. {dept}
+        entries.append(f"""**FROM:** Regional Operations, Dept. {dept}
 **TO:** {manager_first} {manager_last}, Site Manager
 **RE:** RE: URGENT -- Incident Report, {site} -- Ref {ref2}
 **CLASSIFICATION:** Restricted / Eyes Only
 
 {manager_last}:
 
-Thank you for your report. Effective immediately:
+The incident is reclassified as an "Environmental Variance Event" (EVE). Update all internal documentation accordingly.
 
-1. The incident described in your report of [DATE REDACTED] is reclassified as an "Environmental Variance Event" (EVE). Please update all internal documentation accordingly.
-
-2. The following terms are no longer to be used in official communications: {R([
+The following terms are no longer to be used in official communications: {R([
     '"anomalous," "unexplained," "impossible." Use "under review" instead.',
     '"structures," "construction," "design." Use "geological formations" instead.',
     '"voice," "sound," "tone." Use "acoustic artifact" instead.',
-    '"observed," "watched," "aware." Use "environmental stimulus response" instead.',
 ])}
 
-3. Personnel exhibiting continued symptoms should be referred to Medical for standard stress evaluation (Form 12-C). Do not use the word "symptoms" in the referral. Use "scheduling concern."
+Personnel exhibiting continued symptoms should be referred to Medical for standard stress evaluation (Form 12-C). Do not use the word "symptoms." Use "scheduling concern."
 
-This matter does not require further reporting unless a second EVE occurs. If a second EVE occurs, contact Dept. {dept2} directly. Not this office.
+This matter does not require further reporting unless a second EVE occurs.
 
 -- Regional Operations""")
 
-    # Entry 5: Discussion forbidden
-    entries.append(f"""**FROM:** Regional Operations, Dept. {dept}
-**TO:** All Personnel, {loc}
-**RE:** Communications Protocol Reminder -- Ref {ref2}
-**CLASSIFICATION:** General Distribution
-
-This is a reminder that all personnel are bound by Section 14 of the Employment Contract regarding discussion of site-specific operational details.
-
-Specifically:
-- Discussion of Environmental Variance Events with personnel outside your immediate work group is a contract violation.
-- Recording, transcribing, or otherwise documenting EVEs outside of official Mammona reporting channels is a contract violation.
-- The term "Environmental Variance Event" is itself classified. Do not use it in casual conversation. If asked, an EVE is "a routine operational adjustment."
-
-Non-compliance will result in contract review. Contract review on a Mammona outer-rim posting is not the same as contract review on Novaris-3. We trust this is understood.
-
--- Regional Operations
-Mammona Mining Corporation
-*"Building Tomorrow's Foundation"*""")
-
-    # Entry 6: Final memo from different department
-    entries.append(f"""**FROM:** Asset Assessment Division, MasTema Inc.
+        entries.append(f"""**FROM:** Asset Assessment Division, MasTema Inc.
 **TO:** {director_first} {director_last}, Regional Director
 **CC:** [REDACTED]
 **RE:** {loc} -- Ref {ref3}
@@ -2112,29 +2225,306 @@ Mammona Mining Corporation
 
 Director {director_last}:
 
-Thank you for the referral. We've reviewed the situation at {loc}.
-
-Our assessment: the site is performing as intended. The {R([
-    "personnel responses",
-    "geological activity",
-    "environmental conditions",
-    "behavioral modifications",
+The site is performing as intended. The {R([
+    "personnel responses", "geological activity", "environmental conditions", "behavioral modifications",
 ])} described in Reports {ref} through {ref2} are consistent with projections from {R([
-    "the Erebus Viability Study (2571)",
-    "Project THRESHOLD Phase 2",
-    "the Anomalous Biosphere Program's baseline models",
-    "Dr. Venin's original survey data",
+    "the Erebus Viability Study (2571)", "Project THRESHOLD Phase 2",
+    "the Anomalous Biosphere Program's baseline models", "Dr. Venin's original survey data",
 ])}.
 
-Recommendation: maintain current staffing. Maintain current extraction schedule. Do not evacuate. Do not reinforce.
+Recommendation: maintain current staffing. Do not evacuate. Do not reinforce.
 
 If Site Manager {manager_last} files further reports, reassign {R(["them", "the site manager position"])}. The new manager should receive Briefing Packet VERMILLION-7 upon assignment.
-
-We'll be in touch.
 
 -- Asset Assessment
 MasTema Incorporated
 *"Solutions. Delivered."*""")
+
+    elif variant == "investigation":
+        # Internal investigation chain: compliance flags anomaly -> investigator dispatched -> interviews -> cover-up -> investigator reassigned
+        investigator_first, investigator_last, _ = ctx.fresh_name()
+        witness_first, witness_last, _ = ctx.fresh_name()
+        form_ref = f"CF-{RI(1000, 9999)}"
+
+        entries.append(f"""**FROM:** Compliance & Oversight, Dept. {dept}
+**TO:** Internal Affairs, Regional
+**RE:** Anomalous Reporting Pattern -- {loc} -- Ref {form_ref}
+**CLASSIFICATION:** Restricted
+
+Automated compliance review has flagged the following at {loc}:
+
+- {RI(7, 19)} Form 77-B submissions in {RI(2, 4)} weeks (baseline average: {RI(1, 3)} per quarter)
+- {RI(3, 6)} personnel transfer requests citing 'personal reasons' (no further elaboration provided)
+- Medical bay utilization up {RI(150, 350)}% with {RI(60, 90)}% of cases classified as 'stress-related'
+- {RI(2, 4)} requisitions for equipment not standard to {loc}'s operational profile
+
+Pattern is consistent with either widespread morale failure or an unreported critical event. Recommending field investigation.
+
+-- Compliance & Oversight
+Mammona Mining Corporation""")
+
+        entries.append(f"""**FROM:** {investigator_first} {investigator_last}, Field Investigator
+**TO:** Compliance & Oversight, Dept. {dept}
+**RE:** Initial Assessment -- {loc} -- Ref {form_ref}
+**CLASSIFICATION:** Restricted
+
+Arrived at {loc} on Day {RI(1, 30)}. Initial observations:
+
+Site Manager {manager_last} was cooperative but evasive. Answered direct questions with references to Mammona policy documents. Refused to discuss {lo} without citing Section 14 of the employment contract {RI(3, 7)} times in a single interview.
+
+Personnel morale is not low. It is absent. These people are not unhappy. They are careful. There is a difference.
+
+{R([
+    f"The drill team refuses night shifts in {site}. No formal complaints filed. They simply do not go. Management has not enforced the schedule.",
+    f"Medical records show {RI(4, 9)} cases of identical symptoms: insomnia, disorientation, and 'a sense of being observed.' All cases diagnosed as stress. All patients given the same anxiolytic. None reported improvement.",
+    f"HERMES terminal in Section {section} is unplugged. Has been for {RI(2, 6)} weeks. Nobody reconnected it. When I asked why, three different people said 'it was saying things.'",
+])}
+
+Will continue investigation.
+
+-- {investigator_first} {investigator_last}""")
+
+        entries.append(f"""**FROM:** {investigator_first} {investigator_last}, Field Investigator
+**TO:** Compliance & Oversight, Dept. {dept}
+**RE:** Witness Interview Summary -- {loc} -- Ref {form_ref}
+**CLASSIFICATION:** Restricted / Eyes Only
+
+Conducted {RI(6, 12)} interviews over {RI(3, 5)} days. Summary:
+
+{witness_first} {witness_last} ({R(JOBS)}): Described an event in {site} that does not appear in any incident log. Provided a date. Provided details. Began crying during the account. Refused to sign the transcript. Said signing it "would make it real."
+
+{RI(3, 5)} other personnel corroborated {witness_last}'s account independently. No collaboration detected. Details are consistent to an unusual degree -- not paraphrased, not interpreted, but identical. As if they all saw the same recording.
+
+Site Manager {manager_last} denies the event occurred. The denial was prepared. Rehearsed. Word-perfect.
+
+I have the unsigned transcripts. I do not know what to do with them.
+
+-- {investigator_first} {investigator_last}""")
+
+        entries.append(f"""**FROM:** Regional Operations, Dept. {dept2}
+**TO:** {investigator_first} {investigator_last}, Field Investigator
+**RE:** Investigation Closure -- {loc} -- Ref {form_ref}
+**CLASSIFICATION:** Restricted / Eyes Only
+
+Investigator {investigator_last}:
+
+Your investigation at {loc} is concluded effective immediately. Please submit all materials -- transcripts, recordings, personal notes -- to Dept. {dept2} via secured courier. Do not retain copies.
+
+Your next assignment is {R(["Thalassa Deep", "Karnaith Orbital", "Rhea-2 Processing Station"])}. Transport departs in 48 hours.
+
+The compliance flag that initiated this investigation has been resolved. The resolution is administrative, not investigative. We appreciate your diligence.
+
+Do not contact {loc} personnel after departure.
+
+-- Regional Operations
+Mammona Mining Corporation
+*"Building Tomorrow's Foundation"*""")
+
+    elif variant == "equipment_req":
+        # Equipment requisition chain: site requests gear -> denied -> site requests again citing emergency -> partial approval -> the approved equipment is wrong -> silence
+        tech_first, tech_last, _ = ctx.fresh_name()
+        req_ref = f"EQ-{RI(1000, 9999)}"
+        equipment = R([
+            "deep-bore seismic array", "Class IV containment unit",
+            "wide-spectrum frequency analyzer", "cryo-rated hazmat suits (6)",
+            "neural-shielded communications relay", "specimen transport pods (3)",
+        ])
+        fallback_equipment = R([
+            "standard atmospheric filters", "replacement drill bits (bulk)",
+            "NutriLoaf (resupply, 6 months)", "HERMES terminal maintenance kit",
+            "fire suppression canisters", "morale improvement package (poster set)",
+        ])
+
+        entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
+**TO:** Supply & Logistics, Dept. {dept}
+**RE:** Priority Equipment Requisition -- Ref {req_ref}
+**CLASSIFICATION:** Internal
+
+Requesting immediate allocation of the following:
+
+1. {equipment}
+2. Personnel with training on the above (current staff is unqualified)
+3. Consultation with specialist division regarding {lo}
+
+Justification: conditions at {site} have exceeded parameters addressable with current equipment. Details in attached incident reports (Refs {ref}, {ref2}).
+
+This is the third requisition for this equipment. Previous requests returned: 'budget insufficient' and 'not applicable to site profile.' It is applicable. I am asking again.
+
+-- {manager_first} {manager_last}""")
+
+        entries.append(f"""**FROM:** Supply & Logistics, Dept. {dept}
+**TO:** {manager_first} {manager_last}, Site Manager
+**RE:** RE: Priority Equipment Requisition -- Ref {req_ref}
+**CLASSIFICATION:** Internal
+
+{manager_last}:
+
+Request denied. {R([
+    f"The {equipment} is not currently allocated to outer-rim postings. Budget code: RESTRICTED ASSET CLASS.",
+    f"Equipment allocation for {loc} was finalized prior to deployment. Amendments require authorization from Dept. {dept2}, which has not been granted.",
+    f"The specialist consultation you've requested requires a referral from MasTema. Mammona cannot initiate MasTema referrals. This is by design.",
+])}
+
+Alternative: we can expedite delivery of {fallback_equipment}. Please confirm if this is acceptable.
+
+-- Supply & Logistics
+Mammona Mining Corporation""")
+
+        entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
+**TO:** Supply & Logistics, Dept. {dept}
+**RE:** RE: RE: Priority Equipment Requisition -- Ref {req_ref}
+**CLASSIFICATION:** Restricted
+
+With respect: {fallback_equipment} will not address the situation at {site}.
+
+I am filing this request a fourth time. I am also filing a formal safety concern (Form 19-A) and a personnel risk assessment (Form 22-D). The situation at {loc} constitutes a {R(["Class II environmental hazard", "Category B anomalous exposure risk", "personnel safety emergency under Article 7 of the Colony Charter"])}.
+
+If this equipment is not provided within {RI(7, 21)} days, I will be forced to suspend operations at {site}. I understand the contractual implications. I accept them.
+
+-- {manager_first} {manager_last}""")
+
+        entries.append(f"""**FROM:** Supply & Logistics, Dept. {dept}
+**TO:** {manager_first} {manager_last}, Site Manager
+**RE:** Partial Approval -- Ref {req_ref}
+**CLASSIFICATION:** Internal
+
+Partial approval granted. The following has been dispatched:
+
+1. {fallback_equipment}
+2. One (1) {R(["junior safety officer", "medical technician", "equipment calibration specialist"])} (ETA: {RI(3, 8)} weeks)
+
+The {equipment} remains unavailable. Your Form 19-A has been received and is under review. Estimated review timeline: {RI(6, 18)} months.
+
+Please note: suspension of operations at {site} will trigger a contract compliance review for all personnel at {loc}. This is not a threat. This is policy.
+
+-- Supply & Logistics
+Mammona Mining Corporation
+*"Building Tomorrow's Foundation"*""")
+
+        entries.append(f"""**FROM:** {tech_first} {tech_last}, {R(["Safety Officer", "Equipment Specialist"])}
+**TO:** {manager_first} {manager_last}, Site Manager
+**RE:** Arrival and Assessment -- {loc}
+**CLASSIFICATION:** Internal
+
+{manager_last}:
+
+I arrived yesterday. I've reviewed the situation at {site}.
+
+I need to be direct: the equipment they sent me with is not relevant to what's happening here. {R([
+    "The atmospheric filters are for a chemical hazard. This is not a chemical hazard.",
+    "My training covers standard safety protocols. What I'm seeing does not fall under standard safety protocols.",
+    "The calibration tools they issued are for Mammona-standard equipment. Several systems here have components I cannot identify.",
+])}
+
+I believe the partial approval was not intended to address the problem. I believe it was intended to demonstrate that the problem was being addressed. There is a difference.
+
+I would like to request a transfer. I would also like to request that you not file this memo. If it enters the system, I will not get the transfer.
+
+-- {tech_first} {tech_last}""")
+
+    elif variant == "safety_audit":
+        # Safety audit response: corporate sends audit form -> site responds with real data -> corporate rejects data -> site resubmits sanitized version -> corporate approves -> whistleblower addendum
+        auditor_first, auditor_last, _ = ctx.fresh_name()
+        audit_ref = f"SA-{RI(1000, 9999)}"
+
+        entries.append(f"""**FROM:** Safety & Compliance Division
+**TO:** Site Management, {loc}
+**RE:** Annual Safety Audit -- Ref {audit_ref}
+**CLASSIFICATION:** Internal / Mandatory Response
+
+This is your annual safety audit notification for {loc}. Please complete and return Form 31-A (Site Safety Assessment) within 14 business days.
+
+Areas of assessment:
+- Personnel injury and fatality rates
+- Equipment failure logs
+- Environmental hazard incidents
+- Psychological wellness indicators
+- Emergency protocol compliance
+
+Note: failure to submit within the deadline will result in automatic classification of {loc} as 'compliant.' This is not a favorable outcome. It means we stop asking.
+
+-- Safety & Compliance Division
+Mammona Mining Corporation""")
+
+        entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
+**TO:** Safety & Compliance Division
+**RE:** RE: Annual Safety Audit -- Ref {audit_ref} -- HONEST VERSION
+**CLASSIFICATION:** Restricted
+
+Submitting Form 31-A with actual figures:
+
+- Personnel injuries: {RI(14, 30)} (reported: {RI(3, 7)})
+- Fatalities: {RI(2, 5)} (reported: {RI(0, 1)})
+- Equipment failures: {RI(20, 45)} incidents, {RI(6, 12)} involving {R(["unexplained system behavior", "autonomous equipment operation", "readings inconsistent with physical reality"])}
+- Environmental hazards: {R(["ongoing, unclassifiable", "present, worsening, defying standard categorization", "active -- see attached incident reports that were rejected by Regional"])}
+- Psychological wellness: {RI(40, 70)}% of personnel displaying symptoms consistent with {R(["chronic stress disorder", "anomalous exposure syndrome", "sustained environmental trauma"])}
+- Emergency protocol compliance: protocols are followed. Protocols do not cover what is happening here.
+
+I know this form will be rejected. I'm submitting it anyway. The record should exist somewhere, even if that somewhere is a rejection file.
+
+-- {manager_first} {manager_last}""")
+
+        entries.append(f"""**FROM:** Safety & Compliance Division
+**TO:** {manager_first} {manager_last}, Site Manager
+**RE:** RE: RE: Annual Safety Audit -- Ref {audit_ref}
+**CLASSIFICATION:** Internal
+
+{manager_last}:
+
+Form 31-A has been returned for revision. The following issues were identified:
+
+1. Fatality and injury figures exceed the statistical model for a site of {loc}'s profile. Please verify data entry.
+2. The term "{R(["unclassifiable", "autonomous", "anomalous"])}" is not a recognized category in Form 31-A. Please select from the approved dropdown options.
+3. Environmental hazard descriptions must use standardized language per Appendix C. "Defying standard categorization" is not in Appendix C.
+
+Please resubmit within 7 business days using approved terminology and verified figures.
+
+-- Safety & Compliance Division""")
+
+        entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
+**TO:** Safety & Compliance Division
+**RE:** RE: RE: RE: Annual Safety Audit -- Ref {audit_ref}
+**CLASSIFICATION:** Internal
+
+Resubmitting Form 31-A with approved terminology and figures that fit the statistical model.
+
+- Personnel injuries: {RI(3, 7)}
+- Fatalities: {RI(0, 1)}
+- Equipment failures: {RI(4, 8)} (routine wear)
+- Environmental hazards: none (within parameters)
+- Psychological wellness: adequate
+- Emergency protocol compliance: full
+
+These numbers are not true. You know they are not true. I know you know. This form is not a safety assessment. It is a liability document. I understand that now.
+
+Please file it.
+
+-- {manager_first} {manager_last}""")
+
+        entries.append(f"""**FROM:** Safety & Compliance Division
+**TO:** Site Management, {loc}
+**RE:** Audit Complete -- Ref {audit_ref}
+**CLASSIFICATION:** Internal
+
+Form 31-A accepted. {loc} is classified as COMPLIANT for the current audit cycle.
+
+Congratulations on maintaining safety standards. A certificate of compliance will be included in the next supply drop.
+
+-- Safety & Compliance Division
+Mammona Mining Corporation
+*"Your Safety Is Our Priority"*""")
+
+        # Whistleblower addendum (50% chance of inclusion)
+        if random.random() > 0.5:
+            entries.append(f"""**ADDENDUM** (found attached to a printed copy of the above, taped to the inside of a maintenance panel in Section {section}):
+
+The real numbers are in {manager_last}'s first submission -- Ref {audit_ref}, version 1. It was rejected. It will always be rejected. The system is not broken. The system is working as designed. The design does not include the truth.
+
+{RI(2, 5)} people are dead. {RI(8, 20)} are injured. The rest of us are changing.
+
+If you find this, do not file a report. Reports go to Mammona. Mammona already knows.
+
+-- [{R(["unsigned", "illegible", "a name that does not appear on the colony roster"])}]""")
 
     return entries
 
@@ -2342,7 +2732,7 @@ I have requested consultation with a specialist. Request forwarded to MasTema. N
 I'm no longer confident this is a medical issue. I'm no longer confident in the word 'issue.' Patient is {R([
         "functional. More than functional. Outperforming baseline metrics across all categories",
         "calm. Genuinely calm. Not medicated calm. Not dissociated calm. Calm in a way I've never seen in a colonist on this kind of posting",
-        "aware of things. Things {pgl} shouldn't be aware of. {pg} knew about the supply ship delay before comms received the update",
+        f"aware of things. Things {pgl} shouldn't be aware of. {pg} knew about the supply ship delay before comms received the update",
         "drawing. Constantly. The same structures. From angles that don't exist in three-dimensional space",
     ])}. If this is a disease, it's improving {pgo}. That's not how disease works. That's not how anything works.
 

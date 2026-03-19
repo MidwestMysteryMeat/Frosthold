@@ -70,6 +70,49 @@ def _pick(pool):
     return R(pool)
 
 
+def _fix_nb_verbs(text, gender):
+    """Fix verb conjugation for non-binary They/them pronouns in expanded generators."""
+    if gender != "NB":
+        return text
+    fixes = [
+        ("They taps", "They tap"), ("they taps", "they tap"),
+        ("They hasn't", "They haven't"), ("they hasn't", "they haven't"),
+        ("They doesn't", "They don't"), ("they doesn't", "they don't"),
+        ("They wasn't", "They weren't"), ("they wasn't", "they weren't"),
+        ("They isn't", "They aren't"), ("they isn't", "they aren't"),
+        ("They has ", "They have "), ("they has ", "they have "),
+        ("They was ", "They were "), ("they was ", "they were "),
+        ("They does ", "They do "), ("they does ", "they do "),
+        ("They goes", "They go"), ("they goes", "they go"),
+        ("They carries", "They carry"), ("they carries", "they carry"),
+        ("They drinks", "They drink"), ("they drinks", "they drink"),
+        ("They keeps", "They keep"), ("they keeps", "they keep"),
+        ("They works", "They work"), ("they works", "they work"),
+        ("They says", "They say"), ("they says", "they say"),
+        ("They knows", "They know"), ("they knows", "they know"),
+        ("They makes", "They make"), ("they makes", "they make"),
+        ("They takes", "They take"), ("they takes", "they take"),
+        ("They comes", "They come"), ("they comes", "they come"),
+        ("They looks", "They look"), ("they looks", "they look"),
+        ("They seems", "They seem"), ("they seems", "they seem"),
+        ("They feels", "They feel"), ("they feels", "they feel"),
+        ("They calls", "They call"), ("they calls", "they call"),
+        ("They runs", "They run"), ("they runs", "they run"),
+        ("They signs", "They sign"), ("they signs", "they sign"),
+        ("They leaves", "They leave"), ("they leaves", "they leave"),
+        ("They starts", "They start"), ("they starts", "they start"),
+        ("They gets", "They get"), ("they gets", "they get"),
+        ("They owns", "They own"), ("they owns", "they own"),
+        ("They shows", "They show"), ("they shows", "they show"),
+        ("They sends", "They send"), ("they sends", "they send"),
+        ("They has.", "They have."), ("they has.", "they have."),
+        ("They has,", "They have,"), ("they has,", "they have,"),
+    ]
+    for wrong, right in fixes:
+        text = text.replace(wrong, right)
+    return text
+
+
 # ============================================================
 # EXPANDED POOLS
 # ============================================================
@@ -531,6 +574,7 @@ def gen_company(ctx, tone=None, planet=None, era=None):
     )
 
     output = enforce_contractions(output, tone)
+    output = _fix_nb_verbs(output, ceo_gender)
     ctx.world.log_generation("company", cname)
     return output
 
@@ -696,6 +740,7 @@ def gen_vehicle(ctx, tone=None, planet=None, era=None):
     )
 
     output = enforce_contractions(output, tone)
+    output = _fix_nb_verbs(output, captain_gender)
     ctx.world.log_generation("vehicle", vname)
     return output
 
@@ -719,11 +764,17 @@ def gen_weapon(ctx, tone=None, planet=None, era=None):
     model_num = R(["", str(RI(1, 12)), R(["I", "II", "III", "IV", "V", "VII"])])
     model = (prefix + model_base + " " + model_num).strip()
 
-    # Optional nickname
+    # Optional nickname (deduped within batch via ctx.nicknames_used)
     has_nickname = random.random() > 0.5
     nickname_str = ""
     if has_nickname:
-        nick = R(WEAPON_NICKNAMES)
+        used = getattr(ctx, 'nicknames_used', set())
+        available_nicks = [n for n in WEAPON_NICKNAMES if n not in used]
+        if not available_nicks:
+            available_nicks = WEAPON_NICKNAMES  # fallback if all used
+        nick = R(available_nicks)
+        if hasattr(ctx, 'nicknames_used'):
+            ctx.nicknames_used.add(nick)
         nickname_str = ' -- colonists call it "' + nick + '"'
 
     # --- Description ---
@@ -983,6 +1034,7 @@ def gen_artifact(ctx, tone=None, planet=None, era=None):
     )
 
     output = enforce_contractions(output, tone)
+    output = _fix_nb_verbs(output, finder_gender)
     ctx.world.log_generation("artifact", art_name)
     return output
 
@@ -1492,6 +1544,7 @@ def gen_faction(ctx, tone=None, planet=None, era=None):
     )
 
     output = enforce_contractions(output, tone)
+    output = _fix_nb_verbs(output, leader_gender)
     ctx.world.log_generation("faction", fname)
     return output
 

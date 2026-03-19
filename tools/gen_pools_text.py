@@ -1161,11 +1161,16 @@ FORMAL_TONES = {"clinical", "corporate_dystopia", "military"}
 
 def enforce_contractions(text, tone):
     """Contract formal English into natural speech. Formal tones keep formal phrasing."""
-    if tone in FORMAL_TONES:
-        return text
-    for formal, contracted in CONTRACTION_MAP.items():
-        text = text.replace(formal, contracted)
-        text = text.replace(formal.capitalize(), contracted.capitalize())
+    import re
+    if tone not in FORMAL_TONES:
+        for formal, contracted in CONTRACTION_MAP.items():
+            text = text.replace(formal, contracted)
+            text = text.replace(formal.capitalize(), contracted.capitalize())
+    # Clean up double punctuation (always, regardless of tone).
+    # Replace exactly 2 dots (not 3+ ellipsis) with a single dot.
+    text = re.sub(r'(?<!\.)\.\.(?!\.)', '.', text)
+    # Clean up other doubled punctuation
+    text = text.replace(",,", ",").replace("!!", "!").replace("??", "?")
     return text
 
 
