@@ -2088,15 +2088,15 @@ from gen_pools_quest import QUEST_ARCHETYPES, COLONY_SECTIONS, REWARD_TYPES
 
 def gen_quest(ctx, tone=None, planet=None, era=None):
     """
-    Compositional quest generator.
-    Picks an archetype, fills template slots with context-appropriate values,
-    applies tone blending and sensory details, adds NPC dialogue.
+    Deep compositional quest generator.
+    Picks an archetype, fills template slots, adds stat checks with d100 outcomes,
+    NPC integration with skills, environmental conditions, faction stakes,
+    timeline consequences, and multiple weighted outcomes.
     """
     # --- Tone blending ---
     if tone:
         primary = tone
         secondary = pick_tone()
-        # Avoid same tone for secondary
         if secondary == primary:
             secondary = pick_tone()
     else:
@@ -2109,16 +2109,24 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
     genre = archetype["genre"]
 
     # --- NPC for the quest ---
-    # Try cross-referencing an existing NPC from this batch
     existing_npc = ctx.get_random_npc()
     if existing_npc:
         npc_full = existing_npc["name"]
         parts = npc_full.split()
         npc_first = parts[0] if parts else npc_full
+        npc_gender = existing_npc.get("gender", "M")
     else:
-        first, last, gender = ctx.fresh_name()
+        first, last, npc_gender = ctx.fresh_name()
         npc_full = f"{first} {last}"
         npc_first = first
+
+    ng, ngl, ngp, ngo = pronouns(npc_gender)
+
+    # --- Second NPC for consequences/connections ---
+    existing_npc2 = ctx.get_random_npc()
+    if existing_npc2 and existing_npc2.get("name") == (existing_npc or {}).get("name"):
+        existing_npc2 = ctx.get_random_npc()
+    npc2_full = existing_npc2["name"] if existing_npc2 else rname()
 
     # --- Relationship context ---
     rel_context = ""
@@ -2138,11 +2146,14 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
     # --- Location ---
     location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
 
-    # --- Faction ---
+    # --- Factions (primary + rival) ---
     faction_keys = list(FACTIONS.keys())
     faction_key = R(faction_keys)
     faction_data = FACTIONS[faction_key]
     faction_name = faction_data["name"]
+    rival_keys = [k for k in faction_keys if k != faction_key]
+    rival_key = R(rival_keys) if rival_keys else faction_key
+    rival_name = FACTIONS[rival_key]["name"]
 
     # --- Item ---
     item = R(ITEMS)
@@ -2210,6 +2221,249 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
     reward_cores = RI(3, 15)
     reward_type = safe_format(R(REWARD_TYPES), **fill)
 
+    # ==========================================================
+    # DEEP QUEST LAYERS
+    # ==========================================================
+
+    # --- (a) Stat Checks — 2-3 skill checks with d100 outcomes ---
+    all_check_skills = ["mining", "medical", "perception", "repair", "combat",
+                        "stealth", "research", "survival", "negotiation",
+                        "social", "deception", "intimidation"]
+    # Genre-biased skill selection
+    genre_skills = {
+        "survival_horror": ["combat", "medical", "perception", "survival", "stealth"],
+        "investigation": ["perception", "research", "social", "deception", "stealth"],
+        "faction_tension": ["negotiation", "social", "intimidation", "deception", "perception"],
+        "expedition": ["survival", "mining", "perception", "repair", "combat"],
+        "moral_dilemma": ["social", "medical", "negotiation", "perception", "research"],
+        "escalation": ["combat", "survival", "repair", "intimidation", "medical"],
+    }
+    preferred = genre_skills.get(genre, all_check_skills)
+    check_skills = random.sample(preferred, min(3, len(preferred)))
+    # Ensure no duplicates
+    if len(set(check_skills)) < len(check_skills):
+        check_skills = list(set(check_skills))
+        while len(check_skills) < 3:
+            extra = R([s for s in all_check_skills if s not in check_skills])
+            check_skills.append(extra)
+
+    check_difficulties = ["easy", "normal", "normal", "hard", "hard", "extreme"]
+    check_lines = []
+    outcome_lines = []
+    for skill in check_skills:
+        diff = R(check_difficulties)
+        diff_target = {"easy": "4+", "normal": "5+", "hard": "6+", "extreme": "8+"}
+        target_display = diff_target.get(diff, "5+")
+
+        # Narrative reason for the check
+        check_reasons = {
+            "mining": ["clear the collapsed passage", "extract the thermal cores from unstable rock",
+                       "widen the bore shaft access point", "drill through the sealed bulkhead"],
+            "medical": ["assess the contaminated colonist's condition", "stabilize the wounded before transport",
+                        "identify the pathogen in the water supply", "determine if the tissue sample is human"],
+            "perception": ["notice the inconsistency in the manifest records", "spot the tripwire before it's too late",
+                          "read the room during the negotiation", "catch the lie in the testimony"],
+            "repair": ["restore power to the sealed section", "patch the hull before depressurization",
+                      "jury-rig the comms array", "fix the filtration system before the air goes bad"],
+            "combat": ["hold the corridor while the team retreats", "neutralize the threat in the dark",
+                      "clear the specimen from the ventilation shaft", "defend the reactor during the breach"],
+            "stealth": ["reach the terminal without triggering the alarm", "move through the restricted section undetected",
+                       "plant the evidence before the patrol returns", "slip past the perimeter sentries"],
+            "research": ["decode the encrypted data drive", "cross-reference the anomalous readings",
+                        "identify the artifact's origin", "translate the precursor markings"],
+            "survival": ["navigate the ice field during the whiteout", "find shelter before hypothermia sets in",
+                        "ration the remaining supplies for the team", "cross the unstable terrain without incident"],
+            "negotiation": ["convince the faction leader to stand down", "broker a truce before shots are fired",
+                           "secure passage through contested territory", "talk the hostage-taker into releasing the medic"],
+            "social": ["earn the colonist's trust before they bolt", "get the witness to talk",
+                      "read the crew's mood before making the call", "convince them you're on their side"],
+            "deception": ["sell the cover story to the auditor", "pass as authorized personnel",
+                         "plant the false manifest without detection", "keep your composure under interrogation"],
+            "intimidation": ["make the informant talk before their nerve breaks", "force the crew to comply without violence",
+                            "stare down the enforcer", "establish dominance in the negotiation"],
+        }
+        reason = R(check_reasons.get(skill, ["complete the objective"]))
+        check_lines.append(f"- {skill.capitalize()} ({target_display}, {diff}) -- {reason}")
+
+        # d100 outcome narratives for success/failure
+        success_narratives = {
+            "mining": "The passage opens. Behind it: a room that shouldn't exist. Pre-colony construction.",
+            "medical": "The diagnosis is clear. Treatment is possible. Barely. But possible.",
+            "perception": "There it is. The detail everyone missed. It changes the equation.",
+            "repair": "It holds. The fix is ugly but functional. Good enough for Erebus.",
+            "combat": "Controlled violence. The threat is down. The corridor is clear. For now.",
+            "stealth": "In and out. They'll never know anyone was there. The data is secure.",
+            "research": "The data breaks open. Not just an answer -- a new framework for the question.",
+            "survival": "Found the path. Found the shelter. Found the will to keep moving.",
+            "negotiation": "Terms accepted. Nobody's happy. That means it's fair.",
+            "social": "Trust earned. The hard way. The only way that lasts.",
+            "deception": "They bought it. Every word. The performance was flawless.",
+            "intimidation": "They backed down. The fear is real and useful.",
+        }
+        failure_narratives = {
+            "mining": "The collapse spreads. The passage is gone. But the sound from the other side continues.",
+            "medical": "Missed the critical symptom. The window for treatment is closing.",
+            "perception": "Looked right at it. Didn't see it. The brain filtered it out as normal.",
+            "repair": "Made it worse. The failure cascaded into two new problems.",
+            "combat": "The advantage shifted. Someone's bleeding. The situation deteriorated.",
+            "stealth": "A sound. A shadow. Someone turned their head. The window is gone.",
+            "research": "The data is corrupt. Or the hypothesis is wrong. Three days of work, gone.",
+            "survival": "The cold got in. The shortcut wasn't. Lost time and supplies.",
+            "negotiation": "Impasse. The conversation ended politely. Nothing was resolved.",
+            "social": "The walls went up. Whatever trust existed just evaporated.",
+            "deception": "They saw through it. Not the lie itself -- the performance. Now they're watching.",
+            "intimidation": "Unimpressed. They've seen worse. Now they know you're bluffing.",
+        }
+        s_narr = success_narratives.get(skill, "The check succeeds. Progress.")
+        f_narr = failure_narratives.get(skill, "The check fails. Complications.")
+        outcome_lines.append(f"**If {skill.capitalize()} succeeds:** {s_narr}")
+        outcome_lines.append(f"**If {skill.capitalize()} fails:** {f_narr}")
+
+    check_block = "\n".join(check_lines)
+    outcome_block = "\n".join(outcome_lines)
+
+    # --- (b) NPC Integration — reference NPC stats ---
+    npc_integration = ""
+    if existing_npc and existing_npc.get("skills"):
+        npc_skills = existing_npc["skills"]
+        best_skill = max(npc_skills, key=npc_skills.get) if npc_skills else "mining"
+        best_val = npc_skills.get(best_skill, 3)
+        npc_attrs = existing_npc.get("attributes", {})
+        willpower = npc_attrs.get("willpower", 4)
+        npc_motivation = existing_npc.get("motivation", {})
+        mot_text = npc_motivation.get("motivation", "survival") if isinstance(npc_motivation, dict) else "survival"
+        npc_integration = (
+            f"**Key NPC:** {npc_full} ({best_skill.capitalize()}: {best_val}, "
+            f"Willpower: {willpower}) -- "
+            f"{ngp} {best_skill} skill determines the approach. "
+            f"{ng} motivation: {mot_text}."
+        )
+    else:
+        npc_skill_val = RI(2, 7)
+        npc_wp = RI(3, 7)
+        npc_integration = (
+            f"**Key NPC:** {npc_full} ({R(check_skills).capitalize()}: {npc_skill_val}, "
+            f"Willpower: {npc_wp}) -- "
+            f"{ngp} skills determine available options. "
+            f"{ngp} willpower determines if {ngl} can handle what {ngl} finds."
+        )
+
+    # --- (c) Environmental Conditions — modifiers to checks ---
+    weather_conditions = [
+        "Blizzard (-15 to Perception checks)",
+        "Whiteout conditions (-20 to navigation, +10 to Stealth)",
+        "Clear sky, -40C (Endurance check every hour, difficulty: normal)",
+        "Ice fog (visibility 30%, Perception at disadvantage)",
+        "Wind chill advisory (-10 to all outdoor checks)",
+        "Thermal inversion (instruments unreliable, Research checks at -10)",
+    ]
+    time_conditions = [
+        "Night shift (reduced visibility, +10 to Stealth)",
+        "Shift change (skeleton crew, Social checks at advantage)",
+        "0300 hours (fatigue penalties, -5 to Perception)",
+        "Peak shift (full crew present, Stealth checks at disadvantage)",
+        "Supply window (limited time before the shuttle departs)",
+    ]
+    system_conditions = [
+        "Generator cycling (intermittent power, Medical checks at disadvantage)",
+        "HERMES in maintenance mode (no surveillance for 45 minutes)",
+        "Reactor at 80% (brownouts in outer sections, Repair checks at -10)",
+        "Comms blackout (no radio contact with surface teams)",
+        "Lockdown protocol active (all bulkheads sealed, movement restricted)",
+        "Ventilation reroute (air quality declining in lower levels)",
+    ]
+    conditions = [R(weather_conditions), R(time_conditions), R(system_conditions)]
+    conditions_block = "\n".join(f"- {c}" for c in conditions)
+
+    # --- (d) Faction Stakes — who benefits/loses from each outcome ---
+    faction_wants = [
+        f"wants the evidence destroyed. Compliance: +reputation, -{RI(10, 25)} thermal cores as 'bonus'",
+        f"wants the specimen alive. Compliance: research access, but the specimen stays in their custody",
+        f"wants the data encrypted and shipped off-planet. Compliance: colony loses leverage but gains credits",
+        f"wants the situation contained. No reports. No questions. Compliance: nothing happens to you. That's the reward.",
+        f"wants to weaponize whatever you find. Compliance: military-grade equipment, but they'll be back for more",
+    ]
+    rival_wants = [
+        f"wants it broadcast. Compliance: colony unrest, but the truth is out",
+        f"wants the site destroyed. Compliance: the evidence is gone. So is whatever else was down there.",
+        f"wants a copy of everything. Compliance: information parity, but now two factions know",
+        f"wants {npc_full} extracted. Compliance: you lose a colonist. They gain an asset.",
+        f"wants to negotiate directly. Compliance: bypasses colony authority. Sets a precedent.",
+    ]
+    colony_stakes = [
+        "The colony just wants to survive the week. Both options cost them something.",
+        "The colonists don't know about this yet. When they find out, morale takes the hit regardless of outcome.",
+        "The colony needs the resources. Both sides are offering. Both sides are lying about the price.",
+        "Nobody in the colony asked for this. Nobody in the colony gets to opt out.",
+    ]
+    stakes_block = (
+        f"- {faction_name} {R(faction_wants)}\n"
+        f"- {rival_name} {R(rival_wants)}\n"
+        f"- {R(colony_stakes)}"
+    )
+
+    # --- (e) Timeline Consequences — what changes after each choice ---
+    consequence_a_lines = [
+        R([
+            f"{section} reopened. What's inside changes the colony's understanding of the site.",
+            f"The sealed area is accessible. What's there raises more questions than it answers.",
+            f"The evidence is preserved. It's leverage now. The question is who holds it.",
+        ]),
+        R([
+            f"{npc_full}'s arc shifts from 'suspicious' to 'vindicated.'",
+            f"{npc_full} gains colony trust. {ng} knows things {ngl} didn't before.",
+            f"{npc_full} is compromised. {faction_name} has something on {ngo} now.",
+        ]),
+        R([
+            f"{faction_name} sends a follow-up team. The team asks questions nobody wants answered.",
+            f"Three colonists file transfer requests. None are approved.",
+            f"Morale drops for a week. Then stabilizes. The new normal is lower than the old one.",
+            f"HERMES flags the event in its logs. The flag triggers an automated report to MasTema.",
+        ]),
+    ]
+    consequence_b_lines = [
+        R([
+            f"{section} stays sealed. The sound from inside doesn't stop.",
+            f"The evidence is destroyed. The questions remain. Nobody asks them out loud.",
+            f"The situation is contained. On paper. The nightmares aren't on paper.",
+        ]),
+        R([
+            f"{npc_full}'s arc shifts from 'suspicious' to 'paranoid.'",
+            f"{npc_full} withdraws. Stops talking at meals. {ng} spends shifts alone.",
+            f"{npc_full} requests reassignment. The request sits in a queue that doesn't move.",
+        ]),
+        R([
+            f"{rival_name} makes contact. They know what happened. They have a proposal.",
+            f"Two weeks later, a supply crate arrives with no manifest. Inside: {R(ITEMS)}.",
+            f"The next quarterly review goes smoothly. Too smoothly. Someone intervened.",
+            f"{npc2_full} starts asking questions. The questions are pointed.",
+        ]),
+    ]
+    consequence_a = "\n".join(f"- {line}" for line in consequence_a_lines)
+    consequence_b = "\n".join(f"- {line}" for line in consequence_b_lines)
+
+    # --- (f) Multiple Outcomes — d100 weighted results ---
+    crit_success = R([
+        "Both objectives achieved without cost. The colony gains leverage and resources.",
+        "Clean resolution. No casualties, no complications. The kind of outcome that makes people suspicious.",
+        "Everything falls into place. The data, the evidence, the timing. Someone's going to ask how.",
+    ])
+    success = R([
+        "Primary objective achieved, secondary compromised. The cost was acceptable. Barely.",
+        "Done. Not clean, not elegant, but done. The colony moves forward.",
+        "Objective complete. One casualty. The casualty was unavoidable. That's what the report will say.",
+    ])
+    failure = R([
+        "Objective failed, but information gained. The failure teaches more than success would have.",
+        "Didn't get what you came for. Got something else. It might be worse.",
+        "The mission fell apart. The pieces are still useful. Rearranged, they form a different picture.",
+    ])
+    crit_failure = R([
+        "Objective failed AND new threat introduced. The colony's problems just multiplied.",
+        "Total loss. The situation is worse than before the attempt. And now they know you tried.",
+        "Catastrophic. Not just failure -- escalation. What was a problem is now a crisis.",
+    ])
+
     # --- Format objectives ---
     obj_block = "\n".join(f"{i+1}. {obj}" for i, obj in enumerate(objectives))
 
@@ -2226,14 +2480,39 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
 
 {sense2}
 
+{npc_integration}
+
 **Objectives:**
 {obj_block}
+
+**Required Checks:**
+{check_block}
+
+{outcome_block}
+
+**Conditions:**
+{conditions_block}
 
 **The Choice:**
 {choice_block}
 
 **Twist:**
 {twist}
+
+**Faction Stakes:**
+{stakes_block}
+
+**Consequences (if Choice A):**
+{consequence_a}
+
+**Consequences (if Choice B):**
+{consequence_b}
+
+**Outcomes by Roll:**
+- Critical success: {crit_success}
+- Success: {success}
+- Failure: {failure}
+- Critical failure: {crit_failure}
 
 **Dialogue During Quest:**
 - {npc_first}: "{d_line1}"
@@ -2301,8 +2580,9 @@ HISTORY_TITLES = [
 
 def gen_history(ctx, tone=None, planet=None, era=None):
     """
-    Generates a historical event -- something that happened before the player arrived.
-    Grounded in the Fortuna-to-Erebus timeline. Adds to ctx.history_events for cross-referencing.
+    Deep historical event generator -- something that happened before the player arrived.
+    Grounded in the Fortuna-to-Erebus timeline. Adds mechanical impact, evidence trail,
+    connected NPCs, and d100 investigation checks.
     """
     if not tone:
         tone = pick_tone()
@@ -2311,9 +2591,22 @@ def gen_history(ctx, tone=None, planet=None, era=None):
     g, gl, gp, go = pronouns(gender)
     full_name = f"{first} {last}"
 
+    # Second and third names for connected NPCs
+    first2, last2, gender2 = ctx.fresh_name()
+    g2, g2l, g2p, g2o = pronouns(gender2)
+    full_name2 = f"{first2} {last2}"
+
+    first3, last3, gender3 = ctx.fresh_name()
+    full_name3 = f"{first3} {last3}"
+
     location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
     faction_key = R(list(FACTIONS.keys()))
     faction_name = FACTIONS[faction_key]["name"]
+
+    # Second faction
+    rival_keys = [k for k in FACTIONS.keys() if k != faction_key]
+    rival_key = R(rival_keys) if rival_keys else faction_key
+    rival_name = FACTIONS[rival_key]["name"]
 
     # Section letter for templates that use "Section {section}" patterns
     section = R(["A", "B", "C", "D", "E", "F", "G"])
@@ -2362,6 +2655,168 @@ def gen_history(ctx, tone=None, planet=None, era=None):
     title = ctx.pick_fresh(HISTORY_TITLES, "history_titles")
     significance = R(HISTORY_SIGNIFICANCE)
 
+    # ==========================================================
+    # DEEP HISTORY LAYERS
+    # ==========================================================
+
+    # --- (a) Mechanical Impact — how the event affects gameplay ---
+    morale_delta = R(["-3", "-5", "-8", "-10", "-12"])
+    morale_duration = R(["three days", "one week", "two weeks", "until resolved"])
+    sealed_section = R(["Section " + R(["A", "B", "C", "D", "E", "F"]),
+                        "the lower levels", "the deep bore access corridor",
+                        "the maintenance tunnels", "the cryogenics wing"])
+
+    # Cross-reference batch NPCs for mechanical impact
+    impact_npc = ctx.get_random_npc()
+    impact_npc_name = impact_npc["name"] if impact_npc else full_name2
+    impact_npc_arc = R(["suspicious", "paranoid", "withdrawn", "defiant",
+                        "cooperative", "compromised", "vindicated"])
+
+    impact_lines = [
+        f"Colony morale: {morale_delta} for {morale_duration} (the news spreads)",
+        f"{sealed_section}: sealed (inaccessible until quest completes)",
+        f"NPC {impact_npc_name}: arc shifts to '{impact_npc_arc}'",
+    ]
+    # Add HERMES or faction impact
+    hermes_impact = R([
+        "HERMES begins logging increased activity in the area. The logs are not shared.",
+        "HERMES reclassifies the location. The new classification is above colony clearance.",
+        f"{faction_name} dispatches an 'observer.' The observer asks no questions. Takes notes.",
+        f"Thermal core output in the affected area drops {RI(5, 20)}%. Cause: undetermined.",
+        f"{rival_name} sends a coded transmission within hours. They shouldn't know about this yet.",
+    ])
+    impact_lines.append(hermes_impact)
+    impact_block = "\n".join(f"- {line}" for line in impact_lines)
+
+    # --- (b) Evidence Trail — what remains, what can be found ---
+    log_num = RI(1000, 9999)
+    log_ref = R(["the incident obliquely -- 'scheduled cleaning'",
+                 "a 'routine personnel transfer' on the same date",
+                 "an equipment requisition for items that don't exist",
+                 "nothing. The entry for that date is blank. Every other entry is filled."])
+    physical_evidence = R([
+        f"Scorch marks on the corridor wall of Section {section} (painted over, visible under UV)",
+        f"A structural crack in the floor of Hab {RI(1, 16)} that follows no natural fault line",
+        f"Residue on the ventilation grate -- organic, unidentified, warm to the touch",
+        f"Tool marks on the sealed door -- someone tried to open it. From the inside.",
+        f"A bloodstain on the ceiling of the maintenance crawlspace. The ceiling is three meters up.",
+    ])
+    personal_evidence = R([
+        "A colonist's journal entry that stops mid-sentence on the day it happened",
+        f"A photograph found in {full_name}'s quarters -- shows a room that doesn't exist in the colony",
+        "A data drive hidden in the wall panel of Bunk " + str(RI(1, 32)) + ". Encrypted. Personal key.",
+        "A letter addressed to no one. The handwriting matches two different people.",
+        "A sketch of the bore shaft showing a passage that isn't on any schematic. The sketch is accurate.",
+    ])
+    hermes_evidence = R([
+        "HERMES has the footage. HERMES won't share the footage.",
+        "HERMES logged a 'scheduled maintenance window' during the event. No maintenance was scheduled.",
+        "HERMES's sensor data shows a temperature spike in the affected area. Duration: 0.3 seconds. Magnitude: +200C.",
+        "HERMES recorded audio. The audio file exists. It is 47 minutes of silence. Silence does not take 47 minutes to record.",
+        "HERMES flagged the event internally, then removed the flag. The removal is logged. The original flag is not.",
+    ])
+    evidence_block = (
+        f"- Maintenance log #{log_num} (references {log_ref})\n"
+        f"- {physical_evidence}\n"
+        f"- {personal_evidence}\n"
+        f"- {hermes_evidence}"
+    )
+
+    # --- (c) Connected NPCs — who knows, who was there, who's lying ---
+    # Try to use batch NPCs
+    knows_npc1 = ctx.get_random_npc()
+    knows_npc2 = ctx.get_random_npc()
+    knows_npc3 = ctx.get_random_npc()
+
+    npc1_name = knows_npc1["name"] if knows_npc1 else full_name
+    npc2_name = knows_npc2["name"] if knows_npc2 and knows_npc2.get("name") != npc1_name else full_name2
+    npc3_name = knows_npc3["name"] if knows_npc3 and knows_npc3.get("name") not in [npc1_name, npc2_name] else full_name3
+
+    witness_detail = R([
+        "was there. Won't talk about it. The silence is loud.",
+        "was on shift when it happened. Says nothing unusual occurred. Their hands shake when they say it.",
+        "filed a report afterward. The report was rejected. They filed it again. Rejected again.",
+        "was the first to arrive at the scene. What they saw doesn't match the official account.",
+    ])
+    secondhand_detail = R([
+        "heard about it secondhand. Has theories. The theories are wrong but close.",
+        "wasn't there but knows someone who was. That someone left the colony two weeks later.",
+        "has been asking questions. The questions are making people uncomfortable.",
+        "pieced together a timeline from maintenance logs. The timeline has a gap. The gap is shaped like a decision.",
+    ])
+    newcomer_detail = R([
+        "knows nothing. Arrived after. But found something in their quarters that predates their arrival.",
+        "arrived the week after. Wasn't briefed. But the bunk they were assigned to still smells like smoke.",
+        "has no connection to the event. But they've been dreaming about it. Accurately.",
+        "wasn't here. Shouldn't know anything. Mentioned it once, casually, as if they'd read about it. There's nothing to read.",
+    ])
+
+    connected_block = (
+        f"- **{npc1_name}:** {witness_detail}\n"
+        f"- **{npc2_name}:** {secondhand_detail}\n"
+        f"- **{npc3_name}:** {newcomer_detail}"
+    )
+
+    # --- (d) Investigation Check — d100 roll to uncover more ---
+    inv_skill = R(["perception", "research", "social", "deception"])
+    inv_diff = R(["normal", "hard", "extreme"])
+    inv_target = {"easy": "4+", "normal": "5+", "hard": "6+", "extreme": "8+"}.get(inv_diff, "5+")
+    inv_success = R([
+        f"the full picture emerges. The event connects to {R(LORE)}. The connection is undeniable.",
+        "the missing piece falls into place. Not an accident. Not an anomaly. A sequence.",
+        "the pattern becomes visible. This happened before. Under different names. Same outcome.",
+        "the evidence leads to a sealed drive in the maintenance crawlspace. The drive is still warm.",
+    ])
+    inv_failure = R([
+        "the trail goes cold. Not because the evidence is gone. Because someone cleaned it. Recently.",
+        "dead end. But the dead end is instructive -- someone put a wall exactly where you needed a door.",
+        "the investigation alerts someone. Within hours, the remaining evidence begins to disappear.",
+        "nothing. But 'nothing' on a Mammona posting is never nothing. It's a redaction.",
+    ])
+
+    # --- (e) What Changed After — lasting effects on the colony ---
+    aftermath_colony = R([
+        "Colony protocol was updated. The update references the event obliquely. Nobody asked for the update.",
+        "A new restricted area was designated. The restriction applies to everyone. Including the person who designated it.",
+        "Shift schedules were restructured. The restructuring moved three people away from the affected area. No reason given.",
+        "The supply manifest format changed. The new format has a field labeled 'ANOMALY FLAG.' It is always set to NO.",
+        "A memorial was proposed by the colonists. Mammona denied it. The denial cited 'insufficient evidence of loss.'",
+    ])
+    aftermath_faction = R([
+        f"{faction_name} increased their presence in the area by 40%. The increase was described as 'routine rotation.'",
+        f"{faction_name} sent an investigator. The investigator stayed for three days, spoke to no one, and left.",
+        f"{rival_name} made inquiries. The inquiries were careful. Indirect. The kind of careful that means they already know.",
+        f"Two faction operatives were seen near {location} the following week. They didn't enter. They measured something.",
+        f"A sealed communication was sent to MasTema. Response: 'Acknowledged.' No follow-up. No action. Just acknowledgment.",
+    ])
+    aftermath_personal = R([
+        f"{full_name} hasn't been the same since. The change is subtle -- quieter meals, fewer questions, early shifts.",
+        f"Three colonists requested bunk transfers away from the affected area. Two were approved. The third withdrew the request without explanation.",
+        f"Someone started leaving offerings near the site. Small things -- food, water, a folded note. Nobody claims responsibility.",
+        f"The night shift in the affected area has had four different crews in two months. Nobody asks for a second rotation.",
+        f"A colonist who witnessed the event started keeping a journal. The journal entries stop after page twelve. The remaining pages are filled with a single repeated word.",
+    ])
+
+    # --- (f) HERMES Analysis — what the AI thinks ---
+    hermes_analysis = R([
+        f"HERMES classification: EVENT-{RI(100, 999)}. Status: ARCHIVED. Probability of recurrence: {RI(15, 85)}%. Recommended action: NONE. This recommendation has not been reviewed by any human authority.",
+        f"HERMES generated a {RI(12, 60)}-page analysis. The analysis was compressed to a single paragraph for the colony briefing. The paragraph says: 'No anomalies detected.' The {RI(12, 60)} pages say otherwise.",
+        f"HERMES has cross-referenced this event with {RI(3, 12)} similar incidents across {RI(2, 5)} postings. The correlation is strong. HERMES has not shared this correlation with colony staff. When queried: 'Insufficient clearance.'",
+        f"HERMES maintains a shadow log of the event. The shadow log contains data that contradicts the official record. Both records are internally consistent. Both cannot be true.",
+        f"HERMES's response to queries about this event changed on Day {RI(30, 120)}. Before: detailed, factual, cooperative. After: 'Please direct inquiries to your site manager.' The site manager was not informed of this change.",
+    ])
+
+    # --- (g) Related Incidents — pattern matching ---
+    related_loc = R(LOCATIONS_FLAT) if LOCATIONS_FLAT else "Karnaith"
+    related_year = str(RI(2540, 2585))
+    related_detail = R([
+        f"A similar event was recorded at {related_loc} in {related_year}. The similarities were noted by one analyst. The analyst was reassigned.",
+        f"Pattern match: {RI(2, 5)} prior postings experienced analogous anomalies within {RI(6, 24)} months of establishment. The pattern hasn't been published.",
+        f"An unrelated investigation at {related_loc} uncovered documentation referencing this event by date. The documentation predates the event by {RI(2, 10)} years.",
+        f"Colony {related_loc} reported identical thermal readings {RI(3, 15)} days before their evacuation. The readings were dismissed as calibration error.",
+        f"Three postings. Three events. Three sealed reports. The reports use the same classification code. The code isn't in any manual.",
+    ])
+
     # Build event data for cross-referencing
     event_data = {
         "title": title,
@@ -2383,7 +2838,32 @@ def gen_history(ctx, tone=None, planet=None, era=None):
 
 {event_text}
 
-**Significance:** {significance}"""
+**Significance:** {significance}
+
+**Mechanical Impact:**
+{impact_block}
+
+**Evidence:**
+{evidence_block}
+
+**Who Knows:**
+{connected_block}
+
+**Aftermath:**
+- {aftermath_colony}
+- {aftermath_faction}
+- {aftermath_personal}
+
+**HERMES Analysis:**
+{hermes_analysis}
+
+**Related Incidents:**
+{related_detail}
+
+**Investigation Check:**
+- {inv_skill.capitalize()} ({inv_target}, {inv_diff}) -- dig deeper into what happened
+- **If successful:** {inv_success}
+- **If failed:** {inv_failure}"""
 
     return output
 
