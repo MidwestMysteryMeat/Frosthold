@@ -1098,9 +1098,35 @@ def fix_nb_verbs(text, gender):
         ("They was,", "They were,"), ("they was,", "they were,"),
         ("They does.", "They do."), ("they does.", "they do."),
         ("They does,", "They do,"), ("they does,", "they do,"),
+        ("They remembers", "They remember"), ("they remembers", "they remember"),
+        ("They intends", "They intend"), ("they intends", "they intend"),
+        ("They appears", "They appear"), ("they appears", "they appear"),
+        ("They believes", "They believe"), ("they believes", "they believe"),
+        ("They manages", "They manage"), ("they manages", "they manage"),
+        ("They produces", "They produce"), ("they produces", "they produce"),
+        ("They continues", "They continue"), ("they continues", "they continue"),
+        ("They remains", "They remain"), ("they remains", "they remain"),
     ]
     for wrong, right in fixes:
         text = text.replace(wrong, right)
+    # Regex catch-all: "They [verb]s " where verb ends in common patterns
+    import re
+    # Match "They <word>s " where word is 3+ chars and ends with s (but not ss, us, is)
+    def _fix_they_verb(m):
+        verb = m.group(1)
+        # Don't fix words that naturally end in s (is, was, has — already handled above)
+        # Don't fix words ending in ss, us, is (e.g. "discusses", "focuses")
+        if verb.endswith(("ss", "us")):
+            return m.group(0)
+        # Strip trailing 's' for simple cases, 'es' for -ches/-shes/-xes/-zes
+        if verb.endswith(("ches", "shes", "xes", "zes", "sses")):
+            return m.group(0).replace(verb, verb[:-2])
+        if verb.endswith(("ies",)):
+            return m.group(0).replace(verb, verb[:-3] + "y")
+        if verb.endswith("s") and not verb.endswith(("ss",)):
+            return m.group(0).replace(verb, verb[:-1])
+        return m.group(0)
+    text = re.sub(r'\b[Tt]hey ([a-z]{3,}s)\b', _fix_they_verb, text)
     return text
 
 
