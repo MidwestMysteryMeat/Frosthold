@@ -462,20 +462,28 @@ DIALOGUE = {
             "Stow your gear. Orientation's in ten. Don't be late.",
             "You look like you've got questions. Save them.",
             "First piece of advice: don't ask about the last crew.",
+            "How long's your contract? Doesn't matter. You'll be here longer.",
+            "The mess is left. The bunks are right. Everything else you'll figure out or you won't.",
+            "Don't touch anything marked red. Don't ask why it's marked red.",
+            "Keep your head down the first week. After that, keep it down permanently.",
+            "You want to know the rules? There's one: survive your shift.",
         ],
         "paranoid": [
             "Who sent you?",
             "I didn't hear the shuttle. When did you arrive?",
             "You're not on the manifest I saw.",
+            "Show me your contract. The real one.",
         ],
         "gallows_humor": [
             "Welcome to paradise. The brochure lied.",
             "New meat. I give you three weeks.",
             "Hope you like NutriLoaf. You're going to see a lot of it.",
+            "The orientation says 'zero fatalities this quarter.' Quarter started yesterday.",
         ],
         "tender": [
             "Hey. You look tired. There's coffee in the mess.",
             "Take the bunk by the wall. It's warmer.",
+            "If you need anything, I'm two bunks down. Don't be proud about it.",
         ],
         "clinical": [
             "New arrival. Please report to medical for baseline screening.",
@@ -484,6 +492,7 @@ DIALOGUE = {
         "desperate": [
             "Thank god. We need bodies. Can you hold a drill?",
             "You're here? Good. We lost two more last shift.",
+            "Can you weld? Can you shoot? Can you run? Pick two.",
         ],
         "military": [
             "Report. Name, rank, specialization.",
@@ -492,6 +501,7 @@ DIALOGUE = {
         "corporate_dystopia": [
             "Welcome aboard. Your orientation packet includes a liability waiver.",
             "You'll find your complimentary Sunny Fizz in the welcome kit. Everything else costs extra.",
+            "Your performance review starts now. Smile.",
         ],
         "numb": [
             "Oh. You're new. Right. The bunks are that way.",
@@ -499,9 +509,77 @@ DIALOGUE = {
         ],
         "resigned": [
             "Another contract. Same promises. You'll figure it out.",
+            "You'll hate it here. Give it a month. Then you'll stop hating it. That's worse.",
         ],
         "frontier_grit": [
             "Can you swing a hammer? Good. Welcome.",
+            "Show me your hands. Yeah, you'll do.",
+        ],
+        "furious": [
+            "Great. Another mouth to feed. Mammona send you to replace the ones they killed?",
+        ],
+        "cosmic_horror": [
+            "You're new. That's good. The new ones don't hear it yet.",
+        ],
+        "dread": [
+            "Welcome. Try not to look at the bore shaft on your first night.",
+        ],
+        "isolation": [
+            "Oh. Another person. Good. I was starting to forget what other people sound like.",
+        ],
+        "defiant": [
+            "You here by choice? Didn't think so. Neither am I. That makes us even.",
+        ],
+        "melancholy": [
+            "New face. I used to get excited about that. Now I just wonder how long you'll last.",
+        ],
+        "body_horror": [
+            "Welcome. If anything on your body changes color, shape, or temperature -- tell medical. Don't wait.",
+        ],
+        "exhaustion": [
+            "You're here. Great. I'm going to sleep. Take my shift. Here's the log.",
+        ],
+        "survival_horror": [
+            "You're alive? Good. Stay close. Don't look outside. And whatever you do, don't open that door.",
+        ],
+        "hypervigilance": [
+            "Stop. Don't move. I need to check something behind you first. ...Okay. You're clear. Welcome.",
+        ],
+        "quiet_terror": [
+            "Don't talk yet. Listen first. ...Okay. The sounds are normal. You can speak now.",
+        ],
+        "slow_dread": [
+            "You're new. Everything will seem normal at first. Hold onto that feeling. You'll miss it.",
+        ],
+        "wrongness": [
+            "Welcome to the colony. Third one on this site, if you believe the records. Don't ask about the first two.",
+        ],
+        "sleep_deprivation": [
+            "Are you real? Sorry. Stupid question. You're real. I'm just... yeah. You're real. Right?",
+        ],
+        "dissociation": [
+            "Hi. You look familiar. Everyone looks familiar lately. Don't worry about it.",
+        ],
+        "nostalgia": [
+            "You remind me of someone. From home. Don't take that as a compliment. I don't remember if I liked them.",
+        ],
+        "mania": [
+            "You're here! Perfect! I have seventeen ideas and no one to bounce them off. Sit down. No, stand. Doesn't matter. Listen.",
+        ],
+        "shame": [
+            "Don't ask anyone about me. Whatever they say, it's probably true. But don't ask.",
+        ],
+        "bitter_hope": [
+            "Fresh face. Maybe you'll be the one who figures out how to fix this place. Nobody else has managed.",
+        ],
+        "guilt": [
+            "The last new person... didn't make it. Wasn't my fault. Not entirely. Welcome.",
+        ],
+        "noir": [
+            "Another soul walks into the machine. If you've got a price, someone here already knows it.",
+        ],
+        "identity_erosion": [
+            "You know who you are? Good. Remember that. Write it down. Trust me.",
         ],
     },
 
@@ -517,16 +595,23 @@ DIALOGUE = {
             "Don't eat anything you didn't bring with you.",
             "The night shift has rules. Follow them. Even the ones that sound crazy.",
             "If the ground shakes, don't freeze. Run toward the colony, not away.",
+            "Don't open sealed doors without checking the pressure gauge first. Lost a guy that way.",
+            "The thermal cores are warm. That's normal. If they're hot, drop it and run.",
+            "Don't walk the corridors alone past 0200. That's not policy. That's experience.",
+            "Check the dosimeter before going below level three. If it spikes, you've already been too long.",
+            "The vents in the lower corridors make sounds. Ignore them unless they stop.",
         ],
         "dread": [
             "The walls down there aren't walls. Don't touch them.",
             "I heard it last night. In the pipes. It knows the layout.",
             "If the lights flicker, don't count them. Just move.",
+            "Something followed the drill team back from the deep bore. Nobody's talking about it.",
         ],
         "paranoid": [
             "Don't trust the logs. Someone's been rewriting them.",
             "Watch the new transfer. Something's off about the way they listen.",
             "Don't say anything on an open channel. They're listening.",
+            "The security cameras have blind spots. I've mapped them. So has someone else.",
         ],
         "survival_horror": [
             "Three clips. That's all we've got. Don't miss.",
@@ -536,28 +621,101 @@ DIALOGUE = {
         "clinical": [
             "Contamination levels in the lower shaft exceed safety thresholds by 340%.",
             "Prolonged exposure at current levels will result in irreversible neurological changes.",
+            "The biological readings from Section F are inconsistent with known colony fauna. Exercise caution.",
         ],
         "frontier_grit": [
             "Wind's picking up. Storm by midnight. Tie everything down.",
             "Check the perimeter braces. Last storm took two out.",
+            "Ice is thinner near the east ridge. Walk soft or not at all.",
         ],
         "cosmic_horror": [
             "Don't look at the carvings too long. Trust me on this.",
+            "The geometry down there doesn't follow rules. If it feels wrong, it is wrong. Leave.",
         ],
         "folk_horror": [
             "The Sons are watching the bore shaft. Don't go alone.",
+            "Found offerings at the thermal vent again. Fresh. Don't touch them.",
         ],
         "body_horror": [
             "If you see the growth on the walls, don't scratch it. Don't breathe near it.",
+            "If your skin itches after a bore shaft shift, report to medical. Don't wait.",
         ],
         "quiet_terror": [
             "If the silence feels heavy, leave. Don't investigate. Just leave.",
         ],
         "desperate": [
             "Don't go out there alone. I don't care what the mission says.",
+            "We're down to emergency rations. Don't tell the new arrivals. Not yet.",
         ],
         "exhaustion": [
             "If you can't stay awake, tell someone. Don't fall asleep on watch. Not out here.",
+        ],
+        "gallows_humor": [
+            "The safety briefing is shorter than it used to be. We ran out of things to warn you about that wouldn't cause a panic.",
+        ],
+        "furious": [
+            "Mammona says the levels are safe. Mammona said that about the last colony too. Wear the mask.",
+        ],
+        "numb": [
+            "Don't bother with the emergency exits. They're welded shut. Been that way since before we got here.",
+        ],
+        "defiant": [
+            "Don't follow Mammona's safety route. Take the maintenance tunnel. It's longer but it's actually maintained.",
+        ],
+        "isolation": [
+            "If you end up on solo perimeter watch, keep talking. To yourself, to the radio, to nothing. Just keep talking.",
+        ],
+        "tender": [
+            "Eat before your shift. Not during. Not after. The food's bad but your body needs it.",
+            "If you're having a rough night, the medic keeps the lights on. Nobody will judge you for going.",
+        ],
+        "resigned": [
+            "The alarm goes off every few days. You'll learn to sleep through it. Everyone does eventually.",
+        ],
+        "melancholy": [
+            "There's a spot by the viewport where you can see the stars. Go there when it gets bad. It helps. A little.",
+        ],
+        "body_horror": [
+            "If you find anything organic growing where it shouldn't be, don't touch it. Don't breathe on it. Report it.",
+        ],
+        "slow_dread": [
+            "The cracks in the lower corridor are wider than they were last month. Stay close to the wall.",
+        ],
+        "wrongness": [
+            "Sometimes the corridor looks longer than it should. Don't measure it. Don't think about it. Just walk.",
+        ],
+        "psychic_contamination": [
+            "If you start dreaming about the ruins before you've seen them, tell someone. Don't keep it to yourself.",
+        ],
+        "mania": [
+            "If you're running hot, full of ideas, can't stop moving -- that's the posting talking. Slow down before it breaks you.",
+        ],
+        "shame": [
+            "Keep your past quiet. Not because it matters, but because people here collect leverage.",
+        ],
+        "guilt": [
+            "If someone dies on your watch, don't blame yourself. You'll have plenty of time for that later.",
+        ],
+        "dissociation": [
+            "If you start feeling like you're watching yourself from outside, sit down. Drink water. It passes. Usually.",
+        ],
+        "identity_erosion": [
+            "Keep a photo of yourself. From before. You'll need the reminder.",
+        ],
+        "noir": [
+            "Everyone here has a secret. Don't go looking for them. Secrets have a way of finding you instead.",
+        ],
+        "survival_horror": [
+            "If something gets through the perimeter, head for Section A. The walls are thicker. The locks work.",
+        ],
+        "bitter_hope": [
+            "The supply ship comes every forty days. Count from yesterday. Hold onto that number.",
+        ],
+        "wrongness": [
+            "If a corridor feels longer than it should, turn around. Don't count your steps.",
+        ],
+        "hypervigilance": [
+            "Learn the sounds. Generator hum, pipe knock, vent whistle. When one's missing, pay attention.",
         ],
     },
 
@@ -571,29 +729,45 @@ DIALOGUE = {
             "I'm scared. I know that doesn't help. But I'm scared.",
             "I lied on my psych evaluation. They would've flagged me.",
             "There's something I should've told you before we went down there.",
+            "I've been sending reports to someone outside the colony. I can't say who.",
+            "I came here to find something. Not thermal cores. Something else.",
+            "I'm not as good at this job as they think. I've been faking competence for six months.",
+            "My contract isn't what yours is. There are clauses in mine you wouldn't believe.",
+            "I've been taking things from the medical supply. Not for me. For someone in the lower hab.",
+            "I forged my qualification papers. The real me wouldn't have gotten this far.",
+            "I know what HERMES does at night. When we're all asleep. I checked the logs.",
+            "The person I replaced here? I found their journal. They were scared of the same things I'm scared of now.",
+            "I write a letter home every week. I haven't sent one in three months. I keep writing them.",
+            "I recognized something in the bore shaft. Something from before. Before here. Before everything.",
         ],
         "guilt": [
             "I could've saved her. I had time. I didn't move.",
             "The report I filed was wrong. On purpose.",
             "I knew the shaft was unstable. I signed off anyway.",
+            "There were two of us in the corridor when the seal blew. I pulled myself through first.",
         ],
         "shame": [
             "I sold them out. For a shuttle ticket. They didn't make it.",
             "Don't look at me like that. You don't know what I was.",
+            "I was at Eclipse's End. Not as a prisoner. Not as a guard. Guess what that leaves.",
         ],
         "tender": [
             "I don't want to die here. Not here. Not without seeing the sky.",
             "I've never told anyone this. I trust you. That scares me.",
+            "I keep thinking about home. Not the place. The person.",
         ],
         "paranoid": [
             "I think they know. I think they've always known.",
+            "Someone went through my locker. Nothing's missing. That's worse.",
         ],
         "dread": [
             "I saw what's down there. I wish I hadn't. I can't stop seeing it.",
             "I've been dreaming about the bore shaft. Every night. Same dream.",
+            "The hum is getting louder. Nobody else hears it. I checked.",
         ],
         "body_horror": [
             "Something's changing. In me. I can feel it under the skin.",
+            "My hands don't look right. Not wrong. Just not mine anymore.",
         ],
         "numb": [
             "I don't feel anything anymore. I know I should. I just don't.",
@@ -610,6 +784,42 @@ DIALOGUE = {
         "identity_erosion": [
             "I don't remember signing up for this. But my name's on the contract.",
         ],
+        "cosmic_horror": [
+            "I understood the carvings. For a second. Then the meaning slid away and my nose bled.",
+        ],
+        "exhaustion": [
+            "I've been awake for thirty-seven hours. I can see things in the corners. I know they're not real. They know I know.",
+        ],
+        "furious": [
+            "I've been thinking about killing someone. Not in general. Specifically.",
+        ],
+        "resigned": [
+            "I stopped fighting it. Whatever happens next, happens. I just didn't want to go without telling someone.",
+        ],
+        "isolation": [
+            "I talk to myself now. Full conversations. I answer back. In a different voice.",
+        ],
+        "melancholy": [
+            "I miss who I was before this posting. That person would've handled this better.",
+        ],
+        "nostalgia": [
+            "I keep a list of things I'll do when I get home. The list is getting longer. The chance is getting smaller.",
+        ],
+        "frontier_grit": [
+            "I fixed the filtration system with parts I stole from the backup generator. It'll hold. Probably.",
+        ],
+        "sleep_deprivation": [
+            "I can't tell if it's tomorrow or still today. The shifts bleed together. My handwriting's changed.",
+        ],
+        "defiant": [
+            "I've been hiding ration packs in the maintenance tunnels. Mammona's been shorting us. I'm shorting them back.",
+        ],
+        "corporate_dystopia": [
+            "I've been signing off on reports I haven't read. Because the reports aren't for safety. They're for liability.",
+        ],
+        "gallows_humor": [
+            "I named the mold in my bunk. We're friends now. It's the healthiest relationship I've had on Erebus.",
+        ],
     },
 
     "rumor": {
@@ -622,42 +832,93 @@ DIALOGUE = {
             "I heard HERMES talks to itself at night. Full conversations.",
             "Night shift says they heard drilling. From below the deepest shaft.",
             "One of the engineers found old Mammona equipment. Decades old. Down there.",
+            "Quartermaster's been marking inventory down. Not up. Down. Someone's skimming.",
+            "The water recycler output has a new taste. The techs say it's fine. The techs won't drink it.",
+            "Two colonists were talking about the bore shaft at 0200. When I got closer, they stopped. Not like they paused -- like someone hit mute.",
+            "There's a room in Section B that's not on the blueprint. Sealed door. Nobody has the code.",
+            "They found NutriLoaf wrappers in the waste tunnel. Nobody's supposed to be down there.",
         ],
         "paranoid": [
             "The transfer from Karnaith? MasTema. Has to be.",
             "Someone's sending signals off-colony. I've seen the power spikes.",
             "Three people got reassigned the same day. No explanation.",
+            "The new security rotations don't make sense unless they're watching us, not the perimeter.",
         ],
         "cosmic_horror": [
             "The ruins go deeper than the scans show. A lot deeper.",
             "The drill team says the rock down there isn't rock.",
             "The geologist quit. Wouldn't say why. Wouldn't go back down.",
+            "The carvings in the north ridge ruins changed. Same wall. Different symbols.",
         ],
         "corporate_dystopia": [
             "The real product isn't minerals. It's the data. We're the experiment.",
             "Our insurance was cancelled three weeks before deployment. Nobody told us.",
+            "HERMES updated the colony's legal designation last week. We're listed as 'equipment' now.",
         ],
         "gallows_humor": [
             "Heard the last medic ate a gauss round. Voluntarily. Can't say I blame them.",
             "The Sunny machine's been predicting who dies next. It's three for three.",
+            "Know what the previous colony's goodbye message said? 'Good luck.' That's it.",
         ],
         "folk_horror": [
             "The Sons left something at the bore shaft. The night shift won't go near it.",
+            "Someone carved a crescent into the mess hall wall. Perfectly smooth. With their fingernails.",
         ],
         "body_horror": [
             "The colonist they found in the shaft? Alive. But different. They won't let anyone see.",
+            "The lab samples are growing. On their own. Without nutrients. Medical sealed the room.",
         ],
         "quiet_terror": [
             "Section F went quiet. Not silent. Quiet. There's a difference.",
         ],
         "dread": [
             "The dogs won't go near the bore shaft. Haven't in days.",
+            "The night shift heard something breathing in the walls. Big breaths. Slow.",
         ],
         "numb": [
             "Someone said the reactor's leaking. Could be true. Nobody checked.",
         ],
         "survival_horror": [
             "Something got into the supply cache. Left tracks. Not footprints.",
+        ],
+        "tender": [
+            "The new couple in Section A? He proposed with a bolt from the drill rig. She said yes. Sometimes this place almost works.",
+        ],
+        "furious": [
+            "Mammona pulled the rotation roster. Nobody's going home this cycle. Nobody.",
+        ],
+        "frontier_grit": [
+            "The south ridge team found water. Clean water. First good news in a month.",
+        ],
+        "defiant": [
+            "Word is three miners refused the overtime order. Mammona hasn't done anything yet. Yet.",
+        ],
+        "resigned": [
+            "Same rumor as last month. Something in the ice. Something in the bore shaft. Something in the walls. Always something.",
+        ],
+        "exhaustion": [
+            "Heard the medic's been prescribing sleeping pills. To half the colony. Doesn't have enough for the other half.",
+        ],
+        "isolation": [
+            "Comms tower went down for six hours. Nobody noticed until someone tried to call home.",
+        ],
+        "melancholy": [
+            "Someone left flowers at the memorial wall. Real flowers. From the hydroponics bay. Nobody claimed them.",
+        ],
+        "bitter_hope": [
+            "Heard the next supply ship's carrying mail. Actual letters. Could be true. Could be Mammona morale tactics.",
+        ],
+        "shame": [
+            "Word is someone on the colony's been selling information to MasTema. Nobody knows who. Everybody's looking at everybody.",
+        ],
+        "mania": [
+            "The engineer in Section B says she's cracked the reactor efficiency problem. Been awake four days. Could be genius. Could be breakdown.",
+        ],
+        "sleep_deprivation": [
+            "People on the night shift keep seeing the same figure in Corridor Seven. Same height. Same walk. Nobody's in Corridor Seven.",
+        ],
+        "wrongness": [
+            "The bore shaft elevator went down at 0100. Nobody called it. Nobody was in it. It came back up... heavier.",
         ],
     },
 
@@ -671,15 +932,20 @@ DIALOGUE = {
             "Don't push me. Not today.",
             "This conversation's over. Walk.",
             "Last chance. I'm not known for second chances.",
+            "Touch that again and you'll lose the hand.",
+            "I'm telling you once. I won't tell you twice.",
+            "You have no idea what I'm capable of. Keep it that way.",
         ],
         "furious": [
             "Mammona took everything from me. You work for Mammona. Do the math.",
             "Say that again. I dare you.",
             "I'll burn this whole colony down before I let them win.",
+            "You filed a report? On me? You should've filed a will.",
         ],
         "paranoid": [
             "I know what you've been doing. I have the logs.",
             "Tell your handler I'm not going quietly.",
+            "I've been watching you. You don't check your corners enough.",
         ],
         "desperate": [
             "Give me the rations or I take them. Your choice.",
@@ -701,9 +967,43 @@ DIALOGUE = {
         ],
         "gallows_humor": [
             "I'll kill you. Not a threat. Just planning my afternoon.",
+            "Report me. Go ahead. You'll be the third this month. The other two are buried outside the perimeter.",
         ],
         "corporate_dystopia": [
             "File a complaint. See how far it gets. I'll wait.",
+        ],
+        "cosmic_horror": [
+            "You don't know what I've seen. You don't want to. But keep pushing and I'll show you.",
+        ],
+        "dread": [
+            "There are worse things than me down here. I'm the warning. Not the problem.",
+        ],
+        "frontier_grit": [
+            "Out here we settle things the old way. You sure you want that?",
+        ],
+        "exhaustion": [
+            "I'm too tired to be patient. Don't test me. Not today.",
+        ],
+        "resigned": [
+            "I don't want to do this. But I will. And I won't lose sleep over it. I've lost enough.",
+        ],
+        "isolation": [
+            "I've been alone long enough that consequences stopped meaning anything. Think about that.",
+        ],
+        "body_horror": [
+            "Touch me again and I'll show you what's under the bandage. You won't like it.",
+        ],
+        "bitter_hope": [
+            "I was going to let this go. Was. Past tense.",
+        ],
+        "clinical": [
+            "I've calculated seven outcomes. In six of them, you're worse off than me. Choose carefully.",
+        ],
+        "melancholy": [
+            "I don't want to hurt you. But I want something else more. And I'm running out of ways to get it.",
+        ],
+        "shame": [
+            "Do what I say or I'll tell everyone what you did on the last posting. We both know what I mean.",
         ],
     },
 
@@ -716,6 +1016,9 @@ DIALOGUE = {
             "Help me. I can't do this alone.",
             "I'm not ready. Give me time. Please.",
             "You're the only one I can ask.",
+            "I'll pay it back. Every credit. Just give me time.",
+            "Don't send me out there alone. I'm asking you as a person, not a contract number.",
+            "If you've got any pull with the roster, move me off the night shift. Please.",
         ],
         "desperate": [
             "If we don't move now, we don't move at all.",
@@ -725,9 +1028,11 @@ DIALOGUE = {
         "grief": [
             "Bring them back. I know you can't. But bring them back.",
             "Don't let it happen again. I can't lose another one.",
+            "Let me see them. One last time. I just need to see them.",
         ],
         "tender": [
             "Stay. Just for a while. I can't be alone right now.",
+            "Tell me about the sky on your world. I need to think about something that isn't this.",
         ],
         "shame": [
             "Don't tell them. Please. I'll fix it. Just don't tell them.",
@@ -755,6 +1060,45 @@ DIALOGUE = {
         "resigned": [
             "I know it won't matter. I'm asking anyway.",
         ],
+        "dread": [
+            "Don't make me go back down there. I'll take any other assignment. Any.",
+        ],
+        "furious": [
+            "If you have a way to hurt Mammona, I want in. That's not a plea. That's a promise.",
+        ],
+        "numb": [
+            "I don't care what happens to me. Just make it stop being the same. Every day the same.",
+        ],
+        "cosmic_horror": [
+            "Make the dreams stop. I know you can't. I know. Just tell me you can.",
+        ],
+        "gallows_humor": [
+            "I'll owe you one. And on Erebus, a favor's worth more than M-Points.",
+        ],
+        "melancholy": [
+            "Remember me. If I don't come back, remember me. That's all I'm asking.",
+        ],
+        "nostalgia": [
+            "Tell me about your home. Anywhere. Anything. I need to remember that other places exist.",
+        ],
+        "guilt": [
+            "I need to make something right. I can't do it alone. I know I don't deserve the help.",
+        ],
+        "defiant": [
+            "I'm not asking Mammona. I'm asking you. Person to person. Help me.",
+        ],
+        "corporate_dystopia": [
+            "I need this off the record. If it goes through official channels, I'm dead. Not figuratively.",
+        ],
+        "clinical": [
+            "My vitals are declining. The trajectory is clear. I need intervention. Please.",
+        ],
+        "frontier_grit": [
+            "I've never asked anyone for help before. Take that as a measure of how bad this is.",
+        ],
+        "military": [
+            "I need backup. No questions. No reports. Just bodies at the south wall. Now.",
+        ],
     },
 
     "observation": {
@@ -768,21 +1112,37 @@ DIALOGUE = {
             "Stars look different tonight. Probably nothing.",
             "The perimeter lights keep cutting out. Same section. Every night.",
             "HERMES has been routing power to the comms array. Nobody asked it to.",
+            "The new colonist doesn't eat with the rest of us. Sits in the corridor. Watches the wall.",
+            "Drill output's down twelve percent this week. Same crew. Same equipment. Something's different underground.",
+            "NutriLoaf batch forty-seven tastes different. Not worse. Different. Nobody can name how.",
+            "The thermal cores we pulled this morning were heavier than last week's. Same depth. Same vein.",
+            "Two people on my shift have the same dream. They compared notes. Identical. Down to the color of the walls.",
+            "The colony dogs are sleeping in shifts now. One always watches the south wall. They organized this on their own.",
+            "Morale's been dropping since Tuesday. I checked -- nothing happened Tuesday. Nobody can explain it.",
+            "The graffiti in the bathroom stalls is getting stranger. Coordinates. Equations. Names nobody recognizes.",
+            "Someone stacked thermal cores outside the mess hall door last night. In a pattern. Nobody took credit.",
+            "The waste processing unit is running cleaner than spec. Nobody upgraded it. HERMES says it optimized itself.",
+            "Three colonists on different shifts reported smelling smoke at 0300. Nothing was burning. Nothing's ever been burning at 0300.",
+            "The shift handover notes are getting shorter. Used to be a full page. Now it's a sentence. 'Same as yesterday.'",
+            "Colony headcount is off by one. Extra. Nobody can identify the extra person.",
         ],
         "clinical": [
             "Barometric pressure's been declining for seventy-two hours. No weather system to account for it.",
             "Contamination readings in Section D have tripled since last survey.",
             "Colonist bio-readings show a collective cortisol spike at 0300. Cause unidentified.",
+            "The geological survey data and the seismic data disagree about what's below level five. Both instruments are calibrated.",
         ],
         "paranoid": [
             "The duty roster's been altered. Third time this week.",
             "HERMES rerouted my comms request. Said it was maintenance. It wasn't.",
             "The cameras in B-wing have a six-second gap every hour. Same time.",
+            "Three people transferred in on the same shuttle. None of them were on the manifest I saw.",
         ],
         "dread": [
             "The drill's making a sound it didn't make yesterday.",
             "Something moved out there. At the edge of the lights. Just for a second.",
             "The ice is cracking. Not from the cold. From below.",
+            "The perimeter fence was bent inward this morning. From the outside. Nothing on the sensors.",
         ],
         "numb": [
             "Another storm. Third this week. Fourth? Does it matter?",
@@ -791,10 +1151,12 @@ DIALOGUE = {
         "frontier_grit": [
             "Wind shifted. Storm's coming from the north this time.",
             "The south wall needs shoring up. Bolts are shearing.",
+            "Ice is melting faster near the reactor exhaust. We'll need to redirect drainage by next week.",
         ],
         "cosmic_horror": [
             "The stars aren't where they should be. I checked the charts twice.",
             "The bore shaft is three meters deeper than we drilled it.",
+            "The precursor walls are warm. They weren't warm last month.",
         ],
         "slow_dread": [
             "The stain is back. Same spot. We bleached it twice.",
@@ -805,6 +1167,45 @@ DIALOGUE = {
         ],
         "body_horror": [
             "The sample in the lab is larger today. Nobody fed it.",
+        ],
+        "gallows_humor": [
+            "The Sunny machine's been out of everything except 'Regret Flavor' for three days.",
+        ],
+        "tender": [
+            "The hydroponics bay has a new sprout. Tiny. Green. Everyone's been by to look at it.",
+        ],
+        "exhaustion": [
+            "We've been running skeleton crew for nine days. You can see it in everyone's face.",
+        ],
+        "corporate_dystopia": [
+            "Mammona sent a morale survey. Multiple choice. None of the options included 'terrible.'",
+        ],
+        "furious": [
+            "The safety equipment they shipped is three models out of date. Expired seals. They knew.",
+        ],
+        "resigned": [
+            "Shift change was twenty minutes late again. Nobody mentioned it. That's how it works now.",
+        ],
+        "isolation": [
+            "Haven't heard from the perimeter team in two days. Comms might be down. Or they might be.",
+        ],
+        "melancholy": [
+            "The last photograph on the memorial wall is starting to fade. Sun damage. There's no sun here.",
+        ],
+        "defiant": [
+            "The quota board's been updated. Higher numbers. Same equipment. Same crew. Someone's going to get hurt.",
+        ],
+        "desperate": [
+            "The food stores are lower than the ledger says. I counted. Twice. The numbers don't lie. The ledger does.",
+        ],
+        "wrongness": [
+            "The corridor light on B-wing came on before I hit the switch. Half a second early. Every time.",
+        ],
+        "nostalgia": [
+            "The aurora was out last night. Green. Like the one over the mountains on Novaris-3. Except here it feels wrong.",
+        ],
+        "bitter_hope": [
+            "The supply manifest listed a mail packet for next delivery. First time in three months. If it comes.",
         ],
     },
 
@@ -818,25 +1219,40 @@ DIALOGUE = {
             "The drill's vibration is giving everyone headaches. Nobody's filed for maintenance.",
             "Water recycler's making that sound again. Tastes like plastic.",
             "The comm system drops out every time I try to file a report.",
+            "The air filtration in the lower corridors smells like burning. Maintenance says it's normal. It's not normal.",
+            "NutriLoaf has been the same flavor for nineteen days straight. There are supposed to be four flavors.",
+            "Someone's been using my tools and not putting them back. I've started scratching my name into the handles.",
+            "The shower timer got cut to three minutes. Three minutes. In a place where you're covered in drill dust.",
+            "The bunk mattresses are older than the colony. I know because they have a different colony's name stamped on them.",
+            "Mammona's motivational posters keep falling off the wall. Not because of the adhesive. Because people keep pulling them down.",
+            "The heating runs when it wants. Not when I want. The heating has opinions about my schedule.",
+            "There's a draft in Section D that nobody can find the source of. Maintenance says it's impossible. The draft disagrees.",
+            "The laundry cycle takes three days. I've been wearing the same thermals for five. So has everyone else.",
+            "Night shift gets the good coffee. Day shift gets the residue. Nobody knows who decided this. Nobody can change it.",
+            "The tools are stamped with three different colony names. Makes you think about supply chains. Makes you think about what happened to those colonies.",
         ],
         "furious": [
             "Mammona promised rotation every six months. It's been fourteen.",
             "They cut the rations again. Corporate's eating steak on the orbital.",
             "I've filed six safety reports. Not one response. Not one.",
+            "The bonus they promised for the last quarter? Converted to 'colony credit.' Can't spend colony credit. Anywhere.",
         ],
         "corporate_dystopia": [
             "The complaint form requires a manager's signature. The manager's been dead for three months.",
             "HR's response time is eight to twelve weeks. Average survival expectancy is ten.",
             "The wellness program consists of a pamphlet. The pamphlet says 'stay positive.'",
+            "They installed a feedback terminal. Voice-activated. Recorded. Connected directly to MasTema. Nobody uses it.",
         ],
         "gallows_humor": [
             "The good news is the food tastes the same hot or cold. The bad news is it tastes the same.",
             "They fixed the shower. Now it's cold AND brown.",
             "The safety briefing's shorter now. Fewer things to be safe from, I guess.",
+            "Asked for a transfer. Got a pamphlet titled 'Bloom Where You're Planted.' We're on a frozen rock.",
         ],
         "exhaustion": [
             "I can't remember the last time I slept through a full cycle.",
             "My hands shake before the shift starts. Didn't used to do that.",
+            "I fell asleep standing up in the tool shed. Woke up an hour later. Nobody noticed.",
         ],
         "resigned": [
             "It doesn't matter. Nothing changes. File the report if you want.",
@@ -855,6 +1271,37 @@ DIALOGUE = {
         ],
         "defiant": [
             "I filed for better conditions. They said no. I'm filing again.",
+            "I wrote to the UTC labor board. Response time: eighteen months. I'll be dead or free by then.",
+        ],
+        "dread": [
+            "The bore shaft access alarm went off four times last night. Nobody went down to check.",
+        ],
+        "paranoid": [
+            "They replaced the comms relay last week. The new one weighs more. What's in the extra mass?",
+        ],
+        "body_horror": [
+            "My fingernails are growing faster since we moved to the lower hab. Everyone's are. Nobody's talking about it.",
+        ],
+        "tender": [
+            "The kid in Section A drew a picture of the sun. She's never seen the sun. It made me cry. In the tool shed. Alone.",
+        ],
+        "cosmic_horror": [
+            "The bore shaft readings don't match any mineral composition on file. Or off file. Or in any database HERMES can access.",
+        ],
+        "frontier_grit": [
+            "The drill needs new bearings. We don't have bearings. We have three bolts and optimism. It'll have to do.",
+        ],
+        "military": [
+            "The armory inventory is off by seven rounds. Seven rounds doesn't sound like a lot. It is.",
+        ],
+        "bitter_hope": [
+            "The transfer request I filed six months ago came back 'under review.' That's not a no. It's not a yes either.",
+        ],
+        "melancholy": [
+            "The mess hall clock stopped last week. Nobody fixed it. Nobody knows what time it is. Nobody cares.",
+        ],
+        "isolation": [
+            "I've been eating alone for so long the mess hall feels crowded with three people in it.",
         ],
     },
 
@@ -867,42 +1314,96 @@ DIALOGUE = {
             "We used to play cards on the transit ship. Same deck. Same jokes. Different crew now.",
             "I remember trees. Real ones. The way the wind sounded through them.",
             "There was a kid in my building on Novaris-3. Played violin in the stairwell. Terrible. Beautiful.",
+            "First time I saw open sky was on Paxtera Prime. Thought it would never end. It didn't. Not really.",
+            "My grandfather told me about Earth. I thought he was making it up. An entire planet of trees and water.",
+            "I used to fix radios as a kid. For neighbors, for credit, for fun. The static sounded different then. Warmer.",
+            "Last birthday I celebrated was on the transit ship. Someone found a candle. Real wax. We passed it around.",
+            "I remember the sound the airlock made on my first posting. Click, hiss, thud. Safety. I don't hear safety in it anymore.",
+            "My grandmother made bread. Real bread. Flour and yeast and time. The smell filled the whole building. I'd trade a year's pay for that smell.",
+            "First posting, I bunked with a guy who carved birds from scrap metal. Had a whole flock by the time the contract ended. Gave me one. I lost it.",
+            "We had a cat on the transit ship. Nobody knew where it came from. Best six months of the trip. It disappeared the day we docked.",
+            "I remember the first time I saw Erebus from orbit. White. Dead. Beautiful in a way I didn't have words for. Still don't.",
+            "We used to celebrate Fridays. Not with anything. Just by saying 'it's Friday.' Out here, there are no Fridays.",
+            "I had a friend on my first posting who could fix anything. Said every machine just wanted to be understood. I think about that a lot.",
+            "There was a window in my quarters on Karnaith that faced east. Every morning, light. Warm light. I took it for granted. Of course I did.",
         ],
         "nostalgia": [
             "The coffee tasted different on Novaris-3. Everything tasted different.",
             "I remember rain. Real rain. Not recycled runoff. The kind that smelled like dirt.",
             "We used to swim in the reservoir at night. Before they fenced it. Before they charged for water.",
+            "There was a market on Rhea-2. Open air. Dust everywhere. Best food I ever had. A credit a plate.",
         ],
         "grief": [
             "She always hummed when she cooked. That song. I can't remember the name now.",
             "He used to fix things with his left hand. Always his left. I see it every time I pick up a wrench.",
             "Her laugh. That's what I miss. Not the big things. The laugh.",
+            "I saved a voicemail from him. Play it sometimes. The voice is starting to sound like a stranger's.",
         ],
         "melancholy": [
             "We watched the sunset from the ridge. Rhea Alpha and Beta, one after the other. Took an hour.",
             "I kept the wrapper from the last candy bar we shared. It's in my boot.",
+            "The last normal day I remember, I was complaining about the heat. I'd give anything for that heat now.",
         ],
         "tender": [
             "She said she'd wait. I believed her. Still do, actually.",
             "He used to read to me. Old books. Paper ones. His voice made them real.",
+            "We had one night on Karnaith between transfers. We didn't sleep. Just talked until the shuttle came.",
         ],
         "bitter_hope": [
             "I keep the letter. The one about the transfer. It's probably expired. I keep it anyway.",
         ],
         "frontier_grit": [
             "First posting was worse. No reactor. No walls. Just tarps and stubbornness.",
+            "I built my first shelter out of cargo crates on Paxtera Prime. Held for two years. Proud of that.",
         ],
         "dissociation": [
             "Sometimes I can't tell if I'm remembering or imagining. Both feel the same now.",
         ],
         "guilt": [
             "I think about the ones I left behind. Every shift start. Every shift end.",
+            "My daughter's birthday was last week. I found out three days late. Comms lag. Or cowardice.",
         ],
         "numb": [
             "I used to have stories. Now I've got the same day on repeat.",
         ],
         "isolation": [
             "My mother's voice. I'm starting to forget it. That scares me more than anything down there.",
+        ],
+        "gallows_humor": [
+            "Remember when we thought this posting would be six months? That was funny. That was the funniest thing.",
+        ],
+        "cosmic_horror": [
+            "I dreamed about the ruins before I ever saw them. Same layout. Same light. That shouldn't be possible.",
+        ],
+        "desperate": [
+            "I remember when we had enough. Enough food. Enough people. Enough time. That was a month ago.",
+        ],
+        "furious": [
+            "I remember the recruiting office. Clean. Bright. The recruiter smiled the whole time. I'd like to go back and break that smile.",
+        ],
+        "paranoid": [
+            "I remember telling someone what I saw on the last posting. Next day, I was transferred. Can't remember who I told.",
+        ],
+        "resigned": [
+            "I used to plan for the future. Now I plan for the shift. The future is someone else's problem.",
+        ],
+        "defiant": [
+            "I remember the first time I said no to a Mammona order. Scariest thing I ever did. Best thing too.",
+        ],
+        "exhaustion": [
+            "I remember sleeping through the night. A full night. Eight hours. I can't imagine it now. Like remembering a dream of a dream.",
+        ],
+        "dread": [
+            "The first time I heard the hum, I thought it was the reactor. It's not the reactor. I know that now.",
+        ],
+        "body_horror": [
+            "I used to know exactly what my hands looked like. Every line. Every scar. Now I have to check.",
+        ],
+        "corporate_dystopia": [
+            "I remember my first performance review. Mammona rated me 'satisfactory.' I'd saved eleven lives that quarter. Satisfactory.",
+        ],
+        "quiet_terror": [
+            "There was a moment on the transit ship. Middle of the night. Perfect silence. Nothing running. Nothing breathing. Just void. I think about it more than I should.",
         ],
     },
 
@@ -915,30 +1416,82 @@ DIALOGUE = {
             "I asked HERMES for a weather report. It said 'cold.' Revolutionary.",
             "What do you call an optimist on Erebus? New.",
             "How many Mammona execs does it take to change a light bulb? None. They issue a memo about darkness compliance.",
+            "Knock knock. Who's there? Nobody. Nobody's coming.",
+            "What's the difference between a thermal core and a Mammona bonus? The thermal core actually warms you.",
+            "My contract says 'hazard pay.' The hazard is the pay.",
         ],
         "gallows_humor": [
             "The retirement plan here is simple. You don't.",
             "What's Mammona's motto? 'Expendable is just a word. Like 'alive.'",
             "They put a suggestion box in the mess. Someone put a grenade in it. Best suggestion yet.",
             "Know what's under the ice? Don't worry. It knows what's over it.",
+            "Colony life expectancy is going up. Because the average got pulled down by the first month. Rest of us are just stubborn.",
+            "I named my drill bit after my ex. Both of them are loud, unreliable, and eventually break under pressure.",
         ],
         "desperate": [
             "At least we've got our health. Wait, no. We don't have that either.",
         ],
         "frontier_grit": [
             "I've been in worse spots. Can't remember when. But I've been in worse spots.",
+            "An old miner told me: 'If you can laugh at it, you can survive it.' He's dead now. But he was laughing.",
         ],
         "numb": [
             "Funny thing happened today. Wait, no it didn't. Never mind.",
         ],
         "corporate_dystopia": [
             "The company slogan used to be 'People First.' They changed it. Didn't change the priorities though.",
+            "My performance review says 'exceeds expectations.' Expectations must be 'alive and working.'",
         ],
         "noir": [
             "A guy walks into a colony. That's not a joke. That's an obituary.",
         ],
         "clinical": [
             "Statistically, one in six of us won't finish the contract. I ran the numbers twice.",
+        ],
+        "paranoid": [
+            "How do you know when HERMES is lying? The speaker icon blinks. So... always.",
+        ],
+        "tender": [
+            "The new couple in the mess? She laughed at something he said. First laugh I've heard in weeks. Worth the NutriLoaf.",
+        ],
+        "defiant": [
+            "What did Mammona's safety inspector say to the colony? Nothing. He didn't make it past the perimeter.",
+        ],
+        "dread": [
+            "Know the difference between a skinwalker and a Mammona exec? The skinwalker tells you it's going to eat you first.",
+        ],
+        "exhaustion": [
+            "I slept eight hours last night. Just kidding. I don't even remember what eight hours feels like.",
+        ],
+        "military": [
+            "What's the colony's most accurate weapon? The complaint box. Every shot hits HR and does zero damage.",
+        ],
+        "resigned": [
+            "I used to have dreams. Then I came here. Now I have NutriLoaf and a shift schedule. Living the dream.",
+        ],
+        "bitter_hope": [
+            "Optimist says the glass is half full. Pessimist says half empty. Colony says what glass? Who took the glass?",
+        ],
+        "isolation": [
+            "I told myself a joke yesterday. Laughed for five minutes. Cried for ten. Good joke though.",
+        ],
+        "body_horror": [
+            "Doctor says I'm fine. Except for the extra heartbeat. He says some people just have that. I asked which people. He didn't answer.",
+        ],
+        "cosmic_horror": [
+            "What's at the bottom of the bore shaft? Don't know. But it knows what's at the top.",
+        ],
+        "furious": [
+            "Mammona walks into a bar. Buys the bar. Burns it down. Claims the insurance. That's not a joke. That's Q3.",
+        ],
+        "melancholy": [
+            "I tried to tell a joke at dinner. Nobody laughed. Not because it wasn't funny. Because nobody remembered how.",
+        ],
+        "survival_horror": [
+            "What do you call a colonist who goes outside without a weapon? An optimist. Briefly.",
+        ],
+        "shame": [
+            "I'd tell you a joke about my past but the punchline would ruin the alias.",
         ],
     },
 
@@ -950,6 +1503,8 @@ DIALOGUE = {
             "Whatever I did to deserve this, I'm sorry.",
             "Let the drill hold. Let the walls hold. Let the generator hold. That's enough.",
             "One more sunrise. That's all. One more.",
+            "I don't know who I'm talking to. Doesn't matter. Just let the shuttle come.",
+            "Watch over the ones who can't watch over themselves. The tired ones. The young ones.",
         ],
         "religious_fervor": [
             "The signal is the voice. The voice is the truth. We are heard.",
@@ -963,9 +1518,11 @@ DIALOGUE = {
         "desperate": [
             "Please. I know I don't deserve it. Please.",
             "Not like this. Not here. Anywhere but here.",
+            "Just one more shift. Let me survive one more shift.",
         ],
         "bitter_hope": [
             "Maybe tomorrow. Maybe tomorrow things get better.",
+            "Let the next shuttle carry good news. Just once.",
         ],
         "guilt": [
             "Forgive me. I know what I did. Forgive me anyway.",
@@ -986,6 +1543,42 @@ DIALOGUE = {
         "nostalgia": [
             "Take me back. I know I can't go back. Take me anyway.",
         ],
+        "tender": [
+            "Keep them warm. Even if I'm not there to do it.",
+        ],
+        "cosmic_horror": [
+            "If something's listening down there, I'm not asking you. I'm asking whatever's above you.",
+        ],
+        "furious": [
+            "If there's justice anywhere in this system, let it reach Mammona. Let it reach the board.",
+        ],
+        "melancholy": [
+            "Let me remember their faces. I'm starting to lose them. Don't take that from me too.",
+        ],
+        "numb": [
+            "I don't know what I'm praying for anymore. I'm doing it anyway. Habit, I guess.",
+        ],
+        "frontier_grit": [
+            "Give me one more day of working hands. That's all I ask. I'll handle the rest.",
+        ],
+        "defiant": [
+            "I'm not praying. I'm making a promise. I'm getting out of here. Whatever it takes.",
+        ],
+        "body_horror": [
+            "Let it stop. Whatever's happening to me. Let it stop. Or let it finish. I can't stand the middle.",
+        ],
+        "paranoid": [
+            "If someone's listening, let it be the right someone. I've had enough of the wrong ones.",
+        ],
+        "gallows_humor": [
+            "Dear whatever's up there: if you exist, your sense of humor is dark. I respect that. Help me anyway.",
+        ],
+        "military": [
+            "Give us the strength to hold the line. Give us the sense to know when to fall back.",
+        ],
+        "shame": [
+            "I don't deserve help. I know that. I'm asking anyway. Not for me. For the ones I owe.",
+        ],
     },
 
     "last_words": {
@@ -998,15 +1591,20 @@ DIALOGUE = {
             "It's beautiful. Oh god, it's beautiful.",
             "Not yet. Not yet. Not yet.",
             "I'm sorry. For all of it.",
+            "There's a letter in my bunk. Under the mattress. Make sure it gets sent.",
+            "Tell Mammona I want a refund on this contract.",
+            "I thought I'd be more afraid.",
         ],
         "dread": [
             "It's behind me, isn't it.",
             "Don't look at it. Don't look. Don't--",
             "It knows my name. It's saying my name.",
+            "Turn off the lights. I don't want to see what's coming.",
         ],
         "tender": [
             "I'm glad it was you. Here at the end. I'm glad.",
             "Tell her I loved her. She knows. Tell her anyway.",
+            "Hold my hand. Just for a minute.",
         ],
         "defiant": [
             "I'm not done. I'm not--",
@@ -1024,6 +1622,7 @@ DIALOGUE = {
         "gallows_humor": [
             "Well. That's not ideal.",
             "Worst. Posting. Ever.",
+            "Tell Mammona they still owe me for last quarter.",
         ],
         "clinical": [
             "Note: subject experiencing rapid... cognitive... decline...",
@@ -1037,6 +1636,7 @@ DIALOGUE = {
         ],
         "furious": [
             "Mammona did this. Don't let them forget.",
+            "Burn the contract. All of them. Every last page.",
         ],
         "grief": [
             "I'll see her soon. That's not so bad.",
@@ -1053,6 +1653,57 @@ DIALOGUE = {
         ],
         "isolation": [
             "At least I won't be alone anymore.",
+        ],
+        "desperate": [
+            "There's still time. Isn't there? Tell me there's still--",
+        ],
+        "frontier_grit": [
+            "Patch the wall. Don't worry about me. Patch the wall.",
+        ],
+        "paranoid": [
+            "They planned this. From the start. They planned all of it.",
+        ],
+        "exhaustion": [
+            "Finally. I can sleep.",
+        ],
+        "military": [
+            "Perimeter... hold the perimeter...",
+        ],
+        "nostalgia": [
+            "I can smell the garden. The one on Novaris-3. Tomatoes. Real ones. I can...",
+        ],
+        "shame": [
+            "Don't tell them what I did. Let them remember me wrong. It's kinder.",
+        ],
+        "melancholy": [
+            "I thought there'd be more time. There's never more time.",
+        ],
+        "corporate_dystopia": [
+            "Make sure my death doesn't count as a resignation. My family needs the payout.",
+        ],
+        "noir": [
+            "Figures. The one time I did the right thing.",
+        ],
+        "folk_horror": [
+            "The moon. Can you see the moon? She's... she's calling me...",
+        ],
+        "identity_erosion": [
+            "What's my name? I had a name. I know I had a...",
+        ],
+        "dissociation": [
+            "I'm watching this happen. From somewhere else. It doesn't hurt. I'm not there.",
+        ],
+        "wrongness": [
+            "The angles are wrong. Everything is. Even this. Even dying feels wrong.",
+        ],
+        "slow_dread": [
+            "It's been coming for a long time. I knew. I think I always knew.",
+        ],
+        "survival_horror": [
+            "Save the ammunition. Don't waste it on me. You'll need it.",
+        ],
+        "hypervigilance": [
+            "Check your six. Check your six. They're still out there. Check your--",
         ],
     },
 }
@@ -1080,6 +1731,25 @@ ORIGINS = [
     "Former {prev_job}. Former citizen of {prev_location}. Current property of Mammona Mining.",
     "{first}'s file says {gl} volunteered for Erebus. {first}'s face says something else.",
     "Two years in a Mammona labor camp on {prev_location} taught {first} everything about survival and nothing about hope.",
+    # --- expanded origins (18-35) ---
+    "Court records on {prev_location} gave {first} a choice: Thalassa Deep or an outer rim contract. {g} chose the contract.",
+    "{first} walked off a transit ship on {prev_location} with a bag and a name that wasn't {gp}. Been {first} {last} ever since.",
+    "Mammona pulled {first} out of a hospital bed on {prev_location}. Offered a contract. Didn't wait for an answer.",
+    "On {prev_location}, {first} ran a repair shop. Small place. Honest work. Then {event} happened and honest work stopped paying.",
+    "A shuttle crash stranded {first} on {prev_location} for fourteen months. When rescue came, it came with a contract.",
+    "The {prev_job} guild on {prev_location} expelled {first} after {event}. Mammona doesn't care about guild standings.",
+    "{first} grew up watching ore freighters leave {prev_location}. Always wanted to be on one. Be careful what you want.",
+    "Personnel file says {first} transferred from {prev_location} voluntarily. Personnel files say a lot of things.",
+    "Worked as a {prev_job} on three different postings before Mammona consolidated them all under one contract. {first}'s contract.",
+    "Stowed away on a cargo hauler leaving {prev_location}. Got caught. Got hired. The line between those is thin out here.",
+    "{first} {last} used to teach. {prev_job} certification, {prev_location} technical institute. The institute closed. Mammona was hiring.",
+    "{prev_location} doesn't exist on current charts. Decommissioned. {first} was on the last shuttle out.",
+    "Spent four years as a {prev_job} in {faction}'s territory. Left after {event}. Doesn't look back. Doesn't have to.",
+    "The letter of recommendation from {prev_location} describes {first} as 'competent under duress.' That's the whole letter.",
+    "Raised in a {faction} settlement. Left at eighteen. Took nothing but the accent and a bad opinion of authority.",
+    "A drunk recruiter on {prev_location} offered {first} double wages for a six-month posting. The posting is now in its third year.",
+    "{first} {last} isn't from anywhere. Cryo-shipped between postings since childhood. {g}'s from the space between places.",
+    "Survived {event} on {prev_location}. Mammona covered the medical bills. Mammona always collects.",
 ]
 
 TRAUMAS = [
@@ -1098,6 +1768,27 @@ TRAUMAS = [
     "What happened on {prev_location} is classified. {first}'s nightmares aren't.",
     "The {faction} caught {first} once. Let {go} go. Worse than keeping {go}.",
     "{first} doesn't talk about the {years} years between {prev_location} and Erebus. The silence says enough.",
+    # --- expanded traumas (16-35) ---
+    "{trauma_cause} left {first} with a {body_part} that doesn't work the same. {g} compensates. Nobody notices unless they watch closely.",
+    "Buried alive for nine hours during {event}. Dug out by strangers. {first} doesn't enter small spaces willingly.",
+    "Watched a friend walk onto the ice and not come back. Stood at the perimeter for six hours waiting. The cold took two toes.",
+    "{first} killed someone on {prev_location}. Self-defense, the report says. The report doesn't mention the sound.",
+    "Lost {gp} {body_part} to frostbite during an EVA that should've been cancelled. Filed the complaint. Nothing changed.",
+    "The thing {first} found in the deep bore on {prev_location} wasn't dead. It moved when {gl} touched it. Nobody believed {go}.",
+    "Spent eleven days in an escape pod after {event}. Alone. The ration pack lasted seven days. {g} doesn't waste food anymore.",
+    "{first} was on shift when the containment failed. The colleague next to {go} didn't make it. {first} was wearing {gp} gear.",
+    "A Mammona psych evaluation flagged {first} for 'abnormal stress response.' {g} responded by punching the evaluator. The flag was upgraded.",
+    "Woke up mid-cryo transit. Fourteen hours of consciousness at sub-zero temperatures, unable to move. Mammona's report says 'minor malfunction.'",
+    "Found a body in the walls of {prev_location}. Old. Walled in. Hands positioned like they'd been trying to get out.",
+    "{first}'s {body_part} hasn't felt right since {trauma_cause}. Phantom pain. Except the limb is still there.",
+    "During {event}, {first} made a choice about who to save. Made the wrong one. Knows it every morning.",
+    "Something bit {first} in the lower levels of {prev_location}. The bite healed wrong. The dreams started after.",
+    "Cryo sickness hit {first} harder than most. Lost two years of memory. Keeps a journal now. Afraid of losing more.",
+    "The shuttle that brought {first} to {prev_location} crashed on landing. {g} walked away. Four didn't. {g} helped carry them.",
+    "{first} spent a year in a Mammona 'recovery facility' after {event}. Recovery isn't the word {gl} would use.",
+    "Heard the hum for the first time on {prev_location}. Low. Constant. Inside the skull. Hasn't stopped since.",
+    "A contamination alarm on {prev_location} locked {first} in a decon chamber for seventy-two hours. Alone. In the dark.",
+    "{trauma_cause} broke {gp} {body_part} in three places. Set it without anesthetic. {first} remembers every second.",
 ]
 
 MIDDLES = [
@@ -1116,6 +1807,27 @@ MIDDLES = [
     "{g} traded {gp} last personal item for {item}. Says it was worth it. Doesn't look like it was worth it.",
     "Mammona's psych evaluation calls {first} 'functional.' {first} calls that generous.",
     "People trust {first} with their lives. {first} doesn't trust {go}self with anyone's.",
+    # --- expanded middles (16-35) ---
+    "Eats alone. Not by policy. By preference. The mess hall clears a radius around {go} without being asked.",
+    "Keeps {gp} bunk stripped to regulation. No photos. No trinkets. The locker is a different story.",
+    "{first} volunteers for night shifts. Doesn't explain. The night crew doesn't ask. They're glad for the help.",
+    "Runs the unofficial book on colony events. Who's betting what. Who owes whom. The ledger never lies.",
+    "{first} fixed the water recycler when three qualified techs couldn't. Didn't ask for credit. Didn't get any.",
+    "Has a reputation for lending tools and never asking for them back. The colony's toolboxes are full of {gp} kit.",
+    "Reads the duty roster every morning like it's scripture. Knows the rotation better than the people who wrote it.",
+    "{first} {habit}. It drives the bunkmates crazy. Nobody says anything because of what happened last time someone did.",
+    "Takes long walks in the sub-corridors after lights out. Says the echo helps {go} think.",
+    "When {first} is angry, {gl} gets quiet. When {gl}'s quiet, people leave the room.",
+    "The colony medic has {first} on a watch list. Not for what {gl}'s done. For what {gl} might do to {go}self.",
+    "{first} keeps a tally of shifts worked since arriving. Scratched into the bunk frame. Four hundred and counting.",
+    "Sends half of every pay cycle to {prev_location}. Won't say who it goes to. The other half goes to the debt.",
+    "Knows every corridor, every vent, every locked door in the colony. Mapped them in the first week.",
+    "Does {gp} job and half of someone else's. Not because {gl}'s asked. Because the someone else can't.",
+    "Carries {item} like it's a loaded weapon. Treats it with the same care.",
+    "{first} has opinions about NutriLoaf. Strong ones. Has a ranking system. Shares it with anyone who'll listen.",
+    "Goes to the infirmary every third day for something that's not in {gp} file. Comes back quieter.",
+    "Talks to HERMES more than {gl} talks to people. HERMES has started answering in full sentences.",
+    "The bunkmates say {first} cries in {gp} sleep. {first} says {gl} doesn't dream. Both things might be true.",
 ]
 
 SECRET_TEMPLATES = [
@@ -1135,6 +1847,26 @@ SECRET_TEMPLATES = [
     "{first} can read the precursor glyphs. Not all of them. Enough. {g} doesn't know how.",
     "The {item} that {first} carries isn't a memento. It's a key. {g} doesn't know what it opens yet.",
     "There's a reason {first} requested Erebus specifically. {g} knows what's down there. {g} wants to see it.",
+    # --- expanded secrets (17-35) ---
+    "{first} has been dosing {go}self with something from the medical stores. Not for pain. For prevention. Won't say against what.",
+    "The comms {first} sends home are coded. The real message is in the word choices. Someone on {prev_location} is decrypting them.",
+    "{first} sabotaged a drill rig on {prev_location}. Twelve people lived because of it. Mammona would call it sabotage, not rescue.",
+    "A sealed envelope in {first}'s bunk contains instructions. To be opened on a specific date. The date is six weeks from now.",
+    "{first} found something in the colony's waste tunnels. Organic. Growing. {g} hasn't reported it. {g} goes back to check on it.",
+    "{first} knows that {secret}. Found out by accident. Has been sleeping with one eye open since.",
+    "The blood test results Mammona ran on {first} came back wrong. Not sick -- wrong. Different. They ran the test twice.",
+    "{first} has been mapping the colony's blind spots. Camera gaps. Patrol timing. Not for escape. For something else.",
+    "Every thirty days, {first} leaves {item} at a dead drop near the perimeter. {g} doesn't know who collects it.",
+    "MasTema has a file on {first}. Thin. But it exists. And someone keeps adding to it.",
+    "{first} received a transmission meant for someone else. The content described {lore} in terms that don't match any public record.",
+    "The cargo {first} brought aboard wasn't all personal effects. One case is sealed. Lead-lined. {g} checks it nightly.",
+    "{first} is keeping someone alive in the lower hab modules. Not on the roster. Not reported. Fed from {gp} own rations.",
+    "{first} recognized one of the precursor carvings. Not from Erebus. From a tattoo {gp} grandmother had.",
+    "{first}'s transfer wasn't random. {g} bribed a Mammona clerk to get assigned here. The clerk is dead now.",
+    "The {item} {first} carries matches one found in a sealed precursor chamber. Same markings. Different age by centuries.",
+    "{first} has been hearing the hum since before arriving on Erebus. Since {prev_location}. It led {go} here.",
+    "{first}'s psych eval was clean. Because {gl} wrote it. The real evaluator disappeared on {prev_location}.",
+    "There's a room in the colony that {first} visits alone. Nothing in it. {g} stands there. Listens. Something listens back.",
 ]
 
 
@@ -1350,11 +2082,11 @@ if __name__ == "__main__":
     checks = [
         (f"Tones >= 45 (got {len(TONES)})", len(TONES) >= 45),
         (f"Sensory >= 270 (got {total_sensory})", total_sensory >= 270),
-        (f"Dialogue >= 300 (got {total_dialogue})", total_dialogue >= 300),
-        (f"Origins >= 15 (got {len(ORIGINS)})", len(ORIGINS) >= 15),
-        (f"Traumas >= 15 (got {len(TRAUMAS)})", len(TRAUMAS) >= 15),
-        (f"Middles >= 15 (got {len(MIDDLES)})", len(MIDDLES) >= 15),
-        (f"Secrets >= 15 (got {len(SECRET_TEMPLATES)})", len(SECRET_TEMPLATES) >= 15),
+        (f"Dialogue >= 600 (got {total_dialogue})", total_dialogue >= 600),
+        (f"Origins >= 30 (got {len(ORIGINS)})", len(ORIGINS) >= 30),
+        (f"Traumas >= 30 (got {len(TRAUMAS)})", len(TRAUMAS) >= 30),
+        (f"Middles >= 30 (got {len(MIDDLES)})", len(MIDDLES) >= 30),
+        (f"Secrets >= 30 (got {len(SECRET_TEMPLATES)})", len(SECRET_TEMPLATES) >= 30),
     ]
 
     all_pass = True

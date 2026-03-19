@@ -25,6 +25,7 @@ from gen_pools_core import (
     TRAITS_P, TRAITS_N, TRAITS_X, TRAIT_CONFLICTS,
     HABITS, PHYSICAL, DEBTS, SECRETS, LORE, LOCKED_LORE,
     RELATIONSHIP_TYPES, ARC_PROGRESSIONS, ARC_STAGES,
+    PASSIONS, FEARS, LOVES, FAMILY, GENETICS,
     name, rname, robot_name, pronouns, pick_traits,
 )
 
@@ -1248,18 +1249,72 @@ TRAUMA_CAUSES = [
 # ============================================================
 
 QUEST_HOOKS = [
-    "After day 15, {first} starts leaving notes in the common room. Each one contains a single coordinate.",
-    "{first} asks the player to retrieve {item} from {location}. Simple job. Except the room has been sealed since before the colony arrived.",
+    # --- Discovery (found something strange) ---
+    "{first} found {item} in a place it shouldn't be. Now {gl} can't stop dreaming about where it came from.",
+    "A dead colonist's data pad contains a message for {first}. Timestamped three days from now.",
+    "{first} found a room behind the wall in Section C. It's furnished. Someone lived there. Recently.",
+    "Drill team hit a cavity at depth. Inside: a {item}, intact, and warm to the touch. {first} won't let anyone else near it.",
+    "{first} found writing on the inside of a sealed pipe. Same handwriting as {gp} own. {g} doesn't remember writing it.",
+    "A thermal core pulled from the deep bore has a serial number. A Mammona serial number. From a colony that doesn't exist.",
+    # --- Return (someone from the past appears) ---
+    "Someone {first} thought was dead just walked into the colony. {g} isn't happy to see them.",
+    "A name from {first}'s past showed up on the incoming shuttle manifest. {g} has three days to decide what to do about it.",
+    "{first} received a package from {location}. No return address. Inside: {item} and a note that says 'You know what to do.'",
+    "A colonist {first} worked with on {location} arrived on the last shuttle. They won't make eye contact.",
+    "Someone claiming to be {first}'s sibling is asking questions in the mess hall. {first} doesn't have a sibling.",
+    "The new transfer has the same scar pattern as someone {first} buried on {location}. Same placement. Same depth.",
+    # --- Signal (intercepted/detected something) ---
+    "{first} has been hearing the same frequency as the deep bore. In {gp} sleep. Getting louder.",
+    "Someone is leaving {first} threats. Written in a script that matches the precursor glyphs.",
+    "{first} picked up a signal on a dead frequency. Coordinates embedded in the static. They point to something under the colony.",
+    "HERMES sent {first} a private message at 0300. {first} won't say what it said. HERMES denies sending it.",
+    "The comms relay is broadcasting a repeating pattern. {first} recognized it. It's a lullaby {gp} mother used to sing.",
+    "{first} intercepted a coded transmission between the colony and an unknown receiver. The encryption matches MasTema protocols.",
+    # --- Observation (noticed a pattern others missed) ---
     "Every third shift, {first} disappears for two hours. {g} comes back smelling like copper and ozone.",
     "{first} insists someone on the colony isn't who they say they are. {g} has evidence. It's convincing.",
-    "A sealed drive arrives addressed to {first}. {g} won't open it alone. Needs a witness.",
+    "After day 15, {first} starts leaving notes in the common room. Each one contains a single coordinate.",
+    "{first} has been tracking the generator's power output. The numbers don't match the fuel consumption. Something else is drawing power.",
+    "{first} noticed that the bore shaft temperature spikes every 72 hours. Exactly. Nobody else has put the pattern together.",
+    "{first} charted the colony's illness reports over six months. The pattern matches the tidal cycle of something that shouldn't have tides.",
+    # --- Request (needs help with something specific) ---
+    "{first} asks the player to retrieve {item} from {location}. Simple job. Except the room has been sealed since before the colony arrived.",
     "{first} wants to reach {location} before anyone else does. Won't say why. Offers everything {gl} has.",
-    "Someone is leaving {first} threats. Written in a script that matches the precursor glyphs.",
-    "{first} has been hearing the same frequency as the deep bore. In {gp} sleep. Getting louder.",
-    "A dead colonist's data pad contains a message for {first}. Timestamped three days from now.",
-    "{first} found {item} in a place it shouldn't be. Now {gl} can't stop dreaming about where it came from.",
     "{first} needs help destroying something before Mammona finds it. The window is closing.",
-    "Someone {first} thought was dead just walked into the colony. {g} isn't happy to see them.",
+    "A sealed drive arrives addressed to {first}. {g} won't open it alone. Needs a witness.",
+    "{first} needs someone to watch a corridor for two hours while {gl} does something {gl} won't explain. Payment: a favor to be named later.",
+    "{first} wants to send a message off-colony without using the Mammona relay. Needs parts. Needs help. Needs silence.",
+    "{first} has a list of five names. Four are colonists. One is dead. {g} needs help figuring out which name is wrong.",
+    # --- Disappearance (someone/something missing) ---
+    "{first}'s bunkmate hasn't been seen in three days. The bunk is made. The locker is empty. Nobody remembers them leaving.",
+    "The {item} {first} kept in {gp} locker is gone. Replaced with something identical but wrong. The weight is different.",
+    "{first} reports that {gp} tools were moved during the night. Not stolen. Rearranged. Into a shape.",
+    "A section of the colony has gone quiet. {first} is the last person who went in. {g} came back. Won't say where the others are.",
+    "{first}'s shift partner vanished during a routine bore shaft check. The equipment came back. The person didn't.",
+    # --- Offer (has something to trade or share) ---
+    "{first} has information about {location} that Mammona would kill for. Literally. {g}'s offering it to you first.",
+    "{first} found a way to extend the reactor's fuel cycle by thirty percent. The method involves something from the precursor ruins. {g} needs help getting it.",
+    "{first} is willing to share the location of a hidden cache at {location}. In exchange: help getting off Erebus.",
+    "{first} has a working comms unit that bypasses the Mammona relay. Offers ten minutes of unsupervised transmission time. Price: one favor.",
+    "{first} built something in the workshop after hours. Won't say what. Says it could change everything. Needs someone to test it.",
+    # --- Threat (something is coming for them) ---
+    "{first} is being stalked. Not by colony fauna. By another colonist. {g} knows who. Can't prove it.",
+    "MasTema sent {first} a contract termination notice. On Erebus, termination isn't administrative.",
+    "{first} received a countdown. Numbers scratched into {gp} bunk frame. Nobody saw who did it. The number is getting smaller.",
+    "Something followed {first} back from {location}. {g} can hear it at night. Scratching. Getting closer.",
+    "{first} overheard a conversation about {go}. Plans. Specifics. Names of people who'd benefit from {gp} absence.",
+    # --- Change (something about them is different) ---
+    "{first} can suddenly read the precursor glyphs. Started three days ago. It's getting easier. That scares {go}.",
+    "{first}'s handwriting has changed. {g} noticed it in the shift log. Same words. Different hand.",
+    "{first} hasn't been eating. Says {gl}'s not hungry. Says {gl} hasn't been hungry since the last bore shaft shift.",
+    "The dogs started following {first} three days ago. All of them. At once. {first} doesn't know why.",
+    "{first} woke up in a different part of the colony with no memory of walking there. For the third time this week.",
+    # --- Secret (carrying dangerous information) ---
+    "{first} has a data chip that proves Mammona knew about the bore shaft anomaly before the colony was placed. The chip has a kill-switch.",
+    "{first} knows where the previous crew is. Not dead. Not gone. Somewhere in the colony. Behind a wall that shouldn't be there.",
+    "{first} intercepted a manifest. The next supply ship is carrying something that's not on the official cargo list. Something alive.",
+    "{first} figured out what the thermal cores actually are. Hasn't told anyone. Can't un-know it. Needs to decide what to do.",
+    "{first} has proof that one of the colonists is a MasTema plant. The proof is also evidence of {first}'s own crimes.",
 ]
 
 
@@ -1501,7 +1556,8 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     """
     Compositional NPC backstory engine.
     Builds a unique character from independent slots: origin, career,
-    trauma, secret, habit, physical, debt, traits, and relationships.
+    trauma, secret, habit, physical, debt, traits, passion, fear,
+    love, family, genetics, and relationships.
     """
     # --- Tone ---
     if not tone:
@@ -1575,6 +1631,24 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     # --- Brand ---
     brand = R(BRAND_NAMES) if BRAND_NAMES else "Sunny Fizz"
 
+    # --- New identity layers ---
+    passion = ctx.pick_fresh(PASSIONS, "PASSIONS")
+    passion = gender_replace(passion, gender)
+
+    fear_raw = ctx.pick_fresh(FEARS, "FEARS")
+    fear_raw = gender_replace(fear_raw, gender)
+
+    love_template = ctx.pick_fresh(LOVES, "LOVES")
+    love_status = safe_format(love_template, location=R(LOCATIONS_FLAT),
+                              first=first, last=last, g=g, gl=gl, gp=gp, go=go)
+    love_status = gender_replace(love_status, gender)
+
+    family_bg = ctx.pick_fresh(FAMILY, "FAMILY")
+    family_bg = gender_replace(family_bg, gender)
+
+    genetic_detail = ctx.pick_fresh(GENETICS, "GENETICS")
+    genetic_detail = gender_replace(genetic_detail, gender)
+
     # --- Template fill kwargs ---
     # Strip trailing period from habit for templates that add their own punctuation
     habit_bare = habit.rstrip(".")
@@ -1603,9 +1677,19 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
     # --- Apply contractions ---
     backstory = enforce_contractions(backstory, tone)
+    passion = enforce_contractions(passion, tone)
+    fear_raw = enforce_contractions(fear_raw, tone)
+    love_status = enforce_contractions(love_status, tone)
+    family_bg = enforce_contractions(family_bg, tone)
+    genetic_detail = enforce_contractions(genetic_detail, tone)
 
     # --- Fix NB pronoun verb conjugation ---
     backstory = fix_nb_verbs(backstory, gender)
+    passion = fix_nb_verbs(passion, gender)
+    fear_raw = fix_nb_verbs(fear_raw, gender)
+    love_status = fix_nb_verbs(love_status, gender)
+    family_bg = fix_nb_verbs(family_bg, gender)
+    genetic_detail = fix_nb_verbs(genetic_detail, gender)
 
     # --- Arc stage (most start stable, some arrive mid-arc) ---
     arc_stage = "stable"
@@ -1659,6 +1743,11 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         "age": age,
         "job": job,
         "traits": traits,
+        "passion": passion,
+        "fear": fear_raw,
+        "love": love_status,
+        "family": family_bg,
+        "genetics": genetic_detail,
         "faction": faction_key,
         "tone": tone,
         "alive": True,
@@ -1675,26 +1764,39 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     trait_str = ", ".join(traits)
     dialogue_block = "\n".join(f'- "{line}"' for line in dialogue_lines)
 
-    connection_line = f"**Connection:** {relationship_text}" if relationship_text else "**Connection:** None yet — first in batch"
+    connection_line = f"**Connection:** {relationship_text}" if relationship_text else "**Connection:** None yet -- first in batch"
 
     arc_display = f" | **Arc Stage:** {arc_stage}" if arc_stage != "stable" else ""
+
+    # Clean up trailing punctuation for identity composition
+    genetic_clean = genetic_detail.rstrip(".")
+    family_clean = family_bg.rstrip(".")
 
     output = f"""## NPC: {first} {last}
 **Gender:** {gender_label} | **Age:** {age} | **Occupation:** {job}
 **Traits:** {trait_str}
 **Faction:** {faction_name}{arc_display}
-**Physical:** {physical}
-**Habit:** {habit}
-**Debt:** {debt}
-**Tone:** {tone} | **Dialogue Tone:** {dialogue_tone}
+**Tone:** {tone}
+
+**Identity:**
+{genetic_clean}. {family_clean}.
 
 **Background:**
 {backstory}
 
+**What Drives Them:** {passion}
+**What Haunts Them:** {fear_raw}
+
 **Dialogue:**
 {dialogue_block}
 
+**Connections:**
 {connection_line}
+**Love:** {love_status}
+
+**Physical:** {physical}
+**Habit:** {habit}
+**Debt:** {debt}
 
 **Quest Hook:**
 {quest_hook}"""

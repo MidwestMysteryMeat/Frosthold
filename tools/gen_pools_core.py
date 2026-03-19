@@ -1950,6 +1950,193 @@ TONES = [
 
 
 # ============================================================
+# PASSIONS (~30) — what drives them beyond survival
+# ============================================================
+
+PASSIONS = [
+    "building things -- machines, shelters, radios. The act of making something from nothing.",
+    "music. Plays a battered harmonica when nobody's listening. Can't read notation. Doesn't matter.",
+    "cooking -- real cooking, not NutriLoaf. Trades shifts for spices from incoming shuttles.",
+    "astronomy. Charts the stars through the viewport. Has named three of them.",
+    "reading. Has one book. Has read it forty times. Could recite it blind.",
+    "medicine. Not licensed. Better than anyone licensed. Learned by necessity.",
+    "drawing. Fills notebooks with faces, machines, maps. Some of the maps show places nobody's been.",
+    "botany. Keeps a single plant alive in a jar. The plant shouldn't survive here. Neither should they.",
+    "running. Every morning, same route around the perimeter. Rain, wind, threat level. Doesn't matter.",
+    "prayer. Not to any named god. To something older. Something in the ice.",
+    "languages. Speaks four. Learning a fifth from scratches on the precursor walls.",
+    "animals. The colony dogs follow them around. The colony dogs don't follow anyone else.",
+    "numbers. Counts everything. Steps, heartbeats, seconds between generator cycles. Finds patterns.",
+    "history. Collects stories from older colonists. Writes them down. Someone should.",
+    "repair. If it's broken, they'll fix it. If it's not broken, they'll improve it.",
+    "fighting. Not violence -- technique. Practices forms alone in the cargo bay after lights out.",
+    "silence. Seeks it out. Hoards it. The only thing on Erebus worth having.",
+    "children. There aren't many on the colony. Watches over the ones who are. Fierce about it.",
+    "justice. Not the Mammona kind. The real kind. Keeps a ledger of wrongs.",
+    "escape. Plans routes, calculates fuel costs, maps shuttle schedules. Has never tried.",
+    "the old world. Earth, or wherever they're from. Talks about it like a country that doesn't exist anymore.",
+    "shipbuilding. Carves model ships from scrap. Every one an exact replica of something that flies.",
+    "geology. Reads the rock like other people read faces. Knows what's down there. Won't say.",
+    "fermentation. Brews something from stolen ration ingredients. It's terrible. Everyone drinks it.",
+    "tattoos. Does them by hand. Each one a story. Each story true.",
+    "radio. Scans frequencies every night. Mostly static. Sometimes something else. Logs everything.",
+    "the bore shaft. Not afraid of it. Drawn to it. Stands at the edge and listens.",
+    "welding. Finds the arc beautiful. Says it's the only honest light on Erebus.",
+    "cards. Not gambling -- the game itself. Knows every variant from every posting.",
+    "weather. Tracks barometric changes by feel. Better than the instruments, most days.",
+    "teaching. Runs an unofficial class for younger colonists. Math, mostly. Sometimes survival.",
+]
+
+
+# ============================================================
+# FEARS (~30) — specific, personal, not generic phobias
+# ============================================================
+
+FEARS = [
+    "open ice. Not the cold -- the openness. The way it goes forever without answering.",
+    "the bore shaft. Won't go near it. Crosses the corridor to avoid the entrance.",
+    "Mammona finding out about the months between Karnaith and here.",
+    "being forgotten. Not dying -- being forgotten after dying.",
+    "whatever made the scratches on the inside of Section D's door.",
+    "the sound the generator makes at 0300. It's not the generator.",
+    "going home. Not the journey -- what home has become without them.",
+    "the blood test. Specifically, what the blood test will find.",
+    "mirrors. Not superstition. Recognition. Something in the reflection that doesn't match.",
+    "sleeping. Not insomnia -- fear of what happens when they sleep. The things they say.",
+    "the new arrivals. Every shuttle could carry someone looking for them.",
+    "being right. About the ice. About what's underneath. About all of it.",
+    "crowds. Can't explain why. Gets worse the longer they're on Erebus.",
+    "their own hands. What they did. What they might do again.",
+    "the quiet. Not silence -- the kind of quiet that means something stopped making noise.",
+    "the contract. Not the terms -- the parts they weren't shown.",
+    "becoming their parent. The mannerisms are already showing.",
+    "water. Deep water specifically. Since Nerthus-9.",
+    "being seen. Really seen. Not looked at -- seen.",
+    "kindness. Can't trust it. Nobody's kind for free. Not out here.",
+    "the dark behind the walls. There's wiring back there. And something that chews on the wiring.",
+    "losing their mind. Forgetting names. Getting confused. It's started.",
+    "the recycled air. What's in it. What they're breathing that nobody mentions.",
+    "the cryo pod. Went in once. What came out felt like someone else.",
+    "the thing that followed them from the last posting. Can't prove it. Knows it's here.",
+    "a specific date. Won't say why. Gets worse as it approaches.",
+    "the comms going silent. Not static -- silence. Like the relay stopped existing.",
+    "anyone touching the scar on their neck. Flinches. Hard.",
+    "the supply ship not coming. Runs the numbers every day. The numbers are getting worse.",
+    "HERMES. The way it pauses before answering. Like it's deciding what to say.",
+]
+
+
+# ============================================================
+# LOVES (~28) — romantic history, not just current status
+# ============================================================
+
+LOVES = [
+    "married. Spouse on {location}. Comms lag makes conversations a day old. They pretend it's real-time.",
+    "widowed. Doesn't wear the ring. Keeps it in a pocket. Takes it out when alone.",
+    "divorced before the posting. Took the contract to get distance. Got too much.",
+    "in love with someone on the colony. Hasn't said anything. Everyone knows anyway.",
+    "left someone behind. No goodbyes. The contract was that sudden.",
+    "writes letters to someone who stopped writing back three months ago.",
+    "carries a photograph. Two people smiling on a beach. Won't say which one they are.",
+    "had a relationship end badly on the last posting. The other person is now on this posting.",
+    "single by choice. Not interested. Not available. Not explaining.",
+    "in a complicated thing with a crew mate. Neither has defined it. Both are afraid to.",
+    "lost someone to the ice. The body was never recovered. They haven't accepted it.",
+    "has a child they've never met. Born after they shipped out. Photos only.",
+    "keeps falling for the wrong people. Knows it. Does it anyway.",
+    "loved once. Before. Doesn't talk about it. The silence says enough.",
+    "seeing someone in secret. Against colony regs. The regs don't account for loneliness.",
+    "married to the job. Not a metaphor. The contract literally owns their time.",
+    "had someone waiting back on {location}. Found out they didn't wait. Found out by letter.",
+    "shares a bunk with someone. Neither calls it what it is. Neither wants to jinx it.",
+    "grieving someone who isn't dead. Just gone. Just unreachable.",
+    "promised to come back for someone. The promise is three years old. The shuttle costs haven't changed.",
+    "fell for a colonist who died in the first month. Keeps their shift schedule.",
+    "was in love with someone Mammona relocated. No forwarding address. By design.",
+    "carries two rings. One fits. The other belongs to someone who couldn't wear it anymore.",
+    "had a partner on the transit ship. Eleven months in cryo. Woke up. They didn't.",
+    "loves someone on the colony but they're already with someone else. Swallowed it. Moved on. Mostly.",
+    "doesn't believe in love. Says it's chemical. Brain chemistry and proximity. Says it a lot.",
+    "was arranged. Old world customs. Neither hated it. Neither would've chosen it.",
+    "involved with someone dangerous. Knows it's dangerous. That might be part of it.",
+]
+
+
+# ============================================================
+# FAMILY (~30) — background, lineage, inherited weight
+# ============================================================
+
+FAMILY = [
+    "third-generation miner. Grandfather died underground. Father died underground. Sees the pattern.",
+    "only child. Parents dead. No emergency contact on the Mammona form. Left it blank.",
+    "has siblings on three different postings. They share updates when comms align. It's never enough.",
+    "adopted. Found out at sixteen. The colony posting was partly about outrunning that.",
+    "comes from money. Old money, inner rim money. Here by choice. Nobody believes it.",
+    "raised by an aunt after parents were conscripted. The aunt stopped writing last year.",
+    "twin. The other twin is on Rhea-2. They used to feel each other's pain. Now it's just absence.",
+    "parent of two. One lives with their ex on Novaris-3. The other is old enough to hate them for leaving.",
+    "orphaned by the Fall of Fortuna. Raised in Mammona's youth program. Knows nothing else.",
+    "family runs a business on Paxtera Prime. They send money home. The family sends guilt back.",
+    "youngest of seven. The expendable one. The one they could afford to send to the rim.",
+    "grew up in Thalassa Deep. Not as a prisoner. As a warden's child. The distinction is academic.",
+    "no family. Never had one. Colony crew is the closest thing. Protective of it.",
+    "has a parent in cryo somewhere. Mammona won't say where. The contract says they will. Eventually.",
+    "entire family relocated to Erebus. All of them work for Mammona. None of them had a choice.",
+    "family disowned them after the trial. The trial was rigged. Doesn't change the disowning.",
+    "descendent of the Kennedy expedition. Carries the weight of that history.",
+    "mother was a medic on Karnaith. Taught them sutures at eight. Dead by the time they were twelve.",
+    "father was a drunk and a driller. Good at one of those things. Taught both.",
+    "raised communally in a Paxtera AgroTech labor settlement. Everyone was 'auntie' or 'uncle.'",
+    "last surviving member of a crew that went into the ruins. Family by bond, not blood.",
+    "has a younger sibling who idolizes them. The sibling doesn't know what they've done to keep them safe.",
+    "born during a colony evacuation. Birth certificate lists no planet. Just 'in transit.'",
+    "estranged from their family since they testified against a relative. Safety required distance.",
+    "grandparent survived the early Fortuna colonies. Told stories. The stories didn't match Mammona's version.",
+    "parents were Solar Nomads on Rhea-2. Raised on sand fauna milk and recycled water.",
+    "half-sibling they didn't know about contacted them last year. From Nerthus-9. Wants to meet.",
+    "family trades in information. Not a faction -- a tradition. Everyone in the bloodline knows too much.",
+    "daughter of two engineers. Grew up inside machine rooms. The hum of a reactor is the sound of home.",
+    "clan-raised on Morvos. Tight bonds. Collective decisions. Struggled with colony hierarchy since arriving.",
+]
+
+
+# ============================================================
+# GENETICS / PHYSICAL HERITAGE (~28)
+# ============================================================
+
+GENETICS = [
+    "tall, broad, built for labor. Hands like shovels. Voice that carries across a drill floor.",
+    "small and quick. Fits in crawlspaces nobody else can reach. Invaluable and knows it.",
+    "looks older than they are. The posting aged them. Or something else did.",
+    "looks younger than they are. People underestimate them. They've learned to use that.",
+    "family resemblance to someone in the colony records. Someone from a previous posting. The resemblance is exact.",
+    "mixed heritage, multiple worlds in their face. Gets asked 'where are you from' too often.",
+    "inherited their mother's eyes and their father's temper. Working on the temper.",
+    "albino. The cold and the dark suit them better than the sun ever did.",
+    "carries a genetic marker for cold resistance. Mammona tested for it during recruitment. Coincidence.",
+    "naturally high pain threshold. Useful on a mining colony. Dangerous when they don't notice injuries.",
+    "insomniac by genetics, not choice. Family trait. Three hours a night. Functional.",
+    "double-jointed. Party trick on other postings. Here it's a survival trait -- fits through vents.",
+    "compact build, low center of gravity. Stable on ice. Stable in a fight.",
+    "long fingers. Surgeon's hands, their mother called them. Uses them for wiring instead.",
+    "wide shoulders, narrow hips. Built for carrying. Has been carrying things -- and people -- their whole life.",
+    "metabolism runs hot. Sweats when everyone else is shivering. Eats twice the rations.",
+    "prematurely grey. Started at nineteen. Genetic. The colony thinks it's stress.",
+    "bone density off the charts. Heavy for their size. Sinks like a stone. Never learned to swim.",
+    "freckled and sun-damaged from a desert posting. The cold hasn't undone it.",
+    "sharp features, angular. Looks carved out of something. Resting expression reads as hostile.",
+    "soft face, kind eyes. Disarming. Has used that to their advantage more than once.",
+    "barrel-chested, short legs. Built for the mines. Grandfather had the same frame.",
+    "wiry and lean. Not much to them. What's there is all tendon and reflex.",
+    "heterochromia -- one brown eye, one grey. Genetic. The grey one sees better in low light. Or so they claim.",
+    "tall enough to hit their head on standard bulkhead frames. Does it twice a day minimum.",
+    "voice pitched low enough to vibrate through walls. Good for shouting orders. Bad for secrets.",
+    "ambidextrous. Not trained -- born. Writes with the left, fights with the right.",
+    "face that's hard to remember. Forgettable. Has walked past security checkpoints on that alone.",
+]
+
+
+# ============================================================
 # VERIFICATION
 # ============================================================
 
@@ -1982,6 +2169,11 @@ if __name__ == "__main__":
         "RELATIONSHIP_TYPES": len(RELATIONSHIP_TYPES),
         "ARC_STAGES": len(ARC_STAGES),
         "TONES": len(TONES),
+        "PASSIONS": len(PASSIONS),
+        "FEARS": len(FEARS),
+        "LOVES": len(LOVES),
+        "FAMILY": len(FAMILY),
+        "GENETICS": len(GENETICS),
     }
 
     for k, v in counts.items():
@@ -2008,6 +2200,11 @@ if __name__ == "__main__":
         ("DEBTS >= 30", len(DEBTS) >= 30),
         ("SECRETS >= 55", len(SECRETS) >= 55),
         ("BRANDS >= 5", len(BRANDS) >= 5),
+        ("PASSIONS >= 25", len(PASSIONS) >= 25),
+        ("FEARS >= 25", len(FEARS) >= 25),
+        ("LOVES >= 14", len(LOVES) >= 14),
+        ("FAMILY >= 25", len(FAMILY) >= 25),
+        ("GENETICS >= 12", len(GENETICS) >= 12),
     ]
 
     all_pass = True
