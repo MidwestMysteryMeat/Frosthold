@@ -366,7 +366,7 @@ def _propose_secret_revealed(ws):
         "consequences": [
             "Trust in the implicated parties collapses",
             "Demand for answers from colony leadership",
-            "Related cover-ups begin to unravel",
+            "Related cover-ups begin to fall apart",
         ],
         "invalidates": [f"secret_hidden_{hash(secret) % 10000:04d}"],
         "enables": ["public_unrest", "investigation_launched"],

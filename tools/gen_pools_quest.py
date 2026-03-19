@@ -838,7 +838,7 @@ QUEST_ARCHETYPES = {
             "A Different Kind of Growing Up",
         ],
         "trigger": "A child in the colony shows signs of contamination. Not the usual kind. Not harmful -- yet. The child's eyes have changed color. Their temperature runs three degrees above normal. They can hear the signal from the bore shaft. They say it's singing.",
-        "setup": "{sensory} The child sits in the medical bay, drawing. The drawings are intricate. Precise. Architectural schematics of structures nobody has seen. {npc_first} -- the child's parent -- sits across the room, watching. Not blinking. The medic's report is on the desk. 'Anomalous but stable.' The word 'stable' has a question mark after it.",
+        "setup": "{sensory} The child sits in the medical bay, drawing. The drawings are detailed. Precise. Architectural schematics of structures nobody has seen. {npc_first} -- the child's parent -- sits across the room, watching. Not blinking. The medic's report is on the desk. 'Anomalous but stable.' The word 'stable' has a question mark after it.",
         "objectives": [
             "Monitor the child's condition. The changes are accelerating. But the child isn't in pain. They're thriving. Growing faster. Learning faster. Understanding things they shouldn't.",
             "Decide on quarantine. The medic recommends it. {npc_first} will fight it. The colony's quarantine protocols were written for diseases. This isn't a disease. It might be an upgrade.",

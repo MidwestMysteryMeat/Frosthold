@@ -208,7 +208,7 @@ COMPANY_PREFIXES = [
     "Apex", "Crest", "Vanguard", "Meridian", "Helios", "Arcturus",
     "Nexus", "Pinnacle", "Vertex", "Forge", "Frontier", "Basalt",
     "Sterling", "Cobalt", "Obsidian", "Kinetic", "Quantum", "Orbital",
-    "Fathom", "Zenith", "Boreal", "Crucible", "Stratos", "Helix",
+    "Fathom", "Zenith", "Boreal", "Furnace", "Stratos", "Helix",
 ]
 
 COMPANY_SUFFIXES = [

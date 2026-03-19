@@ -168,7 +168,7 @@ SENSORY = {
     "grief": [
         "Her bunk was still made. Nobody touched it. Nobody would.",
         "His name came up on the duty roster three weeks after they buried him.",
-        "The weight of an empty chair at the table. Everyone noticed. No one moved it.",
+        "An empty chair at the table. Everyone noticed. No one moved it.",
         "She kept his jacket zipped to the collar on the hook. It still smelled like him.",
         "They found a half-finished letter in her pocket. The last sentence trailed off mid-word.",
         "Someone set a place for him at dinner. Force of habit. Nobody corrected it.",
