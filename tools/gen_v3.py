@@ -207,6 +207,621 @@ class WorldState:
 
 
 # ============================================================
+# DIVERGENCE ENGINE — proposal, commit, revert, constraint propagation
+# ============================================================
+
+# Locked subjects that must never be affected by divergences
+_LOCKED_SUBJECTS = set()
+for _locked in LOCKED_LORE:
+    _LOCKED_SUBJECTS.add(_locked.lower())
+# Add specific keys that must never be touched
+_LOCKED_SUBJECTS.update({"foras", "shaft 12", "shaft_12", "the maw", "baldrungen", "fortuna"})
+
+# Faction keys safe for divergence (exclude locked lore references)
+_DIVERGENCE_SAFE_FACTIONS = [
+    k for k in FACTIONS
+    if not any(locked in k.lower() for locked in _LOCKED_SUBJECTS)
+    and not any(locked in FACTIONS[k].get("name", "").lower() for locked in _LOCKED_SUBJECTS)
+]
+
+# Location keys safe for divergence
+_DIVERGENCE_SAFE_LOCATIONS = [
+    k for k, v in LOCATIONS.items()
+    if isinstance(v, dict)
+    and not any(locked in v.get("name", "").lower() for locked in _LOCKED_SUBJECTS)
+    and not any(locked in k.lower() for locked in _LOCKED_SUBJECTS)
+]
+
+
+def _touches_locked_lore(*texts):
+    """Return True if any text references locked lore subjects."""
+    for text in texts:
+        if not text:
+            continue
+        lower = text.lower()
+        for locked in _LOCKED_SUBJECTS:
+            if locked in lower:
+                return True
+    return False
+
+
+def _propose_faction_migration(ws):
+    """Propose a faction relocating to or withdrawing from a planet."""
+    if len(_DIVERGENCE_SAFE_FACTIONS) < 1:
+        return None
+    fk = R(_DIVERGENCE_SAFE_FACTIONS)
+    faction = FACTIONS[fk]
+    fname = faction["name"]
+    territories = faction.get("territory", [])
+    if not territories:
+        return None
+
+    if random.random() < 0.5 and len(territories) > 1:
+        # Withdrawal
+        planet = R(territories)
+        if _touches_locked_lore(planet):
+            return None
+        return {
+            "type": "faction_migration",
+            "subject": fk,
+            "description": f"{fname} withdraws operations from {planet}",
+            "cause": R([
+                f"Resource exhaustion on {planet} forced a pullback",
+                f"Escalating hostilities on {planet} made operations untenable",
+                f"Corporate restructuring eliminated the {planet} division",
+                f"A catastrophic incident on {planet} destroyed their foothold",
+                f"Internal power struggle led to abandonment of {planet} assets",
+            ]),
+            "timestamp": f"day_{RI(1, 180)}",
+            "consequences": [
+                f"{fname} no longer operates on {planet}",
+                f"Power vacuum on {planet} in {fname}'s former territory",
+            ],
+            "invalidates": [f"{fk}_at_{planet}"],
+            "enables": [f"power_vacuum_{planet}", f"{fk}_displaced"],
+        }
+    else:
+        # Expansion
+        all_planets = [p for p in PLANETS if p not in territories and not _touches_locked_lore(p)]
+        if not all_planets:
+            return None
+        new_planet = R(all_planets)
+        return {
+            "type": "faction_migration",
+            "subject": fk,
+            "description": f"{fname} expands operations to {new_planet}",
+            "cause": R([
+                f"New resource deposits discovered on {new_planet}",
+                f"Strategic opportunity after a rival's collapse on {new_planet}",
+                f"Refugee members established a foothold on {new_planet}",
+                f"A covert deal granted {fname} access to {new_planet}",
+            ]),
+            "timestamp": f"day_{RI(1, 180)}",
+            "consequences": [
+                f"{fname} now has a presence on {new_planet}",
+                f"Existing factions on {new_planet} must respond to {fname}'s arrival",
+            ],
+            "invalidates": [],
+            "enables": [f"{fk}_at_{new_planet}", f"{fk}_expanding"],
+        }
+
+
+def _propose_faction_conflict(ws):
+    """Propose an armed conflict or trade war between two factions."""
+    if len(_DIVERGENCE_SAFE_FACTIONS) < 2:
+        return None
+    fk_a, fk_b = random.sample(_DIVERGENCE_SAFE_FACTIONS, 2)
+    fa, fb = FACTIONS[fk_a], FACTIONS[fk_b]
+    fname_a, fname_b = fa["name"], fb["name"]
+
+    # Find a shared planet for the conflict
+    shared = [p for p in fa.get("territory", []) if p in fb.get("territory", [])
+              and not _touches_locked_lore(p)]
+
+    conflict_type = R(["armed skirmish", "trade war", "sabotage campaign",
+                        "blockade", "assassination attempt", "territory dispute"])
+
+    planet_clause = f" on {R(shared)}" if shared else " across contested shipping lanes"
+
+    return {
+        "type": "faction_conflict",
+        "subject": f"{fk_a}_vs_{fk_b}",
+        "description": f"{conflict_type.title()} erupts between {fname_a} and {fname_b}{planet_clause}",
+        "cause": R([
+            f"Long-simmering rivalry finally boiled over",
+            f"A border incident escalated beyond recovery",
+            f"Intelligence leak exposed covert operations",
+            f"Resource scarcity forced both sides into the same territory",
+            f"A betrayal within shared supply chains",
+        ]),
+        "timestamp": f"day_{RI(1, 180)}",
+        "consequences": [
+            f"{fname_a} and {fname_b} are now openly hostile",
+            f"Trade routes between their territories are disrupted",
+            f"Neutral parties forced to pick sides",
+        ],
+        "invalidates": [f"{fk_a}_allied_{fk_b}", f"{fk_b}_allied_{fk_a}"],
+        "enables": [f"{fk_a}_vs_{fk_b}_conflict", f"war_profiteering_{fk_a}_{fk_b}"],
+    }
+
+
+def _propose_secret_revealed(ws):
+    """Propose a major secret becoming public knowledge."""
+    # Filter out secrets that reference locked lore
+    safe_secrets = [s for s in SECRETS if not _touches_locked_lore(s)]
+    if not safe_secrets:
+        return None
+
+    secret = R(safe_secrets)
+    revealer_type = R(["a whistleblower", "a leaked datapad", "a dying confession",
+                        "intercepted comms", "a Veilbreaker broadcast", "an anonymous tip",
+                        "a disgruntled employee", "a compromised AI"])
+
+    return {
+        "type": "secret_revealed",
+        "subject": "public",
+        "description": f"It becomes public knowledge that {secret}",
+        "cause": f"Revealed by {revealer_type}",
+        "timestamp": f"day_{RI(1, 180)}",
+        "consequences": [
+            "Trust in the implicated parties collapses",
+            "Demand for answers from colony leadership",
+            "Related cover-ups begin to unravel",
+        ],
+        "invalidates": [f"secret_hidden_{hash(secret) % 10000:04d}"],
+        "enables": ["public_unrest", "investigation_launched"],
+    }
+
+
+def _propose_npc_death(ws):
+    """Propose the death of an NPC currently in world state."""
+    living_npcs = [
+        (npc_id, npc) for npc_id, npc in ws.data["npc_states"].items()
+        if isinstance(npc, dict) and npc.get("alive", True)
+        and not _touches_locked_lore(npc.get("name", ""), npc_id)
+    ]
+    if not living_npcs:
+        # No tracked NPCs; propose a generic named death
+        first, last, gender = name()
+        npc_name = f"{first} {last}"
+        npc_id = f"npc_{first.lower()}_{last.lower()}"
+        if _touches_locked_lore(npc_name, npc_id):
+            return None
+        cause = R([
+            "a mining collapse in the deep bore",
+            "exposure during a perimeter patrol",
+            "a contamination event in the lower levels",
+            "an ambush by hostile fauna",
+            "a reactor coolant failure",
+            "an airlock malfunction during EVA",
+            "a confrontation that escalated beyond control",
+            "a medical emergency with no supplies available",
+        ])
+        return {
+            "type": "npc_death",
+            "subject": npc_id,
+            "description": f"{npc_name} is killed by {cause}",
+            "cause": cause,
+            "timestamp": f"day_{RI(1, 180)}",
+            "consequences": [
+                f"{npc_name}'s responsibilities must be reassigned",
+                f"Morale impact on anyone who knew {first}",
+            ],
+            "invalidates": [f"{npc_id}_alive"],
+            "enables": [f"{npc_id}_dead", f"vacancy_{npc_id}"],
+        }
+
+    npc_id, npc = R(living_npcs)
+    npc_name = npc.get("name", npc_id)
+    first = npc_name.split()[0] if " " in npc_name else npc_name
+    cause = R([
+        "a mining collapse in the deep bore",
+        "exposure during a perimeter patrol",
+        "a contamination event in the lower levels",
+        "an ambush by hostile fauna",
+        "a reactor coolant failure",
+        "an airlock malfunction during EVA",
+        "a confrontation that escalated beyond control",
+        "a medical emergency with no supplies available",
+    ])
+
+    return {
+        "type": "npc_death",
+        "subject": npc_id,
+        "description": f"{npc_name} is killed by {cause}",
+        "cause": cause,
+        "timestamp": f"day_{RI(1, 180)}",
+        "consequences": [
+            f"{npc_name}'s responsibilities must be reassigned",
+            f"Morale impact on anyone who knew {first}",
+            f"Relationships involving {first} are severed or transformed",
+        ],
+        "invalidates": [f"{npc_id}_alive"],
+        "enables": [f"{npc_id}_dead", f"vacancy_{npc_id}"],
+    }
+
+
+def _propose_npc_betrayal(ws):
+    """Propose an NPC betraying their faction or allies."""
+    living_npcs = [
+        (npc_id, npc) for npc_id, npc in ws.data["npc_states"].items()
+        if isinstance(npc, dict) and npc.get("alive", True)
+        and npc.get("faction")
+        and not _touches_locked_lore(npc.get("name", ""), npc_id, npc.get("faction", ""))
+    ]
+    if not living_npcs:
+        # Generate a betrayal with a new name
+        first, last, gender = name()
+        npc_name = f"{first} {last}"
+        if _touches_locked_lore(npc_name):
+            return None
+        fk = R(_DIVERGENCE_SAFE_FACTIONS)
+        fname = FACTIONS[fk]["name"]
+        rival_keys = [r for r in FACTIONS[fk].get("rivals", [])
+                      if r in FACTIONS and r in _DIVERGENCE_SAFE_FACTIONS]
+        if rival_keys:
+            target_key = R(rival_keys)
+            target_name = FACTIONS[target_key]["name"]
+        else:
+            target_key = R([k for k in _DIVERGENCE_SAFE_FACTIONS if k != fk])
+            target_name = FACTIONS[target_key]["name"]
+
+        motivation = R([
+            "ideological disillusionment",
+            "a better offer from the other side",
+            "blackmail material held by the enemy",
+            "revenge for a personal loss",
+            "survival -- they had no other choice",
+        ])
+        return {
+            "type": "betrayal",
+            "subject": f"npc_{first.lower()}_{last.lower()}",
+            "description": f"{npc_name} of {fname} defects to {target_name}",
+            "cause": f"Motivated by {motivation}",
+            "timestamp": f"day_{RI(1, 180)}",
+            "consequences": [
+                f"{fname} loses internal intelligence",
+                f"{target_name} gains an insider with knowledge of {fname}'s operations",
+                f"Trust within {fname} erodes",
+            ],
+            "invalidates": [f"npc_{first.lower()}_{last.lower()}_loyal_{fk}"],
+            "enables": [f"npc_{first.lower()}_{last.lower()}_allied_{target_key}",
+                        f"{fk}_security_breach"],
+        }
+
+    npc_id, npc = R(living_npcs)
+    npc_name = npc.get("name", npc_id)
+    fk = npc.get("faction", "")
+    fname = FACTIONS.get(fk, {}).get("name", fk)
+    rival_keys = [r for r in FACTIONS.get(fk, {}).get("rivals", [])
+                  if r in FACTIONS and r in _DIVERGENCE_SAFE_FACTIONS]
+    if rival_keys:
+        target_key = R(rival_keys)
+    else:
+        candidates = [k for k in _DIVERGENCE_SAFE_FACTIONS if k != fk]
+        target_key = R(candidates) if candidates else fk
+    target_name = FACTIONS.get(target_key, {}).get("name", target_key)
+
+    motivation = R([
+        "ideological disillusionment",
+        "a better offer from the other side",
+        "blackmail material held by the enemy",
+        "revenge for a personal loss",
+        "survival -- they had no other choice",
+    ])
+    return {
+        "type": "betrayal",
+        "subject": npc_id,
+        "description": f"{npc_name} of {fname} defects to {target_name}",
+        "cause": f"Motivated by {motivation}",
+        "timestamp": f"day_{RI(1, 180)}",
+        "consequences": [
+            f"{fname} loses internal intelligence",
+            f"{target_name} gains an insider with knowledge of {fname}'s operations",
+            f"Trust within {fname} erodes",
+        ],
+        "invalidates": [f"{npc_id}_loyal_{fk}"],
+        "enables": [f"{npc_id}_allied_{target_key}", f"{fk}_security_breach"],
+    }
+
+
+def _propose_territory_change(ws):
+    """Propose a location changing hands between factions."""
+    if not _DIVERGENCE_SAFE_LOCATIONS:
+        return None
+    loc_key = R(_DIVERGENCE_SAFE_LOCATIONS)
+    loc = LOCATIONS[loc_key]
+    loc_name = loc.get("name", loc_key)
+    planet = loc.get("planet", "unknown")
+
+    connected = loc.get("connected_factions", [])
+    safe_connected = [f for f in connected if f in _DIVERGENCE_SAFE_FACTIONS]
+
+    # Pick old and new controller
+    if safe_connected:
+        old_controller_key = R(safe_connected)
+    else:
+        old_controller_key = R(_DIVERGENCE_SAFE_FACTIONS)
+    old_name = FACTIONS.get(old_controller_key, {}).get("name", old_controller_key)
+
+    candidates = [k for k in _DIVERGENCE_SAFE_FACTIONS if k != old_controller_key
+                  and planet in FACTIONS[k].get("territory", [])]
+    if not candidates:
+        candidates = [k for k in _DIVERGENCE_SAFE_FACTIONS if k != old_controller_key]
+    if not candidates:
+        return None
+    new_controller_key = R(candidates)
+    new_name = FACTIONS.get(new_controller_key, {}).get("name", new_controller_key)
+
+    method = R([
+        "a coordinated assault",
+        "a prolonged siege",
+        "an internal coup",
+        "sabotage and infiltration",
+        "economic pressure and buyout",
+        "abandonment followed by occupation",
+    ])
+
+    return {
+        "type": "territory_change",
+        "subject": loc_key,
+        "description": f"{loc_name} on {planet} falls from {old_name} to {new_name} via {method}",
+        "cause": f"{new_name} seized control through {method}",
+        "timestamp": f"day_{RI(1, 180)}",
+        "consequences": [
+            f"{old_name} loses control of {loc_name}",
+            f"{new_name} now controls {loc_name} and its resources",
+            f"Personnel at {loc_name} must swear new allegiance or flee",
+        ],
+        "invalidates": [f"{old_controller_key}_controls_{loc_key}"],
+        "enables": [f"{new_controller_key}_controls_{loc_key}",
+                    f"{loc_key}_contested"],
+    }
+
+
+def _propose_alliance_formed(ws):
+    """Propose two factions forming a temporary or permanent alliance."""
+    if len(_DIVERGENCE_SAFE_FACTIONS) < 2:
+        return None
+
+    fk_a, fk_b = random.sample(_DIVERGENCE_SAFE_FACTIONS, 2)
+    fa, fb = FACTIONS[fk_a], FACTIONS[fk_b]
+    fname_a, fname_b = fa["name"], fb["name"]
+
+    # Alliances between rivals are more interesting
+    is_rivals = fk_b in fa.get("rivals", []) or fk_a in fb.get("rivals", [])
+
+    if is_rivals:
+        reason = R([
+            "a mutual existential threat forced cooperation",
+            "a shared enemy made old grudges irrelevant",
+            "a charismatic intermediary brokered an impossible peace",
+            "economic collapse left no alternative",
+        ])
+    else:
+        reason = R([
+            "aligned strategic interests in the outer rim",
+            "a trade agreement that benefits both sides",
+            "a shared intelligence network against a common rival",
+            "mutual defense pact after recent attacks",
+            "a resource-sharing treaty to survive the season",
+        ])
+
+    alliance_type = R(["military pact", "trade alliance", "intelligence-sharing agreement",
+                        "non-aggression treaty", "mutual defense compact"])
+
+    return {
+        "type": "alliance_formed",
+        "subject": f"{fk_a}_and_{fk_b}",
+        "description": f"{fname_a} and {fname_b} form a {alliance_type}",
+        "cause": reason,
+        "timestamp": f"day_{RI(1, 180)}",
+        "consequences": [
+            f"{fname_a} and {fname_b} now cooperate openly",
+            f"Rivals of both factions face a stronger combined front",
+        ] + ([f"Former rivalry between {fname_a} and {fname_b} is suspended"] if is_rivals else []),
+        "invalidates": ([f"{fk_a}_vs_{fk_b}_conflict", f"{fk_b}_vs_{fk_a}_conflict"] if is_rivals else []),
+        "enables": [f"{fk_a}_allied_{fk_b}", f"{fk_b}_allied_{fk_a}"],
+    }
+
+
+def _propose_resource_crisis(ws):
+    """Propose a resource shortage or environmental crisis on a planet."""
+    safe_planets = [p for p in PLANETS if not _touches_locked_lore(p)]
+    if not safe_planets:
+        return None
+
+    planet = R(safe_planets)
+    crisis = R([
+        ("thermal core depletion", "Primary thermal core veins on {planet} are exhausted",
+         ["energy rationing across {planet}", "mining operations shift to secondary deposits",
+          "faction conflicts over remaining reserves intensify"]),
+        ("supply line collapse", "Major supply route to {planet} is severed",
+         ["food and medical shortages on {planet}", "black market prices skyrocket",
+          "desperate factions resort to raiding"]),
+        ("atmospheric contamination", "Toxic bloom contaminates {planet}'s habitable zones",
+         ["evacuation of exposed sectors", "medical infrastructure overwhelmed",
+          "quarantine zones established"]),
+        ("seismic destabilization", "Geological instability threatens infrastructure on {planet}",
+         ["structural collapses in mining operations", "surface settlements relocate",
+          "underground operations suspended"]),
+    ])
+
+    crisis_type, desc_template, consequences_templates = crisis
+    description = desc_template.format(planet=planet)
+    consequences = [c.format(planet=planet) for c in consequences_templates]
+
+    return {
+        "type": "resource_crisis",
+        "subject": planet,
+        "description": description,
+        "cause": R([
+            "Years of unchecked extraction",
+            "A cascading infrastructure failure",
+            "Deliberate sabotage by an unknown party",
+            "Natural geological shift",
+            "Corporate negligence and deferred maintenance",
+        ]),
+        "timestamp": f"day_{RI(1, 180)}",
+        "consequences": consequences,
+        "invalidates": [f"{planet}_stable_supply"],
+        "enables": [f"{planet}_crisis_{crisis_type.replace(' ', '_')}",
+                    f"{planet}_emergency"],
+    }
+
+
+def propose_divergences(ws):
+    """Propose 1-3 divergence events based on current world state."""
+    proposals = []
+
+    div_types = [
+        _propose_faction_migration,
+        _propose_faction_conflict,
+        _propose_secret_revealed,
+        _propose_npc_death,
+        _propose_npc_betrayal,
+        _propose_territory_change,
+        _propose_alliance_formed,
+        _propose_resource_crisis,
+    ]
+
+    n = RI(1, 3)
+    for func in random.sample(div_types, min(n, len(div_types))):
+        proposal = func(ws)
+        if proposal:
+            # Assign sequential ID
+            proposal["id"] = f"div_{len(ws.data['divergences']) + len(proposals) + 1:03d}"
+            proposals.append(proposal)
+
+    return proposals
+
+
+def commit_divergence(ws, div_id):
+    """Commit a proposed divergence to world state."""
+    # Check if divergence already committed
+    if any(d.get("id") == div_id for d in ws.data["divergences"]):
+        print(f"Divergence {div_id} already committed.")
+        return
+
+    # Find it in the pending proposals
+    pending_path = Path(__file__).parent / "pending_divergences.json"
+    if not pending_path.exists():
+        print("No pending divergences. Run --diverge first.")
+        return
+
+    with open(pending_path, "r", encoding="utf-8") as f:
+        pending = json.load(f)
+
+    div = next((d for d in pending if d.get("id") == div_id), None)
+    if not div:
+        print(f"Divergence {div_id} not found in pending proposals.")
+        return
+
+    # Check it doesn't break earlier divergences
+    for existing in ws.data["divergences"]:
+        if any(tag in div.get("invalidates", []) for tag in existing.get("enables", [])):
+            print(f"  WARNING: {div_id} would invalidate tags enabled by {existing.get('id', '?')}. Committing anyway.")
+
+    # Apply NPC lifecycle effects for npc_death divergences
+    if div.get("type") == "npc_death":
+        npc_id = div.get("subject", "")
+        npc = ws.get_npc(npc_id)
+        if npc:
+            update_npc_state(ws, npc_id, {"alive": False, "cause_of_death": div.get("cause", "unknown")})
+
+    # Apply NPC lifecycle effects for betrayal divergences
+    if div.get("type") == "betrayal":
+        npc_id = div.get("subject", "")
+        npc = ws.get_npc(npc_id)
+        if npc:
+            # Extract target faction from the enables tags
+            new_faction = None
+            for tag in div.get("enables", []):
+                if tag.startswith(f"{npc_id}_allied_"):
+                    new_faction = tag[len(f"{npc_id}_allied_"):]
+                    break
+            changes = {"arc_stage": "betrayed"}
+            if new_faction:
+                changes["faction"] = new_faction
+            update_npc_state(ws, npc_id, changes)
+
+    div["committed_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    ws.data["divergences"].append(div)
+    ws.save()
+    print(f"Committed divergence {div_id}: {div['description']}")
+
+
+def revert_divergence(ws, div_id):
+    """Remove a divergence from world state."""
+    before = len(ws.data["divergences"])
+    ws.data["divergences"] = [d for d in ws.data["divergences"] if d.get("id") != div_id]
+    if len(ws.data["divergences"]) < before:
+        ws.save()
+        print(f"Reverted divergence {div_id}.")
+    else:
+        print(f"Divergence {div_id} not found.")
+
+
+def update_npc_state(ws, npc_id, changes):
+    """Update NPC state and propagate through relationship web."""
+    npc = ws.get_npc(npc_id)
+    if not npc:
+        return
+
+    for key, val in changes.items():
+        npc[key] = val
+
+    # Death propagation: update arc stages of related NPCs
+    if changes.get("alive") is False:
+        for rel_id, rel in npc.get("relationships", {}).items():
+            related = ws.get_npc(rel_id)
+            if related and related.get("alive", True):
+                rel_type = rel.get("type", "")
+                if rel_type in ("partner", "spouse", "mentor", "parent", "child"):
+                    # Close relationships trigger grief
+                    new_stage = "broken"
+                    if "broken" in ARC_PROGRESSIONS:
+                        new_stage = "broken"
+                    related["arc_stage"] = new_stage
+                elif rel_type in ("rival", "nemesis"):
+                    # Rival's death can bring resolution
+                    related["arc_stage"] = "rebuilt"
+                elif rel_type in ("debtor",):
+                    # Debt cleared by death
+                    related["arc_stage"] = "stable"
+                ws.set_npc(rel_id, related)
+
+    # Arc progression validation
+    if "arc_stage" in changes:
+        new_stage = changes["arc_stage"]
+        old_stage = npc.get("_prev_arc_stage", npc.get("arc_stage"))
+        if old_stage and old_stage in ARC_PROGRESSIONS:
+            valid_next = ARC_PROGRESSIONS[old_stage]
+            if new_stage not in valid_next and valid_next:
+                # Force to nearest valid progression
+                npc["arc_stage"] = new_stage  # Allow override but log it
+                npc["_arc_forced"] = True
+
+    ws.set_npc(npc_id, npc)
+    ws.save()
+
+
+def check_faction_at_location(ws, faction_key, location):
+    """Check if a faction is valid at a location given divergences."""
+    return not ws.is_invalidated(f"{faction_key}_at_{location}")
+
+
+def check_faction_controls(ws, faction_key, location_key):
+    """Check if a faction still controls a location given divergences."""
+    return not ws.is_invalidated(f"{faction_key}_controls_{location_key}")
+
+
+def check_npc_alive(ws, npc_id):
+    """Check if an NPC is still alive given divergences."""
+    return not ws.is_invalidated(f"{npc_id}_alive")
+
+
+# ============================================================
 # CONTEXT — shared within a generation batch
 # ============================================================
 
@@ -2289,30 +2904,41 @@ def main():
         print("World state reset to defaults.")
         return
 
+    if args.diverge:
+        proposals = propose_divergences(ws)
+        if not proposals:
+            print("No divergences could be proposed from current state.")
+            return
+        # Save to pending file
+        pending_path = Path(__file__).parent / "pending_divergences.json"
+        # Merge with existing pending if any
+        existing_pending = []
+        if pending_path.exists():
+            try:
+                with open(pending_path, "r", encoding="utf-8") as f:
+                    existing_pending = json.load(f)
+            except (json.JSONDecodeError, OSError):
+                existing_pending = []
+        all_pending = existing_pending + proposals
+        with open(pending_path, "w", encoding="utf-8") as f:
+            json.dump(all_pending, f, indent=2, ensure_ascii=False)
+        # Also write to proposals dir for human review
+        review_path = PROPOSALS_DIR / f"divergences_{time.strftime('%Y%m%d_%H%M%S')}.json"
+        with open(review_path, "w", encoding="utf-8") as f:
+            json.dump(proposals, f, indent=2, ensure_ascii=False)
+        print(f"Proposed {len(proposals)} divergence(s). Review and use --commit <id> to apply.")
+        for p in proposals:
+            print(f"  {p['id']}: {p['description']}")
+        print(f"\nPending file: {pending_path}")
+        print(f"Review copy:  {review_path}")
+        return
+
     if args.commit:
-        label = args.commit
-        ws.add_divergence({
-            "label": label,
-            "committed": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "invalidates": [],
-        })
-        ws.save()
-        print(f"Divergence '{label}' committed.")
+        commit_divergence(ws, args.commit)
         return
 
     if args.revert:
-        label = args.revert
-        original_count = len(ws.data["divergences"])
-        ws.data["divergences"] = [
-            d for d in ws.data["divergences"]
-            if not (isinstance(d, dict) and d.get("label") == label)
-        ]
-        removed = original_count - len(ws.data["divergences"])
-        ws.save()
-        if removed > 0:
-            print(f"Divergence '{label}' reverted ({removed} removed).")
-        else:
-            print(f"No divergence found with label '{label}'.")
+        revert_divergence(ws, args.revert)
         return
 
     # --- Generation commands ---
@@ -2395,15 +3021,13 @@ def main():
                 print(f"  [{seq}] {label}")
 
                 # Auto-diverge support
-                if args.auto_diverge and args.diverge and batch_count % 25 == 0:
-                    div_label = f"auto_{batch_count}_{int(time.time())}"
-                    ws.add_divergence({
-                        "label": div_label,
-                        "committed": time.strftime("%Y-%m-%d %H:%M:%S"),
-                        "invalidates": [],
-                        "auto": True,
-                    })
-                    print(f"  [DIVERGE] Auto-divergence: {div_label}")
+                if args.auto_diverge and batch_count % 25 == 0:
+                    auto_proposals = propose_divergences(ws)
+                    for ap in auto_proposals:
+                        ap["auto"] = True
+                        ap["committed_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+                        ws.data["divergences"].append(ap)
+                        print(f"  [DIVERGE] {ap['id']}: {ap['description']}")
 
                 # Periodic backup every 100 generations
                 if batch_count % 100 == 0:
