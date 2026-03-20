@@ -5,7 +5,7 @@
 > Claim tasks before working, then update status again when the work is finished or blocked.
 > Format is strict - agents parse the tables, so do not break the structure.
 
-**Last updated:** 2026-03-15 by Claude Code (C63 complete — addResource/spendResource migration done)
+**Last updated:** 2026-03-20 by Claude Code (Task 1 complete — MRP campaign persistence layer)
 
 ---
 ## STATUS KEY
@@ -25,6 +25,7 @@
 
 | # | Task | Completed | Agent | Notes |
 |---|------|-----------|-------|-------|
+| Task 1 | MRP Campaign Persistence Layer | 2026-03-20 | Claude Code | src/sim/mrp.lua + tests/test_mrp.lua. 54/54 tests pass. No regressions in full suite. |
 | C63 | Migrate all addResource/spendResource callers to physical Items/StorageNetwork | 2026-03-15 | Claude Code | 25+ files migrated. addResource shim removed from game_state.lua (counter-only fallback remains). |
 | C62 | MM Tasks 21-25: Main menu, scenario picker, difficulty, create world, landing rewire | 2026-03-15 | Claude Code | main_menu.lua (264 lines), start_menu.lua refactored to scenario-only, difficulty_select.lua (750 lines), create_world.lua (953 lines). Landing site rewired to existing hex world_map.lua. ColonistSelect back goes to world_map. |
 | C61 | SP2 Task 3 + SP2 Tasks 4-7: Storage network + zone/build/wealth integration | 2026-03-15 | Claude Code | storage_network.lua (107 lines). Haul priority: storage buildings first. Build recipes query storage network. Wealth includes storage contents. Zones.getAllStoredItems() added. |
