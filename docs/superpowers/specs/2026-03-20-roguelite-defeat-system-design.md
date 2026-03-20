@@ -23,18 +23,22 @@ All colonists dead (day 2+)
   → Defeat screen (stats + MRP breakdown)
   → "Mammona Redeployment Authorized" button OR "Load Save"
   → Planet Select (scarred cards, history panel, failed planet pre-selected)
-  → Mammona Requisition Screen (spend MRP: permanent unlocks + per-run picks)
+  → Mammona Requisition Screen — Permanent Unlocks (spend MRP on global upgrades)
   → Colonist Drafting (new crew)
+  → Mammona Requisition Screen — Per-Run Picks (augments for drafted colonists + deployment bonuses)
   → Landing Zone Picker (same map seed, old base visible as dim icon on minimap)
   → Drop onto map: ruins, data discs, crates, graves, fog reset
 ```
+
+Note: Per-run picks are split into a second requisition step AFTER colonist drafting, so operative augments targeting individual colonists can reference the drafted crew. Permanent unlocks are purchased before drafting since they affect all colonists globally.
 
 ### Key rules
 
 - **Unlimited redeployments.** Mammona never gives up on a planet. Every failure adds to the legacy.
 - **Victory also awards MRP.** Completing a milestone on a planet with legacy history is the ultimate payoff.
-- **"Continue Campaign" vs "New Game."** Campaign is the persistent MRP + planet history. New Game is a fresh slate.
+- **"Continue Campaign" vs "New Game."** Main menu offers both options. "Continue Campaign" loads the persistent `frosthold_campaign.dat` (MRP balance, unlocks, planet history). "New Game" creates a fresh campaign file — zero MRP, no history, clean slate. Campaign state is created implicitly on first play; no opt-in required.
 - **Endless mode removed on death.** The roguelite loop replaces "press SPACE to continue in endless mode."
+- **Gaia A^1x (narrative planet):** The roguelite loop applies normally. Ruins and nemeses can spawn. Scripted narrative events fire based on game-state flags, not map state, so ruin spawning does not interfere with scripted triggers. If the fixed ending has been reached in a prior run, the planet history panel notes this.
 
 ---
 
@@ -205,6 +209,11 @@ Replaces the automatic Mammona Safety Net. Player-built last resort.
 - **No power = no beacon.** If the generator is destroyed, an EMP event kills the grid, or a raid knocks out power infrastructure, the beacon cannot fire until power is restored.
 - This creates real stakes around protecting power infrastructure.
 
+### System ordering
+
+- SOS Beacon runs as an ECS building system at sim tick rate (20Hz), checking for "all downed" state every tick.
+- `game_over.lua` defeat check (every 2 seconds) must be modified: if an SOS Beacon is powered and toggled ON, defer the defeat check for 35 seconds (giving the beacon's 30-second countdown time to complete). If the beacon fires successfully and new colonists arrive, the defeat check resets normally.
+
 ---
 
 ## 5. Nemesis-Lite Threat System
@@ -232,9 +241,25 @@ Replaces the automatic Mammona Safety Net. Player-built last resort.
 - Colony killed by cold/starvation/disease: no nemesis spawns.
 - Storyteller still references the cause: "The last crew froze on day 14. Your thermal readings are... similar."
 
+### 5.1 Nemesis Data Structure
+
+```lua
+{
+    name,       -- string (raider name)
+    title,      -- string (e.g. "Scavenger of [Colony]", "Butcher of [Colony]")
+    colonyName, -- string (which colony they destroyed)
+    hpMult,     -- number (1.10–1.15, HP multiplier)
+    dmgMult,    -- number (1.10–1.15, damage multiplier)
+    lootedItem, -- string or nil (item def ID taken from old colony)
+    kills,      -- number (how many colonists they killed in the original raid)
+}
+```
+
+Nemeses are stored per-planet in the meta-save's nemesis roster. When a legacy record is created, nemesis entries are copied from the record into the planet's roster. The roster is the authoritative source for raid spawning.
+
 ### Cap
 
-- Max 3 active nemeses per planet. Oldest retired if exceeded.
+- Max 3 active nemeses per planet in the roster. Oldest retired if exceeded.
 
 ---
 
@@ -300,12 +325,14 @@ A new persistent file (e.g., `frosthold_campaign.dat`) separate from colony save
 
 ```lua
 {
+    planet,             -- string (planet def ID, e.g. 'erebus')
     colonyName,         -- string
     daysSurvived,       -- number
     peakPopulation,     -- number
     causeOfDeath,       -- string
     wealth,             -- number
     raidsSurvived,      -- number
+    buildingsConstructed, -- number (running counter, tracked in GameState)
     bossesKilled,       -- number
     timestamp,          -- os.time()
     resources,          -- snapshot of all resources at death
@@ -313,12 +340,16 @@ A new persistent file (e.g., `frosthold_campaign.dat`) separate from colony save
     inProgressResearch, -- list of {techId, progress%}
     buildings,          -- list of {defId, x, y, hp, depth}
     colonists,          -- list of {name, backstory, deathX, deathY, skills}
-    nemeses,            -- list of {name, title, stats} from killing raid
+    nemeses,            -- list of nemesis records (see Section 5.1)
     mrpEarned,          -- MRP awarded for this run
     x, y,               -- colony center / spawn location
-    mapSeed,            -- preserved for terrain regeneration
+    mapSeed,            -- from Tilemap.getLayerData().seed
+    worldSeed,          -- from GameState.worldSeedNumeric
+    worldMapHex,        -- hex selection coords for biome regeneration
 }
 ```
+
+**Note on map seed:** `mapSeed` is read from `Tilemap.getLayerData().seed` (module-local in tilemap.lua), not from GameState. `worldSeed` and `worldMapHex` are also preserved to ensure biome placement and world-map selection are deterministic on replay.
 
 ### Ruin Spawning (on new deployment to same planet)
 
@@ -339,7 +370,7 @@ A new persistent file (e.g., `frosthold_campaign.dat`) separate from colony save
 |---|---|
 | `game_over.lua` | Rework defeat/victory screens, remove endless-on-death, add MRP display, add "Redeployment" button |
 | `colony_legacy.lua` | Expand legacy record significantly, add nemesis tracking, add ruin spawning logic |
-| `game_state.lua` | Remove `mammonaSafetyNet` and `_safetyNetUsed`, add MRP fields |
+| `game_state.lua` | Remove `mammonaSafetyNet` and `_safetyNetUsed`, add MRP fields, add `buildingsConstructed` running counter (incremented on building placement, persisted in save) |
 | `planet_select.lua` | Add scarred card visuals, deployment counter, history panel |
 | `save.lua` | Add meta-save (campaign file) for MRP + planet history + unlocks |
 | `building_defs_core.lua` | Add SOS Beacon and Data Recovery Terminal definitions |
@@ -367,3 +398,16 @@ A new persistent file (e.g., `frosthold_campaign.dat`) separate from colony save
 - **Automatic Mammona Safety Net** — `mammonaSafetyNet` flag, `_safetyNetUsed` flag, auto-spawn of 2 colonists on first wipe, rescue overlay. All replaced by SOS Beacon.
 - **Endless mode on death** — "Press SPACE to continue playing (endless mode)" removed from defeat screen. Endless mode remains accessible via settings/victory, just not as a death escape.
 - **Static planet locking** — `def.locked` concept for "Coming Soon" planets remains, but no failure-based locking.
+
+---
+
+## 11. Migration
+
+- **Existing `frosthold_legacies.dat`:** On first load after this update, legacy records are migrated into the new `frosthold_campaign.dat` format. Missing fields (planet, buildingsConstructed, completedResearch, etc.) are filled with sensible defaults. The old file is renamed to `frosthold_legacies.dat.bak` and not deleted.
+- **Existing saves with `mammonaSafetyNet`:** The field is ignored on load. `_safetyNetUsed` is ignored. No migration needed — these flags simply stop being read.
+
+---
+
+## 12. New Building Placement
+
+SOS Beacon logic goes in `src/building/sos_beacon.lua` as a dedicated ECS building system (not in recruitment.lua). Data Recovery Terminal logic goes in `src/building/data_terminal.lua`. Both follow existing building system conventions (ECS component + system registration).
