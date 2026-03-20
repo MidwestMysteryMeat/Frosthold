@@ -2154,6 +2154,14 @@ def gen_location(ctx, tone=None, planet=None, era=None):
 
     output = enforce_contractions(output, tone)
     ctx.world.log_generation("location", loc_name)
+
+    # Register location in batch context so NPCs/quests can reference it
+    ctx.generated_locations.append({
+        "name": loc_name,
+        "planet": planet_label,
+        "type": loc_type,
+    })
+
     return output
 
 
@@ -2399,6 +2407,15 @@ def gen_faction(ctx, tone=None, planet=None, era=None):
     output = enforce_contractions(output, tone)
     output = _fix_nb_verbs(output, leader_gender)
     ctx.world.log_generation("faction", fname)
+
+    # Register faction in batch context so NPCs/quests can reference it
+    faction_key = fname.lower().replace(" ", "_").replace("'", "")
+    ctx.generated_factions.append({
+        "key": faction_key,
+        "name": fname,
+        "type": ftype,
+    })
+
     return output
 
 

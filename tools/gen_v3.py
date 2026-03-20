@@ -851,6 +851,8 @@ class Context:
         self.npcs = []
         self.pieces = []
         self.history_events = []
+        self.generated_factions = []   # factions generated in this batch (dicts with key/name/type)
+        self.generated_locations = []  # locations generated in this batch (dicts with name/planet/type)
 
     def pick_fresh(self, pool, pool_name=None):
         """
@@ -1672,21 +1674,34 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
                         traits.append(candidate)
 
     # --- Faction ---
-    faction_keys = list(FACTIONS.keys())
-    if planet:
-        valid_keys = [
-            k for k in faction_keys
-            if planet in FACTIONS[k].get("territory", [])
-        ]
-        if valid_keys:
-            faction_keys = valid_keys
-    faction_key = R(faction_keys)
-    faction_data = FACTIONS[faction_key]
-    faction_name = faction_data["name"]
+    # Prefer batch-generated factions (30% chance if any exist), else canonical
+    if ctx.generated_factions and random.random() < 0.3:
+        batch_faction = R(ctx.generated_factions)
+        faction_key = batch_faction["key"]
+        faction_name = batch_faction["name"]
+    else:
+        faction_keys = list(FACTIONS.keys())
+        if planet:
+            valid_keys = [
+                k for k in faction_keys
+                if planet in FACTIONS[k].get("territory", [])
+            ]
+            if valid_keys:
+                faction_keys = valid_keys
+        faction_key = R(faction_keys)
+        faction_data = FACTIONS[faction_key]
+        faction_name = faction_data["name"]
 
     # --- Location (previous posting) ---
-    prev_location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
-    location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
+    # Prefer batch-generated locations (50% chance if any exist)
+    if ctx.generated_locations and random.random() < 0.5:
+        prev_location = R(ctx.generated_locations)["name"]
+    else:
+        prev_location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
+    if ctx.generated_locations and random.random() < 0.5:
+        location = R(ctx.generated_locations)["name"]
+    else:
+        location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
 
     # --- Previous job ---
     prev_job = ctx.pick_fresh(JOBS, "JOBS")
@@ -2150,15 +2165,26 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
             rel_context = f"\n**Connection:** {npc_full} -- {rel_display}.{history_suffix}"
 
     # --- Location ---
-    location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
+    # Prefer batch-generated locations if available
+    if ctx.generated_locations and random.random() < 0.5:
+        location = R(ctx.generated_locations)["name"]
+    else:
+        location = ctx.pick_fresh(LOCATIONS_FLAT, "LOCATIONS_FLAT")
 
     # --- Factions (primary + rival) ---
-    faction_keys = list(FACTIONS.keys())
-    faction_key = R(faction_keys)
-    faction_data = FACTIONS[faction_key]
-    faction_name = faction_data["name"]
-    rival_keys = [k for k in faction_keys if k != faction_key]
-    rival_key = R(rival_keys) if rival_keys else faction_key
+    # Prefer batch-generated factions for primary (30% chance)
+    if ctx.generated_factions and random.random() < 0.3:
+        batch_faction = R(ctx.generated_factions)
+        faction_key = batch_faction["key"]
+        faction_name = batch_faction["name"]
+    else:
+        faction_keys = list(FACTIONS.keys())
+        faction_key = R(faction_keys)
+        faction_data = FACTIONS[faction_key]
+        faction_name = faction_data["name"]
+    # Rival always canonical (safe cross-reference)
+    rival_keys = [k for k in FACTIONS.keys() if k != faction_key]
+    rival_key = R(rival_keys) if rival_keys else list(FACTIONS.keys())[0]
     rival_name = FACTIONS[rival_key]["name"]
 
     # --- Item ---
@@ -4544,7 +4570,7 @@ def generate_piece(gen_type=None, ctx=None, tone=None, planet=None, era=None):
 
 
 def generate_batch(size, ctx=None, tone=None, planet=None, era=None):
-    """Generate a batch of interconnected pieces."""
+    """Generate a batch of interconnected pieces with structured phasing."""
     if not GENERATORS:
         print("No generators registered. Register generators in Tasks 4-9.")
         return []
@@ -4553,23 +4579,68 @@ def generate_batch(size, ctx=None, tone=None, planet=None, era=None):
         ctx = Context()
 
     pieces = []
-    for _ in range(size):
-        content, label, gen_type = generate_piece(
-            ctx=ctx, tone=tone, planet=planet, era=era,
-        )
-        if content is not None:
-            pieces.append((content, label, gen_type))
 
-    # Wire NPCs into a relationship web after all pieces are generated
-    wire_relationships(ctx)
+    def _gen(gen_type, count):
+        """Generate count pieces of gen_type, appending to pieces."""
+        if gen_type not in GENERATORS:
+            return
+        for _ in range(count):
+            content, label, gtype = generate_piece(
+                gen_type=gen_type, ctx=ctx, tone=tone, planet=planet, era=era,
+            )
+            if content is not None:
+                pieces.append((content, label, gtype))
+
+    if size >= 10:
+        # Structured generation for large batches
+        # Phase 1: Foundation (20% of batch)
+        foundation = max(1, size // 5)
+        for _ in range(foundation):
+            gen_type = R(["history", "location", "faction"])
+            _gen(gen_type, 1)
+
+        # Phase 2: Inhabitants (40% of batch)
+        inhabitants = max(2, size * 2 // 5)
+        for _ in range(inhabitants):
+            gen_type = R(["npc", "npc", "npc", "robot"])  # weighted toward NPC
+            _gen(gen_type, 1)
+
+        # Wire relationships
+        wire_relationships(ctx)
+
+        # Phase 3: Narrative (25% of batch)
+        narrative = max(1, size // 4)
+        for _ in range(narrative):
+            gen_type = R(["quest", "datapad", "datapad"])
+            _gen(gen_type, 1)
+
+        # Phase 4: Details (remaining)
+        remaining = size - foundation - inhabitants - narrative
+        for _ in range(max(0, remaining)):
+            gen_type = R(["weapon", "artifact", "entity", "vehicle", "company"])
+            _gen(gen_type, 1)
+    else:
+        # Small batches: random but still faction-aware
+        for _ in range(size):
+            content, label, gen_type = generate_piece(
+                ctx=ctx, tone=tone, planet=planet, era=era,
+            )
+            if content is not None:
+                pieces.append((content, label, gen_type))
+
+        # Wire NPCs into a relationship web after all pieces are generated
+        wire_relationships(ctx)
 
     return pieces
 
 
 def generate_world(ctx, tone=None, planet=None, era=None):
     """
-    Generate a complete micro-universe: a set of interconnected pieces
-    that form a coherent narrative cluster.
+    Generate a complete micro-universe in structured phases.
+    Phase 1: World foundation (history, locations, factions)
+    Phase 2: Inhabitants (NPCs, robots) — they reference Phase 1 entities
+    Phase 3: Narrative (quests, datapads) — they reference Phase 1+2 entities
+    Phase 4: Details (weapons, artifacts, entities, vehicles, companies)
     """
     if not GENERATORS:
         print("No generators registered. Register generators in Tasks 4-9.")
@@ -4577,21 +4648,10 @@ def generate_world(ctx, tone=None, planet=None, era=None):
 
     pieces = []
 
-    # World generation order: locations, factions, NPCs, then wire relationships,
-    # then quests (so quests can reference wired relationships), then datapads.
-    pre_wire_plan = [
-        ("location", 2),
-        ("faction", 1),
-        ("npc", 4),
-    ]
-    post_wire_plan = [
-        ("quest", 2),
-        ("datapad", 3),
-    ]
-
-    for gen_type, count in pre_wire_plan:
+    def _gen(gen_type, count):
+        """Generate count pieces of gen_type, appending to pieces."""
         if gen_type not in GENERATORS:
-            continue
+            return
         for _ in range(count):
             content, label, gtype = generate_piece(
                 gen_type=gen_type, ctx=ctx, tone=tone, planet=planet, era=era,
@@ -4599,28 +4659,34 @@ def generate_world(ctx, tone=None, planet=None, era=None):
             if content is not None:
                 pieces.append((content, label, gtype))
 
-    # Wire NPCs into a relationship web before generating quests
+    # --- Phase 1: WORLD FOUNDATION ---
+    # History first — what happened before anyone arrived
+    _gen("history", RI(5, 8))
+    # Locations — where things happen
+    _gen("location", RI(2, 4))
+    # Factions — who has power (generated factions register in ctx)
+    _gen("faction", RI(2, 3))
+
+    # --- Phase 2: INHABITANTS ---
+    # NPCs — they populate the factions and locations from Phase 1
+    _gen("npc", RI(6, 10))
+    # Robots — colony infrastructure
+    _gen("robot", RI(1, 3))
+
+    # Wire relationships AFTER all inhabitants exist
     wire_relationships(ctx)
 
-    for gen_type, count in post_wire_plan:
-        if gen_type not in GENERATORS:
-            continue
-        for _ in range(count):
-            content, label, gtype = generate_piece(
-                gen_type=gen_type, ctx=ctx, tone=tone, planet=planet, era=era,
-            )
-            if content is not None:
-                pieces.append((content, label, gtype))
+    # --- Phase 3: NARRATIVE ---
+    # Quests — involve the NPCs from Phase 2 at locations from Phase 1
+    _gen("quest", RI(3, 5))
+    # Datapads — reference everything above
+    _gen("datapad", RI(3, 5))
 
-    # Fill remaining types if available
-    planned_types = {p[0] for p in pre_wire_plan + post_wire_plan}
-    for gen_type in GENERATORS:
-        if gen_type not in planned_types:
-            content, label, gtype = generate_piece(
-                gen_type=gen_type, ctx=ctx, tone=tone, planet=planet, era=era,
-            )
-            if content is not None:
-                pieces.append((content, label, gtype))
+    # --- Phase 4: DETAILS ---
+    # Sprinkle in texture pieces
+    for gen_type in ["weapon", "artifact", "entity", "vehicle", "company"]:
+        if gen_type in GENERATORS and random.random() > 0.4:
+            _gen(gen_type, 1)
 
     return pieces
 
