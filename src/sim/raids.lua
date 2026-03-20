@@ -1063,6 +1063,30 @@ local function spawnWave(wave, spawnPoints, typeDef)
         end
     end
 
+    -- Inject nemesis leader for humanoid raids (first wave only)
+    if typeDef.humanoid and wave == activeRaid.waves[1] then
+        local nok, NemesisMod = pcall(require, 'src.sim.nemesis')
+        if nok then
+            local nemCaptain = NemesisMod.getRaidNemesis(GameState.planet)
+            if nemCaptain then
+                if #wave.creatures > 0 then
+                    local nemId = wave.creatures[1]
+                    local cr = ECS.get(nemId, 'creature')
+                    if cr then
+                        cr.maxHp  = math.floor((cr.maxHp  or 100) * nemCaptain.hpMult)
+                        cr.hp     = cr.maxHp
+                        cr.damage = math.floor((cr.damage or 10)  * nemCaptain.dmgMult)
+                        cr.name   = nemCaptain.name
+                        cr.title  = nemCaptain.title
+                        cr.isNemesis   = true
+                        cr.nemesisData = nemCaptain
+                    end
+                    NemesisMod.announceNemesis(nemCaptain)
+                end
+            end
+        end
+    end
+
     -- Inject rival leaders for humanoid raids (first wave only)
     if typeDef.humanoid and wave == activeRaid.waves[1] then
         local rok, RivalsMod = pcall(require, 'src.sim.rivals')
@@ -1277,6 +1301,14 @@ function Raids.onCreatureDeath(entityId)
         local rok, Recruitment = pcall(require, 'src.colonist.recruitment')
         if rok and Recruitment.tryCapture then
             Recruitment.tryCapture(entityId)
+        end
+        -- Nemesis revenge announcement
+        local cr = ECS.get(entityId, 'creature')
+        if cr and cr.isNemesis and cr.nemesisData then
+            local nok, NemesisMod = pcall(require, 'src.sim.nemesis')
+            if nok then
+                NemesisMod.announceRevenge(cr.nemesisData)
+            end
         end
         -- Prune dead creature from raidCreatures to avoid O(N) scans on dead entries
         activeRaid.raidCreatures[entityId] = nil
