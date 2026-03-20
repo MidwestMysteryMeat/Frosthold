@@ -2117,7 +2117,7 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     sample_difficulty = R(["normal", "hard", "easy"])
     sample_check = d100_narrative(best_skill, best_val, sample_difficulty)
     check_line = (f"{best_skill.capitalize()} ({best_val}) vs {sample_difficulty}: "
-                  f"rolled {sample_check['roll']}/{sample_check['target']} -- "
+                  f"rolled {sample_check['roll']}/{sample_check['target']}, "
                   f"{sample_check['outcome'].replace('_', ' ')}")
 
     # Build thoughts block
@@ -2252,7 +2252,7 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
             rel_history = rel_data.get("history", "")
             history_suffix = f" {rel_history}." if rel_history else ""
             rel_display = format_relationship(rel_type_str, rel_npc['name'])
-            rel_context = f"\n**Connection:** {npc_full} -- {rel_display}.{history_suffix}"
+            rel_context = f"\n**Connection:** {npc_full}. {rel_display}.{history_suffix}"
 
     # --- Location ---
     # Prefer batch-generated locations if available
@@ -2405,7 +2405,7 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
                             "stare down the enforcer", "establish dominance in the negotiation"],
         }
         reason = R(check_reasons.get(skill, ["complete the objective"]))
-        check_lines.append(f"- {skill.capitalize()} ({target_display}, {diff}) -- {reason}")
+        check_lines.append(f"- {skill.capitalize()} ({target_display}, {diff}): {reason}")
 
         # d100 outcome narratives for success/failure
         success_narratives = {
@@ -2456,7 +2456,7 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
         mot_text = npc_motivation.get("motivation", "survival") if isinstance(npc_motivation, dict) else "survival"
         npc_integration = (
             f"**Key NPC:** {npc_full} ({best_skill.capitalize()}: {best_val}, "
-            f"Willpower: {willpower}) -- "
+            f"Willpower: {willpower}). "
             f"{ngp} {best_skill} skill determines the approach. "
             f"{ng} motivation: {mot_text}."
         )
@@ -2465,7 +2465,7 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
         npc_wp = RI(3, 7)
         npc_integration = (
             f"**Key NPC:** {npc_full} ({R(check_skills).capitalize()}: {npc_skill_val}, "
-            f"Willpower: {npc_wp}) -- "
+            f"Willpower: {npc_wp}). "
             f"{ngp} skills determine available options. "
             f"{ngp} willpower determines if {ngl} can handle what {ngl} finds."
         )
@@ -2983,7 +2983,7 @@ def gen_history(ctx, tone=None, planet=None, era=None):
 {related_detail}
 
 **Investigation Check:**
-- {inv_skill.capitalize()} ({inv_target}, {inv_diff}) -- dig deeper into what happened
+- {inv_skill.capitalize()} ({inv_target}, {inv_diff}): dig deeper into what happened
 - **If successful:** {inv_success}
 - **If failed:** {inv_failure}"""
 
@@ -3219,7 +3219,7 @@ def _memo_chain_variant(variant, ctx, tone, first, last, g, gl, gp, go, loc):
         # Original: directive -> acknowledge -> incident -> reclassification -> comms ban -> MasTema assessment
         entries.append(f"""**FROM:** Regional Operations, Dept. {dept}
 **TO:** Site Management, {loc}
-**RE:** Operational Parameters Update -- Ref {ref}
+**RE:** Operational Parameters Update, Ref {ref}
 **CLASSIFICATION:** Internal / Do Not Distribute
 
 Per directive {ref}, effective immediately:
@@ -3239,7 +3239,7 @@ Mammona Mining Corporation
 
         entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
 **TO:** Regional Operations, Dept. {dept}
-**RE:** RE: Operational Parameters Update -- Ref {ref}
+**RE:** RE: Operational Parameters Update, Ref {ref}
 **CLASSIFICATION:** Internal
 
 Confirming receipt of directive {ref}.
@@ -3259,7 +3259,7 @@ Regarding HERMES patch: installed. Two terminals in {section} displaying anomalo
         ])
         entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
 **TO:** Regional Operations, Dept. {dept}
-**RE:** URGENT -- Incident Report, {site}
+**RE:** URGENT: Incident Report, {site}
 **CLASSIFICATION:** Restricted
 
 Incident occurred at {RI(0, 23):02d}:{RI(0, 59):02d} today. Details:
@@ -3272,7 +3272,7 @@ Awaiting instruction. Please advise.
 
         entries.append(f"""**FROM:** Regional Operations, Dept. {dept}
 **TO:** {manager_first} {manager_last}, Site Manager
-**RE:** RE: URGENT -- Incident Report, {site} -- Ref {ref2}
+**RE:** RE: URGENT: Incident Report, {site}, Ref {ref2}
 **CLASSIFICATION:** Restricted / Eyes Only
 
 {manager_last}:
@@ -3294,7 +3294,7 @@ This matter does not require further reporting unless a second EVE occurs.
         entries.append(f"""**FROM:** Asset Assessment Division, MasTema Inc.
 **TO:** {director_first} {director_last}, Regional Director
 **CC:** [REDACTED]
-**RE:** {loc} -- Ref {ref3}
+**RE:** {loc}, Ref {ref3}
 **CLASSIFICATION:** VERMILLION / EYES ONLY
 
 Director {director_last}:
@@ -3322,7 +3322,7 @@ MasTema Incorporated
 
         entries.append(f"""**FROM:** Compliance & Oversight, Dept. {dept}
 **TO:** Internal Affairs, Regional
-**RE:** Anomalous Reporting Pattern -- {loc} -- Ref {form_ref}
+**RE:** Anomalous Reporting Pattern: {loc}, Ref {form_ref}
 **CLASSIFICATION:** Restricted
 
 Automated compliance review has flagged the following at {loc}:
@@ -3339,7 +3339,7 @@ Mammona Mining Corporation""")
 
         entries.append(f"""**FROM:** {investigator_first} {investigator_last}, Field Investigator
 **TO:** Compliance & Oversight, Dept. {dept}
-**RE:** Initial Assessment -- {loc} -- Ref {form_ref}
+**RE:** Initial Assessment: {loc}, Ref {form_ref}
 **CLASSIFICATION:** Restricted
 
 Arrived at {loc} on Day {RI(1, 30)}. Initial observations:
@@ -3360,7 +3360,7 @@ Will continue investigation.
 
         entries.append(f"""**FROM:** {investigator_first} {investigator_last}, Field Investigator
 **TO:** Compliance & Oversight, Dept. {dept}
-**RE:** Witness Interview Summary -- {loc} -- Ref {form_ref}
+**RE:** Witness Interview Summary: {loc}, Ref {form_ref}
 **CLASSIFICATION:** Restricted / Eyes Only
 
 Conducted {RI(6, 12)} interviews over {RI(3, 5)} days. Summary:
@@ -3377,7 +3377,7 @@ I have the unsigned transcripts. I do not know what to do with them.
 
         entries.append(f"""**FROM:** Regional Operations, Dept. {dept2}
 **TO:** {investigator_first} {investigator_last}, Field Investigator
-**RE:** Investigation Closure -- {loc} -- Ref {form_ref}
+**RE:** Investigation Closure: {loc}, Ref {form_ref}
 **CLASSIFICATION:** Restricted / Eyes Only
 
 Investigator {investigator_last}:
@@ -3411,7 +3411,7 @@ Mammona Mining Corporation
 
         entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
 **TO:** Supply & Logistics, Dept. {dept}
-**RE:** Priority Equipment Requisition -- Ref {req_ref}
+**RE:** Priority Equipment Requisition, Ref {req_ref}
 **CLASSIFICATION:** Internal
 
 Requesting immediate allocation of the following:
@@ -3428,7 +3428,7 @@ This is the third requisition for this equipment. Previous requests returned: 'b
 
         entries.append(f"""**FROM:** Supply & Logistics, Dept. {dept}
 **TO:** {manager_first} {manager_last}, Site Manager
-**RE:** RE: Priority Equipment Requisition -- Ref {req_ref}
+**RE:** RE: Priority Equipment Requisition, Ref {req_ref}
 **CLASSIFICATION:** Internal
 
 {manager_last}:
@@ -3446,7 +3446,7 @@ Mammona Mining Corporation""")
 
         entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
 **TO:** Supply & Logistics, Dept. {dept}
-**RE:** RE: RE: Priority Equipment Requisition -- Ref {req_ref}
+**RE:** RE: RE: Priority Equipment Requisition, Ref {req_ref}
 **CLASSIFICATION:** Restricted
 
 With respect: {fallback_equipment} will not address the situation at {site}.
@@ -3459,7 +3459,7 @@ If this equipment is not provided within {RI(7, 21)} days, I will be forced to s
 
         entries.append(f"""**FROM:** Supply & Logistics, Dept. {dept}
 **TO:** {manager_first} {manager_last}, Site Manager
-**RE:** Partial Approval -- Ref {req_ref}
+**RE:** Partial Approval, Ref {req_ref}
 **CLASSIFICATION:** Internal
 
 Partial approval granted. The following has been dispatched:
@@ -3477,7 +3477,7 @@ Mammona Mining Corporation
 
         entries.append(f"""**FROM:** {tech_first} {tech_last}, {R(["Safety Officer", "Equipment Specialist"])}
 **TO:** {manager_first} {manager_last}, Site Manager
-**RE:** Arrival and Assessment -- {loc}
+**RE:** Arrival and Assessment: {loc}
 **CLASSIFICATION:** Internal
 
 {manager_last}:
@@ -3503,7 +3503,7 @@ I would like to request a transfer. I would also like to request that you not fi
 
         entries.append(f"""**FROM:** Safety & Compliance Division
 **TO:** Site Management, {loc}
-**RE:** Annual Safety Audit -- Ref {audit_ref}
+**RE:** Annual Safety Audit, Ref {audit_ref}
 **CLASSIFICATION:** Internal / Mandatory Response
 
 This is your annual safety audit notification for {loc}. Please complete and return Form 31-A (Site Safety Assessment) within 14 business days.
@@ -3522,7 +3522,7 @@ Mammona Mining Corporation""")
 
         entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
 **TO:** Safety & Compliance Division
-**RE:** RE: Annual Safety Audit -- Ref {audit_ref} -- HONEST VERSION
+**RE:** RE: Annual Safety Audit, Ref {audit_ref} [HONEST VERSION]
 **CLASSIFICATION:** Restricted
 
 Submitting Form 31-A with actual figures:
@@ -3540,7 +3540,7 @@ I know this form will be rejected. I'm submitting it anyway. The record should e
 
         entries.append(f"""**FROM:** Safety & Compliance Division
 **TO:** {manager_first} {manager_last}, Site Manager
-**RE:** RE: RE: Annual Safety Audit -- Ref {audit_ref}
+**RE:** RE: RE: Annual Safety Audit, Ref {audit_ref}
 **CLASSIFICATION:** Internal
 
 {manager_last}:
@@ -3557,7 +3557,7 @@ Please resubmit within 7 business days using approved terminology and verified f
 
         entries.append(f"""**FROM:** {manager_first} {manager_last}, Site Manager
 **TO:** Safety & Compliance Division
-**RE:** RE: RE: RE: Annual Safety Audit -- Ref {audit_ref}
+**RE:** RE: RE: RE: Annual Safety Audit, Ref {audit_ref}
 **CLASSIFICATION:** Internal
 
 Resubmitting Form 31-A with approved terminology and figures that fit the statistical model.
@@ -3577,7 +3577,7 @@ Please file it.
 
         entries.append(f"""**FROM:** Safety & Compliance Division
 **TO:** Site Management, {loc}
-**RE:** Audit Complete -- Ref {audit_ref}
+**RE:** Audit Complete, Ref {audit_ref}
 **CLASSIFICATION:** Internal
 
 Form 31-A accepted. {loc} is classified as COMPLIANT for the current audit cycle.
@@ -4342,7 +4342,7 @@ def _datapad_maintenance_log(ctx, tone, first, last, g, gl, gp, go, loc):
     entries = []
 
     # Entry 1: Routine
-    entries.append(f"""**MAINTENANCE LOG -- {system}**
+    entries.append(f"""**MAINTENANCE LOG: {system}**
 **Tech:** {first} {last} ({tech_id})
 **Date:** Day {day}
 
@@ -4578,9 +4578,9 @@ def gen_datapad(ctx, tone=None, planet=None, era=None):
         history_ref = f"\n\n**Cross-reference:** See historical record '{ref_event['title']}'"
 
     # Log
-    ctx.world.log_generation("datapad", f"{type_label} -- {author_display}")
+    ctx.world.log_generation("datapad", f"{type_label}: {author_display}")
 
-    output = f"""## DATA PAD: {type_label} -- {author_display}
+    output = f"""## DATA PAD: {type_label}: {author_display}
 **Found at:** {loc} | **Tone:** {tone} | **Type:** {pad_type.replace('_', ' ')}
 
 ---
@@ -5037,7 +5037,7 @@ def main():
 
         elif args.loop:
             # Continuous generation with periodic backups
-            print(f"Frosthold Lore Generator v3 -- Running continuously")
+            print(f"Frosthold Lore Generator v3: Running continuously")
             print(f"Output: {output_file}")
             print("Ctrl+C to stop.\n")
 

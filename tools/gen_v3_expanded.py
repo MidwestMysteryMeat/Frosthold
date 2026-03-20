@@ -1373,7 +1373,7 @@ def gen_weapon(ctx, tone=None, planet=None, era=None):
         "**Kill History:**\n"
         + kill_history + "\n"
         "\n"
-        "**Previous Owner:** " + prev_owner + " -- " + prev_owner_fate + "\n"
+        "**Previous Owner:** " + prev_owner + ". " + prev_owner_fate + "\n"
         "\n"
         "**Found:** " + found + "\n"
         "\n"
@@ -1390,7 +1390,7 @@ def gen_weapon(ctx, tone=None, planet=None, era=None):
             "Recognized the serial number. Went pale. Changed the subject.",
             "Offered to buy it. The offer was too high. That's how you know it's important.",
         ])
-        output += "\n**Connected NPC:** " + npc_ref["name"] + " -- " + npc_weapon_detail + "\n"
+        output += "\n**Connected NPC:** " + npc_ref["name"] + ". " + npc_weapon_detail + "\n"
 
     # Quest hook
     quest_hook = R([
@@ -1589,7 +1589,7 @@ def gen_artifact(ctx, tone=None, planet=None, era=None):
             "refuses to discuss it. Changes the subject with practiced precision.",
             "has been sketching it. The sketches are detailed. Too detailed for the access they've had.",
         ])
-        npc_artifact_line = "\n**Connected NPC:** " + npc_ref["name"] + " -- " + npc_response
+        npc_artifact_line = "\n**Connected NPC:** " + npc_ref["name"] + ". " + npc_response
 
     output = (
         "## ARTIFACT: " + art_name + "\n"
@@ -1820,7 +1820,7 @@ def gen_entity(ctx, tone=None, planet=None, era=None):
             "Refuses to acknowledge its existence. When confronted with evidence: 'I don't see anything.' They see it.",
             "Has been drawing its symbol. On paper. On walls. On their own skin. Doesn't remember doing it.",
         ])
-        npc_entity_line = "\n**Affected NPC:** " + npc_ref["name"] + " -- " + npc_ent_detail
+        npc_entity_line = "\n**Affected NPC:** " + npc_ref["name"] + ". " + npc_ent_detail
 
     output = (
         "## ENTITY: " + entity_name + "\n"
@@ -2171,7 +2171,7 @@ def gen_location(ctx, tone=None, planet=None, era=None):
                         "was assigned here on a previous posting. The posting is not in their file.",
                         "drew a map of this place before anyone told them it existed.",
                         "sleeps poorly after visiting. Dreams about rooms that aren't in the blueprints."])
-        npc_line = "\n**Connected NPC:** " + npc_ref["name"] + " -- " + npc_detail
+        npc_line = "\n**Connected NPC:** " + npc_ref["name"] + ". " + npc_detail
 
     output = (
         "## LOCATION: " + loc_name + "\n"
@@ -2413,15 +2413,15 @@ def gen_faction(ctx, tone=None, planet=None, era=None):
     for rf in rel_factions:
         rel_score = RI(-100, 100)
         if rel_score > 50:
-            rel_desc = "Allied (" + str(rel_score) + ") -- active cooperation"
+            rel_desc = "Allied (" + str(rel_score) + "): active cooperation"
         elif rel_score > 10:
-            rel_desc = "Friendly (" + str(rel_score) + ") -- cautious alignment"
+            rel_desc = "Friendly (" + str(rel_score) + "): cautious alignment"
         elif rel_score > -10:
-            rel_desc = "Neutral (" + str(rel_score) + ") -- mutual indifference"
+            rel_desc = "Neutral (" + str(rel_score) + "): mutual indifference"
         elif rel_score > -50:
-            rel_desc = "Hostile (" + str(rel_score) + ") -- friction, not yet violence"
+            rel_desc = "Hostile (" + str(rel_score) + "): friction, not yet violence"
         else:
-            rel_desc = "Enemy (" + str(rel_score) + ") -- active conflict or blood debt"
+            rel_desc = "Enemy (" + str(rel_score) + "): active conflict or blood debt"
         rel_entries.append("- " + rf + ": " + rel_desc)
     rel_matrix = "\n".join(rel_entries)
 
@@ -2433,7 +2433,7 @@ def gen_faction(ctx, tone=None, planet=None, era=None):
         npc_known = R(["The connection is known to Mammona.",
                        "The connection is not known to anyone except " + leader_first + ".",
                        "The connection is known to everyone. Nobody talks about it."])
-        npc_line = ("\n**Known Associate:** " + npc_ref["name"] + " -- "
+        npc_line = ("\n**Known Associate:** " + npc_ref["name"] + ", "
                     + npc_role + ". " + npc_known)
 
     output = (
@@ -2447,7 +2447,7 @@ def gen_faction(ctx, tone=None, planet=None, era=None):
         "\n"
         "**Power Rating:** " + power_rating + "\n"
         "- Members: ~" + member_count + " | Active cells: " + active_cells + " | Armed: " + armed_pct + "%\n"
-        "- Resource control: " + resource_type + " -- " + resource_amount + "\n"
+        "- Resource control: " + resource_type + ", " + resource_amount + "\n"
         "- Territory: " + territory_control + "\n"
         "\n"
         "**Description:**\n"
@@ -2470,8 +2470,8 @@ def gen_faction(ctx, tone=None, planet=None, era=None):
         "2. " + quest2 + "\n"
         "\n"
         "**Members:**\n"
-        "- **" + member1 + "** -- " + member1_job + ". " + member1_detail + "\n"
-        "- **" + member2 + "** -- " + member2_job + ". " + member2_detail
+        "- **" + member1 + ":** " + member1_job + ". " + member1_detail + "\n"
+        "- **" + member2 + ":** " + member2_job + ". " + member2_detail
         + npc_line
     )
 
@@ -2591,11 +2591,11 @@ def gen_planet(ctx, tone=None, planet=None, era=None):
 
     # Format output
     loc_text = "\n".join(
-        "  " + str(i + 1) + ". **" + l["name"] + "** -- " + l["type"]
+        "  " + str(i + 1) + ". **" + l["name"] + ":** " + l["type"]
         for i, l in enumerate(locations)
     )
     fac_text = "\n".join(
-        "  - **" + f["name"] + "** (" + f["type"] + ") -- " + f.get("goal", "unknown agenda")
+        "  - **" + f["name"] + "** (" + f["type"] + "): " + f.get("goal", "unknown agenda")
         for f in factions
     )
     fauna_text = "\n".join("  - " + f for f in fauna)
@@ -2612,7 +2612,7 @@ def gen_planet(ctx, tone=None, planet=None, era=None):
     output = (
         "## PLANET: " + pname + "\n"
         "**Type:** " + planet_type + "\n"
-        "**Atmosphere:** " + atmosphere["type"] + " -- " + atmosphere["detail"] + "\n"
+        "**Atmosphere:** " + atmosphere["type"] + ": " + atmosphere["detail"] + "\n"
         "**Weather:** " + weather + "\n"
         "**Population:** " + "{:,}".format(population) + " (" + pop_status + ")\n"
         "**Tone:** " + tone + "\n"
