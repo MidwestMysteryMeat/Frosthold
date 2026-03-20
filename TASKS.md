@@ -5,7 +5,7 @@
 > Claim tasks before working, then update status again when the work is finished or blocked.
 > Format is strict - agents parse the tables, so do not break the structure.
 
-**Last updated:** 2026-03-20 by Claude Code (Task 8 complete — Planet Select Rework)
+**Last updated:** 2026-03-20 by Claude Code (Task 9 complete — Requisition Panel)
 
 ---
 ## STATUS KEY
@@ -25,6 +25,7 @@
 
 | # | Task | Completed | Agent | Notes |
 |---|------|-----------|-------|-------|
+| Task 9 | Requisition Panel | 2026-03-20 | Claude Code | src/ui/requisition_panel.lua (new, 340 lines). mrp.lua +92 lines (unlock/pick data tables, run picks state). Phase flow rewired: planet_select -> requisition_unlocks -> drafting -> requisition_picks -> world_map -> starting. Smoke tests updated. No regressions. |
 | Task 8 | Planet Select Rework | 2026-03-20 | Claude Code | src/ui/planet_history.lua (new, 211 lines) + planet_select.lua (+54 lines). Scar overlays, deployment badges, history panel (H key), redeployment pre-select. No regressions. |
 | Task 5 | Data Recovery Terminal | 2026-03-20 | Claude Code | src/building/data_terminal.lua + Research.applyDiscProgress. 8 files changed. No regressions. |
 | Task 3 | Nemesis System | 2026-03-20 | Claude Code | src/sim/nemesis.lua + tests/test_nemesis.lua. 15/15 tests pass. raids.lua wired (spawnWave injection + onCreatureDeath revenge). No regressions. |
