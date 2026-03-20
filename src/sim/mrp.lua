@@ -335,5 +335,97 @@ function MRP.load()
 end
 
 ---------------------------------------------------------------------------
+-- Permanent Unlock Definitions
+---------------------------------------------------------------------------
+
+MRP.PERMANENT_UNLOCKS = {
+    -- Genetic Program (tier 0+)
+    { id = 'cold_adapted_genome', name = 'Cold-Adapted Genome', cost = 50, tier = 0,
+      category = 'genetic', desc = 'All colonists: +1 hypothermia stage resistance' },
+    { id = 'enhanced_metabolism', name = 'Enhanced Metabolism', cost = 40, tier = 0,
+      category = 'genetic', desc = 'Colonists eat 15% less' },
+    { id = 'rapid_clotting', name = 'Rapid Clotting', cost = 45, tier = 0,
+      category = 'genetic', desc = 'Bleed rate reduced, wounds heal faster' },
+    { id = 'neural_plasticity', name = 'Neural Plasticity', cost = 60, tier = 1,
+      category = 'genetic', desc = 'Skill learning 20% faster' },
+    { id = 'stress_inoculation', name = 'Stress Inoculation', cost = 35, tier = 0,
+      category = 'genetic', desc = 'Mental break thresholds lowered' },
+    -- Corporate Knowledge Base (tier 0+)
+    { id = 'tier1_research_archive', name = 'Tier 1 Research Archive', cost = 30, tier = 0,
+      category = 'knowledge', desc = 'All Tier 1 research starts at 50% progress' },
+    { id = 'structural_engineering', name = 'Structural Engineering Protocols', cost = 40, tier = 1,
+      category = 'knowledge', desc = 'Buildings start with +15% HP' },
+    { id = 'efficient_extraction', name = 'Efficient Extraction', cost = 35, tier = 0,
+      category = 'knowledge', desc = 'Mining yields +10%' },
+    { id = 'advanced_smelting', name = 'Advanced Smelting Data', cost = 50, tier = 1,
+      category = 'knowledge', desc = 'Steel refining unlocked from run start' },
+    { id = 'agricultural_database', name = 'Agricultural Database', cost = 40, tier = 1,
+      category = 'knowledge', desc = 'Crop grow time reduced 10%' },
+    -- Operational Upgrades (tier 1+)
+    { id = 'expanded_deployment', name = 'Expanded Deployment', cost = 75, tier = 2,
+      category = 'operations', desc = '+1 starting colonist on all runs' },
+    { id = 'heavy_drop_pod', name = 'Heavy Drop Pod', cost = 60, tier = 1,
+      category = 'operations', desc = 'Increased starting resource package' },
+    { id = 'orbital_relay', name = 'Orbital Relay', cost = 80, tier = 2,
+      category = 'operations', desc = 'Merchant caravans arrive earlier and more frequently' },
+    { id = 'deep_scan_array', name = 'Deep Scan Array', cost = 50, tier = 2,
+      category = 'operations', desc = 'Cave entrances visible through fog on new maps' },
+}
+
+---------------------------------------------------------------------------
+-- Per-Run Pick Definitions
+---------------------------------------------------------------------------
+
+MRP.PER_RUN_PICKS = {
+    { id = 'combat_stims', name = 'Combat Stims', cost = 8,
+      category = 'augment', desc = '+20% combat stats for one colonist', targetColonist = true },
+    { id = 'mammona_datalink', name = 'Mammona Datalink', cost = 10,
+      category = 'augment', desc = '+3 to one chosen skill for one colonist', targetColonist = true },
+    { id = 'survival_package', name = 'Survival Package', cost = 6,
+      category = 'augment', desc = 'Colonist starts with parka, medicine, weapon', targetColonist = true },
+    { id = 'psi_dampener', name = 'Psi Dampener', cost = 12,
+      category = 'augment', desc = 'Immune to first mental break', targetColonist = true },
+    { id = 'supply_drop', name = 'Supply Drop', cost = 10,
+      category = 'deployment', desc = 'Extra starting resources' },
+    { id = 'prefab_shelter', name = 'Prefab Shelter', cost = 20,
+      category = 'deployment', desc = 'Start with a small pre-built heated room' },
+    { id = 'advanced_toolkit', name = 'Advanced Toolkit', cost = 15,
+      category = 'deployment', desc = 'Start with research bench + Data Recovery Terminal' },
+    { id = 'satellite_scan', name = 'Satellite Scan', cost = 12,
+      category = 'deployment', desc = 'Reveal portion of map around landing zone' },
+    { id = 'ruin_survey', name = 'Ruin Survey', cost = 8,
+      category = 'deployment', desc = 'See exact contents of old colony ruins before landing' },
+    { id = 'threat_delay', name = 'Threat Delay', cost = 10,
+      category = 'deployment', desc = 'First raid pushed back 5 days' },
+    { id = 'friendly_signal', name = 'Friendly Signal', cost = 15,
+      category = 'deployment', desc = 'Guaranteed refugee event in first 10 days' },
+}
+
+---------------------------------------------------------------------------
+-- Per-Run Pick State
+---------------------------------------------------------------------------
+
+local _activeRunPicks = {}
+
+function MRP.setRunPicks(picks)
+    _activeRunPicks = picks or {}
+end
+
+function MRP.getRunPicks()
+    return _activeRunPicks
+end
+
+function MRP.getAvailableUnlocks()
+    local tier = MRP.getTier()
+    local available = {}
+    for _, unlock in ipairs(MRP.PERMANENT_UNLOCKS) do
+        if unlock.tier <= tier then
+            available[#available + 1] = unlock
+        end
+    end
+    return available
+end
+
+---------------------------------------------------------------------------
 
 return MRP

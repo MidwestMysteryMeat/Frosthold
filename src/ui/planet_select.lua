@@ -381,13 +381,16 @@ function PlanetSelect.confirm()
 
     GameState.planet = selectedPlanet
 
-    -- Generate world map for this planet and advance to hex selection
-    local wok, WorldMap = pcall(require, 'src.ui.world_map')
-    if wok and WorldMap.generateForPlanet then
-        WorldMap.generateForPlanet(selectedPlanet)
+    -- Load MRP campaign data and advance to requisition unlocks screen
+    local mok, MRP = pcall(require, 'src.sim.mrp')
+    if mok then MRP.load() end
+
+    local rok, ReqPanel = pcall(require, 'src.ui.requisition_panel')
+    if rok and ReqPanel.init then
+        ReqPanel.init('unlocks')
     end
 
-    GameState.phase = 'world_map'
+    GameState.phase = 'requisition_unlocks'
 end
 
 ---------------------------------------------------------------------------

@@ -11,9 +11,11 @@ local ColonistSelect = require('src.ui.colonist_select')
 local Planet         = require('src.world.planet')
 
 -- New pre-game flow screens (Tasks 6-11)
-local MainMenu        = require('src.ui.main_menu')
-local DifficultySelect = require('src.ui.difficulty_select')
-local CreateWorld     = require('src.ui.create_world')
+local MainMenu          = require('src.ui.main_menu')
+local DifficultySelect  = require('src.ui.difficulty_select')
+local CreateWorld       = require('src.ui.create_world')
+local RequisitionPanel  = require('src.ui.requisition_panel')
+local MRP               = require('src.sim.mrp')
 
 -- All game modules (loaded eagerly so require() caching works, but only
 -- initialized when the player clicks Start Colony).
@@ -750,13 +752,38 @@ function love.update(dt)
         return
     end
 
-    -- World map: waiting for player to pick a landing zone
-    if D.GameState.phase == 'world_map' then
+    -- Requisition unlocks: permanent MRP purchases
+    if D.GameState.phase == 'requisition_unlocks' then
+        if RequisitionPanel.isDone() then
+            -- Init colonist drafting and advance
+            local csok, CS = pcall(require, 'src.ui.colonist_select')
+            if csok and CS.init then CS.init() end
+            D.GameState.phase = 'drafting'
+        end
         return
     end
 
     -- Drafting phase: player is selecting crew members
     if D.GameState.phase == 'drafting' then
+        return
+    end
+
+    -- Requisition picks: per-run MRP deployment bonuses
+    if D.GameState.phase == 'requisition_picks' then
+        if RequisitionPanel.isDone() then
+            MRP.setRunPicks(RequisitionPanel.getPicksPurchased())
+            -- Generate world map and advance
+            local wok, WorldMap = pcall(require, 'src.ui.world_map')
+            if wok and WorldMap.generateForPlanet then
+                WorldMap.generateForPlanet(D.GameState.planet)
+            end
+            D.GameState.phase = 'world_map'
+        end
+        return
+    end
+
+    -- World map: waiting for player to pick a landing zone
+    if D.GameState.phase == 'world_map' then
         return
     end
 
@@ -959,6 +986,13 @@ function love.draw()
         return
     end
 
+    if GameState.phase == 'requisition_unlocks' or GameState.phase == 'requisition_picks' then
+        RequisitionPanel.draw()
+        drawFade()
+        SettingsPanel.endColorblindPass()
+        return
+    end
+
     if GameState.phase == 'world_map' then
         WorldMap.draw()
         drawFade()
@@ -1123,6 +1157,11 @@ function love.keypressed(key)
         return
     end
 
+    if GameState.phase == 'requisition_unlocks' or GameState.phase == 'requisition_picks' then
+        RequisitionPanel.keypressed(key)
+        return
+    end
+
     if GameState.phase == 'world_map' then
         WorldMap.keypressed(key)
         return
@@ -1266,6 +1305,11 @@ function love.mousepressed(x, y, button)
         return
     end
 
+    if GameState.phase == 'requisition_unlocks' or GameState.phase == 'requisition_picks' then
+        RequisitionPanel.mousepressed(x, y, button)
+        return
+    end
+
     if GameState.phase == 'world_map' then
         WorldMap.mousepressed(x, y, button)
         return
@@ -1337,6 +1381,10 @@ function love.wheelmoved(dx, dy)
     end
     if GameState.phase == 'worldgen' then
         CreateWorld.wheelmoved(dx, dy)
+        return
+    end
+    if GameState.phase == 'requisition_unlocks' or GameState.phase == 'requisition_picks' then
+        RequisitionPanel.wheelmoved(dx, dy)
         return
     end
     if GameState.phase ~= 'playing' then return end

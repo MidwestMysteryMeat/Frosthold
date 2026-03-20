@@ -355,7 +355,7 @@ function WorldMap.mousepressed(x, y, button)
 
     -- Back button
     if pointInRect(x, y, L.backX, L.backY, BACK_W, BACK_H) then
-        GameState.phase = 'planet_select'
+        GameState.phase = 'requisition_picks'
         return
     end
 end
@@ -364,7 +364,7 @@ function WorldMap.keypressed(key)
     if key == 'return' or key == 'kpenter' then
         WorldMap.confirm()
     elseif key == 'escape' then
-        GameState.phase = 'planet_select'
+        GameState.phase = 'requisition_picks'
     end
 end
 
@@ -422,12 +422,8 @@ function WorldMap.confirm()
     end
     GameState.landingSiteSelected = true
 
-    -- Advance to crew selection
-    local csok, ColonistSelect = pcall(require, 'src.ui.colonist_select')
-    if csok and ColonistSelect.init then
-        ColonistSelect.init()
-    end
-    GameState.phase = 'drafting'
+    -- Advance to world generation (drafting already happened before world_map)
+    GameState.phase = 'starting'
 end
 
 return WorldMap

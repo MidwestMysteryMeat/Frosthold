@@ -605,7 +605,7 @@ function ColonistSelect.mousepressed(x, y, button)
     local backX = btnX - backW - 16
     local backY = btnY + 7
     if pointInRect(x, y, backX, backY, backW, backH) then
-        GameState.phase = 'world_map'
+        GameState.phase = 'requisition_unlocks'
         return
     end
 end
@@ -616,7 +616,7 @@ function ColonistSelect.keypressed(key)
             ColonistSelect.deploy()
         end
     elseif key == 'escape' then
-        GameState.phase = 'world_map'
+        GameState.phase = 'requisition_unlocks'
     end
 end
 
@@ -641,7 +641,13 @@ function ColonistSelect.deploy()
         end
     end
     GameState.draftedColonists = drafted
-    GameState.phase = 'starting'
+
+    -- Advance to per-run requisition picks before world map
+    local rok, ReqPanel = pcall(require, 'src.ui.requisition_panel')
+    if rok and ReqPanel.init then
+        ReqPanel.init('picks')
+    end
+    GameState.phase = 'requisition_picks'
 end
 
 return ColonistSelect
