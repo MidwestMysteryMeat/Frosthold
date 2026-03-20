@@ -58,18 +58,21 @@ STATE_PATH = Path(__file__).parent / "world_state.json"
 # ============================================================
 
 WORLD_LIMITS = {
-    "faction": 25,       # canonical (36 exist but not all are on Erebus) + fringe
-    "location": 40,      # colony sectors + discovered sites + points of interest
-    "npc": 80,           # colony population (living characters)
-    "robot": 15,         # operational units
-    "quest": 20,         # active quest hooks at any time
-    "history": 30,       # pre-arrival events
-    "datapad": 50,       # found documents (these accumulate, higher cap)
-    "weapon": 30,        # unique weapons in circulation
-    "artifact": 10,      # rare by definition
-    "entity": 5,         # extremely rare
-    "vehicle": 12,       # ships/vehicles in the area
-    "company": 15,       # corporate entities operating in the region
+    # The game already has 36 canonical factions and 70 canonical locations.
+    # These limits are for PROCEDURALLY GENERATED extras per run — not replacements.
+    # A handful of fringe factions and discovered sites per run, not thousands.
+    "faction": 5,        # 3-5 fringe factions per run (36 canonical always available)
+    "location": 8,       # 5-8 discovered sites per run (70 canonical always available)
+    "npc": 60,           # colony population (~40-60 named characters)
+    "robot": 10,         # operational units on the colony
+    "quest": 15,         # active quest hooks at any time
+    "history": 20,       # pre-arrival events (the past is finite)
+    "datapad": 40,       # found documents (accumulate over time)
+    "weapon": 15,        # notable weapons in circulation
+    "artifact": 5,       # rare by definition — 3-5 on the whole planet
+    "entity": 3,         # extremely rare — Erebus phenomena
+    "vehicle": 8,        # ships/vehicles in the area
+    "company": 8,        # corporate entities operating near the colony
 }
 
 # ============================================================
