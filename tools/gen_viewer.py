@@ -382,11 +382,12 @@ HTML_PAGE = r"""<!DOCTYPE html>
                 pieces = [];
                 typeCounts = {};
                 startTime = Date.now();
-                document.getElementById('stat-total').textContent = '0';
-                document.getElementById('stat-rate').textContent = '0';
-                document.getElementById('stat-npc').textContent = '0';
-                document.getElementById('stat-quest').textContent = '0';
-                document.getElementById('stat-datapad').textContent = '0';
+                var el;
+                el = document.getElementById('stat-total'); if (el) el.textContent = '0';
+                el = document.getElementById('stat-rate'); if (el) el.textContent = '0';
+                el = document.getElementById('stat-npc'); if (el) el.textContent = '0';
+                el = document.getElementById('stat-quest'); if (el) el.textContent = '0';
+                el = document.getElementById('stat-datapad'); if (el) el.textContent = '0';
                 // Flash the button green
                 const btn = document.getElementById('btn-reset');
                 btn.style.borderColor = '#27ae60';
