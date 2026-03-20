@@ -6,6 +6,8 @@
 local GameState  = require('src.game_state')
 local PlanetDefs = require('src.world.planet_defs')
 
+local PlanetHistory = require('src.ui.planet_history')
+
 local PlanetSelect = {}
 
 ---------------------------------------------------------------------------
@@ -40,6 +42,10 @@ function PlanetSelect.init()
     bodyFont   = love.graphics.newFont(11)
     smallFont  = love.graphics.newFont(9)
     selectedPlanet = GameState.planet or 'erebus'
+    -- Pre-select the failed planet when redeploying after a run ends
+    if GameState._redeployment and GameState.planet then
+        selectedPlanet = GameState.planet
+    end
 end
 
 ---------------------------------------------------------------------------
@@ -150,6 +156,23 @@ local function drawCard(x, y, def, isSelected, isHovered)
     love.graphics.setColor(0.55, 0.6, 0.7, locked and 0.3 or 0.8)
     love.graphics.printf(def.desc, x + 8, descY, CARD_W - 16, 'center')
 
+    -- Deployment badge and scar overlay
+    local mok, MRP = pcall(require, 'src.sim.mrp')
+    if mok then
+        local deployCount = MRP.getDeploymentCount(def.id)
+        if deployCount > 0 then
+            -- Scar overlay: progressively darker/redder with more deployments
+            local scarAlpha = math.min(deployCount * 0.08, 0.4)
+            love.graphics.setColor(0.6, 0.1, 0.1, scarAlpha)
+            love.graphics.rectangle('fill', x, y, CARD_W, CARD_H, CARD_RADIUS)
+
+            -- Deployment badge
+            love.graphics.setFont(smallFont)
+            love.graphics.setColor(0.9, 0.7, 0.2, 0.9)
+            love.graphics.print('Deployment ' .. (deployCount + 1), x + 4, y + CARD_H - 18)
+        end
+    end
+
     -- "Coming Soon" overlay for locked planets
     if locked then
         love.graphics.setColor(0.04, 0.06, 0.1, 0.6)
@@ -252,6 +275,22 @@ function PlanetSelect.draw()
     local hint = 'Arrow keys to browse  /  Enter to confirm'
     local hw = smallFont:getWidth(hint)
     love.graphics.print(hint, math.floor((L.sw - hw) / 2), btnY + btnH + 8)
+
+    -- Deployment history hint (only when selected planet has past runs)
+    local hmok, HMRP = pcall(require, 'src.sim.mrp')
+    if hmok then
+        local hdepCount = HMRP.getDeploymentCount(selectedPlanet)
+        if hdepCount > 0 then
+            love.graphics.setFont(smallFont)
+            love.graphics.setColor(0.75, 0.6, 0.2, 0.85)
+            local hhint = '[H] Deployment History'
+            local hhw = smallFont:getWidth(hhint)
+            love.graphics.print(hhint, math.floor((L.sw - hhw) / 2), btnY + btnH + 22)
+        end
+    end
+
+    -- History panel drawn on top
+    PlanetHistory.draw()
 end
 
 ---------------------------------------------------------------------------
@@ -288,6 +327,17 @@ function PlanetSelect.mousepressed(x, y, button)
 end
 
 function PlanetSelect.keypressed(key)
+    -- Route through history panel first — it consumes input when visible
+    if PlanetHistory.keypressed(key) then return end
+
+    if key == 'h' then
+        local mok, MRP = pcall(require, 'src.sim.mrp')
+        if mok and MRP.getDeploymentCount(selectedPlanet) > 0 then
+            PlanetHistory.show(selectedPlanet)
+        end
+        return
+    end
+
     if key == 'left' then
         local order = PlanetDefs.PLANET_ORDER
         for i, pid in ipairs(order) do
@@ -319,6 +369,10 @@ function PlanetSelect.keypressed(key)
     elseif key == 'return' or key == 'kpenter' then
         PlanetSelect.confirm()
     end
+end
+
+function PlanetSelect.wheelmoved(x, y)
+    PlanetHistory.wheelmoved(x, y)
 end
 
 function PlanetSelect.confirm()
