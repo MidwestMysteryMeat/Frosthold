@@ -33,6 +33,7 @@ from gen_pools_core import (
     MOTIVATIONS, MOTIVATION_WEIGHTS, HIDDEN_AGENDAS, SOCIAL_MASKS,
     generate_stats, pick_motivation, d100_narrative, bias_economic_status,
     name, rname, robot_name, pronouns, pick_traits,
+    THOUGHT_CATEGORIES, THOUGHT_DURATION, generate_thought_duration, generate_active_thoughts,
 )
 
 from gen_pools_text import (
@@ -2046,6 +2047,9 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         "like": like,
         "dislike": dislike,
     }
+    # --- Active thoughts ---
+    npc_data["active_thoughts"] = generate_active_thoughts(npc_data, n=3)
+
     ctx.add_npc(npc_data)
 
     # --- Also persist to world state ---
@@ -2115,6 +2119,14 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
                   f"rolled {sample_check['roll']}/{sample_check['target']} -- "
                   f"{sample_check['outcome'].replace('_', ' ')}")
 
+    # Build thoughts block
+    thoughts_lines = []
+    for th in npc_data.get("active_thoughts", []):
+        thoughts_lines.append(
+            f'- [{th["intensity"]}] "{th["content"]}" (source: {th["source"]}, duration: {th["duration"]} ticks)'
+        )
+    thoughts_block = "\n".join(thoughts_lines) if thoughts_lines else "- [low] \"nothing right now\" (source: idle, duration: 30 ticks)"
+
     output = f"""## NPC: {first} {last}
 **Gender:** {gender_label} | **Age:** {age} | **Occupation:** {job}
 **Traits:** {trait_str}
@@ -2141,6 +2153,9 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
 **What Drives Them:** {passion}
 **What Haunts Them:** {fear_raw}
+
+**Current Thoughts:**
+{thoughts_block}
 
 **Dialogue:**
 {dialogue_block}

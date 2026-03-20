@@ -29,6 +29,7 @@ from gen_pools_core import (
     generate_robot_stats, d100_check, d100_narrative,
     d100_narrative_robot, robot_maintenance_check,
     name, rname, robot_name, pronouns,
+    ROBOT_THOUGHTS, ROBOT_THOUGHT_DURATION, generate_robot_thoughts,
     # Planet generation pools
     PLANET_TYPES, PLANET_ATMOSPHERES, PLANET_WEATHERS, PLANET_RESOURCES,
     PLANET_FAUNA, PLANET_FLORA, PLANET_HISTORIES,
@@ -606,6 +607,13 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
 
     parts_block = "\n".join(parts_lines)
 
+    # --- Active processes (thoughts) ---
+    robot_thoughts = generate_robot_thoughts(sentience_level, n=3)
+    robot_thoughts_lines = []
+    for rt in robot_thoughts:
+        robot_thoughts_lines.append('- "' + rt["content"] + '" (cycle: ' + str(rt["duration"]) + ' ticks)')
+    robot_thoughts_block = "\n".join(robot_thoughts_lines)
+
     # --- Operational ratings & economic status ---
     ratings, robot_econ_entry, book_value = generate_robot_stats(
         model_entry,
@@ -698,6 +706,9 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         "\n"
         "**Dialogue:**\n"
         + dialogue_block + "\n"
+        "\n"
+        "**Active Processes:**\n"
+        + robot_thoughts_block + "\n"
         "\n"
         "**Quest Hook:**\n"
         + quest + "\n"

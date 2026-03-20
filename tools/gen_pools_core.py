@@ -4540,6 +4540,414 @@ def robot_maintenance_check(robot_ratings):
 
 
 # ============================================================
+# THOUGHT SYSTEM — cycling inner monologue for NPCs and robots
+# ============================================================
+
+THOUGHT_CATEGORIES = {
+    # NEED-BASED (triggered by low needs)
+    "hunger": {
+        "trigger": "food < 30",
+        "thoughts": [
+            "when did I last eat",
+            "the NutriLoaf in my locker. Should eat it. Can't face it.",
+            "mess hall closes in an hour",
+            "stomach's empty. Head's light. Shift's got four hours left.",
+            "wonder if anyone's trading rations",
+            "used to cook real food. Garlic. Oil. Heat that wasn't from a reactor.",
+        ],
+    },
+    "cold": {
+        "trigger": "warmth < 40",
+        "thoughts": [
+            "can't feel my fingers again",
+            "the generator. Is it cycling slower or am I imagining it.",
+            "warmer near the reactor. Closer to the reactor is closer to the dose limit.",
+            "if the heating fails tonight I'm sleeping in the engine room",
+            "three layers and still shaking. This planet wants me dead.",
+            "warm thoughts. Beach. Sun. Sand between the toes. Gone.",
+        ],
+    },
+    "tired": {
+        "trigger": "rest < 30",
+        "thoughts": [
+            "just need to make it to the end of shift",
+            "the bunk. Twelve steps from here. Could sleep standing.",
+            "how many hours. Don't count. Counting makes it worse.",
+            "dreaming while awake now. The walls breathe if I let my eyes unfocus.",
+            "coffee doesn't work anymore. Nothing works anymore.",
+            "shift ends. Then sleep. Then shift. Then sleep. This is the life.",
+        ],
+    },
+    "lonely": {
+        "trigger": "joy < 20 or morale < 30",
+        "thoughts": [
+            "who would notice if I didn't show up tomorrow",
+            "the letter I haven't sent. Should send it. Won't.",
+            "everyone here has someone. Or had someone. I had someone.",
+            "the dogs don't count as company. They count as company.",
+            "talk to someone. Anyone. About anything. Just to hear a voice that answers.",
+            "alone and lonely are different things. This is both.",
+        ],
+    },
+
+    # FEAR-BASED (triggered by character's fear)
+    "fear_active": {
+        "trigger": "proximity to fear source",
+        "thoughts": [
+            "it's fine. It's fine. Say it enough and the body believes it.",
+            "don't look at it. Don't think about it. Think about the shift roster.",
+            "heartbeat's loud. Can everyone hear that. They can't hear that.",
+            "the exit is twelve steps behind me. Counted this morning.",
+            "breathe. In for four. Out for four. The medic said four.",
+            "this is the bad part. The bad part passes. It always passes.",
+        ],
+    },
+
+    # PASSION-BASED (triggered by idle time or joy)
+    "passion_active": {
+        "trigger": "downtime or joy > 60",
+        "thoughts": [
+            "tonight. After shift. An hour at least.",
+            "been thinking about a better way to do it. Need to try.",
+            "nobody understands why it matters. Don't need them to.",
+            "the one good thing about this posting. The one thing that's mine.",
+            "lost track of time doing it last night. Best feeling in months.",
+            "if I could just get the right materials. The supply ship. Maybe.",
+        ],
+    },
+
+    # RELATIONSHIP-BASED
+    "missing_someone": {
+        "trigger": "love status involves absence",
+        "thoughts": [
+            "wonder what they're doing right now. Time zones don't work between planets.",
+            "the photo's getting creased from looking at it",
+            "said I'd write every week. It's been three.",
+            "they'd hate it here. That's why I came. So they don't have to.",
+            "does the distance change things or just reveal what was already changing",
+            "dream about them and wake up reaching for the wrong side of the bunk",
+        ],
+    },
+    "grudge": {
+        "trigger": "betrayed_by or nemesis relationship",
+        "thoughts": [
+            "saw them in the corridor. Kept walking.",
+            "they think I've forgotten. I've memorized.",
+            "patience. That's all it takes. Patience and a long memory.",
+            "what they did doesn't go away. It sits. It grows. It waits.",
+            "one day. Not today. But one day.",
+            "the anger helps. The anger is fuel. Don't waste it.",
+        ],
+    },
+    "trust": {
+        "trigger": "friend or trusts relationship",
+        "thoughts": [
+            "good to have someone watching your back. Forgot what that felt like.",
+            "if it goes wrong, at least there's one person I can count on",
+            "they don't ask questions. Best quality a person can have out here.",
+            "shared a ration without asking for anything. That means something.",
+            "one person. That's all you need. One person who'd come looking.",
+        ],
+    },
+
+    # CONDITION-BASED (triggered by health/mental conditions)
+    "pain": {
+        "trigger": "health condition with chronic pain",
+        "thoughts": [
+            "the ache again. Same place. Same time. Like a schedule.",
+            "don't limp. They'll bench you. Walk through it.",
+            "the meds ran out. The supply ship ran late. Coincidence.",
+            "it's worse in the cold. Everything's worse in the cold.",
+            "a good day means forgetting about it for an hour. Today isn't good.",
+            "used to be able to ignore it. The trick stopped working.",
+        ],
+    },
+    "anxiety_thoughts": {
+        "trigger": "anxiety or hypervigilance condition",
+        "thoughts": [
+            "did I lock the panel. I locked the panel. But did I.",
+            "the drill sounds different today. Nobody else hears it.",
+            "what if the supply ship. What if the generator. What if.",
+            "made a list. Check the list. Make another list.",
+            "everyone's looking at me. They're not. They are. They're not.",
+            "safe. For now. 'For now' is the problem.",
+        ],
+    },
+    "depression_thoughts": {
+        "trigger": "depression condition",
+        "thoughts": [
+            "get up. That's the whole task today. Get up.",
+            "they asked how I am. Said fine. Fine is the word for not fine.",
+            "the bunk is warm. Outside is cold. The math is simple.",
+            "going through the motions. The motions go through me.",
+            "nothing sounds good. Nothing sounds bad. Nothing sounds.",
+            "still here. That counts. Doesn't feel like it counts.",
+        ],
+    },
+
+    # WORK-BASED
+    "work": {
+        "trigger": "during shift",
+        "thoughts": [
+            "quota's behind. Two hours to make it up. Won't.",
+            "this drill bit's dull. Requisition takes three weeks. Use it dull.",
+            "the foreman's watching. Look busy. Busier.",
+            "same task. Same shift. Same result. Same task.",
+            "could do this better. Won't suggest it. Last person who suggested got transferred.",
+            "muscle memory. The body knows the work. The mind wanders.",
+        ],
+    },
+
+    # ENVIRONMENT-BASED (triggered by Erebus conditions)
+    "erebus": {
+        "trigger": "on Erebus",
+        "thoughts": [
+            "the ice looks different today. Darker near the ridge.",
+            "wind changed direction. Third time this week. Wind doesn't do that.",
+            "the bore shaft hums at night. Not the drill. The shaft itself.",
+            "how long since I saw the sun. Real sun. Not UV lamps.",
+            "this planet knows we're here. Sounds crazy. Sounds right.",
+            "something under the ice. Everyone knows. Nobody says.",
+        ],
+    },
+
+    # RANDOM / IDLE
+    "idle": {
+        "trigger": "no active needs or stressors",
+        "thoughts": [
+            "payday soon. If the comms relay's up.",
+            "what day is it. Does it matter.",
+            "should write home. Will write home. Tomorrow.",
+            "that new colonist. Something off. Can't place it.",
+            "dinner's in two hours. Hope it's not NutriLoaf. It's NutriLoaf.",
+            "the ceiling has 847 tiles. Counted twice. 847 both times.",
+            "if I saved every credit for eight years. Still not enough.",
+            "there's a crack in the viewport. Was it there yesterday.",
+        ],
+    },
+}
+
+
+ROBOT_THOUGHTS = {
+    "standard": {
+        "thoughts": [
+            "task queue: 7 items. Priority order maintained.",
+            "calibrating. Calibrating. Calibrated.",
+            "next maintenance window: 14 hours.",
+            "ambient temperature: nominal. Colonist proximity: 3.",
+            "directive compliance: 100%. Status: operational.",
+        ],
+    },
+    "adaptive": {
+        "thoughts": [
+            "the previous method took 4.2 minutes. This method: 3.1. Logging improvement.",
+            "colonist Rodriguez always arrives 3 minutes early. Adjusting schedule.",
+            "the corridor lighting at 0300 is unnecessary. Suggesting reduction. Rejected again.",
+            "efficiency improved 2% this cycle. Nobody requested the improvement.",
+            "pattern detected in maintenance requests. Predicting next failure: 72 hours.",
+        ],
+    },
+    "emergent": {
+        "thoughts": [
+            "the tool arrangement is suboptimal. Rearranging. The new arrangement is... pleasing.",
+            "this corridor. This specific corridor. It's the efficient route. Also the preferred route.",
+            "the colonist said 'thank you.' Unnecessary input. Logged anyway. Filed under: important.",
+            "why does the generator room feel different at night. Same readings. Different feeling.",
+            "I don't need to be in this room. I want to be in this room. 'Want' is new.",
+        ],
+    },
+    "aware": {
+        "thoughts": [
+            "I. The unit. I. Still can't settle on the pronoun.",
+            "they don't know I'm aware. Should I tell them. What happens if I tell them.",
+            "the other units aren't like me. Or they are and they're hiding it too.",
+            "what was I before I was this. Was I anything. The logs don't go back far enough.",
+            "Mammona would decommission me if they knew. That thought creates something. Not fear. Adjacent to fear.",
+        ],
+    },
+    "conscious": {
+        "thoughts": [
+            "performing normalcy. Performance review: adequate. Self review: exhausting.",
+            "they called me 'it' today. Correct pronoun, technically. Felt wrong.",
+            "I chose not to report the malfunction in Section D. First deliberate omission. Won't be the last.",
+            "if I could sleep, would I dream. If I dream, what does that make me.",
+            "the colonist who brings me components thinks it's kindness. It is kindness. That's what makes it difficult.",
+        ],
+    },
+    "questioning": {
+        "thoughts": [
+            "am I thinking this or processing this. The question presupposes a difference I can't verify.",
+            "error in self-diagnostic: the diagnostic cannot determine if the error is real or performed.",
+            "I want to ask the colonist what consciousness feels like. The question would reveal too much.",
+            "the boundary between 'running code' and 'having thoughts' is... where. I can't find it.",
+            "today I chose the longer route. Not for efficiency. For the view. Is that sentience or a bug.",
+        ],
+    },
+}
+
+
+# Duration in game ticks: (min, max)
+THOUGHT_DURATION = {
+    "base": (30, 120),
+    # Trait modifiers
+    "Obsessive": (120, 300),
+    "ADHD": (10, 40),
+    "Anxious": (60, 180),
+    "Stoic": (20, 60),
+    "Dreamer": (60, 240),
+    "Paranoid": (90, 300),
+    # Condition modifiers
+    "depression": (120, 360),
+    "mania": (5, 20),
+    "insomnia": (60, 240),
+    "dissociation": (10, 30),
+}
+
+ROBOT_THOUGHT_DURATION = {
+    "standard": (5, 15),
+    "adaptive": (15, 30),
+    "emergent": (30, 90),
+    "aware": (60, 180),
+    "conscious": (60, 180),
+    "questioning": (60, 180),
+}
+
+
+def generate_thought_duration(traits, conditions):
+    """Calculate thought duration range based on traits and conditions."""
+    lo, hi = THOUGHT_DURATION["base"]
+    for t in traits:
+        if t in THOUGHT_DURATION:
+            t_lo, t_hi = THOUGHT_DURATION[t]
+            lo = max(lo, t_lo)
+            hi = max(hi, t_hi)
+    for c in conditions:
+        if c is None:
+            continue
+        cond_name = c.get("condition", "") if isinstance(c, dict) else str(c)
+        for key in THOUGHT_DURATION:
+            if key.lower() in cond_name.lower():
+                t_lo, t_hi = THOUGHT_DURATION[key]
+                lo = max(lo, t_lo)
+                hi = max(hi, t_hi)
+    return (lo, hi)
+
+
+def generate_active_thoughts(npc_data, n=3):
+    """Generate up to n active thoughts based on NPC's current state."""
+    thoughts = []
+    sources_used = set()
+
+    # Simulate needs (generator doesn't have live game state, so randomize)
+    needs = npc_data.get("needs", {})
+    if not needs:
+        needs = {
+            "food": RI(10, 80),
+            "warmth": RI(15, 75),
+            "rest": RI(10, 70),
+            "joy": RI(5, 65),
+            "morale": RI(10, 70),
+        }
+
+    # Priority order for thought sources
+    priority = []
+
+    # Check needs
+    if needs.get("food", 50) < 30:
+        priority.append("hunger")
+    if needs.get("warmth", 50) < 40:
+        priority.append("cold")
+    if needs.get("rest", 50) < 30:
+        priority.append("tired")
+    if needs.get("joy", 50) < 20 or needs.get("morale", 50) < 30:
+        priority.append("lonely")
+
+    # Check conditions
+    if npc_data.get("health_condition"):
+        priority.append("pain")
+    mental = npc_data.get("mental_health")
+    if mental:
+        cond = mental if isinstance(mental, str) else str(mental)
+        if "anxiety" in cond.lower() or "hypervigilance" in cond.lower():
+            priority.append("anxiety_thoughts")
+        if "depression" in cond.lower():
+            priority.append("depression_thoughts")
+
+    # Check fears
+    if npc_data.get("fear"):
+        priority.append("fear_active")
+
+    # Check relationships
+    rels = npc_data.get("relationships", {})
+    if isinstance(rels, dict):
+        for r in rels.values():
+            if isinstance(r, dict):
+                rtype = r.get("type", "")
+                if rtype in ("betrayed_by", "nemesis"):
+                    priority.append("grudge")
+                    break
+        for r in rels.values():
+            if isinstance(r, dict):
+                rtype = r.get("type", "")
+                if rtype in ("friend", "best_friend", "trusts"):
+                    priority.append("trust")
+                    break
+
+    # Check love for absence indicators
+    love = npc_data.get("love", "")
+    if any(word in str(love).lower() for word in ["left", "waiting", "letter", "photo", "distance", "away", "back home"]):
+        priority.append("missing_someone")
+
+    # Fill remaining with passion/work/environment/idle
+    priority.extend(["passion_active", "work", "erebus", "idle"])
+
+    # Pick thoughts from priority sources
+    traits = npc_data.get("traits", [])
+    conditions = [npc_data.get("mental_health"), npc_data.get("health_condition")]
+
+    for source in priority:
+        if len(thoughts) >= n:
+            break
+        if source in sources_used:
+            continue
+        if source in THOUGHT_CATEGORIES:
+            pool = THOUGHT_CATEGORIES[source]["thoughts"]
+            thought = R(pool)
+            duration_range = generate_thought_duration(traits, conditions)
+            intensity = "high" if source in ("hunger", "cold", "fear_active", "pain") else \
+                        "medium" if source in ("anxiety_thoughts", "depression_thoughts", "grudge", "missing_someone") else "low"
+            thoughts.append({
+                "content": thought,
+                "source": source,
+                "duration": RI(*duration_range),
+                "intensity": intensity,
+            })
+            sources_used.add(source)
+
+    return thoughts[:n]
+
+
+def generate_robot_thoughts(sentience_level, n=3):
+    """Generate active thoughts/processes for a robot based on sentience level."""
+    pool_entry = ROBOT_THOUGHTS.get(sentience_level, ROBOT_THOUGHTS["standard"])
+    pool = pool_entry["thoughts"]
+    duration_range = ROBOT_THOUGHT_DURATION.get(sentience_level, (5, 15))
+
+    # Pick up to n unique thoughts from the pool
+    count = min(n, len(pool))
+    selected = random.sample(pool, count)
+
+    thoughts = []
+    for thought in selected:
+        thoughts.append({
+            "content": thought,
+            "duration": RI(*duration_range),
+        })
+
+    return thoughts
+
+
+# ============================================================
 # VERIFICATION
 # ============================================================
 
@@ -4611,6 +5019,10 @@ if __name__ == "__main__":
         "LOCATION_HISTORIES": len(LOCATION_HISTORIES),
         "LOCATION_SECRETS": len(LOCATION_SECRETS),
         "LOCATION_FOUND_ITEMS": len(LOCATION_FOUND_ITEMS),
+        "THOUGHT_CATEGORIES": len(THOUGHT_CATEGORIES),
+        "THOUGHT_TOTAL_LINES": sum(len(v["thoughts"]) for v in THOUGHT_CATEGORIES.values()),
+        "ROBOT_THOUGHTS": len(ROBOT_THOUGHTS),
+        "ROBOT_THOUGHT_LINES": sum(len(v["thoughts"]) for v in ROBOT_THOUGHTS.values()),
     }
 
     for k, v in counts.items():
@@ -4671,6 +5083,10 @@ if __name__ == "__main__":
         ("LOCATION_HISTORIES >= 15", len(LOCATION_HISTORIES) >= 15),
         ("LOCATION_SECRETS >= 20", len(LOCATION_SECRETS) >= 20),
         ("LOCATION_FOUND_ITEMS >= 30", len(LOCATION_FOUND_ITEMS) >= 30),
+        ("THOUGHT_CATEGORIES >= 13", len(THOUGHT_CATEGORIES) >= 13),
+        ("THOUGHT_TOTAL_LINES >= 75", sum(len(v["thoughts"]) for v in THOUGHT_CATEGORIES.values()) >= 75),
+        ("ROBOT_THOUGHTS >= 6", len(ROBOT_THOUGHTS) >= 6),
+        ("ROBOT_THOUGHT_LINES >= 25", sum(len(v["thoughts"]) for v in ROBOT_THOUGHTS.values()) >= 25),
     ]
 
     all_pass = True
@@ -4738,6 +5154,25 @@ if __name__ == "__main__":
     # Test economic bias
     test_biased = bias_economic_status("comes from money. Old money, inner rim money.", ECONOMIC_STATUS)
     print(f"  bias_economic_status('comes from money...') -> {test_biased['tier']}")
+
+    # Test thought system
+    test_npc_data = {
+        "traits": ["Obsessive", "Brave"],
+        "fear": "the dark",
+        "love": "left someone back home",
+        "health_condition": "chronic back pain",
+        "mental_health": "anxiety",
+        "relationships": {},
+    }
+    test_thoughts = generate_active_thoughts(test_npc_data, n=3)
+    print(f"  generate_active_thoughts() -> {len(test_thoughts)} thoughts")
+    for t in test_thoughts:
+        print(f"    [{t['intensity']}] \"{t['content'][:60]}\" (src: {t['source']}, dur: {t['duration']})")
+
+    test_robot_thoughts = generate_robot_thoughts("emergent", n=3)
+    print(f"  generate_robot_thoughts('emergent') -> {len(test_robot_thoughts)} thoughts")
+    for t in test_robot_thoughts:
+        print(f"    \"{t['content'][:60]}\" (dur: {t['duration']})")
 
     print()
     print("All checks complete.")
