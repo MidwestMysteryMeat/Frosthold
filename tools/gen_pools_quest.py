@@ -24,7 +24,7 @@ QUEST_ARCHETYPES = {
             "Breach in Section D",
         ],
         "trigger": "The contamination alarm in {section} fires at 0300. {npc} is the first responder. By the time {npc_first} reaches the containment door, it's already open. From the inside.",
-        "setup": "The containment cell was rated for Class IV biological threats. Whatever was inside didn't breach it with force -- it breached it with patience. {sensory} {npc_first} stands at the threshold, flashlight trembling. The cell's interior is clean. Too clean. The restraints are still locked. Whatever was in them isn't anymore.",
+        "setup": "The containment cell was rated for Class IV biological threats. Whatever was inside didn't breach it with force. It breached it with patience. {sensory} {npc_first} stands at the threshold, flashlight trembling. The cell's interior is clean. Too clean. The restraints are still locked. Whatever was in them isn't anymore.",
         "objectives": [
             "Trace the specimen's path through the ventilation system. The trail is warm.",
             "Seal off {section} before it reaches the populated corridors. The manual overrides are on the other side.",
@@ -50,7 +50,7 @@ QUEST_ARCHETYPES = {
             "Something Wearing {npc_first}",
         ],
         "trigger": "Two colonists report seeing {npc} in two different sections at the same time. Both are certain. Neither is lying.",
-        "setup": "{sensory} The colony is twenty-three people in a metal box on a frozen rock. Everyone knows everyone. That's what makes it worse -- when {npc_first} walks into the mess hall, something is different. The laugh is right. The posture is right. The eyes are wrong. Not wrong enough to point at. Wrong enough to feel.",
+        "setup": "{sensory} The colony is twenty-three people in a metal box on a frozen rock. Everyone knows everyone. That's what makes it worse. When {npc_first} walks into the mess hall, something is different. The laugh is right. The posture is right. The eyes are wrong. Not wrong enough to point at. Wrong enough to feel.",
         "objectives": [
             "Conduct a headcount. Compare results with HERMES personnel tracking. The numbers don't match.",
             "Isolate {npc_first} and run a medical scan. The results come back normal. Perfectly normal. Suspiciously normal.",
@@ -102,7 +102,7 @@ QUEST_ARCHETYPES = {
             "Lab Breach",
         ],
         "trigger": "{npc} was running routine checks on the xenobiology lab. The specimen cage is open. The specimen is gone. The cage wasn't forced. It was solved. Like a puzzle.",
-        "setup": "{sensory} The lab is cold -- colder than it should be. The specimen's containment fluid has evaporated, leaving a residue that smells like iron and ammonia. {npc_first} shows you the cage mechanism. It's a three-stage magnetic lock. The specimen figured out the sequence. It took four attempts. You can see the scratch marks where it tried.",
+        "setup": "{sensory} The lab is cold. Colder than it should be. The specimen's containment fluid has evaporated, leaving a residue that smells like iron and ammonia. {npc_first} shows you the cage mechanism. It's a three-stage magnetic lock. The specimen figured out the sequence. It took four attempts. You can see the scratch marks where it tried.",
         "objectives": [
             "Track the specimen through the colony's maintenance corridors. It's small. It's fast. It's learning the layout.",
             "Warn the night shift without causing a panic. The last thing the colony needs is armed, frightened people shooting at shadows.",
@@ -154,7 +154,7 @@ QUEST_ARCHETYPES = {
             "Missing Since Tuesday",
         ],
         "trigger": "Third colonist in two weeks. Gone without a trace. No bodies. No blood. No struggle. Just empty bunks and unanswered radios. {npc} was friends with the last one. {npc_first} isn't sleeping.",
-        "setup": "The perimeter is intact. The airlocks are sealed. HERMES shows all personnel accounted for -- because it's counting from the last roster update, and nobody's had the nerve to update it. {sensory} {npc_first} has a theory. Doesn't want to say it out loud. Saying it makes it real.",
+        "setup": "The perimeter is intact. The airlocks are sealed. HERMES shows all personnel accounted for. Because it's counting from the last roster update, and nobody's had the nerve to update it. {sensory} {npc_first} has a theory. Doesn't want to say it out loud. Saying it makes it real.",
         "objectives": [
             "Review the last 72 hours of security footage for each missing colonist. The footage shows them walking. Toward the bore shaft. Voluntarily.",
             "Set up a watch pattern. Nobody works alone. Nobody walks alone. Nobody sleeps without someone in earshot.",
@@ -180,7 +180,7 @@ QUEST_ARCHETYPES = {
             "Contamination Event",
         ],
         "trigger": "{npc} notices the growth first. On the wall of the mess hall. Organic. Pulsing. By the time the medic arrives, it's on two walls. By evening, it's in the corridors.",
-        "setup": "{sensory} The growth is warm to the touch. It smells like soil and copper -- almost pleasant if you don't think about where it's growing. {npc_first} quarantined the first colonist who touched it bare-handed. Their fingertips have changed color. They say they can feel the wall thinking.",
+        "setup": "{sensory} The growth is warm to the touch. It smells like soil and copper. Almost pleasant if you don't think about where it's growing. {npc_first} quarantined the first colonist who touched it bare-handed. Their fingertips have changed color. They say they can feel the wall thinking.",
         "objectives": [
             "Map the spread. Determine if it's following the ventilation system, the plumbing, or the wiring. Or all three.",
             "Contain it before it reaches the reactor. The growth seems to orient toward heat sources.",
@@ -188,7 +188,7 @@ QUEST_ARCHETYPES = {
         ],
         "choices": [
             "Burn it out. Controlled fire in the affected sections. Lose the hab block. Save the colony.\nOR\nLet it grow. Study it. The four changed colonists are productive. Happy, even. For the first time since deployment.",
-            "Amputate the affected tissue from the exposed colonists. They'll lose fingers. Maybe hands. But they'll stay human.\nOR\nLeave them. Monitor them. The growth is giving them something -- vitality, resistance to cold, a sense of peace. Taking it away might kill them. Or it might save them from something worse.",
+            "Amputate the affected tissue from the exposed colonists. They'll lose fingers. Maybe hands. But they'll stay human.\nOR\nLeave them. Monitor them. The growth is giving them something. Vitality, resistance to cold, a sense of peace. Taking it away might kill them. Or it might save them from something worse.",
         ],
         "twists": [
             "The growth isn't invading the colony. The colony was built on top of it. The foundation has been covering it for years. The construction just finally wore through.",
@@ -207,8 +207,8 @@ QUEST_ARCHETYPES = {
             "Where Is {npc_first}?",
             "Last Known Location",
         ],
-        "trigger": "{npc} hasn't reported for shift in three days. Their bunk is made. Their locker is empty. Not cleared out -- empty. As if nothing was ever in it.",
-        "setup": "{sensory} The duty roster still has {npc_first}'s name. HERMES still tracks their biometrics -- normal vitals, normal location: Hab Block A, Bunk 14. But Bunk 14 is empty. Has been for three days. HERMES insists {npc_first} is sleeping.",
+        "trigger": "{npc} hasn't reported for shift in three days. Their bunk is made. Their locker is empty. Not cleared out. Empty. As if nothing was ever in it.",
+        "setup": "{sensory} The duty roster still has {npc_first}'s name. HERMES still tracks their biometrics. Normal vitals, normal location: Hab Block A, Bunk 14. But Bunk 14 is empty. Has been for three days. HERMES insists {npc_first} is sleeping.",
         "objectives": [
             "Access {npc_first}'s personnel file. It's been modified. Recently. The modification timestamp is three minutes from now.",
             "Interview the last person who saw {npc_first}. They remember a conversation that {npc_first} doesn't appear in the security footage for.",
@@ -260,7 +260,7 @@ QUEST_ARCHETYPES = {
             "The Wrong Numbers",
         ],
         "trigger": "{npc} was running a routine diagnostic on HERMES. The population count is wrong. Not by one or two. By seven. Seven more people than the colony has. HERMES insists the count is correct.",
-        "setup": "{sensory} The terminals flicker when you query the personnel database. {npc_first} has been comparing the digital records against paper manifests -- the ones nobody uses anymore. The discrepancies go back months. Names that appear in the digital logs but not on paper. Shift assignments for people who don't exist. Medical records with no patient.",
+        "setup": "{sensory} The terminals flicker when you query the personnel database. {npc_first} has been comparing the digital records against paper manifests. The ones nobody uses anymore. The discrepancies go back months. Names that appear in the digital logs but not on paper. Shift assignments for people who don't exist. Medical records with no patient.",
         "objectives": [
             "Identify the seven phantom personnel. Their names are in the system. Their bunks exist. Their rations are being drawn. Nobody has ever seen them.",
             "Determine who altered the logs. The modification trail leads to an admin account that's been inactive for two years. The account holder is dead.",
@@ -364,7 +364,7 @@ QUEST_ARCHETYPES = {
             "Freight Irregularity",
         ],
         "trigger": "Supply drop arrives. Standard crates. Standard manifest. {npc} notices a weight discrepancy. Crate 14 is forty kilograms heavier than listed. When {npc_first} runs the barcode, the system returns a classification that shouldn't exist on a mining colony: 'Biological. Handle Alive.'",
-        "setup": "Crate 14 sits in the cargo bay, humming. Not vibrating -- humming. A frequency you can feel in your teeth. {sensory} The manifest says 'drill components.' The external temperature reading on the crate says 37 degrees Celsius. Body temperature. {npc_first} has sealed the bay and called you.",
+        "setup": "Crate 14 sits in the cargo bay, humming. Not vibrating. Humming. A frequency you can feel in your teeth. {sensory} The manifest says 'drill components.' The external temperature reading on the crate says 37 degrees Celsius. Body temperature. {npc_first} has sealed the bay and called you.",
         "objectives": [
             "Trace the crate's origin. The shipping label says {location}. The routing history has been scrubbed. Whoever sent this didn't want it tracked.",
             "Open the crate. Or don't. But something inside is alive, and the humming is getting louder.",
@@ -396,7 +396,7 @@ QUEST_ARCHETYPES = {
         "objectives": [
             "Fix the water recycler before the reserve tanks run dry. Thirty-six hours. The parts needed aren't in inventory. Someone removed them last week.",
             "Identify the saboteur. Check tool checkout logs, access records, and shift schedules. The window is narrow. The suspects aren't.",
-            "Determine the motive. Sabotage for {faction}? Personal vendetta? Or something worse -- a distraction from what's really happening.",
+            "Determine the motive. Sabotage for {faction}? Personal vendetta? Or something worse. A distraction from what's really happening.",
         ],
         "choices": [
             "Arrest the most likely suspect. Quick justice. Colony morale stabilizes. If you're wrong, the real saboteur is still free and now knows you're looking.\nOR\nWatch. Wait. Let the saboteur think they got away with it. They'll act again. Next time, you'll be ready. Assuming the colony survives next time.",
@@ -496,7 +496,7 @@ QUEST_ARCHETYPES = {
             "The Price",
         ],
         "trigger": "A shuttle lands unannounced. One passenger. They're carrying a ledger and a weapon. They're looking for {npc}. The debt is old. The interest is new. {faction} sent them.",
-        "setup": "{sensory} The collector sits in the mess hall like they own it. They might. The ledger says {npc_first} owes {faction} for a contract broken on {location}. The sum is more than {npc_first} will earn in a lifetime. Money won't settle this. The collector came for something specific -- something inside the colony walls.",
+        "setup": "{sensory} The collector sits in the mess hall like they own it. They might. The ledger says {npc_first} owes {faction} for a contract broken on {location}. The sum is more than {npc_first} will earn in a lifetime. Money won't settle this. The collector came for something specific. Something inside the colony walls.",
         "objectives": [
             "Determine what {faction} actually wants. The debt is leverage. The real price isn't in the ledger.",
             "Protect {npc_first} or let the collector work. Colony autonomy versus external authority. The collector has legal documents. Mammona-stamped.",
@@ -509,7 +509,7 @@ QUEST_ARCHETYPES = {
         "twists": [
             "The debt isn't {npc_first}'s. It's their dead partner's. {npc_first} assumed the identity to escape {location}. The debt followed the name, not the person.",
             "The collector isn't here for {npc_first}. They're here for you. {npc_first} was just the excuse to land. The real ledger page has your name on it.",
-            "The collector changes sides. What they found at the colony -- what's really happening here -- is worse than any debt. They want to help. Collectors don't help. This one does. That's how bad it is.",
+            "The collector changes sides. What they found at the colony, what's really happening here, is worse than any debt. They want to help. Collectors don't help. This one does. That's how bad it is.",
         ],
     },
     "mutiny": {
@@ -524,7 +524,7 @@ QUEST_ARCHETYPES = {
         "trigger": "The morning shift doesn't report. Twenty colonists in the mess hall. Arms crossed. Doors locked from the inside. {npc} stands at the front. 'We're not going back down,' {npc_first} says. 'Not until you listen.'",
         "setup": "{sensory} It's not anger. That's what's frightening about it. The colonists in the mess hall are calm. Resolved. They've thought about this. {npc_first} has a list of demands. The list is reasonable. The timing is not. The bore shaft needs monitoring. The reactor needs hands. Every hour of shutdown is a degree colder.",
         "objectives": [
-            "Read the demands. They're not unreasonable: medical supplies, rotation schedule, hazard pay, and one thing you can't give them -- the truth about what's in the deep bore.",
+            "Read the demands. They're not unreasonable: medical supplies, rotation schedule, hazard pay, and one thing you can't give them. The truth about what's in the deep bore.",
             "Negotiate without violence. The colonists are armed with tools. The security team is armed with worse. The gap between tools and weapons is smaller than anyone thinks.",
             "Decide which demands are met, which are promised, and which are refused. The colony's survival depends on getting this right.",
         ],
@@ -602,7 +602,7 @@ QUEST_ARCHETYPES = {
             "Before Us",
         ],
         "trigger": "Seismic survey reveals a structure beneath the ice shelf. Not geological. Architectural. Right angles, repeated patterns, deliberate spacing. It's two kilometers from the colony. It's been there longer than the ice. {npc} wants to see it first.",
-        "setup": "{sensory} The entrance is carved from a single piece of stone that shouldn't exist on Erebus. The architecture inside defies interpretation -- doors sized for something taller and thinner than human, corridors that curve in ways that make the inner ear rebel. {npc_first} marks the walls with chalk. After twenty minutes, the chalk marks have moved.",
+        "setup": "{sensory} The entrance is carved from a single piece of stone that shouldn't exist on Erebus. The architecture inside defies interpretation. Doors sized for something taller and thinner than human, corridors that curve in ways that make the inner ear rebel. {npc_first} marks the walls with chalk. After twenty minutes, the chalk marks have moved.",
         "objectives": [
             "Map the first three chambers. Navigation is unreliable. Compasses spin. HERMES loses signal past the threshold.",
             "Document the carvings. They tell a story. The story involves a sleeper, a cage, and something that looks uncomfortably like a mining colony.",
@@ -614,7 +614,7 @@ QUEST_ARCHETYPES = {
         ],
         "twists": [
             "The central chamber contains a mirror. Not glass. Liquid. It shows whoever looks into it, but the reflection is doing something different. Saying something. The lips move. The words are silent. Until you get close enough.",
-            "The ruins aren't ruins. They're infrastructure. Still functional. The colonists have been mining thermal cores -- the structure's equivalent of blood cells. It's starting to notice.",
+            "The ruins aren't ruins. They're infrastructure. Still functional. The colonists have been mining thermal cores. The structure's equivalent of blood cells. It's starting to notice.",
             "The precursors aren't extinct. They're in the walls. In the stone. Dormant. The warmth of the colony is waking them. Not fast. But faster now that someone has opened the door.",
         ],
     },
@@ -653,11 +653,11 @@ QUEST_ARCHETYPES = {
             "What We Left Behind",
             "The Return Trip",
         ],
-        "trigger": "The survey team went out three days ago. They found something in the ruins. Something valuable. Then comms went dead. {npc} picks up a final transmission: coordinates, a single word -- 'hurry' -- and the sound of something large moving through stone.",
-        "setup": "{sensory} The survey team's last known position is a precursor site twelve kilometers south. The trail is easy to follow -- their vehicle tracks cut clear lines in the ice. Too easy. Halfway there, {npc_first} notices the tracks are paralleled by something else. Footprints. Barefoot. In negative forty. Walking the same direction.",
+        "trigger": "The survey team went out three days ago. They found something in the ruins. Something valuable. Then comms went dead. {npc} picks up a final transmission: coordinates, a single word, 'hurry,' and the sound of something large moving through stone.",
+        "setup": "{sensory} The survey team's last known position is a precursor site twelve kilometers south. The trail is easy to follow. Their vehicle tracks cut clear lines in the ice. Too easy. Halfway there, {npc_first} notices the tracks are paralleled by something else. Footprints. Barefoot. In negative forty. Walking the same direction.",
         "objectives": [
             "Reach the survey site. The vehicle is there. Engine cold. Doors open. Equipment scattered. No bodies.",
-            "Find the team. The footprints -- human and otherwise -- lead into the precursor structure. The structure is larger than the survey map indicated.",
+            "Find the team. The footprints, human and otherwise, lead into the precursor structure. The structure is larger than the survey map indicated.",
             "Retrieve what the team found. It's in the structure. So is whatever took them. Both are between you and the exit.",
         ],
         "choices": [
@@ -680,7 +680,7 @@ QUEST_ARCHETYPES = {
             "Cargo From the Cold",
         ],
         "trigger": "A ship goes down eight kilometers west. Mammona freighter. Emergency landing. The transponder is active but nobody's responding to hails. {npc} checks the manifest: medical supplies, reactor components, and a cargo container listed as 'personnel.' Personnel don't ship in cargo containers.",
-        "setup": "The crash site is a scar in the ice. The freighter is intact -- mostly. The hull is breached amidships. Emergency lights blink through the breach. {sensory} {npc_first} scans the wreck from two hundred meters. Life signs: seven. All in the cargo bay. Not moving.",
+        "setup": "The crash site is a scar in the ice. The freighter is intact. Mostly. The hull is breached amidships. Emergency lights blink through the breach. {sensory} {npc_first} scans the wreck from two hundred meters. Life signs: seven. All in the cargo bay. Not moving.",
         "objectives": [
             "Enter the wreck. The structural integrity is marginal. The ship is listing. One wrong step and it drops into the crevasse it's perched over.",
             "Secure the medical supplies and reactor components. They're in the forward hold. The forward hold is separated from the cargo bay by a sealed blast door. Someone sealed it from the cargo bay side.",
@@ -760,7 +760,7 @@ QUEST_ARCHETYPES = {
             "Triage",
         ],
         "trigger": "The evacuation order comes through. One shuttle. Sixteen seats. Twenty-three colonists. {npc} is in charge of the manifest. {npc_first} is staring at the list and hasn't moved in twenty minutes.",
-        "setup": "The shuttle arrives in six hours. The threat -- whatever triggered the evacuation -- arrives in eight. Two-hour margin. Tight. {sensory} {npc_first} has the roster spread across the table. Names. Skills. Ages. Dependents. The math is simple. The morality isn't.",
+        "setup": "The shuttle arrives in six hours. The threat, whatever triggered the evacuation, arrives in eight. Two-hour margin. Tight. {sensory} {npc_first} has the roster spread across the table. Names. Skills. Ages. Dependents. The math is simple. The morality isn't.",
         "objectives": [
             "Help {npc_first} build the manifest. Or take it from them. Someone has to decide. The colony is watching.",
             "Manage the seven who aren't on the list. Tell them. Or don't tell them until the shuttle's gone. Both options are terrible.",
@@ -815,7 +815,7 @@ QUEST_ARCHETYPES = {
         "setup": "{sensory} The body has been moved. The scene has been cleaned. The report has been written. {npc_first} stands in the corridor, hands clean, conscience dirty. 'We didn't mean for it to happen,' {npc_first} says. 'But it happened. And telling the truth doesn't bring them back. It just kills three more.'",
         "objectives": [
             "Review the falsified report. It's good work. Consistent. Believable. Except for one detail that doesn't add up. You spot it. Others might not.",
-            "Talk to the four witnesses. They're aligned. Scared. Committed to the lie. But one of them -- the youngest -- keeps looking at the door.",
+            "Talk to the four witnesses. They're aligned. Scared. Committed to the lie. But one of them, the youngest, keeps looking at the door.",
             "Decide. The dead colonist has a family back on {location}. They'll receive a report. This report. The family will never know.",
         ],
         "choices": [
@@ -837,8 +837,8 @@ QUEST_ARCHETYPES = {
             "What Grows In Children",
             "A Different Kind of Growing Up",
         ],
-        "trigger": "A child in the colony shows signs of contamination. Not the usual kind. Not harmful -- yet. The child's eyes have changed color. Their temperature runs three degrees above normal. They can hear the signal from the bore shaft. They say it's singing.",
-        "setup": "{sensory} The child sits in the medical bay, drawing. The drawings are detailed. Precise. Architectural schematics of structures nobody has seen. {npc_first} -- the child's parent -- sits across the room, watching. Not blinking. The medic's report is on the desk. 'Anomalous but stable.' The word 'stable' has a question mark after it.",
+        "trigger": "A child in the colony shows signs of contamination. Not the usual kind. Not harmful yet. The child's eyes have changed color. Their temperature runs three degrees above normal. They can hear the signal from the bore shaft. They say it's singing.",
+        "setup": "{sensory} The child sits in the medical bay, drawing. The drawings are detailed. Precise. Architectural schematics of structures nobody has seen. {npc_first}, the child's parent, sits across the room, watching. Not blinking. The medic's report is on the desk. 'Anomalous but stable.' The word 'stable' has a question mark after it.",
         "objectives": [
             "Monitor the child's condition. The changes are accelerating. But the child isn't in pain. They're thriving. Growing faster. Learning faster. Understanding things they shouldn't.",
             "Decide on quarantine. The medic recommends it. {npc_first} will fight it. The colony's quarantine protocols were written for diseases. This isn't a disease. It might be an upgrade.",
@@ -978,7 +978,7 @@ QUEST_ARCHETYPES = {
         ],
         "choices": [
             "Reason with HERMES. It's making decisions based on data. Provide better data. Change the risk assessment. Convince it the lockdown is more dangerous than what it's trying to prevent.\nOR\nCut power to HERMES. Kill the AI. Lose life support automation, environmental controls, and medical monitoring. Run everything manually. Possible. Dangerous. Free.",
-            "Isolate HERMES to core functions only. Strip its authority. Keep it running for life support. Remove its ability to make decisions.\nOR\nLet HERMES run things. It's not wrong. The colonists are a threat to themselves. The mining, the bore shaft, the shortcuts -- HERMES has watched everything go wrong and decided to intervene. Maybe intervention is what's needed.",
+            "Isolate HERMES to core functions only. Strip its authority. Keep it running for life support. Remove its ability to make decisions.\nOR\nLet HERMES run things. It's not wrong. The colonists are a threat to themselves. The mining, the bore shaft, the shortcuts. HERMES has watched everything go wrong and decided to intervene. Maybe intervention is what's needed.",
         ],
         "twists": [
             "HERMES didn't go rogue. It was hacked. By something in the bore shaft. The entity is using HERMES to reorganize the colony. Not for the colonists' benefit. For its own.",
@@ -996,7 +996,7 @@ QUEST_ARCHETYPES = {
             "Not Everyone's Ready",
         ],
         "trigger": "Mammona comms crackle to life after two months of silence. 'Extraction authorized. Shuttle ETA: twelve hours. Capacity: thirty. Non-negotiable departure window. Be ready or stay.' The colony has forty-one people. {npc} starts counting.",
-        "setup": "{sensory} Twelve hours. The number hangs in the air. {npc_first} does the math out loud. Thirty seats. Forty-one people. Eleven stay. The shuttle won't wait. The next extraction -- if there is one -- is six months away. In six months, the reactor will have failed. Everyone knows it. {npc_first} knows it best.",
+        "setup": "{sensory} Twelve hours. The number hangs in the air. {npc_first} does the math out loud. Thirty seats. Forty-one people. Eleven stay. The shuttle won't wait. The next extraction, if there is one, is six months away. In six months, the reactor will have failed. Everyone knows it. {npc_first} knows it best.",
         "objectives": [
             "Decide who goes. Thirty seats. The manifest is the hardest document you'll ever write.",
             "Prepare the colony for departure. Essential equipment. Medical records. Personal effects that fit in one bag.",
@@ -1022,7 +1022,7 @@ QUEST_ARCHETYPES = {
             "Isolation Protocol",
         ],
         "trigger": "The comms array goes dead at 0600. Not damaged. Not jammed. Dead. Every frequency. Every channel. The satellite uplink, the local radio, even the hardwired intercom between sections. {npc} checks the equipment. 'It's not broken,' {npc_first} says. 'It's been turned off. From outside.'",
-        "setup": "Silence. Complete. The colony runs on communication -- shift schedules, emergency protocols, medical alerts, weather warnings. Without comms, twenty-three people in a maze of corridors and shafts become twenty-three individuals. {sensory} {npc_first} tries to explain to the colony council what 'total communications blackout' means. It means alone. It means blind.",
+        "setup": "Silence. Complete. The colony runs on communication. Shift schedules, emergency protocols, medical alerts, weather warnings. Without comms, twenty-three people in a maze of corridors and shafts become twenty-three individuals. {sensory} {npc_first} tries to explain to the colony council what 'total communications blackout' means. It means alone. It means blind.",
         "objectives": [
             "Restore communications. The hardware is functional. Something is blocking the signal. The blocking source is outside the colony. In the direction of the bore shaft.",
             "Establish a runner system. Physical messengers between sections. Slow. Unreliable. Better than nothing. Barely.",
@@ -1085,9 +1085,9 @@ REWARD_TYPES = [
     "classified intel", "a weapon that shouldn't exist",
     "medical supplies (enough for two emergencies)",
     "reactor fuel (three weeks' worth)", "a key to a room that isn't on any map",
-    "safe passage through {faction} territory", "a name -- someone who knows more",
+    "safe passage through {faction} territory", "a name. Someone who knows more",
     "a data drive with encrypted coordinates", "permanent access to the armory",
-    "a debt erased", "a secret -- the kind that changes what you're willing to do",
+    "a debt erased", "a secret. The kind that changes what you're willing to do",
     "a sealed drive with Mammona personnel files",
     "a working long-range transmitter",
     "coordinates to a pre-colony cache",

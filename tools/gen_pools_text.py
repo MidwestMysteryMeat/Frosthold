@@ -54,7 +54,7 @@ TONES = [t for family in TONE_FAMILIES.values() for t in family]
 SENSORY = {
     # ---- HORROR family ----
     "dread": [
-        "The air tasted like copper and ozone -- the flavor of a nosebleed she hadn't had yet.",
+        "The air tasted like copper and ozone. The flavor of a nosebleed she hadn't had yet.",
         "Something scraped against the hull. Rhythmic. Patient.",
         "The temperature dropped four degrees in the time it took to blink.",
         "A smell like burned hair drifted from the vent. Nobody had been welding.",
@@ -547,7 +547,7 @@ DIALOGUE = {
             "New face. I used to get excited about that. Now I just wonder how long you'll last.",
         ],
         "body_horror": [
-            "Welcome. If anything on your body changes color, shape, or temperature -- tell medical. Don't wait.",
+            "Welcome. If anything on your body changes color, shape, or temperature, tell medical. Don't wait.",
         ],
         "exhaustion": [
             "You're here. Great. I'm going to sleep. Take my shift. Here's the log.",
@@ -701,7 +701,7 @@ DIALOGUE = {
             "If you start dreaming about the ruins before you've seen them, tell someone. Don't keep it to yourself.",
         ],
         "mania": [
-            "If you're running hot, full of ideas, can't stop moving -- that's the posting talking. Slow down before it breaks you.",
+            "If you're running hot, full of ideas, can't stop moving, that's the posting talking. Slow down before it breaks you.",
         ],
         "shame": [
             "Keep your past quiet. Not because it matters, but because people here collect leverage.",
@@ -849,7 +849,7 @@ DIALOGUE = {
             "One of the engineers found old Mammona equipment. Decades old. Down there.",
             "Quartermaster's been marking inventory down. Not up. Down. Someone's skimming.",
             "The water recycler output has a new taste. The techs say it's fine. The techs won't drink it.",
-            "Two colonists were talking about the bore shaft at 0200. When I got closer, they stopped. Not like they paused -- like someone hit mute.",
+            "Two colonists were talking about the bore shaft at 0200. When I got closer, they stopped. Not like they paused. Like someone hit mute.",
             "There's a room in Section B that's not on the blueprint. Sealed door. Nobody has the code.",
             "They found NutriLoaf wrappers in the waste tunnel. Nobody's supposed to be down there.",
         ],
@@ -866,7 +866,7 @@ DIALOGUE = {
             "The carvings in the north ridge ruins changed. Same wall. Different symbols.",
         ],
         "corporate_dystopia": [
-            "Mammona doesn't care about the minerals. They're mining us -- behavioral data, stress responses, exposure thresholds. The ore is a byproduct.",
+            "Mammona doesn't care about the minerals. They're mining us. Behavioral data, stress responses, exposure thresholds. The ore is a byproduct.",
             "Our insurance was cancelled three weeks before deployment. Nobody told us.",
             "HERMES updated the colony's legal designation last week. We're listed as 'equipment' now.",
         ],
@@ -1119,7 +1119,7 @@ DIALOGUE = {
     "observation": {
         "_universal": [
             "The ice out there doesn't look right today. Darker near the ridge. Like something underneath is warming it.",
-            "Generator's running hot. Been running hot all week. Sounds different too -- higher pitch, like it's working harder on something nobody asked for.",
+            "Generator's running hot. Been running hot all week. Sounds different too. Higher pitch, like it's working harder on something nobody asked for.",
             "Haven't seen the night shift crew in two days. Their bunks are made. Gear's still in the lockers.",
             "The temperature's been dropping. Faster than the forecast.",
             "Something's changed. Can't point to it. The corridors feel different. Like the building shifted in the night.",
@@ -1133,7 +1133,7 @@ DIALOGUE = {
             "The thermal cores we pulled this morning were heavier than last week's. Same depth. Same vein.",
             "Two people on my shift have the same dream. They compared notes. Identical. Down to the color of the walls.",
             "The colony dogs are sleeping in shifts now. One always watches the south wall. They organized this on their own.",
-            "Morale's been dropping since Tuesday. I checked -- nothing happened Tuesday. Nobody can explain it.",
+            "Morale's been dropping since Tuesday. I checked. Nothing happened Tuesday. Nobody can explain it.",
             "The graffiti in the bathroom stalls is getting stranger. Coordinates. Equations. Names nobody recognizes.",
             "Someone stacked thermal cores outside the mess hall door last night. In a pattern. Nobody took credit.",
             "The waste processing unit is running cleaner than spec. Nobody upgraded it. HERMES says it optimized itself.",
@@ -1531,7 +1531,7 @@ DIALOGUE = {
             "I know this is just me talking to a wall. I know. But the wall is warm tonight and I need to talk to something.",
             "Don't let me become what this place makes people. I can feel it. The edges going soft. The caring getting expensive.",
             "I don't pray for miracles. I pray for plumbing. Working plumbing. And maybe one letter from home.",
-            "If you're real, and you're listening, and you give a damn -- just make the generator last till spring. I'll handle the rest.",
+            "If you're real, and you're listening, and you give a damn, just make the generator last till spring. I'll handle the rest.",
         ],
         "religious_fervor": [
             "The signal is the voice. The voice is the truth. We are heard.",
@@ -1823,7 +1823,7 @@ TRAUMAS = [
 MIDDLES = [
     "{g} {habit}.",
     "Off-shift, {first} {habit}. Doesn't talk during. Doesn't talk after. The closest thing {gl} has to peace.",
-    "Quiet until cornered. Then {first} doesn't yell -- {gl} gets specific. Names, dates, failures. Very, very effective.",
+    "Quiet until cornered. Then {first} doesn't yell. {gl} gets specific. Names, dates, failures. Very, very effective.",
     "Every credit {first} earns goes to a debt that compounds faster than {gl} can pay it. {g} does the math every payday. Stopped telling people the number.",
     "Likes: silence, black coffee, being left alone. Dislikes: questions about {prev_location}. About {gp} hands. About the scar.",
     "{first} keeps {item} in {gp} pocket. Reaches for it during conversation. Doesn't notice {gl}'s doing it.",
@@ -1883,7 +1883,7 @@ SECRET_TEMPLATES = [
     "A sealed envelope in {first}'s bunk contains instructions. To be opened on a specific date. The date is six weeks from now.",
     "{first} found something in the colony's waste tunnels. Organic. Growing. {g} hasn't reported it. {g} goes back to check on it.",
     "{first} knows that {secret}. Found out by accident. Has been sleeping with one eye open since.",
-    "The blood test results Mammona ran on {first} came back wrong. Not sick -- wrong. Different. They ran the test twice.",
+    "The blood test results Mammona ran on {first} came back wrong. Not sick. Wrong. Different. They ran the test twice.",
     "{first} has been mapping the colony's blind spots. Camera gaps. Patrol timing. Not for escape. For something else.",
     "Every thirty days, {first} leaves {item} at a dead drop near the perimeter. {g} doesn't know who collects it.",
     "MasTema has a file on {first}. Thin. But it exists. And someone keeps adding to it.",

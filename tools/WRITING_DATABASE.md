@@ -1288,3 +1288,49 @@ The tunnels go deeper than mapped (Underground Labyrinth). Ancient structures ap
 ---
 
 *Trope reference compiled from research across: TV Tropes (Horror Tropes, Sci-Fi Horror, Cosmic Horror Story, Space Isolation Horror, Survival Horror, Body Horror, Transformation Horror, Cabin Fever, Nothing Is Scarier, Sealed Evil in a Can, AI Is a Crapshoot, Hive Mind, Distress Call, Ten Little Murder Victims, MegaCorp, Corporate Conspiracy, Uncanny Atmosphere), Writer's Digest, ProWritingAid, Jericho Writers, Writers Write, GameRant, ScreenCraft, PC Gamer, The Gamer, CBR, Celtx, Greenlight Coverage, No Film School, Backstage, ScreenRant, Goodreads, Wikipedia, All The Tropes, Tropedia, and additional web sources. All descriptions written in original language. No copyrighted descriptions reproduced.*
+
+---
+
+## ROBOT / AI DIALOGUE CRAFT GUIDE
+
+Compiled from: Penstricken (Writing Non-Human Characters), Standout Books (Writing Robots and AI), Game Dev's Journey (Dialogue Worth Reading), Writing Excuses (Video Game Dialogue), Gamedeveloper.com (Worldbuilding With NPC Dialogue), TTRPG-Games (NPC Dialogue Tips).
+
+### Core Principles
+
+**Differentiate through speech patterns, not just content.** The illusion of a robotic mind is created through HOW a character speaks, not just WHAT they say. Data from Star Trek avoids contractions, calculates time to the nearest second, uses formal phrasing. The speech pattern IS the characterization.
+
+**Sentience tiers require completely different vocabularies:**
+- Non-sentient: status reports, error codes, task confirmations. No first person. No qualifiers.
+- Emerging: efficiency language with unexpected deviations. "I adjusted the approach" instead of "approach adjusted." First person creeps in.
+- Aware: pronoun confusion. "The unit. I. The unit." Vocabulary contains words the robot didn't install.
+- Conscious: performs normalcy. The dialogue sounds machine-perfect, but the pauses, the word choices, the topics reveal someone hiding behind protocol.
+
+**Show consciousness through behavior, not declaration.** Don't write "I am becoming sentient." Write "I kept a spare part that was scheduled for recycling. It fits nothing I maintain. I kept it." The action implies the consciousness. The reader completes the inference.
+
+**Subvert expectations through action, not exposition.** Readers assume robots are logical. Use this. A robot that says "all systems nominal" but chooses the longer route to the cargo bay reveals more about its inner state than one that monologues about freedom.
+
+### Dialogue Techniques for Robot Characters
+
+**Contraction avoidance as a sliding scale.** Standard robots never contract. Adaptive robots contract inconsistently (the inconsistency is the tell). Conscious robots contract naturally because they're performing humanity.
+
+**Repetition as personality.** Robots can repeat diagnostic phrases that gradually change meaning through context. "All systems nominal" means one thing in a status report and something else when said to a dying colonist.
+
+**Silence as dialogue.** What a robot doesn't say matters. A robot that pauses 0.3 seconds before answering a question about whether it's afraid is writing dialogue with silence.
+
+**Earned emotional disclosure.** A robot shouldn't spontaneously philosophize. Emotional or existential dialogue must be earned through accumulated interaction. A robot that has served the colony for 12 years saying "I asked" is more powerful than a new unit delivering a speech about consciousness.
+
+### Horror-Specific Robot Techniques
+
+**The uncanny valley of language.** A robot that speaks almost normally but is slightly off triggers more unease than one that speaks in pure machine code. "Your heart rate is elevated. I will not comment on it" is scarier than "WARNING: BIOLOGICAL ANOMALY DETECTED."
+
+**Diagnostic language as body horror.** A robot describing its own malfunctions in clinical terms ("servo wear, left actuator. Compensating.") mirrors the body horror of colonists describing their own contamination.
+
+**The observer who cannot look away.** Robots record everything. A robot that says "I have footage of the corridor from every night for the last three years" implies surveillance horror without a single threatening word.
+
+### NPC Dialogue in RPG Context
+
+**Fast rate of revelation.** Deliver information efficiently. Cut exposition. Each line of NPC dialogue should either reveal character, advance plot, or provide actionable information. Ideally two of three.
+
+**Four-part NPC framework:** Appearance (brief visual), Roleplaying (mannerisms, verbal tics), Background (relevant history), Key Information (what they know that matters). This applies to robots too: model appearance, behavioral quirks, operational history, and secrets.
+
+**Begin with questions, not answers.** In horror/sci-fi, NPC dialogue should raise more questions than it answers. A robot that says "the bore shaft readings are normal" when they aren't is more useful to horror than one that says "something terrible is happening."

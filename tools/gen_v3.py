@@ -23,7 +23,7 @@ from gen_pools_core import (
     ERAS,
     BRANDS, BRAND_NAMES,
     TRAITS_P, TRAITS_N, TRAITS_X, TRAIT_CONFLICTS,
-    HABITS, PHYSICAL, DEBTS, SECRETS, LORE, LOCKED_LORE,
+    HABITS, QUIRKS, LIKES, DISLIKES, PHYSICAL, DEBTS, SECRETS, LORE, LOCKED_LORE,
     RELATIONSHIP_TYPES, ARC_PROGRESSIONS, ARC_STAGES,
     PASSIONS, FEARS, LOVES, FAMILY, GENETICS,
     HEALTH_CONDITIONS, MENTAL_HEALTH, GENETIC_DISORDERS, BODY_TYPES,
@@ -536,7 +536,7 @@ def _propose_npc_betrayal(ws):
             "a better offer from the other side",
             "blackmail material held by the enemy",
             "revenge for a personal loss",
-            "survival -- they had no other choice",
+            "survival. They had no other choice",
         ])
         return {
             "type": "betrayal",
@@ -572,7 +572,7 @@ def _propose_npc_betrayal(ws):
         "a better offer from the other side",
         "blackmail material held by the enemy",
         "revenge for a personal loss",
-        "survival -- they had no other choice",
+        "survival. They had no other choice",
     ])
     return {
         "type": "betrayal",
@@ -1783,6 +1783,16 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     habit = ctx.pick_fresh(HABITS, "HABITS")
     habit = gender_replace(habit, gender)
 
+    # --- Quirk ---
+    quirk = ctx.pick_fresh(QUIRKS, "QUIRKS")
+    quirk = gender_replace(quirk, gender)
+
+    # --- Likes / Dislikes ---
+    like = ctx.pick_fresh(LIKES, "LIKES")
+    like = gender_replace(like, gender)
+    dislike = ctx.pick_fresh(DISLIKES, "DISLIKES")
+    dislike = gender_replace(dislike, gender)
+
     # --- Physical detail ---
     physical = ctx.pick_fresh(PHYSICAL, "PHYSICAL")
     physical = gender_replace(physical, gender)
@@ -2032,6 +2042,9 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
         "motivation": motivation,
         "hidden_agenda": hidden_agenda,
         "social_mask": social_mask,
+        "quirk": quirk,
+        "like": like,
+        "dislike": dislike,
     }
     ctx.add_npc(npc_data)
 
@@ -2042,7 +2055,7 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     trait_str = ", ".join(traits)
     dialogue_block = "\n".join(f'- "{line}"' for line in dialogue_lines)
 
-    connection_line = f"**Connection:** {relationship_text}" if relationship_text else "**Connection:** None yet -- first in batch"
+    connection_line = f"**Connection:** {relationship_text}" if relationship_text else "**Connection:** None yet. First in batch"
 
     arc_display = f" | **Arc Stage:** {arc_stage}" if arc_stage != "stable" else ""
 
@@ -2091,7 +2104,7 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
     if social_mask:
         mask_line = f"Presents as {social_mask['mask']}. Actually: {social_mask['reality']} Tell: {social_mask['tells']}"
     else:
-        mask_line = "None -- what you see is close to what you get"
+        mask_line = "None. What you see is close to what you get"
 
     # Generate a sample d100 check using their best skill
     best_skill = max(skills, key=skills.get)
@@ -2138,6 +2151,9 @@ def gen_npc(ctx, tone=None, planet=None, era=None):
 
 **Physical:** {physical}
 **Habit:** {habit}
+**Quirk:** {quirk}
+**Likes:** {like}
+**Dislikes:** {dislike}
 **Debt:** {debt}"""
 
     if condition_block:
@@ -2383,7 +2399,7 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
             "repair": "It holds. The fix is ugly but functional. Good enough for Erebus.",
             "combat": "Controlled violence. The threat is down. The corridor is clear. For now.",
             "stealth": "In and out. They'll never know anyone was there. The data is secure.",
-            "research": "The data breaks open. Not just an answer -- a new framework for the question.",
+            "research": "The data breaks open. Not just an answer. A new framework for the question.",
             "survival": "Found the path. Found the shelter. Found the will to keep moving.",
             "negotiation": "Terms accepted. Nobody's happy. That means it's fair.",
             "social": "Trust earned. The hard way. The only way that lasts.",
@@ -2401,7 +2417,7 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
             "survival": "The cold got in. The shortcut wasn't. Lost time and supplies.",
             "negotiation": "Impasse. The conversation ended politely. Nothing was resolved.",
             "social": "The walls went up. Whatever trust existed just evaporated.",
-            "deception": "They saw through it. Not the lie itself -- the performance. Now they're watching.",
+            "deception": "They saw through it. Not the lie itself. The performance. Now they're watching.",
             "intimidation": "Unimpressed. They've seen worse. Now they know you're bluffing.",
         }
         s_narr = success_narratives.get(skill, "The check succeeds. Progress.")
@@ -2551,7 +2567,7 @@ def gen_quest(ctx, tone=None, planet=None, era=None):
     crit_failure = R([
         "Objective failed AND new threat introduced. The colony's problems just multiplied.",
         "Total loss. The situation is worse than before the attempt. And now they know you tried.",
-        "Catastrophic. Not just failure -- escalation. What was a problem is now a crisis.",
+        "Catastrophic. Not just failure. Escalation. What was a problem is now a crisis.",
     ])
 
     # --- Format objectives ---
@@ -2780,20 +2796,20 @@ def gen_history(ctx, tone=None, planet=None, era=None):
 
     # --- (b) Evidence Trail — what remains, what can be found ---
     log_num = RI(1000, 9999)
-    log_ref = R(["the incident obliquely -- 'scheduled cleaning'",
+    log_ref = R(["the incident obliquely, as 'scheduled cleaning'",
                  "a 'routine personnel transfer' on the same date",
                  "an equipment requisition for items that don't exist",
                  "nothing. The entry for that date is blank. Every other entry is filled."])
     physical_evidence = R([
         f"Scorch marks on the corridor wall of Section {section} (painted over, visible under UV)",
         f"A structural crack in the floor of Hab {RI(1, 16)} that follows no natural fault line",
-        f"Residue on the ventilation grate -- organic, unidentified, warm to the touch",
-        f"Tool marks on the sealed door -- someone tried to open it. From the inside.",
+        f"Residue on the ventilation grate. Organic, unidentified, warm to the touch",
+        f"Tool marks on the sealed door. Someone tried to open it. From the inside.",
         f"A bloodstain on the ceiling of the maintenance crawlspace. The ceiling is three meters up.",
     ])
     personal_evidence = R([
         "A colonist's journal entry that stops mid-sentence on the day it happened",
-        f"A photograph found in {full_name}'s quarters -- shows a room that doesn't exist in the colony",
+        f"A photograph found in {full_name}'s quarters. Shows a room that doesn't exist in the colony",
         "A data drive hidden in the wall panel of Bunk " + str(RI(1, 32)) + ". Encrypted. Personal key.",
         "A letter addressed to no one. The handwriting matches two different people.",
         "A sketch of the bore shaft showing a passage that isn't on any schematic. The sketch is accurate.",
@@ -2858,8 +2874,8 @@ def gen_history(ctx, tone=None, planet=None, era=None):
         "the evidence leads to a sealed drive in the maintenance crawlspace. The drive is still warm.",
     ])
     inv_failure = R([
-        "the trail goes cold. Cleaned. Every surface, every log, every witness memory -- sanitized in the last 48 hours by someone thorough.",
-        "dead end. But the dead end is instructive -- someone put a wall exactly where you needed a door.",
+        "the trail goes cold. Cleaned. Every surface, every log, every witness memory. Sanitized in the last 48 hours by someone thorough.",
+        "dead end. But the dead end is instructive. Someone put a wall exactly where you needed a door.",
         "the investigation alerts someone. Within hours, the remaining evidence begins to disappear.",
         "nothing. Which, on a Mammona posting, means someone made the evidence into nothing. Absence with fingerprints.",
     ])
@@ -2880,9 +2896,9 @@ def gen_history(ctx, tone=None, planet=None, era=None):
         f"A sealed communication was sent to MasTema. Response: 'Acknowledged.' No follow-up. No action. Just acknowledgment.",
     ])
     aftermath_personal = R([
-        f"{full_name} hasn't been the same since. The change is subtle -- quieter meals, fewer questions, early shifts.",
+        f"{full_name} hasn't been the same since. The change is subtle. Quieter meals, fewer questions, early shifts.",
         f"Three colonists requested bunk transfers away from the affected area. Two were approved. The third withdrew the request without explanation.",
-        f"Someone started leaving offerings near the site. Small things -- food, water, a folded note. Nobody claims responsibility.",
+        f"Someone started leaving offerings near the site. Small things. Food, water, a folded note. Nobody claims responsibility.",
         f"The night shift in the affected area has had four different crews in two months. Nobody asks for a second rotation.",
         f"A colonist who witnessed the event started keeping a journal. The journal entries stop after page twelve. The remaining pages are filled with a single repeated word.",
     ])
@@ -2995,11 +3011,11 @@ def _datapad_research_log(ctx, tone, first, last, g, gl, gp, go, loc):
 
     # Entry 1: Discovery (randomized opening)
     opening_variants = [
-        f"""The samples aren't behaving. That's not the right word. Samples don't behave. They exhibit properties. These are exhibiting properties outside any reference material available to me. {lo} -- or what the brief says is {lo} -- has a thermal signature that inverts at night. It shouldn't have a thermal signature at all.
+        f"""The samples aren't behaving. That's not the right word. Samples don't behave. They exhibit properties. These are exhibiting properties outside any reference material available to me. {lo}, or what the brief says is {lo}, has a thermal signature that inverts at night. It shouldn't have a thermal signature at all.
 
 Ran the spectrograph three times. Same result. The crystalline structure shifts at the molecular level when the temperature drops below -20C. Not fracturing. Reorganizing. Like it's adapting.""",
 
-        f"""The readings don't make sense. Not wrong -- they make sense, just not in any framework I was trained in. {lo} is producing output that the spectrometer interprets as noise. It isn't noise. Noise is random. This has structure. Mathematical structure. The kind that implies a system behind it.
+        f"""The readings don't make sense. Not wrong. They make sense, just not in any framework I was trained in. {lo} is producing output that the spectrometer interprets as noise. It isn't noise. Noise is random. This has structure. Mathematical structure. The kind that implies a system behind it.
 
 I ran the analysis twice. Both times the software flagged the data as 'instrument error.' The instrument is fine. I calibrated it this morning. The data is accurate. The data is also impossible.""",
 
@@ -3048,7 +3064,7 @@ That's not a malfunction. That's a decision someone made.""")
 
 {colleague2_first} {colleague2_last} approached me after shift. Said {c2gl} saw my after-hours lab access in the logs. I expected a warning. Instead: "I've been seeing the same thing in {lo2}. For months. My reports go nowhere too."
 
-We compared data. The correlation is -- I don't have a word for it. These aren't coincidences. There's a pattern. The pattern has intent.
+We compared data. The correlation is. I don't have a word for it. These aren't coincidences. There's a pattern. The pattern has intent.
 
 I locked the data on a sealed drive. Personal encryption. If the standard equipment is lying to us, I don't trust the standard network either.""")
 
@@ -3092,14 +3108,14 @@ def _datapad_journal(ctx, tone, first, last, g, gl, gp, go, loc):
 
 {ctx.fresh_sensory(tone)}
 
-First impressions: it's exactly what the brochure promised if you read between the lines. Cold. Grey. The kind of place where the word 'amenities' means 'there's a roof.' The {brand} machine in the corridor works, which is more than I expected. Met my bunkmate -- {bunkmate_first} {bunkmate_last}. {bp[0]} work{bv_s} the drill. Doesn't talk much. Fine by me.
+First impressions: it's exactly what the brochure promised if you read between the lines. Cold. Grey. The kind of place where the word 'amenities' means 'there's a roof.' The {brand} machine in the corridor works, which is more than I expected. Met my bunkmate. {bunkmate_first} {bunkmate_last}. {bp[0]} work{bv_s} the drill. Doesn't talk much. Fine by me.
 
 Keeping this journal because I promised. A record. Proof I was here. Proof I was me.""")
 
     # Entry 2: Settling in
     entries.append(f"""Day {day + RI(5, 12)}.
 
-Getting the rhythm. Shift starts at 0600. NutriLoaf for breakfast. The work is -- work. I'm a {job} here, same as I was on the last posting. The cold's different though. It gets into the walls, the food, the conversations. Not just temperature. Atmosphere.
+Getting the rhythm. Shift starts at 0600. NutriLoaf for breakfast. The work is work. I'm a {job} here, same as I was on the last posting. The cold's different though. It gets into the walls, the food, the conversations. Not just temperature. Atmosphere.
 
 {bunkmate_first} said something strange at dinner: "{R([
     "Don't go past Section " + section + " after lights out. Nobody tells you that. I'm telling you.",
@@ -3119,7 +3135,7 @@ The {R([
     "shadows in the corridor outside Hab " + str(hab) + " don't match the light sources. I checked. Three times.",
     "wall in the maintenance tunnel is warm. Not heated-by-pipes warm. Warm like skin. And it pulses. I put my hand on it. I shouldn't have put my hand on it.",
     "comm system plays a tone at 0200 every night. Same tone. Three notes. I recorded it. The recording is silent. But I heard it. " + bunkmate_first + " heard it too.",
-    "new colonist -- arrived last week -- knew my name. Knew my shift. Knew which bunk I sleep in. I've never met " + bp[2].replace('his','them').replace('her','them') + ". Nobody introduced us.",
+    "new colonist, arrived last week, knew my name. Knew my shift. Knew which bunk I sleep in. I've never met " + bp[2].replace('his','them').replace('her','them') + ". Nobody introduced us.",
 ])}
 
 I asked {bunkmate_first} about it. {bp[0]} said: "Yeah." Just that. Yeah. Like I'd finally noticed the weather.""")
@@ -3127,7 +3143,7 @@ I asked {bunkmate_first} about it. {bp[0]} said: "Yeah." Just that. Yeah. Like I
     # Entry 4: Deterioration
     entries.append(f"""Day {day + RI(35, 50)}.
 
-Can't sleep. Thought it was the cold but it's not the cold. It's the quiet. Not silence -- there's always noise here, generators, pipes, wind. It's that the quiet is underneath the noise. Like the noise is a blanket over something that's listening.
+Can't sleep. Thought it was the cold but it's not the cold. It's the quiet. Not silence. There's always noise here, generators, pipes, wind. It's that the quiet is underneath the noise. Like the noise is a blanket over something that's listening.
 
 {ctx.fresh_sensory(tone)}
 
@@ -3147,7 +3163,7 @@ My hands are shaking as I write this. That's new.""")
     "The colony roster has a name I don't recognize. Been on the roster since day one. Nobody else recognizes it either. Nobody thinks that's strange. I think that's strange.",
 ])}
 
-I want to go home. I keep saying that word -- home -- and each time it means less. Like a word you repeat until it's just sounds.""")
+I want to go home. I keep saying that word, home, and each time it means less. Like a word you repeat until it's just sounds.""")
 
     # Entry 6: Final entry
     final_options = [
@@ -3335,7 +3351,7 @@ Conducted {RI(6, 12)} interviews over {RI(3, 5)} days. Summary:
 
 {witness_first} {witness_last} ({R(JOBS)}): Described an event in {site} that does not appear in any incident log. Provided a date. Provided details. Began crying during the account. Refused to sign the transcript. Said signing it "would make it real."
 
-{RI(3, 5)} other personnel corroborated {witness_last}'s account independently. No collaboration detected. Details are consistent to an unusual degree -- not paraphrased, not interpreted, but identical. As if they all saw the same recording.
+{RI(3, 5)} other personnel corroborated {witness_last}'s account independently. No collaboration detected. Details are consistent to an unusual degree. Not paraphrased, not interpreted, but identical. As if they all saw the same recording.
 
 Site Manager {manager_last} denies the event occurred. The denial was prepared. Rehearsed. Word-perfect.
 
@@ -3350,7 +3366,7 @@ I have the unsigned transcripts. I do not know what to do with them.
 
 Investigator {investigator_last}:
 
-Your investigation at {loc} is concluded effective immediately. Please submit all materials -- transcripts, recordings, personal notes -- to Dept. {dept2} via secured courier. Do not retain copies.
+Your investigation at {loc} is concluded effective immediately. Please submit all materials (transcripts, recordings, personal notes) to Dept. {dept2} via secured courier. Do not retain copies.
 
 Your next assignment is {R(["Thalassa Deep", "Karnaith Orbital", "Rhea-2 Processing Station"])}. Transport departs in 48 hours.
 
@@ -3498,7 +3514,7 @@ Submitting Form 31-A with actual figures:
 - Personnel injuries: {RI(14, 30)} (reported: {RI(3, 7)})
 - Fatalities: {RI(2, 5)} (reported: {RI(0, 1)})
 - Equipment failures: {RI(20, 45)} incidents, {RI(6, 12)} involving {R(["unexplained system behavior", "autonomous equipment operation", "readings inconsistent with physical reality"])}
-- Environmental hazards: {R(["ongoing, unclassifiable", "present, worsening, defying standard categorization", "active -- see attached incident reports that were rejected by Regional"])}
+- Environmental hazards: {R(["ongoing, unclassifiable", "present, worsening, defying standard categorization", "active, see attached incident reports that were rejected by Regional"])}
 - Psychological wellness: {RI(40, 70)}% of personnel displaying symptoms consistent with {R(["chronic stress disorder", "anomalous exposure syndrome", "sustained environmental trauma"])}
 - Emergency protocol compliance: protocols are followed. Protocols do not cover what is happening here.
 
@@ -3560,7 +3576,7 @@ Mammona Mining Corporation
         if random.random() > 0.5:
             entries.append(f"""**ADDENDUM** (found attached to a printed copy of the above, taped to the inside of a maintenance panel in Section {section}):
 
-The real numbers are in {manager_last}'s first submission -- Ref {audit_ref}, version 1. It was rejected. It will always be rejected. The system is not broken. The system is working as designed. The design does not include the truth.
+The real numbers are in {manager_last}'s first submission, Ref {audit_ref}, version 1. It was rejected. It will always be rejected. The system is not broken. The system is working as designed. The design does not include the truth.
 
 {RI(2, 5)} people are dead. {RI(8, 20)} are injured. The rest of us are changing.
 
@@ -3601,7 +3617,7 @@ def _unsent_classic(ctx, tone, first, last, g, gl, gp, go, loc,
 
     # Entry 1: Hope (randomized)
     opener_pool = [
-        f"I made it. {R(['The shuttle was fourteen hours late', 'The transit was rough -- two people got sick in cryo', 'Landing was ugly, but the hull held'])} and I'm here. {loc}.",
+        f"I made it. {R(['The shuttle was fourteen hours late', 'The transit was rough. Two people got sick in cryo', 'Landing was ugly, but the hull held'])} and I'm here. {loc}.",
         f"Writing this from the bunk. First night. {loc} is {R(['colder than the briefing suggested', 'exactly what I expected, which is the problem', 'real now, not just a name on a contract'])}.",
         f"The shuttle touched down at {R(['0400', '0600', '2200'])} and {loc} was waiting. {R(['Grey. Quiet. Cold.', 'Wind like a blade. Ice like a mirror.', 'Smaller than the brochure. Colder than the warning.'])}",
     ]
@@ -3644,7 +3660,7 @@ Work's fine. I'm a {job} here{R([', same as ' + prev_loc, '', ', for now'])}. {R
     entries.append(f"""{recipient_first},
 
 {R(["Don't come here.", "I need you to stay where you are.", "Promise me you won't follow me."])} {R([
-    "I know we talked about it -- you joining me after the first rotation. Don't.",
+    "I know we talked about it. You joining me after the first rotation. Don't.",
     "Whatever plan we had, forget it. Stay where you are.",
     "If anyone offers you a contract for " + loc + ", tear it up.",
 ])} Stay on {R(["Novaris-3", "Rhea-2", "Karnaith"])}. Stay where there's {R(["sunlight and noise", "people who sleep through the night", "gravity that feels honest"])}.
@@ -3656,7 +3672,7 @@ Something is wrong with this place. {R([
     "Not broken-wrong. Alive-wrong. Like the ground knows I'm standing on it.",
     "The kind of wrong that doesn't show up on instruments but your bones know.",
 ])} {R([
-    "The cold, the work, Mammona -- those are the surface problems. What keeps me up at night is underneath all of that.",
+    "The cold, the work, Mammona. Those are the surface problems. What keeps me up at night is underneath all of that.",
     "Everyone here feels it. Nobody says it. That silence is louder than the drill.",
     "I wake up at the same time every night and the walls are humming.",
 ])}
@@ -3802,7 +3818,7 @@ def _unsent_angry(ctx, tone, first, last, g, gl, gp, go, loc,
 
 {R([
     f"Don't come to {loc}. I know I said I didn't want to hear from you. I'm saying something different now. Don't come here.",
-    f"If Mammona offers you a contract -- any contract, any posting -- don't take it. Walk away. Run if you must.",
+    f"If Mammona offers you a contract, any contract, any posting, don't take it. Walk away. Run if you must.",
     f"Stay away from anything connected to {loc}. Anything. Anyone who mentions it. Any company that operates near it.",
 ])}
 
@@ -3823,7 +3839,7 @@ def _unsent_angry(ctx, tone, first, last, g, gl, gp, go, loc,
 
 {R([
     "I've been thinking about what I'd say if I saw you. The list changes every day.",
-    "The person who wrote that first letter -- the angry one -- I don't recognize them anymore.",
+    "The person who wrote that first letter, the angry one, I don't recognize them anymore.",
     "I forgive you. That's not generosity. I just don't have room for it anymore.",
 ])}
 
@@ -3853,14 +3869,14 @@ def _unsent_angry(ctx, tone, first, last, g, gl, gp, go, loc,
 ])}
 
 {R([
-    "Whatever you hear about me -- about this posting, about what happened here -- believe the version where I was trying to protect you. That's the true one.",
+    "Whatever you hear about me, about this posting, about what happened here, believe the version where I was trying to protect you. That's the true one.",
     "I'm leaving this where someone will find it. Not for you. For whoever comes next. So they know that someone here was still trying.",
     "If my name shows up on a manifest or a report or a memorial, don't look into it. Remember me from before. The before-version was better.",
 ])}
 
 {R([
     "I'm sorry. For the anger and for everything after it.",
-    "Take care of yourself. I mean that literally. I can't give you anything else from here -- this is what's left.",
+    "Take care of yourself. I mean that literally. I can't give you anything else from here. This is what's left.",
     "Goodbye, " + recipient_first + ". The word feels different when you mean it.",
 ])}
 
@@ -3961,7 +3977,7 @@ def _unsent_practical(ctx, tone, first, last, g, gl, gp, go, loc,
 -- {first}
 
 [{R([
-    "Found folded into a complex pattern -- specific folds appear intentional, possibly encoding additional information.",
+    "Found folded into a complex pattern. Specific folds appear intentional, possibly encoding additional information.",
     "Written in two colors of ink. The color changes correspond to no obvious pattern.",
     "Margins contain numbers that don't match any colony reference system.",
 ])}]""")
@@ -4103,7 +4119,7 @@ def _unsent_apologetic(ctx, tone, first, last, g, gl, gp, go, loc,
 
     # Entry 4: Almost there
     _breach_type = R(["containment breach", "shaft collapse", "contamination", "evacuation failure"])
-    _consequence = R(["admitting what I'd been doing", "losing everything", "prison -- or worse"])
+    _consequence = R(["admitting what I'd been doing", "losing everything", "prison. Or worse"])
     entries.append(f"""{recipient_first},
 
 {R([
@@ -4154,7 +4170,7 @@ def _unsent_apologetic(ctx, tone, first, last, g, gl, gp, go, loc,
 [{R([
     "This letter was found with four others, bundled with string, hidden in the wall cavity behind a bunk. The bunk was unassigned. The cavity was not on any schematic.",
     "Recovered from a sealed data pad. The pad's encryption key was the recipient's name. The recipient has been contacted. They declined to comment.",
-    "Found in the personal effects of " + first + " " + last + ". Status: " + R(["transferred", "missing", "contract terminated -- reason: unspecified"]) + ".",
+    "Found in the personal effects of " + first + " " + last + ". Status: " + R(["transferred", "missing", "contract terminated, reason: unspecified"]) + ".",
 ])}]""")
 
     return entries
@@ -4193,7 +4209,7 @@ Patient cooperative. Affect: appropriate. No immediate concerns.
 **CLASSIFICATION:** Standard
 
 Symptoms persisting. Patient reports new development: {R([
-        "sensitivity to certain frequencies -- specifically the drill harmonic",
+        "sensitivity to certain frequencies, specifically the drill harmonic",
         "aversion to processed food. States it 'tastes like a signal'",
         "ability to predict shift changes before announcement. Accurate 100% of observed instances",
         "discomfort near the reactor. Describes it as 'proximity to something awake'",
@@ -4218,7 +4234,7 @@ Note: patient's resting heart rate has decreased from 72bpm to {RI(40, 55)}bpm s
 
 Patient's neural scan shows anomalous activity in {R([
         "regions that should be dormant during waking hours",
-        "patterns that match REM sleep -- while patient is fully conscious",
+        "patterns that match REM sleep while patient is fully conscious",
         "the amygdala, but inverted. Fear response is activating as calm",
         "bilateral symmetry that doesn't correspond to human neural architecture",
     ])}. I've requested a second scanner. Request denied. Reason: 'equipment allocation insufficient for non-critical cases.'
@@ -4325,7 +4341,7 @@ Notes: None. Clean run.
 
 {R([
         f"Unscheduled check. Night shift reported {R(['a vibration in the walls near ' + unit, 'condensation forming on the exterior despite sub-zero ambient', 'an audible tone from ' + unit + ' that does not match any mechanical component', unit + ' running at 3% above spec for no documented reason'])}. Inspected. Could not reproduce. All readings nominal at time of inspection.",
-        f"Responding to automated alert. {system} flagged a {RI(2, 8)}% deviation in output. By the time I arrived, readings had normalized. Checked sensor calibration -- within tolerance. Logged as sensor artifact.",
+        f"Responding to automated alert. {system} flagged a {RI(2, 8)}% deviation in output. By the time I arrived, readings had normalized. Checked sensor calibration, within tolerance. Logged as sensor artifact.",
         f"Noticed during routine walkthrough: {unit} has a new sound. Not a malfunction sound. Not in the diagnostic library. Low frequency. Intermittent. Occurs every {RI(30, 300)} seconds. Cannot identify source component.",
     ])}
 
@@ -4361,11 +4377,11 @@ Result: the system is operating perfectly. Better than perfectly. Efficiency is 
 {R([
         f"But the sound is still there. And now I can hear it from the corridor. And now it has a rhythm. And the rhythm matches the drill cycle at Deep Bore Alpha. {system} has no connection to the drill. No shared power bus, no shared conduit, no shared anything. There is no mechanical path for that vibration to travel. But it's here.",
         f"But here's the thing that keeps me up: during the overhaul, I found a component I didn't install. Didn't order. Can't identify. It's wired into the main bus. It's functioning. I don't know what it does. I tried to remove it. It's grown into the surrounding wiring. 'Grown' is the word. I'm using it deliberately.",
-        f"But the wall behind {unit} is warm. Not from the machine -- I checked heat transfer, it's negligible. The wall itself is generating heat. I put a temperature probe on it: 4.2C above ambient. Consistent. Stable. Walls don't generate heat. This wall does.",
-        f"But when I ran the diagnostic at 0300 -- the time the deviation occurs -- the readings were different from every other time I've tested. Not wrong. Different. Like the machine is a different machine at 0300. Same components. Different behavior. As if something else is using it.",
+        f"But the wall behind {unit} is warm. Not from the machine. I checked heat transfer, it's negligible. The wall itself is generating heat. I put a temperature probe on it: 4.2C above ambient. Consistent. Stable. Walls don't generate heat. This wall does.",
+        f"But when I ran the diagnostic at 0300, the time the deviation occurs, the readings were different from every other time I've tested. Not wrong. Different. Like the machine is a different machine at 0300. Same components. Different behavior. As if something else is using it.",
     ])}
 
-I'm filing this under 'resolved -- nominal' because that's what the data says. The data is wrong. I don't know how to file that.
+I'm filing this under 'resolved, nominal' because that's what the data says. The data is wrong. I don't know how to file that.
 
 -- {tech_id}""")
 
@@ -4395,8 +4411,8 @@ def _datapad_audio_transcript(ctx, tone, first, last, g, gl, gp, go, loc):
     section = R(["C", "D", "E", "F", "G"])
     bg_audio = R([
         "generator hum, steady", "wind against hull, gusting",
-        "distant drilling, rhythmic", "static -- intermittent",
-        "breathing -- two people, one faster than the other",
+        "distant drilling, rhythmic", "static, intermittent",
+        "breathing, two people, one faster than the other",
         "silence. Complete silence. The mic should be picking up ambient noise but isn't",
         "a low-frequency tone, consistent, no identified source",
         "water dripping. There are no water lines in this section",
@@ -4419,7 +4435,7 @@ def _datapad_audio_transcript(ctx, tone, first, last, g, gl, gp, go, loc):
     # Entry 2: The situation
     entries.append(f"""{first}: The thing about {loc} is -- {R([
     f"we all know. That's the part nobody talks about. Everyone on this posting knows something is wrong. Not broken. Wrong. In the way that a clock running backward is wrong. The machinery works. The numbers add up. But the direction is wrong.",
-    f"I found the files. The ones from the previous posting. They weren't erased -- they were archived. In a directory that Mammona's search function doesn't index. I don't know if that's a bug or a feature. I know what the files say.",
+    f"I found the files. The ones from the previous posting. They weren't erased. They were archived. In a directory that Mammona's search function doesn't index. I don't know if that's a bug or a feature. I know what the files say.",
     f"it's exactly what they told us it would be. Cold. Remote. Resource-rich. What they didn't say is that {lo} isn't what the briefing describes. The briefing describes a thing. What's down there is an event. An ongoing event.",
     f"I've been tracking the HERMES anomalies. Every terminal. Every shift. There's a pattern. HERMES isn't malfunctioning. HERMES is translating. Something is speaking and HERMES is the only system complex enough to interpret it.",
 ])}
@@ -4448,7 +4464,7 @@ def _datapad_audio_transcript(ctx, tone, first, last, g, gl, gp, go, loc):
     f"So what are you saying? That Mammona sent us here knowing about {lo}? That the whole posting is--",
     f"The readings. I compared them to the geological survey from five years ago. {first}, the survey data was fabricated. Not wrong. Fabricated. Someone sat at a terminal and typed numbers that describe a planet that doesn't exist.",
     f"I found the same thing. In the medical files. Patient records that don't match real people. Treatment protocols for conditions that aren't in any database. And a line item in the budget for 'specimen preparation.' We're not mining here. We've never been mining here.",
-    f"If this is real -- if what you're showing me is real -- then the question isn't what's down there. The question is why Mammona needs us standing on top of it.",
+    f"If this is real, if what you're showing me is real, then the question isn't what's down there. The question is why Mammona needs us standing on top of it.",
 ])}
 
 {first}: {R([
@@ -4474,7 +4490,7 @@ def _datapad_audio_transcript(ctx, tone, first, last, g, gl, gp, go, loc):
 ])}
 
 [{R([
-    f"Recording continues for {RI(30, 180)} seconds of silence. Neither speaker moves. Background: the {bg_audio.split(',')[0]} is now accompanied by a second sound -- rhythmic, biological, like breathing from inside the walls.",
+    f"Recording continues for {RI(30, 180)} seconds of silence. Neither speaker moves. Background: the {bg_audio.split(',')[0]} is now accompanied by a second sound. Rhythmic, biological, like breathing from inside the walls.",
     f"Sound of a chair scraping. Footsteps. A door. Then silence. The recording runs for another {RI(2, 15)} minutes. No voices. Just the background hum. Changing pitch. Slowly. As if responding to something.",
     f"Both speakers begin talking at once. Their words are indistinguishable. The overlap continues for {RI(10, 30)} seconds, growing quieter, until both voices stop simultaneously. Not trailing off. Stopping. Mid-word.",
     f"Pause: {RI(15, 45)} seconds. Then {first}, barely audible: 'Can you smell that? Copper and--' [Recording ends abruptly. File metadata shows the recording was stopped by HERMES, not by either speaker.]",
