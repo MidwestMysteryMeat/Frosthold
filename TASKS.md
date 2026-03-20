@@ -5,7 +5,7 @@
 > Claim tasks before working, then update status again when the work is finished or blocked.
 > Format is strict - agents parse the tables, so do not break the structure.
 
-**Last updated:** 2026-03-20 by Claude Code (Task 11 complete — Full roguelite loop wired)
+**Last updated:** 2026-03-20 by Claude Code (Task 12 complete — Migration and Cleanup)
 
 ---
 ## STATUS KEY
@@ -25,6 +25,7 @@
 
 | # | Task | Completed | Agent | Notes |
 |---|------|-----------|-------|-------|
+| Task 12 | Migration and Cleanup | 2026-03-20 | Claude Code | mrp.lua: MRP.migrateOldLegacies() migrates frosthold_legacies.dat into campaign on first load, renames to .bak. colony_legacy.lua: removed loadLegacies/saveLegacies/local legacies table; getLegacyDestinations/getLegacyLoot/getLegacyCount delegate to MRP; init() is no-op. save.lua: mammonaSafetyNet/_safetyNetUsed already gone (Task 4), silently ignored. 352/375 tests pass; 23 pre-existing failures, 0 regressions. |
 | Task 11 | Main Game Flow Integration | 2026-03-20 | Claude Code | main.lua: MRP.load() in love.load(), _redeployment flag handling in love.update(), seed override + ruin spawning in initGameWorld(). main_menu.lua: Continue Campaign button (lifetime MRP > 0), New Colony resets MRP. Victory MRP save confirmed (Task 7). 352/375 tests pass; 23 pre-existing failures, 0 regressions. |
 | Task 10 | Apply MRP Unlocks and Per-Run Picks | 2026-03-20 | Claude Code | colonist.lua: genetic unlocks (cold_adapted_genome/enhanced_metabolism/neural_plasticity/stress_inoculation) in all 3 spawn paths. research.lua: applyMRPUnlocks() (tier1_research_archive + advanced_smelting). main.lua: Research.applyMRPUnlocks() after Research.init(); per-run picks (supply_drop/threat_delay/friendly_signal) + heavy_drop_pod permanent unlock after colonist spawning. raids.lua: raidGraceDays check in startRaid. building_placement.lua: structural_engineering 15% HP boost after Det.attach. 352/375 tests pass; 23 pre-existing failures, 0 regressions. |
 | Task 9 | Requisition Panel | 2026-03-20 | Claude Code | src/ui/requisition_panel.lua (new, 340 lines). mrp.lua +92 lines (unlock/pick data tables, run picks state). Phase flow rewired: planet_select -> requisition_unlocks -> drafting -> requisition_picks -> world_map -> starting. Smoke tests updated. No regressions. |
