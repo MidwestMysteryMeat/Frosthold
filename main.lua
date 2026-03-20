@@ -563,6 +563,7 @@ local function initGameWorld()
     require('src.creatures.bosses')
     require('src.building.deep_drill')
     require('src.building.miners')
+    require('src.building.sos_beacon')
     require('src.building.decorations')
     local PipeProcessors = require('src.logistics.pipe_processors')
 

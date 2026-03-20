@@ -231,10 +231,6 @@ local GameState = {
         onMeltdown     = true,
     },
 
-    -- Mammona Safety Net — when all colonists die, Mammona drops 2 replacements (once per game)
-    mammonaSafetyNet = true,
-    _safetyNetUsed   = false,
-
     -- Interplanetary state
     activeMap = nil,
     colonies = {},
@@ -268,8 +264,6 @@ function GameState.init()
     GameState.selectedZoneId = nil
     GameState.hermesPhase = 'functional'
     GameState.hermesDirective = nil
-    GameState.mammonaSafetyNet = true
-    GameState._safetyNetUsed = false
     GameState.planet = 'erebus'
     GameState.landingZone = nil
     GameState.endlessMode = nil

@@ -229,6 +229,16 @@ return {
         powerDraw = 15,
         sightRadius = 40,
     },
+    sos_beacon = {
+        name = 'SOS Beacon',
+        desc = 'Emergency distress signal. When active and powered, fires automatically if all colonists are downed. Calls 2-3 emergency reinforcements. Burns out after one use.',
+        w = 2, h = 2,
+        tile = Tiles.FLOOR_METAL,
+        cost = { metal = 25, components = 10, circuit = 5 },
+        entitySpawn = 'sos_beacon',
+        powerDraw = 15,
+        category = 'colony',
+    },
 
     -- Endgame buildings
     transmission_array = {

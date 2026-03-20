@@ -43,6 +43,7 @@ local CATEGORY_OVERRIDE = {
     farm_plot       = 'colony',
     cloning_vat     = 'colony',
     radio_beacon    = 'colony',
+    sos_beacon      = 'colony',
     quest_board     = 'colony',
     expedition_table = 'colony',
     cryo_pod        = 'colony',

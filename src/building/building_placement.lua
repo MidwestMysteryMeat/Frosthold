@@ -124,6 +124,19 @@ local function attach(Building, State)
                 timer = 300,
             })
             Power.addConsumer(beaconId, def.powerDraw, x, y, 'low')
+        elseif def.entitySpawn == 'sos_beacon' then
+            local Power = require('src.sim.power')
+            local ECS2 = require('src.ecs.ecs')
+            local beaconId = ECS2.spawn()
+            ECS2.set(beaconId, 'pos', { x = x, y = y, depth = depth })
+            ECS2.set(beaconId, 'sos_beacon', {
+                powered = false,
+                active = false,
+                fired = false,
+                countdown = nil,
+            })
+            ECS2.set(beaconId, 'building_ref', { type = 'sos_beacon', defId = defId })
+            Power.addConsumer(beaconId, def.powerDraw, x, y, 'critical')
         elseif def.entitySpawn == 'endgame' and def.endgameType then
             local Power = require('src.sim.power')
             local ECS2 = require('src.ecs.ecs')

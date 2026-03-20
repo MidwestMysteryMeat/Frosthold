@@ -169,27 +169,37 @@ T.test('fresh start flow reaches playing with drafted crew', function()
     T.eq(countAliveColonists(env.ECS), 3, 'starting crew is alive')
 end)
 
-T.test('safety net rescue triggers once then final defeat fires on second wipe', function()
+T.test('SOS beacon defers defeat while active then defeat fires without beacon', function()
     local env = bootToPlaying()
+    local ECS = env.ECS
     local GameState = env.GameState
     local GameOver = env.GameOver
+    local Power = require('src.sim.power')
+
+    -- Spawn an active SOS beacon entity
+    local beaconId = ECS.spawn()
+    ECS.set(beaconId, 'pos', { x = 64, y = 64, depth = 0 })
+    ECS.set(beaconId, 'sos_beacon', {
+        powered = true,
+        active = true,
+        fired = false,
+        countdown = nil,
+    })
 
     GameState.day = 2
     killAllColonists(env.ECS)
     GameOver.step(2.1)
 
-    T.eq(GameOver.getState(), 'rescue', 'first colony wipe should trigger rescue')
-    T.ok(GameState._safetyNetUsed, 'safety net marks as used')
-    T.eq(countAliveColonists(env.ECS), 2, 'rescue spawns two replacement colonists')
+    T.eq(GameOver.getState(), 'playing', 'active SOS beacon defers defeat check')
 
-    T.ok(GameOver.keypressed('space'), 'rescue overlay can be dismissed')
-    T.eq(GameOver.getState(), 'playing', 'game resumes after rescue')
-    T.eq(GameState.paused, false, 'game unpauses after rescue continuation')
+    -- Now mark beacon as fired (burnt out)
+    local beacon = ECS.get(beaconId, 'sos_beacon')
+    beacon.fired = true
+    beacon.active = false
 
-    killAllColonists(env.ECS)
     GameOver.step(2.1)
 
-    T.eq(GameOver.getState(), 'defeat', 'second colony wipe should defeat the colony')
+    T.eq(GameOver.getState(), 'defeat', 'defeat fires after beacon is burnt out')
     T.eq(GameState.paused, true, 'defeat pauses the game')
 end)
 

@@ -113,6 +113,7 @@ local KNOWN_COMPONENTS = {
     'stealth',
     'space_suit',
     'npc_ship',
+    'sos_beacon',
 }
 
 local function gatherEntities()
@@ -226,8 +227,6 @@ function Helpers.buildSaveData()
             toxicFallout = GameState.toxicFallout,
             volcanicAsh = GameState.volcanicAsh,
             endlessMode = GameState.endlessMode,
-            mammonaSafetyNet = GameState.mammonaSafetyNet,
-            _safetyNetUsed = GameState._safetyNetUsed,
             buildingsConstructed = GameState.buildingsConstructed or 0,
             hermesPhase = GameState.hermesPhase,
             hermesDirective = GameState.hermesDirective,
