@@ -54,6 +54,25 @@ PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
 STATE_PATH = Path(__file__).parent / "world_state.json"
 
 # ============================================================
+# WORLD POPULATION LIMITS — realistic caps for a single colony
+# ============================================================
+
+WORLD_LIMITS = {
+    "faction": 25,       # canonical (36 exist but not all are on Erebus) + fringe
+    "location": 40,      # colony sectors + discovered sites + points of interest
+    "npc": 80,           # colony population (living characters)
+    "robot": 15,         # operational units
+    "quest": 20,         # active quest hooks at any time
+    "history": 30,       # pre-arrival events
+    "datapad": 50,       # found documents (these accumulate, higher cap)
+    "weapon": 30,        # unique weapons in circulation
+    "artifact": 10,      # rare by definition
+    "entity": 5,         # extremely rare
+    "vehicle": 12,       # ships/vehicles in the area
+    "company": 15,       # corporate entities operating in the region
+}
+
+# ============================================================
 # FLAT POOL EXTRACTION
 # ============================================================
 
@@ -89,6 +108,11 @@ class WorldState:
         "events_occurred": [],
         "frequency": {},
         "generation_log": [],
+        "population": {
+            "faction": 0, "location": 0, "npc": 0, "robot": 0,
+            "quest": 0, "history": 0, "datapad": 0, "weapon": 0,
+            "artifact": 0, "entity": 0, "vehicle": 0, "company": 0,
+        },
     }
 
     def __init__(self, path=STATE_PATH):
@@ -103,6 +127,9 @@ class WorldState:
                 raw = self.path.read_text(encoding="utf-8")
                 data = json.loads(raw)
                 self._validate(data)
+                # Back-fill population key if missing (migration for older state files)
+                if "population" not in data:
+                    data["population"] = json.loads(json.dumps(self.DEFAULT["population"]))
                 self.data = data
                 return
             except (json.JSONDecodeError, ValueError, KeyError) as e:
@@ -203,6 +230,33 @@ class WorldState:
             "label": label,
             "timestamp": timestamp or time.strftime("%Y-%m-%d %H:%M:%S"),
         })
+
+    def check_limit(self, gen_type):
+        """Return True if we have not yet hit the world limit for this type."""
+        limit = WORLD_LIMITS.get(gen_type, 999)
+        current = self.data.get("population", {}).get(gen_type, 0)
+        return current < limit
+
+    def increment_population(self, gen_type):
+        """Track that we've generated one more of this type."""
+        pop = self.data.setdefault("population", {})
+        pop[gen_type] = pop.get(gen_type, 0) + 1
+
+    def get_population(self, gen_type):
+        """Get current count of a type."""
+        return self.data.get("population", {}).get(gen_type, 0)
+
+    def population_summary(self):
+        """Return a formatted summary of current world population vs limits."""
+        pop = self.data.get("population", {})
+        lines = []
+        for gen_type, limit in WORLD_LIMITS.items():
+            current = pop.get(gen_type, 0)
+            pct = int(current / limit * 100) if limit > 0 else 0
+            filled = pct // 5
+            bar = "=" * filled + "-" * (20 - filled)
+            lines.append(f"  {gen_type:12s} [{bar}] {current:3d}/{limit}")
+        return "\n".join(lines)
 
     def add_divergence(self, divergence):
         """Add a narrative divergence to the world state."""
@@ -4548,24 +4602,30 @@ def generate_piece(gen_type=None, ctx=None, tone=None, planet=None, era=None):
         ctx = Context()
 
     if gen_type and gen_type in GENERATORS:
+        if not ctx.world.check_limit(gen_type):
+            print(f"  [{gen_type}] World limit reached ({WORLD_LIMITS.get(gen_type, '?')})")
+            return None, None, None
         gen_func, label = GENERATORS[gen_type]
         content = gen_func(ctx, tone=tone, planet=planet, era=era)
         ctx.add_piece(content, label, gen_type)
+        ctx.world.increment_population(gen_type)
         return content, label, gen_type
 
-    # Weighted random selection from available generators
+    # Weighted random selection — only from types that haven't hit their limit
     pool = []
     for gtype, weight in GENERATOR_WEIGHTS.items():
-        if gtype in GENERATORS:
+        if gtype in GENERATORS and ctx.world.check_limit(gtype):
             pool.extend([gtype] * weight)
 
     if not pool:
-        return None, "No Generators", None
+        # World is full
+        return None, None, None
 
     chosen_type = R(pool)
     gen_func, label = GENERATORS[chosen_type]
     content = gen_func(ctx, tone=tone, planet=planet, era=era)
     ctx.add_piece(content, label, chosen_type)
+    ctx.world.increment_population(chosen_type)
     return content, label, chosen_type
 
 
@@ -4659,33 +4719,42 @@ def generate_world(ctx, tone=None, planet=None, era=None):
             if content is not None:
                 pieces.append((content, label, gtype))
 
+    def _cap(gen_type, lo, hi):
+        """Clamp hi to remaining world capacity for gen_type, then pick RI(lo, hi)."""
+        remaining = WORLD_LIMITS.get(gen_type, 999) - ctx.world.get_population(gen_type)
+        hi = min(hi, remaining)
+        lo = min(lo, hi)
+        if lo < 0:
+            return 0
+        return RI(lo, hi)
+
     # --- Phase 1: WORLD FOUNDATION ---
     # History first — what happened before anyone arrived
-    _gen("history", RI(5, 8))
+    _gen("history", _cap("history", 5, 8))
     # Locations — where things happen
-    _gen("location", RI(2, 4))
+    _gen("location", _cap("location", 2, 4))
     # Factions — who has power (generated factions register in ctx)
-    _gen("faction", RI(2, 3))
+    _gen("faction", _cap("faction", 2, 3))
 
     # --- Phase 2: INHABITANTS ---
     # NPCs — they populate the factions and locations from Phase 1
-    _gen("npc", RI(6, 10))
+    _gen("npc", _cap("npc", 6, 10))
     # Robots — colony infrastructure
-    _gen("robot", RI(1, 3))
+    _gen("robot", _cap("robot", 1, 3))
 
     # Wire relationships AFTER all inhabitants exist
     wire_relationships(ctx)
 
     # --- Phase 3: NARRATIVE ---
     # Quests — involve the NPCs from Phase 2 at locations from Phase 1
-    _gen("quest", RI(3, 5))
+    _gen("quest", _cap("quest", 3, 5))
     # Datapads — reference everything above
-    _gen("datapad", RI(3, 5))
+    _gen("datapad", _cap("datapad", 3, 5))
 
     # --- Phase 4: DETAILS ---
     # Sprinkle in texture pieces
     for gen_type in ["weapon", "artifact", "entity", "vehicle", "company"]:
-        if gen_type in GENERATORS and random.random() > 0.4:
+        if gen_type in GENERATORS and random.random() > 0.4 and ctx.world.check_limit(gen_type):
             _gen(gen_type, 1)
 
     return pieces
@@ -4782,6 +4851,8 @@ def main():
 
     if args.state:
         print(json.dumps(ws.data, indent=2, ensure_ascii=False))
+        print("\n=== WORLD POPULATION ===")
+        print(ws.population_summary())
         return
 
     if args.validate:
@@ -4903,6 +4974,13 @@ def main():
                 )
 
                 if content is None:
+                    # Check whether the world is full or generators are missing
+                    all_full = all(not ws.check_limit(t) for t in GENERATORS.keys())
+                    if all_full:
+                        ws.save()
+                        print(f"\nWorld population limits reached. Generated {seq} total pieces.")
+                        print(ws.population_summary())
+                        return
                     print("No generators registered. Register generators in Tasks 4-9.")
                     return
 
@@ -4941,6 +5019,17 @@ def main():
                 )
 
                 if content is None:
+                    # Distinguish limit-reached from no-generators
+                    if args.type and not ws.check_limit(args.type):
+                        ws.save()
+                        print(f"\n  [{args.type}] World limit reached ({WORLD_LIMITS.get(args.type, '?')}). Stopping.")
+                        break
+                    all_full = all(not ws.check_limit(t) for t in GENERATORS.keys())
+                    if all_full:
+                        ws.save()
+                        print(f"\nWorld population limits reached. Generated {seq - 1} total pieces.")
+                        print(ws.population_summary())
+                        return
                     print("No generators registered. Register generators in Tasks 4-9.")
                     return
 

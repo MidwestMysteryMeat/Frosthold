@@ -14,7 +14,7 @@ from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
 # Import generator
-from gen_v3 import generate_piece, Context, WorldState, GENERATORS
+from gen_v3 import generate_piece, Context, WorldState, GENERATORS, WORLD_LIMITS
 
 # ============================================================
 # VIEWER STATE
@@ -30,6 +30,7 @@ class ViewerState:
         self.start_time = time.time()
         self.type_counts = {}
         self.errors = 0
+        self.world_state = None  # set by generator_thread after WorldState is created
 
     def add_piece(self, content, label, gen_type):
         with self.lock:
@@ -63,13 +64,17 @@ class ViewerState:
         with self.lock:
             elapsed = time.time() - self.start_time
             rate = (self.seq / (elapsed / 60.0)) if elapsed > 60 else 0
-            return {
+            stats = {
                 "total": self.seq,
                 "errors": self.errors,
                 "rate_per_min": round(rate, 1),
                 "elapsed_s": round(elapsed),
                 "type_counts": dict(self.type_counts),
             }
+            if self.world_state is not None:
+                stats["population"] = dict(self.world_state.data.get("population", {}))
+                stats["limits"] = WORLD_LIMITS
+            return stats
 
 
 # ============================================================
@@ -79,6 +84,7 @@ class ViewerState:
 def generator_thread(state, delay, batch_size):
     """Background thread that continuously generates lore pieces."""
     ws = WorldState()
+    state.world_state = ws  # expose to ViewerState for stats endpoint
     ctx = Context(world_state=ws)
     gen_count = 0
 
