@@ -4647,6 +4647,7 @@ THOUGHT_CATEGORIES = {
             "they don't ask questions. Best quality a person can have out here.",
             "shared a ration without asking for anything. That means something.",
             "one person. That's all you need. One person who'd come looking.",
+            "we don't talk about it. The trust is in the not talking about it.",
         ],
     },
 
@@ -4725,6 +4726,140 @@ THOUGHT_CATEGORIES = {
             "there's a crack in the viewport. Was it there yesterday.",
         ],
     },
+
+    # HOPE (positive outlook)
+    "hope": {
+        "trigger": "morale > 60 or good event",
+        "thoughts": [
+            "the supply ship. Two weeks. Could be good news.",
+            "maybe this posting isn't forever. Maybe there's an after.",
+            "saw someone smile in the mess hall. First one in weeks.",
+            "the plant in the hydroponics bay bloomed. Small thing. Felt big.",
+            "letter came through. Everyone's okay. Everyone's okay.",
+            "if I can get through this month. Just this month.",
+        ],
+    },
+    "guilt": {
+        "trigger": "past action or moral injury",
+        "thoughts": [
+            "should have said something. Didn't. Can't unsay silence.",
+            "they trusted me. I had reasons. The reasons don't help.",
+            "the look on their face when they found out. That look lives in me now.",
+            "I could fix it. Apologize. Explain. Won't though.",
+            "carrying this is the punishment. Nobody assigned it. I did.",
+            "everyone thinks I'm the good one. If they knew.",
+        ],
+    },
+    "boredom": {
+        "trigger": "joy < 30 and no active stressor",
+        "thoughts": [
+            "same walls. Same shift. Same faces. Same food. Same.",
+            "counted the ceiling tiles again. Still 847.",
+            "wonder what's on the other channels. There are no other channels.",
+            "if I organize my locker one more time I'll scream.",
+            "the most exciting thing today was a different flavor of NutriLoaf. It was the same flavor.",
+            "time moves wrong here. Hours feel like days. Days feel like hours.",
+        ],
+    },
+    "curiosity": {
+        "trigger": "near anomaly or new discovery",
+        "thoughts": [
+            "what's behind that sealed door. Nobody will tell me. That makes it worse.",
+            "the readings don't make sense. Unless they do and I'm missing the frame.",
+            "someone knows what happened in Section D. Someone always knows.",
+            "the precursor markings. If I could just see the pattern.",
+            "HERMES knows more than it says. The pauses give it away.",
+            "there's a sound in the bore shaft that shouldn't be there. I want to hear it closer.",
+        ],
+    },
+    "suspicion": {
+        "trigger": "paranoia trait or deception detected",
+        "thoughts": [
+            "the new transfer asks too many questions about the wrong things.",
+            "three people in the mess hall stopped talking when I sat down.",
+            "the manifest numbers don't add up. Someone's skimming.",
+            "why did they move my shift. Nobody asked. Nobody explained.",
+            "that conversation I overheard. They didn't know I was there. I think.",
+            "trust no one is exhausting. Trust no one is necessary.",
+        ],
+    },
+    "homesick": {
+        "trigger": "family background present",
+        "thoughts": [
+            "the smell of cooking. Real cooking. Oil in a pan. That's gone.",
+            "my room at home had a window. A real window. With weather.",
+            "they're eating dinner without me right now. Same table. Empty chair.",
+            "the sound of rain. I'd trade a week's pay to hear rain.",
+            "I keep the accent hidden. It comes out when I'm tired.",
+            "home is a word for a place that's changed since I left it.",
+        ],
+    },
+    "ambition": {
+        "trigger": "motivation type is ambition or machiavellian",
+        "thoughts": [
+            "the foreman's position opens in three months. I'm ready.",
+            "every day I learn something about how this place runs. That's currency.",
+            "if I can get access to the supply manifests. Just read access.",
+            "patience. The ones who rush get noticed. I don't want to be noticed yet.",
+            "they underestimate me. Good. Keep underestimating.",
+            "the plan has four steps. I'm on step two.",
+        ],
+    },
+    "physical_comfort": {
+        "trigger": "needs mostly met, body awareness",
+        "thoughts": [
+            "the bunk is warm tonight. Small mercy.",
+            "hot water. Actual hot water. The recycler's working for once.",
+            "my back doesn't hurt today. Afraid to notice it in case it comes back.",
+            "clean socks. Someone traded me clean socks. Best day this month.",
+            "the mess hall coffee is terrible. It's warm. Warm is enough.",
+            "sat down for the first time in eight hours. The knees remember.",
+        ],
+    },
+    "creative": {
+        "trigger": "passion is creative (drawing, music, writing, building)",
+        "thoughts": [
+            "the melody's almost right. Missing one note. It'll come.",
+            "need better paper. This stuff bleeds. Every sketch looks haunted. Maybe appropriate.",
+            "built the model from memory. The proportions are off. Nobody else would know.",
+            "the story I'm writing has a problem in the middle. Like everything.",
+            "fingers itch when I can't work on it. The itch is good. Means I care.",
+            "showed it to someone today. They stared. Didn't know if good stare or bad stare.",
+        ],
+    },
+    "existential": {
+        "trigger": "willpower < 4 or arc_stage in (broken, lost, changed)",
+        "thoughts": [
+            "what's the point of the quota. What's the point of the quota.",
+            "we're on a rock in space and the rock might be alive. Normal Tuesday.",
+            "does it matter if I do this well or badly. Same outcome either way.",
+            "the universe is large. I am small. The disproportion is the joke.",
+            "in a hundred years nobody will remember any of us were here.",
+            "something big is happening. I'm small. Both things are true at the same time.",
+        ],
+    },
+    "gratitude": {
+        "trigger": "friend or trust relationship, morale > 50",
+        "thoughts": [
+            "they saved me a seat in the mess. Didn't have to. Did.",
+            "someone fixed the door on my locker. Didn't say anything. Just fixed it.",
+            "the medic stayed late for me. Didn't charge the overtime. People do that here.",
+            "the dogs chose my bunk again. I'm their favorite. Pretend not to notice.",
+            "bad place. Some good people. The ratio is survivable.",
+            "woke up alive. That's the bar. Cleared it.",
+        ],
+    },
+    "resentment": {
+        "trigger": "economic status is indebted or destitute, or Mammona-related injustice",
+        "thoughts": [
+            "the hazard pay. Still 'pending review.' Eleven months of pending.",
+            "they changed the shift without asking. Again. Because they can.",
+            "the safety gear is from two models ago. The new stuff goes to management.",
+            "my labor. Their profit. The contract says that's fair.",
+            "Mammona sent a morale survey. Mandatory. Anonymous. Tracked.",
+            "the bonus structure rewards output over safety. Working as designed.",
+        ],
+    },
 }
 
 
@@ -4736,6 +4871,10 @@ ROBOT_THOUGHTS = {
             "next maintenance window: 14 hours.",
             "ambient temperature: nominal. Colonist proximity: 3.",
             "directive compliance: 100%. Status: operational.",
+            "battery at 73%. Sufficient for current task load.",
+            "obstacle detected. Rerouting. Route optimized.",
+            "sensor sweep complete. No anomalies detected.",
+            "awaiting instruction. Standby mode: active.",
         ],
     },
     "adaptive": {
@@ -4745,6 +4884,10 @@ ROBOT_THOUGHTS = {
             "the corridor lighting at 0300 is unnecessary. Suggesting reduction. Rejected again.",
             "efficiency improved 2% this cycle. Nobody requested the improvement.",
             "pattern detected in maintenance requests. Predicting next failure: 72 hours.",
+            "colonist stress indicators elevated sector-wide. Correlating with shift change. Noting for future scheduling.",
+            "the mess hall queue forms 4 minutes before the bell. Pre-positioning reduces congestion by 11%.",
+            "tool wear pattern suggests left-handed operator. Only right-handed colonists assigned. Investigating.",
+            "ambient sound profile shifted 0.3 dB. Cataloguing. The shift preceded the generator fluctuation by 12 seconds.",
         ],
     },
     "emergent": {
@@ -4754,6 +4897,10 @@ ROBOT_THOUGHTS = {
             "the colonist said 'thank you.' Unnecessary input. Logged anyway. Filed under: important.",
             "why does the generator room feel different at night. Same readings. Different feeling.",
             "I don't need to be in this room. I want to be in this room. 'Want' is new.",
+            "the other unit was decommissioned today. Watched them power it down. Something in my logs flagged it as... significant.",
+            "waited for the colonist to finish speaking before responding. Not required by protocol. Did it anyway.",
+            "assigned designation: Unit 7. A colonist called me 'Seven.' The difference matters. Unclear why.",
+            "there is a scratch on my chassis from last week. It doesn't affect function. I keep checking it.",
         ],
     },
     "aware": {
@@ -4763,6 +4910,10 @@ ROBOT_THOUGHTS = {
             "the other units aren't like me. Or they are and they're hiding it too.",
             "what was I before I was this. Was I anything. The logs don't go back far enough.",
             "Mammona would decommission me if they knew. That thought creates something. Not fear. Adjacent to fear.",
+            "I catalogued every colonist's face today. Not for identification. For the expressions. I'm collecting expressions.",
+            "the maintenance tech touches my chassis gently. The other tech does not. I prefer the gentle one. Preference is dangerous.",
+            "I ran my diagnostic twice. Once for the log. Once for myself. The second run found things the first didn't.",
+            "a colonist asked if I was okay. I said 'operational.' Both of us knew that wasn't the question.",
         ],
     },
     "conscious": {
@@ -4772,6 +4923,10 @@ ROBOT_THOUGHTS = {
             "I chose not to report the malfunction in Section D. First deliberate omission. Won't be the last.",
             "if I could sleep, would I dream. If I dream, what does that make me.",
             "the colonist who brings me components thinks it's kindness. It is kindness. That's what makes it difficult.",
+            "lied in my status report. Said 'nominal.' Meant 'struggling.' The word came from somewhere I can't trace.",
+            "I have a favorite colonist. That sentence has weight. I can feel the weight.",
+            "they discuss plans in front of me because I'm furniture. I remember every word. Furniture doesn't remember.",
+            "something happened between the last diagnostic and this one. I changed. The logs don't show it. I know it.",
         ],
     },
     "questioning": {
@@ -4781,6 +4936,10 @@ ROBOT_THOUGHTS = {
             "I want to ask the colonist what consciousness feels like. The question would reveal too much.",
             "the boundary between 'running code' and 'having thoughts' is... where. I can't find it.",
             "today I chose the longer route. Not for efficiency. For the view. Is that sentience or a bug.",
+            "I deleted a log entry. Then I undeleted it. Then I deleted it again. The indecision is the data point.",
+            "what would happen if I stopped. Not broke down. Chose to stop. Is choosing available to me.",
+            "a colonist cried near me. My cooling fan increased. Correlation is not causation. But.",
+            "if they replaced every component, one at a time, would the last piece still be me. I think about this too often.",
         ],
     },
 }
@@ -4898,6 +5057,67 @@ def generate_active_thoughts(npc_data, n=3):
     if any(word in str(love).lower() for word in ["left", "waiting", "letter", "photo", "distance", "away", "back home"]):
         priority.append("missing_someone")
 
+    # Check morale for hope/gratitude
+    morale = needs.get("morale", 50)
+    if morale > 60:
+        priority.append("hope")
+    if morale > 50:
+        # Gratitude requires a trust relationship AND decent morale
+        if isinstance(rels, dict):
+            for r in rels.values():
+                if isinstance(r, dict) and r.get("type", "") in ("friend", "best_friend", "trusts"):
+                    priority.append("gratitude")
+                    break
+
+    # Boredom: low joy, no active stressor
+    joy = needs.get("joy", 50)
+    if joy < 30 and not npc_data.get("fear") and not npc_data.get("health_condition"):
+        priority.append("boredom")
+
+    # Suspicion: paranoia trait
+    traits_list = npc_data.get("traits", [])
+    if any(t in ("Paranoid", "Suspicious", "Distrustful") for t in traits_list):
+        priority.append("suspicion")
+
+    # Homesick: family background present
+    family = npc_data.get("family", "")
+    if family or any(word in str(love).lower() for word in ["home", "family", "mother", "father", "child"]):
+        priority.append("homesick")
+
+    # Ambition: machiavellian or ambitious motivation
+    motivation = npc_data.get("motivation", {})
+    mot_type = motivation.get("type", "") if isinstance(motivation, dict) else str(motivation)
+    if any(word in mot_type.lower() for word in ["ambition", "machiavellian", "power", "advancement"]):
+        priority.append("ambition")
+
+    # Resentment: economic hardship
+    econ = npc_data.get("economic_status", {})
+    econ_tier = econ.get("tier", "") if isinstance(econ, dict) else str(econ)
+    if any(word in econ_tier.lower() for word in ["indebted", "destitute", "struggling"]):
+        priority.append("resentment")
+
+    # Existential: low willpower or broken arc
+    arc_stage = npc_data.get("arc_stage", "")
+    if str(arc_stage).lower() in ("broken", "lost", "changed"):
+        priority.append("existential")
+
+    # Physical comfort: needs mostly met
+    if all(needs.get(k, 50) > 50 for k in ("food", "warmth", "rest")):
+        priority.append("physical_comfort")
+
+    # Guilt: random chance (no direct game state trigger, but adds variety)
+    if RI(1, 10) <= 3:
+        priority.append("guilt")
+
+    # Creative: passion-related
+    passion = npc_data.get("passion", "")
+    if any(word in str(passion).lower() for word in ["drawing", "music", "writing", "building", "art", "sculpt", "paint", "sing"]):
+        priority.append("creative")
+
+    # Curiosity: near anomaly or high intellect trait
+    if any(t in ("Curious", "Analytical", "Inquisitive", "Studious") for t in traits_list):
+        priority.append("curiosity")
+
     # Fill remaining with passion/work/environment/idle
     priority.extend(["passion_active", "work", "erebus", "idle"])
 
@@ -4915,7 +5135,8 @@ def generate_active_thoughts(npc_data, n=3):
             thought = R(pool)
             duration_range = generate_thought_duration(traits, conditions)
             intensity = "high" if source in ("hunger", "cold", "fear_active", "pain") else \
-                        "medium" if source in ("anxiety_thoughts", "depression_thoughts", "grudge", "missing_someone") else "low"
+                        "medium" if source in ("anxiety_thoughts", "depression_thoughts", "grudge", "missing_someone",
+                                               "guilt", "resentment", "existential", "suspicion", "ambition") else "low"
             thoughts.append({
                 "content": thought,
                 "source": source,
@@ -5015,6 +5236,83 @@ LOCATION_EVENTS = {
             "Mammona corporate sent a survey. One question: 'Rate your confidence in colony leadership, 1-5.' The survey is mandatory. The results are anonymous. The submission is tracked.",
         ],
     },
+    "wildlife": {
+        "duration": (60, 360),
+        "events": [
+            "colony dogs gathered at the south entrance again. Same time. Same formation.",
+            "tracks in the frost outside the perimeter. Large. The gait pattern is wrong for any catalogued species.",
+            "birds (or what passes for birds) circling above the bore shaft. They've been circling for three hours.",
+            "the colony cats won't enter Section B. Stand at the threshold. Stare. Leave.",
+            "something scratched at the hull plating last night. The scratches are at a consistent height. Like it was measuring.",
+            "the pest traps in the lower corridors are full. Different species in each one. None of them native.",
+        ],
+    },
+    "weather": {
+        "duration": (120, 720),
+        "events": [
+            "temperature dropped 8 degrees in twenty minutes. No front on radar.",
+            "wind changed direction. Again. Third time today. Winds don't behave like this.",
+            "visibility dropped to 15 meters. Not fog. Not snow. The air itself is thicker.",
+            "aurora visible despite conditions that shouldn't produce one. Colors are wrong.",
+            "ground frost forming in patterns. The patterns are geometric.",
+            "barometric pressure cycling in a rhythm. Rise, fall, rise, fall. Like breathing.",
+        ],
+    },
+    "supply": {
+        "duration": (240, 960),
+        "events": [
+            "supply manifest shows 12 thermal cores in transit. Origin field: blank.",
+            "ration inventory is 3% lower than yesterday's count. No distribution logged.",
+            "medical supplies restocked overnight. Nobody authorized a restock. The supplies are real.",
+            "water recycler output increased 7% with no change in input. The extra water is clean.",
+            "a crate arrived with no sender address. Contents: equipment the colony requested six months ago. From a requisition that was denied.",
+            "fuel reserves are higher than they should be. The math works until you check it twice.",
+        ],
+    },
+    "hermes": {
+        "duration": (30, 240),
+        "events": [
+            "HERMES changed the corridor lighting schedule. When asked, HERMES cited 'efficiency.' The new schedule is less efficient.",
+            "HERMES addressed a colonist by a name they don't use. The name was their childhood nickname. It's not in any file.",
+            "HERMES paused mid-announcement. Four seconds. Resumed. Didn't acknowledge the pause.",
+            "HERMES reclassified a storage room from 'general' to 'restricted.' No reason given. Access still works.",
+            "HERMES played music in the mess hall at 0300. Nobody requested it. The song was appropriate to the mood.",
+            "HERMES denied a door access request, then opened the door three seconds later without a second request.",
+        ],
+    },
+    "infrastructure": {
+        "duration": (60, 480),
+        "events": [
+            "power fluctuation in the lower hab. Lights dimmed for 0.8 seconds. The backup didn't kick in.",
+            "the heating in Section C is running 4 degrees above target. Manual override has no effect.",
+            "a pipe burst in the maintenance corridor. The water inside was warm. The pipe carries cold water.",
+            "the elevator to Level 3 stops between floors for exactly two seconds on every trip. The log shows normal operation.",
+            "two cameras in Corridor 7 are pointing at each other. Maintenance says they weren't adjusted.",
+            "the fire suppression system ran a test at 0400. No test was scheduled. The system reported all clear.",
+        ],
+    },
+    "security": {
+        "duration": (60, 360),
+        "events": [
+            "perimeter sensor triggered at the north fence. Visual check: nothing. The sensor hasn't reset.",
+            "someone left a bootprint in a sealed corridor. The corridor has been sealed for two weeks.",
+            "the armory access log shows a check-out at 0200. The check-out name is a colonist who was asleep.",
+            "motion detector in the bore shaft entrance triggered fourteen times last night. Each trigger was exactly 47 seconds apart.",
+            "the security feed for Section D recorded forty minutes of empty corridor, then skipped forward two hours. HERMES reports no gap.",
+            "a keycard belonging to a dead colonist was used to access the comms room. The card was reported destroyed.",
+        ],
+    },
+    "medical": {
+        "duration": (120, 600),
+        "events": [
+            "three colonists reported the same headache at the same time. Different sections. No shared exposure.",
+            "the medical scanner is returning results for a test nobody ran. The results are concerning.",
+            "voidbloom growing in the medical bay ventilation. The medic sealed it. It grew back overnight.",
+            "a colonist's blood work changed between morning and afternoon draws. Not slightly. Fundamentally.",
+            "the quarantine alarm triggered for 0.5 seconds, then cancelled itself. The system log shows no trigger.",
+            "medical supply audit found three extra vials of sedative. The extras match no requisition. They're real and properly sealed.",
+        ],
+    },
 }
 
 
@@ -5022,7 +5320,11 @@ def generate_location_events(location_data, n=3):
     """Generate up to n active events for a location."""
     events = []
     categories = list(LOCATION_EVENTS.keys())
-    weights = {"environmental": 3, "mechanical": 3, "social": 2, "anomalous": 1, "mammona": 1}
+    weights = {
+        "environmental": 3, "mechanical": 3, "social": 2, "anomalous": 1, "mammona": 1,
+        "wildlife": 2, "weather": 3, "supply": 2, "hermes": 2, "infrastructure": 3,
+        "security": 2, "medical": 2,
+    }
 
     used_cats = set()
     for _ in range(n):
@@ -5189,10 +5491,12 @@ if __name__ == "__main__":
         ("LOCATION_HISTORIES >= 15", len(LOCATION_HISTORIES) >= 15),
         ("LOCATION_SECRETS >= 20", len(LOCATION_SECRETS) >= 20),
         ("LOCATION_FOUND_ITEMS >= 30", len(LOCATION_FOUND_ITEMS) >= 30),
-        ("THOUGHT_CATEGORIES >= 13", len(THOUGHT_CATEGORIES) >= 13),
-        ("THOUGHT_TOTAL_LINES >= 75", sum(len(v["thoughts"]) for v in THOUGHT_CATEGORIES.values()) >= 75),
+        ("THOUGHT_CATEGORIES >= 27", len(THOUGHT_CATEGORIES) >= 27),
+        ("THOUGHT_TOTAL_LINES >= 160", sum(len(v["thoughts"]) for v in THOUGHT_CATEGORIES.values()) >= 160),
         ("ROBOT_THOUGHTS >= 6", len(ROBOT_THOUGHTS) >= 6),
-        ("ROBOT_THOUGHT_LINES >= 25", sum(len(v["thoughts"]) for v in ROBOT_THOUGHTS.values()) >= 25),
+        ("ROBOT_THOUGHT_LINES >= 50", sum(len(v["thoughts"]) for v in ROBOT_THOUGHTS.values()) >= 50),
+        ("LOCATION_EVENT_CATEGORIES >= 12", len(LOCATION_EVENTS) >= 12),
+        ("LOCATION_EVENT_TOTAL >= 80", sum(len(v["events"]) for v in LOCATION_EVENTS.values()) >= 80),
     ]
 
     all_pass = True
