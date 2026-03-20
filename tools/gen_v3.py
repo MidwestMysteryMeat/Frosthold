@@ -5008,15 +5008,17 @@ def main():
                 )
 
                 if content is None:
-                    # Check whether the world is full or generators are missing
+                    # Check whether ALL types are full
                     all_full = all(not ws.check_limit(t) for t in GENERATORS.keys())
                     if all_full:
                         ws.save()
                         print(f"\nWorld population limits reached. Generated {seq} total pieces.")
                         print(ws.population_summary())
                         return
-                    print("No generators registered. Register generators in Tasks 4-9.")
-                    return
+                    # Some types still have capacity — skip this tick and try again
+                    seq -= 1  # don't count the failed attempt
+                    time.sleep(args.delay)
+                    continue
 
                 formatted = format_output(
                     [(content, label, gen_type)], seq_start=seq,
