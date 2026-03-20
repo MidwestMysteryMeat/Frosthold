@@ -61,6 +61,7 @@ local suites = {
     'tests.test_save_raids',
     'tests.test_mrp',
     'tests.test_nemesis',
+    'tests.test_ruin_spawner',
 }
 
 io.write('FROSTHOLD Test Suite\n')
