@@ -121,6 +121,53 @@ def check_ai_tells(text):
                 warnings.append(("anthropomorphizing", m.group(),
                                  "Objects don't have feelings unless lore says they're alive"))
 
+    # 11. SYNONYM CYCLING
+    # Same concept described with different fancy words in close proximity
+    synonym_groups = [
+        ["important", "crucial", "vital", "essential", "critical", "pivotal", "paramount"],
+        ["demonstrate", "illustrate", "showcase", "highlight", "underscore"],
+        ["comprehensive", "thorough", "extensive", "exhaustive"],
+        ["enhance", "improve", "boost", "elevate", "augment"],
+    ]
+    for group in synonym_groups:
+        found = [w for w in group if w.lower() in text.lower()]
+        if len(found) >= 3:
+            warnings.append(("synonym_cycling", f"Uses {', '.join(found)} in same piece", "Pick one word and use it. Humans repeat."))
+
+    # 12. SIGNPOSTING
+    signposts = ["firstly", "secondly", "thirdly", "in conclusion", "to summarize", "in summary", "it is important to note"]
+    for s in signposts:
+        if s.lower() in text.lower():
+            warnings.append(("signposting", s, "Cut the signpost. Just say it."))
+
+    # 13. SYMMETRICAL STRUCTURE
+    # Check if bullet points or list items are suspiciously similar length
+    lines = text.split('\n')
+    bullet_lines = [l.strip() for l in lines if l.strip().startswith('- ')]
+    if len(bullet_lines) >= 3:
+        lengths = [len(l) for l in bullet_lines]
+        avg_len = sum(lengths) / len(lengths)
+        # If all bullets are within 20% of average length, flag
+        if all(abs(l - avg_len) / avg_len < 0.2 for l in lengths if avg_len > 0):
+            warnings.append(("symmetrical_structure", f"{len(bullet_lines)} bullets, all ~{int(avg_len)} chars", "Vary bullet lengths. Humans are messy."))
+
+    # 14. FORCED CASUAL
+    forced_casual = ["honestly,", "to be fair,", "at the end of the day,", "let's be honest,", "look,", "here's the thing,"]
+    for fc in forced_casual:
+        if fc.lower() in text.lower():
+            warnings.append(("forced_casual", fc, "Cut the forced casualness"))
+
+    # 15. LOOPING CONCLUSION
+    # Same idea stated more than once in different words (harder to detect)
+    # Simple heuristic: check if last sentence restates the first
+    sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip() and len(s.strip()) > 10]
+    if len(sentences) >= 4:
+        first_words = set(sentences[0].lower().split()[:5])
+        last_words = set(sentences[-1].lower().split()[:5])
+        overlap = len(first_words & last_words)
+        if overlap >= 3:
+            warnings.append(("looping_conclusion", "Last sentence restates first", "Don't circle back. Move forward."))
+
     return warnings
 
 
@@ -150,5 +197,14 @@ def scrub_ai_tells(text):
     text = re.sub(r"\. That's the word they use\.", ".", text)
     text = re.sub(r"\. That's what they call it\.", ".", text)
     text = re.sub(r"\. That's what they say\.", ".", text)
+
+    # Auto-remove signposts
+    for s in ["Firstly, ", "Secondly, ", "Thirdly, ", "In conclusion, ", "To summarize, ", "In summary, ", "It is important to note that "]:
+        text = text.replace(s, "")
+        text = text.replace(s.lower(), "")
+
+    # Auto-remove forced casual
+    for fc in ["Honestly, ", "To be fair, ", "At the end of the day, ", "Let's be honest, ", "Here's the thing, "]:
+        text = text.replace(fc, "")
 
     return text

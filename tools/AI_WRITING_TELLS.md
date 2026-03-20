@@ -483,3 +483,69 @@ Launders opinion into truth without citation.
 
 ### 7. Quotes Without Attribution
 Fabricated or unverified quotes attributed to known figures.
+
+---
+
+## 10. COMPREHENSIVE AI TELL TAXONOMY
+
+### STRUCTURE & FLOW
+- **Symmetrical structure:** Everything perfectly balanced. Same sentence lengths. Paragraphs same size. Humans are messy.
+- **Excessive signposting:** "Firstly... Secondly... Finally..." Reads like a high school essay.
+- **Too logically linear:** Every idea flows perfectly. No jumps, no side thoughts, no contradictions. Humans circle back, interrupt themselves, contradict earlier points.
+- **No thinking pauses:** AI rarely does "wait, actually..." or "that might not be right" or "let me rephrase that."
+
+### LANGUAGE PATTERNS
+- **Repetitive phrasing:** "It is important to..." / "This highlights the significance of..." Same shapes reused with different words.
+- **Synonym cycling:** AI avoids repeating words unnaturally: "important" → "crucial" → "vital" → "essential." Humans repeat words more casually.
+- **Overly neutral tone:** No strong opinions. Avoids sounding wrong. Feels safe and sanitized.
+- **Controlled casual:** Even when casual, it's polished casual, not messy casual. No real slang or imperfect phrasing.
+
+### STYLE
+- **Polished but generic voice:** Sounds "good" but not specific. If you can swap the topic and it still works, it's AI.
+- **No lived experience:** No specific memories, no sensory detail, no "this happened to me." Even when it tries: "many people experience..." / "it can feel..."
+- **Over-explaining obvious things:** Defines basic concepts. Restates simple ideas. Humans skip obvious steps.
+- **Lack of sharp edges:** No strong opinions, no controversial takes, no risky phrasing. Everything rounded off.
+
+### CONTENT
+- **High density, low specificity:** Lots of words, few concrete details. "This can improve efficiency and productivity" — but how exactly?
+- **Generic examples:** "In many situations..." / "workplace" / "society." Rarely weird niche examples or oddly specific scenarios.
+- **Fake depth:** "This reflects the broader complexity of human behavior." Sounds smart. Means nothing.
+
+### REPETITION & REDUNDANCY
+- **Same idea restated:** Sentence 1: idea. Sentence 2: same idea, different words. Sentence 3: summary of idea. Humans just move on.
+- **Looping conclusions:** Summarizes repeatedly. Ends sections with mini-conclusions constantly.
+
+### EMOTIONAL SIGNALS (OR LACK OF)
+- **Emotion without texture:** AI says "this is frustrating." Humans show specific reactions, physical responses, context.
+- **No contradictions:** Humans hold conflicting thoughts, change tone mid-paragraph. AI stays consistent.
+- **No ego or stake:** AI rarely defends a position strongly, doubles down, or shows bias unless forced.
+
+### FORMATTING
+- **Bullet-point addiction:** Clean lists, categorized breakdowns, everything neatly segmented.
+- **Consistent formatting patterns:** Same header styles, same spacing rhythm, predictable layout.
+
+### META-TELLS (THE BIG ONES)
+- **"Sounds right" but feels empty:** You read it and think "yeah... okay..." but nothing sticks.
+- **Could apply to anything:** Swap the topic and it still works. Dead giveaway.
+- **No risk of being wrong:** Avoids bold claims, niche opinions, uncertainty with commitment.
+- **Too helpful, too complete:** Tries to answer everything, cover all angles. Humans leave gaps.
+
+### ADVANCED TELLS
+- **Even distribution of complexity:** No sudden spikes in difficulty. No dumb sentence next to a smart one. Humans fluctuate.
+- **Lack of true originality:** Feels like a remix of known ideas. Not a weird, novel thought.
+- **Predictable cadence:** Setup → explanation → example → summary. Every time.
+
+### WHEN AI TRIES TO SOUND HUMAN (AND FAILS)
+- **Forced casual:** "Honestly..." / "To be fair..." / "At the end of the day..." But still too clean.
+- **Fake personality:** Slight humor, mild opinions, but no real bite or specificity.
+
+### THE HARDEST THING FOR AI TO FAKE
+**Specificity + imperfection + risk.** Human writing has: oddly specific details, uneven structure, small mistakes or quirks, opinions that could be wrong. AI struggles to combine all of those naturally.
+
+### QUICK CHECKLIST (apply to every pool entry)
+1. Could this apply to any topic? → rewrite with specifics
+2. Is it too clean or symmetrical? → mess it up
+3. Does it avoid strong opinions? → add an edge
+4. Are examples generic? → make them weird and specific
+5. Does it repeat itself in different words? → cut the repeat
+If 3+ of those are true → rewrite the entry.
