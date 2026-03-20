@@ -43,6 +43,7 @@ from gen_pools_text import (
     enforce_contractions, apply_trait_voice,
     sensory, pick_tone, pick_tone_blend, get_dialogue,
 )
+from gen_ai_checker import check_ai_tells, scrub_ai_tells
 
 # ============================================================
 # SHORTCUTS & CONSTANTS
@@ -4643,6 +4644,8 @@ def generate_piece(gen_type=None, ctx=None, tone=None, planet=None, era=None):
             return None, None, None
         gen_func, label = GENERATORS[gen_type]
         content = gen_func(ctx, tone=tone, planet=planet, era=era)
+        if content:
+            content = scrub_ai_tells(content)
         ctx.add_piece(content, label, gen_type)
         ctx.world.increment_population(gen_type)
         return content, label, gen_type
@@ -4660,6 +4663,8 @@ def generate_piece(gen_type=None, ctx=None, tone=None, planet=None, era=None):
     chosen_type = R(pool)
     gen_func, label = GENERATORS[chosen_type]
     content = gen_func(ctx, tone=tone, planet=planet, era=era)
+    if content:
+        content = scrub_ai_tells(content)
     ctx.add_piece(content, label, chosen_type)
     ctx.world.increment_population(chosen_type)
     return content, label, chosen_type
@@ -4899,6 +4904,8 @@ def build_cli():
                         help="Validate world state integrity")
     parser.add_argument("--auto-diverge", action="store_true",
                         help="Automatically create divergences in loop mode")
+    parser.add_argument("--check-ai", action="store_true",
+                        help="Enable AI writing tell detection warnings")
     return parser
 
 
@@ -4997,6 +5004,9 @@ def main():
             for i, (content, label, _) in enumerate(pieces):
                 print(f"  [{i+1}] {label}")
                 ws.log_generation(_, label)
+                if args.check_ai and content:
+                    for w in check_ai_tells(content):
+                        print(f"    [AI-TELL] {w[0]}: {w[1][:50]}...")
 
             ws.save()
             print(f"\nWorld generated: {len(pieces)} pieces saved to {output_file}")
@@ -5018,6 +5028,9 @@ def main():
             for i, (content, label, gtype) in enumerate(pieces):
                 print(f"  [{i+1}] {label}")
                 ws.log_generation(gtype, label)
+                if args.check_ai and content:
+                    for w in check_ai_tells(content):
+                        print(f"    [AI-TELL] {w[0]}: {w[1][:50]}...")
 
             ws.save()
             print(f"\nBatch complete: {len(pieces)} pieces saved to {output_file}")
@@ -5059,6 +5072,9 @@ def main():
 
                 ws.log_generation(gen_type, label)
                 print(f"  [{seq}] {label}")
+                if args.check_ai and content:
+                    for w in check_ai_tells(content):
+                        print(f"    [AI-TELL] {w[0]}: {w[1][:50]}...")
 
                 # Auto-diverge support
                 if args.auto_diverge and batch_count % 25 == 0:
@@ -5108,6 +5124,9 @@ def main():
 
                 ws.log_generation(gen_type, label)
                 print(content)
+                if args.check_ai and content:
+                    for w in check_ai_tells(content):
+                        print(f"  [AI-TELL] {w[0]}: {w[1][:50]}...")
 
             ws.save()
             print(f"\nSaved {seq} entries to: {output_file}")

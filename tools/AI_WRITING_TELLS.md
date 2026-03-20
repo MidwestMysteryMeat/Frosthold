@@ -447,3 +447,39 @@ align with, bolstered, crucial, emphasizing, enhance, enduring, fostering, highl
 - Copula avoidance
 - Breath hitching / jaw clenching (fiction)
 - Elara (character name)
+
+---
+
+## 9. THE SEVEN DEADLY TELLS (Charlie Fink, 2025)
+
+### 1. Contrastive Rhetorical Framing
+"X isn't just Y. They're buying Z."
+"This isn't just about X. It's about Y."
+Pattern: "[Subject] isn't just [thing]. [It's/They're] [bigger thing]."
+THE most common AI writing pattern. Elevates mundane statements into fake profundity.
+
+### 2. Ask-and-Answer Rhetorical Questions
+"What changed? The math did."
+"Why? Because human credibility matters."
+"Financial terms? Undisclosed."
+Pattern: Short question followed immediately by short answer. Bad high-school essay style.
+
+### 3. Dashes Everywhere
+AI uses em dashes where commas belong. 5+ per page is a red flag.
+
+### 4. Triplet Framing
+"Not for X. Not for Y. For Z."
+Three parallel fragments used to wrap up with false authority. Often alliterative.
+Pattern: "Not [thing]. Not [thing]. [Thing]." or "[Adj], [adj], and [adj]."
+
+### 5. Inspirational Pivot
+"This isn't just about AI. It's about humanity."
+Shifts from specific to abstract to create fake profundity. The TED-talk head fake.
+Pattern: "This isn't about [specific]. It's about [grand abstract]."
+
+### 6. Universal Authority Without Source
+"Studies show that..." -- Which studies? From where?
+Launders opinion into truth without citation.
+
+### 7. Quotes Without Attribution
+Fabricated or unverified quotes attributed to known figures.
