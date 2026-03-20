@@ -12,7 +12,8 @@ Each section covers actionable techniques that can be applied to procedural text
 **Part VII:** [Horror Narrative Structure Paradigm](#part-vii-horror-narrative-structure-paradigm) (monster vs. ghost models, beat sequences, information control)
 **Part VIII:** [Fear Taxonomy, Game Horror Design, and Sci-Fi Horror Crossover](#part-viii-fear-taxonomy-game-horror-design-and-sci-fi-horror-crossover)
 **Part IX:** [Narrative Arc Structures](#part-ix-narrative-arc-structures-for-procedural-generation)
-**Part X:** [Style, Tone, and Voice Control](#part-x-style-tone-and-voice-control) (end of file)
+**Part X:** [Style, Tone, and Voice Control](#part-x-style-tone-and-voice-control)
+**Part XI:** [Environmental Storytelling, Cosmic Horror Worldbuilding, and Procedural Location Design](#part-xi-environmental-storytelling-cosmic-horror-worldbuilding-and-procedural-location-design) (end of file)
 
 ---
 
@@ -2438,3 +2439,374 @@ For each quest:
 8. **The circle-break is the ending.** How the circle breaks (or fails to close) determines the entire emotional impact. Choose the break type before writing entry 1.
 9. **Arrival stage drives behavior.** An NPC's position in their personal story circle when they arrive at the colony is more important than any trait list for predicting how they will act.
 10. **Quests are partial circles.** Not every quest hits every beat. The omitted beats are as important as the included ones -- a quest with no return beat is structurally different from one with no cost beat.
+
+
+---
+---
+
+# PART XI: Environmental Storytelling, Cosmic Horror Worldbuilding, and Procedural Location Design
+
+Techniques for making procedurally generated locations, environments, and world states feel authored rather than assembled. Covers how physical spaces communicate narrative without text, how cosmic horror builds dread through scale and incomprehension, and how to make generated environments feel lived-in.
+
+Sources: Edwin McRae (Designing Game Environments Rich With Story), RPG StackExchange (Key Considerations for Compelling Environments), Darling Axe (World-Building), Kindlepreneur (World Building), Dabble Writer (Sci-Fi Worldbuilding; How to Write Cosmic Horror), Savannah Gilbo (Worldbuilding Tips), National Centre for Writing (World-Building in Science Fiction), Joanna Nelius / Horror Writers Association (Horror World Building Tips), Every Writer's Resource (The Devil's in the Details: Worldbuilding for Horror), Kat Clay (How to Write Awe-Inspiring Cosmic Horror), Writer's Digest / Scott Kenemore (Tips for Writing Cosmic Horror That Goes Beyond).
+
+---
+
+## 70. ENVIRONMENTAL STORYTELLING -- SPACES THAT NARRATE
+
+### Juxtaposition as silent sentence
+
+Two objects placed next to each other form a statement. A child's toy beside a weapon. A meal set for two on a table with one chair overturned. A religious icon mounted above a blast door. The meaning emerges from the spatial relationship, not from either object alone. The player or reader writes the connecting sentence themselves.
+
+This is distinct from environmental hints (Section 5, backstory objects) which work through individual objects implying history. Juxtaposition works through *pairs* -- the relationship between objects is the narrative, not either object in isolation.
+
+**Template application:** When generating room or area descriptions, include at least one object pair whose spatial relationship implies a story. The objects should individually be mundane. Together they should raise a question. "A half-eaten meal on the workbench beside an open maintenance hatch" implies interrupted routine and urgency. "A locked storage crate with scratch marks on the *inside*" implies something the reader constructs without any narrator intervention.
+
+### Gestalt environmental narrative
+
+Individual details are props. Arranged deliberately, they become a scene. A single bloodstain is a detail. A bloodstain leading to a dragged path, ending at a sealed door, with handprints at handle height, is a story told entirely through physical evidence. No text needed. The arrangement does the work.
+
+The principle: the whole environment communicates more than the sum of its individual assets. A room with a cot, a water container, and scratch marks on the walls is a cell. Add a stack of tallied days, a small window at ceiling height, and a bucket -- and the room confesses its purpose and duration without a single word.
+
+**Template application:** When building environmental description pools for locations, do not stock individual details in isolation. Stock *detail sets* -- groups of 3-5 objects whose combination tells a specific micro-story. A "hasty evacuation" set: overturned furniture, personal effects scattered near the exit, a coat left on its hook, an open locker with nothing inside. A "long siege" set: reinforced door, depleted supply containers stacked as a secondary barricade, sleep roll positioned with line of sight to the entrance. The generator assembles coherent sets rather than random individual details.
+
+### Self-contained environmental logic
+
+Environments should read as if they exist independently of anyone observing them. A fungal colony grows because of moisture and warmth, not because a player entered the room. An abandoned camp has weather damage consistent with its exposure time, not just "generic decay." The environment has its own causal history that the observer reconstructs.
+
+The key test: could someone reconstruct a plausible timeline from the physical evidence alone? If so, the environment tells a story. If the details are merely atmospheric (dark, damp, creepy), the environment is decoration, not narrative.
+
+**Template application:** For each procedurally generated location, define a timeline of 3-5 events that happened there. Generate environmental details as consequences of those events, not as atmospheric filler. "The east wall collapsed" is an event. Its consequences: rubble distribution pattern, water ingress through the breach, frost formation on exposed surfaces, equipment damage radiating outward from the impact point. The details are coherent because they share a cause.
+
+### Biological and material markers as timeline
+
+Decay is a clock. Rust tells you how long metal has been exposed to moisture. Mold tells you about airflow and humidity duration. Bone weathering tells you exposure time. Dust accumulation tells you when a space was last occupied. Using material degradation states as implicit timekeeping creates environments that communicate their own age without anyone stating it.
+
+**Template application:** Stock environmental detail pools with decay-state variants for common materials. A metal surface has states: polished, tarnished, spotted with rust, heavily corroded, structural failure. A fabric has states: clean, dusty, stained, mildewed, rotted. When generating a location with a defined abandonment timeline, select the appropriate decay state for each material present. Inconsistent decay states (fresh food in a heavily corroded room) become deliberate anomalies that signal something wrong rather than generator error.
+
+---
+
+## 71. MAKING PROCEDURAL LOCATIONS FEEL LIVED-IN
+
+### The daily-life walkthrough
+
+Before generating a location's details, mentally simulate a day of ordinary use. Who enters first in the morning? Where do they sit? Where do they set down their tools, their cup, their coat? What wears down from repeated use -- door handles, floor sections, chair arms? The wear patterns of routine use are what make a space feel inhabited rather than staged.
+
+A room designed from the outside (what does it look like?) feels like a set. A room designed from the inside (what would it be like to use this space every day for a year?) feels lived-in. The difference is in details that no one would deliberately place but that accumulate through use: scuff marks near the door, a patch of wall slightly discolored where someone always leans, a shelf bracket that has been re-mounted at a different height.
+
+**Template application:** For inhabited locations, generate at least two "wear pattern" details -- evidence of repeated use rather than deliberate placement. These are not decorations; they are the residue of routine. A workbench worn smooth in one spot. A door that sticks because the frame has shifted. A path worn into floor tiles between the entrance and the most-used station. Wear patterns tell you how the space was used without telling you who used it.
+
+### Asymmetric detail distribution
+
+Real spaces are not uniformly detailed. A person's workspace has dense personal artifacts. The corridor outside has none. A communal kitchen has clustered wear around the stove and sink, not evenly distributed. A barracks has personality at each bunk and anonymity in the aisles.
+
+Template-generated locations fail when they distribute detail evenly -- the same density of objects and description in every tile or zone. Real spaces have hot spots (where people spend time) and dead zones (transit corridors, storage, utility areas). The density gradient itself communicates how the space is used.
+
+**Template application:** When generating location descriptions, assign each zone a detail-density rating: high (personal space, work area, gathering point), medium (shared functional space), low (transit, storage, infrastructure). Generate 3-4 details for high zones, 1-2 for medium, and 0-1 for low. The absence of detail in transit zones is itself a statement about how people relate to those spaces.
+
+### Objects in wrong places
+
+The most lived-in detail is something that does not belong where it is. A wrench left on a dining table. A child's drawing pinned to a reactor control panel. A religious text in the toolbox. These displaced objects imply a person who carries their life between the spaces they occupy, rather than a person who exists only within the space's designated function.
+
+**Template application:** For locations associated with specific characters, generate one "displaced object" -- something from another domain of the character's life that has migrated into this space. The displacement should be small and unexplained. It implies a whole person existing beyond the boundaries of the room.
+
+---
+
+## 72. THE ICEBERG PRINCIPLE FOR WORLD DESIGN
+
+### Know ten, show one
+
+The writer (or generator) should have ten times more world knowledge than ever surfaces in any given output. This hidden knowledge makes visible details feel grounded because they are consistent with a coherent system the reader never sees directly. The restraint -- knowing and choosing not to tell -- is what separates a world that feels deep from one that feels thin.
+
+The failure mode is inverted: showing ten and knowing one. Worlds that explain everything they contain feel shallow precisely because there is nothing behind the explanations. If every cultural practice is justified, every technology explained, and every historical event narrated, the world has no implied depth. It is all surface.
+
+### Unexplained consistency as depth signal
+
+When multiple details across different locations are consistent with a rule the text never states, the reader infers the rule exists. A colony where all food is bland, all clothing is grey, and all personal decoration is hidden implies a rationing culture and possibly an authoritarian one -- without any description of governance. The consistency across domains is what signals depth. A single unexplained detail is a quirk. Three unexplained details that share an underlying logic are a world.
+
+**Template application:** For each world-level rule in the setting bible (cultural, technological, environmental), generate surface-level consequences across at least three different domains (food, clothing, architecture, language, ritual, tool design) rather than stating the rule itself. If the setting has extreme cold, do not write "it is very cold." Instead, every building has airlocks. Food is calorie-dense and flavor-poor. Clothing has no exposed seams. Architecture uses rounded corners to prevent ice accumulation. The cold is shown through its consequences in every domain, never stated as a fact.
+
+### The anchoring technique
+
+Introduce unfamiliar world elements by pairing them with something the reader already understands. A creature that "moved like a dog but stood like a man" anchors the alien in the familiar. A technology described as "a furnace that burned nothing and produced heat that felt wrong" anchors the speculative in a mundane object the reader knows. The familiar element gives the reader a foothold; the unfamiliar element pushes them off it.
+
+One unfamiliar element at a time. If everything in a scene is alien, the reader has no anchor and the details blur into undifferentiated strangeness. If one element is alien and the rest are recognizable, the alien element stands out sharply against the familiar background.
+
+**Template application:** When generating descriptions of unfamiliar technology, creatures, or environments, always include at least one comparison to a familiar real-world referent. The comparison should be partial -- accurate in one dimension and wrong in another. "It looked like a furnace" (familiar) "but the heat came from inside the metal itself, not from any fuel" (unfamiliar). The partial comparison is more effective than either a full comparison (domesticating the alien) or no comparison (leaving the reader unanchored).
+
+---
+
+## 73. COSMIC HORROR WORLDBUILDING -- SCALE, INSIGNIFICANCE, AND THE UNKNOWABLE
+
+### The observer, not the hero
+
+Cosmic horror protagonists function as vehicles for discovery, not agents of change. They are observers who witness truths too large for human frameworks. The reader comes for the revelation, not the character's survival. When the character survives, it is often as collateral damage -- damaged by proximity to something that never noticed them.
+
+This is distinct from the horror protagonist techniques in Part III (Section 20), which focus on ordinary people under extraordinary pressure. Cosmic horror protagonists are defined not by their struggle against the threat, but by their *irrelevance* to it. The threat does not target them. It does not hunt them. It simply exists, and their proximity to it is incidental.
+
+**Template application:** When generating lore entries or datapads with cosmic horror elements, frame the writer as a witness, not a combatant. The entry should convey what was observed and what it implies, not what was fought or survived. The narrator's emotional response is bewilderment and paradigm collapse, not fear and survival instinct. A cosmic horror log entry reads: "The formation cannot exist. The strata are in the wrong order by 200 million years. I have checked the instruments. They are correct. The geology is wrong." A survival horror entry reads: "Something is in the tunnels with us." Different genres, different narrator postures.
+
+### The unknowable vs. the merely unknown
+
+The unknown is a gap in knowledge that can be filled. The unknowable is a limit of cognition that cannot be crossed. Cosmic horror operates on the unknowable -- not "we have not yet discovered X" but "human minds are structurally incapable of comprehending X." Knowledge itself becomes the threat: understanding enough to know that full understanding is impossible, and that the partial understanding you have is already corroding your ability to function.
+
+Distinguish between these in generated text:
+- Unknown: "We do not know what caused the readings." (Gap; could be filled with more data.)
+- Unknowable: "The readings are internally consistent. They follow rules. The rules are not ours." (Limit; more data will not help because the framework itself is alien.)
+
+**Template application:** Cosmic horror entries should include at least one moment where the narrator demonstrates *competence* -- they understand their instruments, their science, their field -- and then demonstrates that their competence is *irrelevant*. The readings make sense within a framework the narrator cannot access. The geometry follows rules the narrator can perceive but not derive. The organism behaves with purpose the narrator can detect but not decode. Expertise becomes the instrument of horror: the narrator knows enough to know they cannot know enough.
+
+### Indifferent antagonism
+
+Cosmic entities do not hunt, target, or oppose human characters. They are not villains. They are forces -- weather systems with intelligence, geological processes with intent, mathematical structures that happen to be alive. Their interaction with humans, when it occurs, has the character of a boot stepping on an ant: not malicious, not even aware.
+
+This is structurally different from the hovering menace (Section 54), which is a background threat that *could* act. Cosmic entities do not threaten because they are unaware of the existence of anything small enough to be a character in the story. Their "threat" is ontological, not predatory.
+
+**Template application:** When generating descriptions of cosmic-scale threats or entities, never attribute motive directed at human characters. Do not write "it hunted them" or "it turned its attention to the colony." Write "the colony was in its path" or "we appear to occupy a region it uses, though 'use' implies a purpose we can only project." The entity's behavior should be describable but not interpretable. It acts. We observe the actions. The gap between observation and understanding is the horror.
+
+### Bewilderment as the target emotion
+
+Standard horror targets fear. Cosmic horror targets bewilderment -- the sensation of the ground shifting beneath your understanding of reality. The character discovers they are fundamentally wrong about something of central importance, and the wrongness is not a correctable error but a permanent revision of their model of existence.
+
+This maps to the "paradigm shift through discovery" pattern: the horror is not a monster appearing but a realization landing. The protagonist's entire field of expertise is revealed to be a subset of something larger, stranger, and indifferent to human categories.
+
+**Template application:** Cosmic horror entries should build toward a moment of bewilderment, not a moment of fear. The structure: establish competence (the narrator knows their field), introduce anomaly (something does not fit), attempt to resolve (the narrator applies their expertise), fail to resolve (the expertise is insufficient), and arrive at bewilderment (the narrator understands that their entire framework is inadequate). The final emotional state is not "I am afraid" but "I was wrong about everything, and the truth is worse than ignorance."
+
+### Awe paired with dread
+
+Cosmic horror is not purely negative. The most effective cosmic dread includes a component of terrible beauty -- the unknowable is simultaneously magnificent and terrifying. A structure of impossible geometry can be awe-inspiring in its wrongness. An entity of incomprehensible scale can produce wonder alongside horror. The coexistence of beauty and dread is more disorienting than pure terror, because the reader cannot resolve their response into a single emotion.
+
+**Template application:** When generating descriptions of cosmic-scale phenomena, include at least one detail that is beautiful or magnificent alongside the dread-inducing elements. "The light it produced had no visible source and cast no shadows, and it was the most beautiful color I have ever seen. I do not have a name for it. I do not think there is one." Beauty that exceeds human categories is itself a form of cosmic horror -- it implies a reality richer than human perception can process.
+
+---
+
+## 74. COSMIC HORROR ENVIRONMENT DESIGN
+
+### Eldritch locations as cognitive hazards
+
+Cosmic horror environments are not merely dangerous places -- they are places that damage cognition by existing. Their geometry may be non-Euclidean. Their spatial relationships may change between observations. Their surfaces may display properties that contradict each other (wet and dry, hot and cold, solid and permeable) simultaneously rather than sequentially.
+
+This extends the defamiliarization techniques (Section 41) from "familiar space made wrong" to "space that operates on rules the observer's mind cannot model." Defamiliarization corrupts the known. Eldritch space was never knowable in the first place.
+
+**Template application:** When generating cosmic horror location descriptions, violate spatial logic rather than merely spatial memory. Section 41 says "a hallway three steps longer than it should be." Cosmic horror says "a hallway whose length depends on which direction you measure it." Section 41 operates on the character's memory being contradicted. Cosmic horror operates on the character's *senses* contradicting each other in real time. Stock eldritch-space pools with spatial contradictions, not just spatial distortions.
+
+### The veiled reality structure
+
+Everyday normalcy exists as a membrane over something else. The cosmic horror environment reveals what is behind the membrane -- not through dramatic rupture but through small perforations that the character begins to notice. The ordinary world is not false, exactly, but it is incomplete. There is a layer beneath it that was always there, hidden not by conspiracy but by the limits of human perception.
+
+**Template application:** Generate cosmic horror environments as overlays -- descriptions where the mundane layer and the hidden layer coexist in the same space. "The corridor readings are nominal. Pressure, temperature, humidity all within parameters. But the walls are sweating something that is not condensation, and the floor has a grain to it now, like wood, like something that was once alive." The mundane instruments confirm normalcy. The senses report otherwise. The contradiction is the environment.
+
+### Scale as horror tool
+
+Incomprehensible scale -- spatial, temporal, or conceptual -- produces a specific dread that other horror modes cannot replicate. A cavern so large that a flashlight beam disappears without hitting a wall. A fossil record that predates the planet's formation. A signal whose wavelength implies a transmitter larger than the solar system. The human observer is reduced to a point of reference in a context that makes reference meaningless.
+
+**Template application:** When generating environments or discoveries with cosmic horror elements, include at least one scale detail that exceeds human reference frames. Do not merely say "it was very large." Provide a comparison that breaks. "The chamber was large enough that our lights did not reach the ceiling. We walked for forty minutes before reaching the far wall. The room should not fit inside this mountain." The breaking comparison -- an interior space too large for its exterior -- signals that ordinary physics has been exceeded.
+
+---
+
+## 75. HORROR-SPECIFIC ENVIRONMENT DESIGN
+
+### The 80/20 reality anchor
+
+For every supernatural or inexplicable element in an environment, provide four times as much mundane, verifiable detail. The mundane detail establishes the baseline of reality against which the impossible registers. Without the anchor, the impossible is merely fantastical. With it, the impossible is a violation.
+
+This is related to but distinct from "anchor supernatural in mundane reality" (Section 25), which addresses grounding techniques for threats. The 80/20 rule addresses *environment descriptions* specifically: the ratio of normal to abnormal details in a single location description determines whether the abnormal detail reads as horror or as fantasy.
+
+**Template application:** When generating location descriptions with horror elements, count the details. For every one weird or threatening detail, include four normal ones. A room description with five details should have four mundane (functioning light fixture, standard-issue furniture, temperature readout on the wall, scuff marks from foot traffic) and one wrong (the temperature readout shows a number that has not changed in three weeks despite seasonal variation). The ratio is what makes the wrong detail land.
+
+### Sensory detail corruption
+
+Take a normal sensory experience and make it subtly wrong. Milk that tastes faintly metallic. Shadows that fall at angles inconsistent with the light source. A surface that feels warm in a cold room -- not hot, not dangerously warm, just slightly above ambient in a way that suggests something beneath the surface. Air that smells like rain in a sealed underground corridor.
+
+This differs from "sensory displacement" (Section 11), which describes the wrong senses (smell instead of sight). Sensory corruption describes the right sense reporting *wrong data*. The character sees a shadow, but the shadow is in the wrong place. The character tastes water, but the water tastes wrong. The sense is correct; the data is corrupt.
+
+**Template application:** Stock sensory corruption pools organized by sense: visual corruptions (shadow angle, light color, reflection mismatch), auditory corruptions (echo timing, sound direction, frequency shift), olfactory corruptions (contextually impossible smells), tactile corruptions (wrong temperature, wrong texture, unexpected vibration), gustatory corruptions (metallic taste, chemical taste, taste of something the material should not produce). Each corruption should be subtle enough to doubt. If the character is certain something is wrong, the corruption is too obvious.
+
+### Institutional corruption through environment
+
+Environments that represent protective institutions -- hospitals, schools, government buildings, shelters -- generate horror through evidence that the institution has been subverted. A medical bay where the examination table has restraints that are not in the standard configuration. A school where the curriculum materials on display include subjects that should not be taught to children. A shelter where the locks are on the outside of the resident doors.
+
+The environmental detail tells the reader what the institution became without anyone narrating the transformation. The gap between the institution's stated purpose (protection) and its evident function (containment, control, experimentation) is the horror.
+
+**Template application:** When generating horror-adjacent institutional locations (medical, military, research, governance), include one environmental detail that contradicts the institution's protective purpose. The detail should be structural -- built into the space, not placed there temporarily. A door that only locks from outside. A ventilation system that can be sealed from a remote location. An observation window where none should be needed. Structural details imply institutional intent more powerfully than any found document.
+
+### Geographic logic stress-testing
+
+Push the environment's internal rules to their extremes. If the setting has a creature that hunts by sound, generate a location where sound behaves abnormally -- an echo chamber, a space with sound-dampening properties, a room where footsteps do not echo when they should. The environment becomes a variable that interacts with the threat's established rules, creating tactical complexity and unpredictability.
+
+**Template application:** When pairing threat profiles with location descriptions, cross-reference the threat's sensory capabilities against the location's physical properties. A heat-sensing predator in a geothermally active area. A sound-hunting creature in a machinery room with constant background noise. The environment should sometimes help the characters (the noise masks their movement) and sometimes hurt them (the noise also masks the creature's approach). The same environmental feature that provides advantage in one encounter creates danger in another.
+
+---
+
+## 76. WORLD CONSISTENCY AND CONSEQUENCE CHAINS
+
+### Internal consistency as believability engine
+
+Believable worlds are not worlds where everything is explained -- they are worlds where everything is *consistent*. Weather patterns match crop types. Architecture matches available materials. Clothing matches climate. Transportation matches infrastructure. Social customs match resource constraints. When these systems align without being explicitly connected by the text, the reader perceives depth.
+
+Inconsistency destroys believability faster than implausibility. A reader will accept faster-than-light travel (implausible but internally consistent) more readily than a desert settlement with abundant water (plausible in isolation but inconsistent with its own geography).
+
+**Template application:** When generating location or cultural details, cross-reference against at least two other established world systems. A location's food should be consistent with its climate. Its architecture should be consistent with its available materials. Its social structure should be consistent with its resource constraints. Run a consistency check: if the location has no nearby water, it should have water reclamation infrastructure, traded water, or evidence of water scarcity in its culture. Inconsistency without explanation is a generator error. Inconsistency with explanation is worldbuilding.
+
+### Consequence chains across domains
+
+A single world-level fact should produce visible consequences across multiple domains. Extreme cold does not just mean "characters wear coats." It means: architecture has airlocks; doors swing inward (so snow does not block them); food is calorie-dense; social gatherings happen indoors; sound carries farther in cold air; metal equipment requires insulated handles; exposed skin is a medical emergency, not a comfort issue.
+
+Each consequence is a generated detail. The player or reader never encounters the rule ("it is cold") directly -- they encounter its effects in architecture, food, social patterns, medical protocols, and equipment design. The rule is the invisible spine; the consequences are the visible world.
+
+**Template application:** For each major environmental constraint in the setting (cold, radiation, low gravity, isolation, resource scarcity), build a consequence table mapping the constraint to at least six domains: architecture, food, clothing, social behavior, tool/equipment design, medical concerns, language/idiom, ritual/tradition. When generating any location detail, check whether a relevant constraint should be visible in this domain. The constraint should never be stated as exposition; it should be inferable from the density and consistency of its consequences.
+
+### The "walk through a day" test
+
+Before finalizing any generated location, mentally simulate an ordinary day of someone living there. They wake up -- where? They eat -- what, and where does it come from? They work -- what tools, in what conditions? They interact with others -- where, and under what social norms? They rest -- what signals the end of the day?
+
+Every question that cannot be answered reveals a gap in the environment's coherence. A location that can support a plausible daily routine feels real. A location that exists only as a set of interesting details feels staged.
+
+**Template application:** For major locations, generate a "daily routine" template that covers: wake, meal, work, social, rest. Each beat should reference specific environmental details. If the generator cannot produce a plausible meal for a location, the location's food system is under-specified. If the generator cannot describe where someone sleeps, the location's residential infrastructure is missing. The daily routine is a coherence audit, not content to be shown to the player.
+
+---
+
+## 77. IMAGINATION OVER SPECIFICATION
+
+### Leave room for inference
+
+Hyper-detailed descriptions that specify every element of an environment leave "no room for human imagination." Stylized, suggestive descriptions that provide strong partial information and let the reader's mind fill in the gaps create stronger immersion than comprehensive specification.
+
+The principle: describe enough for the reader to build the space, then stop. Three sharply chosen details create a more vivid room than twelve generic ones. The reader's personal version of the room -- built from your three details and their own memory -- will always be more immersive than your fully specified version, because it is *theirs*.
+
+This is the environmental parallel to the horror restraint principle (Section 15, "the reader's imagination is worse than yours"). Applied to environments: the reader's imagined version of a space is more real to them than your described version, because imagination activates memory and personal experience.
+
+**Template application:** Cap location descriptions at 3-5 strong details rather than generating exhaustive inventories. Each detail should do double duty: communicate a physical fact AND imply something about the location's history, use, or emotional register. "A workbench with one leg shimmed up on folded metal" communicates both the physical state (uneven floor or damaged bench) and the user's pragmatism (they fixed it with what was available rather than replacing it). After 3-5 such details, stop. Let the player's imagination populate the rest.
+
+### Stylistic consistency over photorealism
+
+When environmental descriptions mix registers -- some clinical, some poetic, some gamey -- the environment feels assembled from different sources rather than perceived by a single observer. Maintain a consistent descriptive register throughout a location. If the first detail is observed practically ("the door seal was cracked"), subsequent details should maintain that register ("the ventilation grille was clogged with particulate"), not shift to atmospheric ("shadows clung to the corners like living things").
+
+Register shifts within a location should be motivated -- the character's emotional state changes, or they discover something that alters their perception.
+
+**Template application:** Assign each location a descriptive register (practical, atmospheric, clinical, reverent, anxious) and enforce it across all generated details. The register should match the character describing it (an engineer uses practical register; a poet uses atmospheric register) or the location's dominant emotional tone. Mixing registers without motivation is the environmental equivalent of tonal drift (Section 56).
+
+---
+
+## 78. GAME-SPECIFIC ENVIRONMENTAL DESIGN
+
+### Creature ecology as environmental narrative
+
+Distribute creatures and threats according to ecological logic, not spawn tables. Predators near water sources. Scavengers near ruins. Pack animals in defensible terrain. Ambush predators in choke points. When creature placement follows environmental logic, the player reads the environment as a system rather than a game level.
+
+The inverse also communicates: creatures in places they should not be -- a deep-cave species on the surface, a pack predator alone, a territorial creature outside its territory -- signals disruption. Something drove them from their normal habitat. The displacement is itself a story.
+
+**Template application:** Tag creature profiles with habitat preferences and behavioral patterns. When populating a location, cross-reference creature placement against environmental features. Use displacement (creatures outside their normal habitat) as an environmental storytelling tool: it signals a disturbance elsewhere that the player has not yet encountered. The displaced creature is a clue, not just an encounter.
+
+### Non-interactive environmental features as narrative
+
+Not every environmental detail needs to be interactable. Visible but non-interactive details -- a collapsed tunnel, a sealed door with no key, a window showing an inaccessible area -- communicate history, constrain the world, and create the sense that the environment extends beyond the player's reach. The world is larger than the playable space.
+
+Inaccessible areas visible through windows, grates, or collapsed sections serve a specific function: they show the player things they cannot affect, which establishes that the world does not exist solely for them. The corridor behind the locked door has its own story that the player will never access. This perceived depth exceeds actual depth.
+
+**Template application:** For each generated location, include one reference to an adjacent space the player cannot access. A sealed door, a window into another room, a collapsed passage. The inaccessible space should have one visible detail that implies its own story. "Through the grate, a room with its own lighting still functional, equipment still running. No way to reach it." The visible-but-unreachable space implies a world that continues beyond the player's sphere of influence.
+
+### Architectural desperation as design language
+
+When inhabitants modify a space under pressure, the modifications tell the story of the pressure. Arrows spray-painted on walls to mark evacuation routes. Furniture stacked against doors not designed as barricades. Power cables re-routed through corridors because the normal conduits are compromised. Medical stations improvised in rooms that were not designed for medical use.
+
+These modifications communicate urgency, resource scarcity, and the gap between how a space was designed and what it was forced to become. The contrast between original function and emergency adaptation is itself narrative.
+
+**Template application:** For locations that have experienced crisis, generate modification details that show emergency adaptation. Original purpose first (this was a cafeteria), then modification (the tables are gone, replaced with cots; the serving counter is now a triage station; the menu board has been turned over and used as a patient-tracking chart). Each modification should be logical given the crisis type and available resources. The specificity of the adaptation tells the story of the crisis better than any description of the crisis itself.
+
+---
+
+## 79. FORBIDDEN KNOWLEDGE AND REALITY REVISION IN COSMIC HORROR
+
+### Knowledge as destruction
+
+In cosmic horror, learning is not empowerment -- it is damage. Each piece of knowledge the character acquires makes them less able to function within normal reality. Understanding is a form of corruption. The character who knows the most is the character who is most damaged.
+
+This inverts the standard sci-fi relationship to knowledge (Section 55, "scientific knowledge as horror enabler," where expertise makes horror precise). In cosmic horror, expertise is not merely insufficient -- it is the vector of infection. The character's training led them to seek answers, and the answers are destroying them.
+
+**Template application:** In multi-entry cosmic horror sequences, track the narrator's cognitive state as a degrading resource. Entry 1: confident, curious, competent. Entry 3: disturbed but functional. Entry 5: struggling to maintain professional objectivity. Entry 7: unable to distinguish between observation and interpretation. The narrator's analytical capability -- their greatest asset -- deteriorates as their knowledge increases. The more they learn, the less coherently they can report what they have learned.
+
+### The paradigm shift as climax
+
+Standard horror climaxes with a confrontation. Cosmic horror climaxes with a realization. The protagonist discovers that something they believed to be true about the fundamental nature of reality is wrong, and the correction is worse than the error. The ground shifts beneath them not physically but ontologically.
+
+Effective paradigm shifts meet two criteria: (1) the character was not merely ignorant but *actively wrong* in a way that shaped their entire approach, and (2) the correct understanding is not merely different but *incompatible* with continued normal functioning. You cannot unlearn it, and you cannot live normally while knowing it.
+
+**Template application:** When generating cosmic horror climax entries, structure the entry as a before/after. Before: what the character believed and how it informed their actions. After: what they now understand and why it makes their previous actions meaningless or counterproductive. The transition should be a single sentence -- the moment of understanding. Everything before it is the old world. Everything after is the new one. "The signal is not from below. The signal is from what the rock *is*."
+
+### Rationalism's failure as structural principle
+
+Cosmic horror protagonists are typically rational, scientifically trained characters. Their rationalism is not a flaw to be punished but a lens that focuses the horror: they can measure and document exactly how their understanding is failing. They know the instruments work. They know the readings are correct. They know the readings are impossible. The syllogism has no resolution.
+
+This is the horror of precision. An untrained observer might dismiss the anomaly. A trained one cannot. Their expertise prevents the comfortable denial available to the ignorant.
+
+**Template application:** Research and scientific log entries in cosmic horror should demonstrate rigorous methodology. The narrator checks calibration. They repeat measurements. They cross-reference with independent instruments. They rule out contamination, equipment failure, and observer error. They do everything right. The results are still impossible. The rigor is not decoration -- it is the structural wall that makes the impossible undeniable.
+
+---
+
+## 80. NON-HAPPY ENDINGS AND AFTERMATH STATES
+
+### Five cosmic horror ending states
+
+Cosmic horror endings do not resolve into safety. They resolve into one of five states, each producing different post-story residue:
+
+1. **Death.** The observer does not survive proximity to the truth. The most common and least interesting ending unless the death illuminates the nature of the truth.
+2. **Madness.** The observer survives but can no longer function within normal cognitive frameworks. They speak in ways others cannot follow. They see patterns others cannot perceive. They may be correct.
+3. **Foreknowledge of doom.** The observer survives, retains their faculties, and must live with knowledge of an approaching catastrophe they cannot prevent and others will not believe. Cassandra without the myth's resolution.
+4. **Transformation.** The observer is changed by the knowledge in a way that removes them from human category. Not madness -- actual alteration. They are no longer entirely what they were.
+5. **Insignificance realized.** The observer survives, functions, and simply lives with the understanding that nothing they do matters on the scale they have witnessed. Not depression -- clarity. They still act; they just know that their actions are cosmically irrelevant.
+
+**Template application:** Tag cosmic horror arc blueprints with their ending state before generating any entries. The ending state determines the trajectory of the narrator's voice across the sequence. A foreknowledge-of-doom ending produces calm, weary final entries. A madness ending produces entries whose internal logic frays progressively. A transformation ending produces entries whose vocabulary and concerns shift away from human reference points. Select the ending state first; let it backpropagate through the sequence.
+
+---
+
+## QUICK REFERENCE: ENVIRONMENTAL STORYTELLING AND COSMIC HORROR CHECKLIST
+
+For procedurally generated locations, verify:
+
+- [ ] At least one object-pair juxtaposition that implies a story through spatial relationship (Sec 70)
+- [ ] Environmental details organized as coherent detail sets (3-5 objects sharing a causal history), not random individual items (Sec 70)
+- [ ] Location has a defined event timeline, and details are consequences of those events (Sec 70)
+- [ ] Material decay states are consistent with the location's abandonment timeline (Sec 70)
+- [ ] At least two "wear pattern" details showing evidence of habitual use (Sec 71)
+- [ ] Detail density varies by zone type: high for personal/work spaces, low for transit areas (Sec 71)
+- [ ] At least one displaced object implying a whole person beyond the room's function (Sec 71)
+- [ ] World rules shown through consequences across 3+ domains, never stated as exposition (Sec 72)
+- [ ] Unfamiliar elements anchored by partial comparison to familiar referents (Sec 72)
+- [ ] Description capped at 3-5 strong details, not exhaustive inventory (Sec 77)
+- [ ] Descriptive register consistent throughout the location (Sec 77)
+- [ ] At least one reference to an adjacent inaccessible space (Sec 78)
+- [ ] Crisis-modified locations show specific emergency adaptations consistent with the crisis type (Sec 78)
+
+For cosmic horror elements, verify:
+
+- [ ] Protagonist framed as observer/witness, not combatant (Sec 73)
+- [ ] At least one moment where narrator competence is demonstrated and then shown to be irrelevant (Sec 73)
+- [ ] Cosmic entities described through behavior, never attributed motive directed at humans (Sec 73)
+- [ ] Target emotion is bewilderment, not fear (Sec 73)
+- [ ] At least one detail that is simultaneously beautiful and dread-inducing (Sec 73)
+- [ ] Eldritch locations violate spatial logic, not just spatial memory (Sec 74)
+- [ ] Scale details exceed human reference frames with comparisons that break (Sec 74)
+- [ ] 80/20 reality anchor: four mundane details for every one supernatural detail (Sec 75)
+- [ ] Sensory corruptions are subtle enough to doubt (Sec 75)
+- [ ] Knowledge tracked as a degrading resource across multi-entry sequences (Sec 79)
+- [ ] Climax structured as paradigm shift (realization), not confrontation (Sec 79)
+- [ ] Scientific methodology rigorously demonstrated before results shown to be impossible (Sec 79)
+- [ ] Ending state selected from the five-state taxonomy before entry generation begins (Sec 80)
+
+---
+
+## 81. RULES OF THUMB -- ENVIRONMENTAL STORYTELLING AND COSMIC HORROR
+
+1. **Objects in pairs tell stories.** A single detail is decoration. Two details in spatial relationship are a sentence the reader writes themselves.
+2. **Detail sets, not detail lists.** Group environmental details by shared cause. Five consequences of one event are more coherent than five unrelated atmospheric items.
+3. **Wear patterns prove habitation.** Scuff marks, smooth spots, re-mounted brackets -- the residue of routine use is what makes a space feel lived-in rather than staged.
+4. **Show ten percent, know one hundred.** The iceberg principle applied to worlds: depth is perceived through consistent unexplained details, not through comprehensive explanation.
+5. **Consequences across domains.** A world rule (extreme cold, isolation, scarcity) should be visible in architecture, food, clothing, language, tools, and social behavior simultaneously. Never state the rule.
+6. **Three details, then stop.** Cap environmental descriptions. Let the reader's imagination populate the space. Their version is more immersive than yours because it is theirs.
+7. **Cosmic horror targets bewilderment, not fear.** The protagonist discovers they were wrong about reality, and the correct understanding is incompatible with normal function.
+8. **Expertise is the vector.** In cosmic horror, trained characters cannot dismiss the impossible. Their rigor prevents comfortable denial. The more they know, the worse it gets.
+9. **Entities do not notice humans.** Cosmic threats are not predators targeting characters. They are forces. The characters happen to be nearby. The indifference is the horror.
+10. **Knowledge degrades the knower.** Track narrator cognitive state as a depleting resource across cosmic horror sequences. Learning is damage.
+11. **The 80/20 anchor.** Four mundane details for every supernatural one. The mundane baseline is what makes the impossible register as a violation rather than a genre convention.
+12. **Inaccessible spaces create perceived depth.** A sealed door, a window into an unreachable room, a collapsed passage -- visible evidence that the world continues beyond the player's reach.
