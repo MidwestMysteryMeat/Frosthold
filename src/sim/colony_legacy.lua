@@ -2,100 +2,13 @@
 -- When a colony falls (all colonists die), its stats are saved as a legacy record.
 -- Legacy colonies appear as overworld ruins in future playthroughs.
 -- Players can send expeditions to fallen colony sites for unique loot.
+--
+-- Storage is delegated to the MRP campaign layer (frosthold_campaign.dat).
+-- MRP.load() is called in main.lua at startup; no file I/O here.
 
 local GameState = require('src.game_state')
 
 local Legacy = {}
-
-local LEGACY_FILE = 'frosthold_legacies.dat'
-
----------------------------------------------------------------------------
--- Legacy record structure
----------------------------------------------------------------------------
-
--- Each legacy is:
--- {
---   colonyName    = string,
---   daysSurvived  = number,
---   peakPopulation = number,
---   causeOfDeath  = string,
---   wealth        = number,
---   raidsSurvived = number,
---   bossesKilled  = number,
---   timestamp     = number,   (os.time)
---   resources     = { ... },  (snapshot of resources at death)
---   x, y          = numbers,  (overworld position for ruin placement)
--- }
-
----------------------------------------------------------------------------
--- Load existing legacies from disk
----------------------------------------------------------------------------
-
-local legacies = {}
-
-function Legacy.loadLegacies()
-    local ok, data = pcall(function()
-        local content = love.filesystem.read(LEGACY_FILE)
-        if not content then return nil end
-        local fn = loadstring('return ' .. content)
-        if fn then
-            setfenv(fn, {})
-            return fn()
-        end
-        return nil
-    end)
-
-    if ok and data and type(data) == 'table' then
-        legacies = data
-    else
-        legacies = {}
-    end
-    return legacies
-end
-
----------------------------------------------------------------------------
--- Save legacies to disk
----------------------------------------------------------------------------
-
-local function serializeTable(t, indent)
-    indent = indent or ''
-    local nextIndent = indent .. '  '
-    local parts = { '{\n' }
-    for k, v in pairs(t) do
-        local keyStr
-        if type(k) == 'number' then
-            keyStr = '[' .. k .. ']'
-        else
-            keyStr = '["' .. tostring(k) .. '"]'
-        end
-
-        local valStr
-        if type(v) == 'table' then
-            valStr = serializeTable(v, nextIndent)
-        elseif type(v) == 'string' then
-            valStr = string.format('%q', v)
-        elseif type(v) == 'boolean' then
-            valStr = v and 'true' or 'false'
-        elseif type(v) == 'number' then
-            if v ~= v then valStr = '0'           -- NaN guard
-            elseif v == math.huge then valStr = '999999'
-            elseif v == -math.huge then valStr = '-999999'
-            else valStr = tostring(v)
-            end
-        else
-            valStr = tostring(v)
-        end
-
-        parts[#parts + 1] = nextIndent .. keyStr .. ' = ' .. valStr .. ',\n'
-    end
-    parts[#parts + 1] = indent .. '}'
-    return table.concat(parts)
-end
-
-function Legacy.saveLegacies()
-    local str = serializeTable(legacies)
-    love.filesystem.write(LEGACY_FILE, str)
-end
 
 ---------------------------------------------------------------------------
 -- Record a fallen colony
@@ -179,28 +92,28 @@ function Legacy.recordFallenColony(causeOfDeath)
     end
 
     local record = {
-        planetId           = GameState.planet or 'erebus',
-        colonyName         = GameState.colonyName or 'Unnamed Colony',
-        daysSurvived       = GameState.day or 0,
-        peakPopulation     = peakPop,
-        causeOfDeath       = causeOfDeath or 'unknown',
-        wealth             = GameState.getColonyWealth and GameState.getColonyWealth() or 0,
-        raidsSurvived      = GameState.raidsSurvived or 0,
-        buildingsConstructed = GameState.buildingsConstructed or 0,
-        bossesKilled       = bossesKilled,
-        timestamp          = os.time(),
-        resources          = resSnapshot,
-        buildings          = buildingSnapshot,
-        researchCompleted  = researchCompleted,
-        researchInProgress = researchInProgress,
-        colonists          = colonistRecords,
-        mapSeed            = mapSeed,
-        worldSeedNumeric   = GameState.worldSeedNumeric,
-        landingZone        = GameState.landingZone,
-        nemeses            = {},
-        mrpEarned          = 0,
-        x                  = GameState.startX or math.random(30, 100),
-        y                  = GameState.startY or math.random(30, 100),
+        planetId              = GameState.planet or 'erebus',
+        colonyName            = GameState.colonyName or 'Unnamed Colony',
+        daysSurvived          = GameState.day or 0,
+        peakPopulation        = peakPop,
+        causeOfDeath          = causeOfDeath or 'unknown',
+        wealth                = GameState.getColonyWealth and GameState.getColonyWealth() or 0,
+        raidsSurvived         = GameState.raidsSurvived or 0,
+        buildingsConstructed  = GameState.buildingsConstructed or 0,
+        bossesKilled          = bossesKilled,
+        timestamp             = os.time(),
+        resources             = resSnapshot,
+        buildings             = buildingSnapshot,
+        researchCompleted     = researchCompleted,
+        researchInProgress    = researchInProgress,
+        colonists             = colonistRecords,
+        mapSeed               = mapSeed,
+        worldSeedNumeric      = GameState.worldSeedNumeric,
+        landingZone           = GameState.landingZone,
+        nemeses               = {},
+        mrpEarned             = 0,
+        x                     = GameState.startX or math.random(30, 100),
+        y                     = GameState.startY or math.random(30, 100),
     }
 
     -- Store via MRP campaign layer
@@ -210,42 +123,52 @@ function Legacy.recordFallenColony(causeOfDeath)
         MRP.save()
     end
 
-    legacies[#legacies + 1] = record
-
-    -- Keep at most 20 legacies
-    while #legacies > 20 do
-        table.remove(legacies, 1)
-    end
-
-    Legacy.saveLegacies()
     return record
 end
 
 ---------------------------------------------------------------------------
--- Query legacies for overworld ruin placement
+-- Query legacies — reads from MRP for all planets
 ---------------------------------------------------------------------------
 
 function Legacy.getLegacies()
-    return legacies
+    local mok, MRP = pcall(require, 'src.sim.mrp')
+    if not mok then return {} end
+    local all = {}
+    local planets = { 'erebus', 'rhea2', 'morvos', 'nerthus9', 'paxteraprime', 'nemaea', 'gaiaa1x' }
+    for _, planetId in ipairs(planets) do
+        local history = MRP.getPlanetHistory(planetId)
+        for _, rec in ipairs(history) do
+            all[#all + 1] = rec
+        end
+    end
+    return all
 end
 
 function Legacy.getLegacyCount()
-    return #legacies
+    local mok, MRP = pcall(require, 'src.sim.mrp')
+    if not mok then return 0 end
+    local count = 0
+    local planets = { 'erebus', 'rhea2', 'morvos', 'nerthus9', 'paxteraprime', 'nemaea', 'gaiaa1x' }
+    for _, planetId in ipairs(planets) do
+        count = count + MRP.getDeploymentCount(planetId)
+    end
+    return count
 end
 
 -- Get legacies formatted as overworld expedition destinations
 function Legacy.getLegacyDestinations()
+    local legacies = Legacy.getLegacies()
     local dests = {}
     for i, leg in ipairs(legacies) do
         dests[#dests + 1] = {
             id          = 'legacy_ruin_' .. i,
-            name        = 'Ruins of ' .. leg.colonyName,
+            name        = 'Ruins of ' .. (leg.colonyName or 'Unknown Colony'),
             desc        = string.format(
                 'Former colony. Survived %d days, population peaked at %d. Fell to %s.',
-                leg.daysSurvived, leg.peakPopulation, leg.causeOfDeath),
-            risk        = math.min(5, math.floor(leg.daysSurvived / 20) + 1),
+                leg.daysSurvived or 0, leg.peakPopulation or 0, leg.causeOfDeath or 'unknown'),
+            risk        = math.min(5, math.floor((leg.daysSurvived or 0) / 20) + 1),
             minParty    = 1,
-            duration    = 90 + leg.daysSurvived,
+            duration    = 90 + (leg.daysSurvived or 0),
             x           = leg.x,
             y           = leg.y,
             resources   = leg.resources,
@@ -255,8 +178,9 @@ function Legacy.getLegacyDestinations()
     return dests
 end
 
--- Get loot table for a legacy ruin expedition
+-- Get loot table for a legacy ruin expedition (index into getLegacies list)
 function Legacy.getLegacyLoot(legacyIndex)
+    local legacies = Legacy.getLegacies()
     local leg = legacies[legacyIndex]
     if not leg then return {} end
 
@@ -271,10 +195,10 @@ function Legacy.getLegacyLoot(legacyIndex)
     end
 
     -- Bonus: longer-lived colonies have better salvage
-    if leg.daysSurvived > 30 then
+    if (leg.daysSurvived or 0) > 30 then
         loot[#loot + 1] = { resource = 'components', amount = math.floor(leg.daysSurvived / 10) }
     end
-    if leg.daysSurvived > 60 then
+    if (leg.daysSurvived or 0) > 60 then
         loot[#loot + 1] = { resource = 'thermalCores', amount = math.floor(leg.daysSurvived / 20) }
     end
 
@@ -282,11 +206,11 @@ function Legacy.getLegacyLoot(legacyIndex)
 end
 
 ---------------------------------------------------------------------------
--- Init (load from disk on game start)
+-- Init — MRP.load() in main.lua handles campaign data; nothing to do here
 ---------------------------------------------------------------------------
 
 function Legacy.init()
-    Legacy.loadLegacies()
+    -- No-op: campaign data is loaded by MRP.load() in main.lua at startup.
 end
 
 return Legacy

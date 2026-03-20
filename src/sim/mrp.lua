@@ -331,7 +331,60 @@ function MRP.load()
         }
     end
 
+    MRP.migrateOldLegacies()
+
     return true
+end
+
+function MRP.migrateOldLegacies()
+    local ok, lfs = pcall(function() return love.filesystem end)
+    if not ok or not lfs then return end
+
+    -- Skip if no old file or already migrated
+    if not lfs.getInfo('frosthold_legacies.dat') then return end
+    if lfs.getInfo('frosthold_legacies.dat.bak') then return end
+
+    local str = lfs.read('frosthold_legacies.dat')
+    if not str then return end
+
+    local fn = loadstring(str)
+    if not fn then return end
+    local success, oldRecords = pcall(fn)
+    if not success or type(oldRecords) ~= 'table' then return end
+
+    for _, old in ipairs(oldRecords) do
+        local record = {
+            planet                = 'erebus',
+            colonyName            = old.colonyName or 'Unknown Colony',
+            daysSurvived          = old.daysSurvived or 0,
+            peakPopulation        = old.peakPopulation or 0,
+            causeOfDeath          = old.causeOfDeath or 'unknown',
+            wealth                = old.wealth or 0,
+            raidsSurvived         = old.raidsSurvived or 0,
+            buildingsConstructed  = 0,
+            bossesKilled          = old.bossesKilled or 0,
+            timestamp             = old.timestamp or 0,
+            resources             = old.resources or {},
+            completedResearch     = {},
+            inProgressResearch    = {},
+            buildings             = {},
+            colonists             = {},
+            nemeses               = {},
+            mrpEarned             = 0,
+            x                     = old.x or 0,
+            y                     = old.y or 0,
+        }
+        MRP.addPlanetDeployment(record.planet, record)
+    end
+
+    -- Rename old file to .bak
+    local content = lfs.read('frosthold_legacies.dat')
+    if content then
+        lfs.write('frosthold_legacies.dat.bak', content)
+        lfs.remove('frosthold_legacies.dat')
+    end
+
+    MRP.save()
 end
 
 ---------------------------------------------------------------------------
