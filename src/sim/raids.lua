@@ -915,6 +915,12 @@ function Raids.startRaid(raidType)
     if dpOk and DP.noRaids then return nil, 'Raids suppressed (debug)' end
     if activeRaid then return nil, 'A raid is already in progress' end
 
+    -- MRP threat delay: per-run pick that postpones raids for N days
+    if GameState.raidGraceDays and GameState.raidGraceDays > 0
+        and GameState.day <= GameState.raidGraceDays then
+        return nil, 'Raids delayed by threat delay'
+    end
+
     local typeDef = RAID_TYPES[raidType]
     if not typeDef then return nil, 'Unknown raid type' end
     if GameState.day < typeDef.minDay then return nil, 'Too early for this raid type' end

@@ -620,6 +620,21 @@ local function attach(Building, State)
             end
         end
 
+        -- MRP structural engineering: boost HP of newly placed buildings by 15%
+        local smok, MRPBld = pcall(require, 'src.sim.mrp')
+        if smok and MRPBld.hasUnlock('structural_engineering') then
+            local ECS2 = require('src.ecs.ecs')
+            for entityId, comps in ECS2.query('pos') do
+                if comps.pos.x == x and comps.pos.y == y then
+                    local dur = ECS2.get(entityId, 'durability')
+                    if dur then
+                        dur.maxHp = math.floor(dur.maxHp * 1.15)
+                        dur.hp = dur.maxHp
+                    end
+                end
+            end
+        end
+
         if not State.placed[key(x, y, depth)] then
             State.placed[key(x, y, depth)] = { def = def, x = x, y = y, depth = depth }
         end

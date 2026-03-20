@@ -273,6 +273,23 @@ function Colonist.spawnInitial(cx, cy, count)
         generatePassions(colData)
         ECS.set(id, 'colonist', colData)
 
+        -- MRP genetic unlocks: apply permanent campaign upgrades to each new colonist
+        local mok, MRP = pcall(require, 'src.sim.mrp')
+        if mok then
+            if MRP.hasUnlock('cold_adapted_genome') then
+                colData.hypothermiaResist = (colData.hypothermiaResist or 0) + 1
+            end
+            if MRP.hasUnlock('enhanced_metabolism') then
+                colData.hungerRate = (colData.hungerRate or 1.0) * 0.85
+            end
+            if MRP.hasUnlock('neural_plasticity') then
+                colData.learnRate = (colData.learnRate or 1.0) * 1.20
+            end
+            if MRP.hasUnlock('stress_inoculation') then
+                colData.breakThreshold = (colData.breakThreshold or 20) - 5
+            end
+        end
+
         ECS.set(id, 'needs', {
             warmth       = 80,   -- 0-100 (0 = freezing to death)
             food         = 80,   -- 0-100 (0 = starving)
@@ -347,6 +364,23 @@ function Colonist.spawnFromDraft(cx, cy, draftedList)
         if not draft.passions then generatePassions(colData) end
         ECS.set(id, 'colonist', colData)
 
+        -- MRP genetic unlocks: apply permanent campaign upgrades to each new colonist
+        local mok, MRP = pcall(require, 'src.sim.mrp')
+        if mok then
+            if MRP.hasUnlock('cold_adapted_genome') then
+                colData.hypothermiaResist = (colData.hypothermiaResist or 0) + 1
+            end
+            if MRP.hasUnlock('enhanced_metabolism') then
+                colData.hungerRate = (colData.hungerRate or 1.0) * 0.85
+            end
+            if MRP.hasUnlock('neural_plasticity') then
+                colData.learnRate = (colData.learnRate or 1.0) * 1.20
+            end
+            if MRP.hasUnlock('stress_inoculation') then
+                colData.breakThreshold = (colData.breakThreshold or 20) - 5
+            end
+        end
+
         ECS.set(id, 'needs', {
             warmth = 80, food = 80, water = 80, rest = 80, morale = 70, joy = 50,
             heatExposure = 0, radiation = 0, toxicity = 0,
@@ -382,6 +416,24 @@ function Colonist.spawn(x, y, depth)
     }
     generatePassions(colData)
     ECS.set(id, 'colonist', colData)
+
+    -- MRP genetic unlocks: apply permanent campaign upgrades to each new colonist
+    local mok, MRP = pcall(require, 'src.sim.mrp')
+    if mok then
+        if MRP.hasUnlock('cold_adapted_genome') then
+            colData.hypothermiaResist = (colData.hypothermiaResist or 0) + 1
+        end
+        if MRP.hasUnlock('enhanced_metabolism') then
+            colData.hungerRate = (colData.hungerRate or 1.0) * 0.85
+        end
+        if MRP.hasUnlock('neural_plasticity') then
+            colData.learnRate = (colData.learnRate or 1.0) * 1.20
+        end
+        if MRP.hasUnlock('stress_inoculation') then
+            colData.breakThreshold = (colData.breakThreshold or 20) - 5
+        end
+    end
+
     ECS.set(id, 'needs', {
         warmth = 60, food = 60, water = 60, rest = 60, morale = 50, joy = 40,
         heatExposure = 0, radiation = 0, toxicity = 0,

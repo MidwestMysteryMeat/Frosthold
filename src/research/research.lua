@@ -1053,6 +1053,25 @@ function Research.unlockAll()
     progress = 0
 end
 
+function Research.applyMRPUnlocks()
+    local mok, MRP = pcall(require, 'src.sim.mrp')
+    if not mok then return end
+
+    if MRP.hasUnlock('tier1_research_archive') then
+        for nodeId, node in pairs(NODES) do
+            if node.tier == 1 and not completed[nodeId] then
+                completed[nodeId] = true
+            end
+        end
+    end
+
+    if MRP.hasUnlock('advanced_smelting') then
+        if NODES['forge_steel'] and not completed['forge_steel'] then
+            completed['forge_steel'] = true
+        end
+    end
+end
+
 function Research.step(dt) end  -- research progress driven by bench ECS system
 
 ---------------------------------------------------------------------------

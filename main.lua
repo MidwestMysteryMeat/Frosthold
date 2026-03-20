@@ -468,6 +468,11 @@ local function initGameWorld()
     Inserters.init()
     Pipes.init()
     Research.init()
+    -- Apply MRP knowledge base unlocks (auto-complete research nodes from purchases)
+    local rok, ResearchMRP = pcall(require, 'src.research.research')
+    if rok and ResearchMRP.applyMRPUnlocks then
+        ResearchMRP.applyMRPUnlocks()
+    end
     Pollution.init()
     Expeditions.init()
     -- vehicles init removed (stubbed)
@@ -618,6 +623,30 @@ local function initGameWorld()
                     end
                 end
             end
+        end
+    end
+
+    -- Apply MRP per-run picks and permanent resource unlocks
+    local mok, MRPWorld = pcall(require, 'src.sim.mrp')
+    if mok then
+        local picks = MRPWorld.getRunPicks()
+        for _, pick in ipairs(picks) do
+            if pick.id == 'supply_drop' then
+                GameState.resources.metal = (GameState.resources.metal or 0) + 50
+                GameState.resources.food = (GameState.resources.food or 0) + 100
+                GameState.resources.components = (GameState.resources.components or 0) + 10
+            elseif pick.id == 'threat_delay' then
+                GameState.raidGraceDays = (GameState.raidGraceDays or 0) + 5
+            elseif pick.id == 'friendly_signal' then
+                GameState._friendlySignalActive = true
+            end
+        end
+
+        -- Apply heavy_drop_pod permanent unlock
+        if MRPWorld.hasUnlock('heavy_drop_pod') then
+            GameState.resources.metal = (GameState.resources.metal or 0) + 30
+            GameState.resources.food = (GameState.resources.food or 0) + 50
+            GameState.resources.components = (GameState.resources.components or 0) + 5
         end
     end
 
