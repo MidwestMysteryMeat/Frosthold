@@ -60,6 +60,17 @@ class ViewerState:
         with self.lock:
             return [p for p in self.pieces if p["seq"] > since_seq]
 
+    def reset(self):
+        """Reset world state and clear all generated pieces for a fresh run."""
+        with self.lock:
+            self.pieces = []
+            self.seq = 0
+            self.start_time = time.time()
+            self.type_counts = {}
+            self.errors = 0
+            if self.world_state is not None:
+                self.world_state.reset()
+
     def get_stats(self):
         with self.lock:
             elapsed = time.time() - self.start_time
@@ -285,6 +296,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
             <button id="btn-scroll" class="active" onclick="toggleScroll()">AUTO-SCROLL</button>
             <button id="btn-pause" onclick="togglePause()">PAUSE</button>
             <button onclick="clearDisplay()">CLEAR</button>
+            <button id="btn-reset" onclick="resetWorld()" style="border-color:#c0392b;color:#c0392b">RESET WORLD</button>
         </div>
     </div>
     <div id="filter-bar">
@@ -332,6 +344,34 @@ HTML_PAGE = r"""<!DOCTYPE html>
 
         function clearDisplay() {
             document.getElementById('content').innerHTML = '';
+        }
+
+        async function resetWorld() {
+            if (!confirm('Reset world state and start fresh generation? All current pieces will be cleared.')) return;
+            try {
+                const resp = await fetch('/api/reset', {method: 'POST'});
+                const data = await resp.json();
+                // Clear display
+                document.getElementById('content').innerHTML = '<div id="empty-state"><span class="spinner"></span> Resetting world... Fresh generation starting.</div>';
+                // Reset client state
+                lastSeq = 0;
+                pieces = [];
+                typeCounts = {};
+                startTime = Date.now();
+                document.getElementById('stat-total').textContent = '0';
+                document.getElementById('stat-rate').textContent = '0';
+                document.getElementById('stat-npc').textContent = '0';
+                document.getElementById('stat-quest').textContent = '0';
+                document.getElementById('stat-datapad').textContent = '0';
+                // Flash the button green
+                const btn = document.getElementById('btn-reset');
+                btn.style.borderColor = '#27ae60';
+                btn.style.color = '#27ae60';
+                btn.textContent = 'RESET OK';
+                setTimeout(() => { btn.style.borderColor = '#c0392b'; btn.style.color = '#c0392b'; btn.textContent = 'RESET WORLD'; }, 2000);
+            } catch (e) {
+                alert('Reset failed: ' + e.message);
+            }
         }
 
         function toggleFilter(btn) {
@@ -479,6 +519,21 @@ class ViewerHandler(http.server.BaseHTTPRequestHandler):
             self._serve_pieces(parsed.query)
         elif path == "/api/stats":
             self._serve_stats()
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if path == "/api/reset":
+            viewer_state.reset()
+            body = json.dumps({"status": "reset", "message": "World state reset. Fresh generation starting."})
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(body.encode("utf-8"))
         else:
             self.send_response(404)
             self.end_headers()
