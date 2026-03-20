@@ -900,6 +900,28 @@ function Research.getInProgressList()
     }
 end
 
+function Research.applyDiscProgress(techId, quality, partialFraction)
+    local node = NODES[techId]
+    if not node then return false end
+    if completed[techId] then return false end
+
+    if quality == 'intact' then
+        Research.complete(techId)
+        return true
+    elseif quality == 'degraded' then
+        local bonus = node.cost * (0.50 + math.random() * 0.25)
+        current = techId
+        progress = math.max(progress or 0, bonus)
+        return true
+    elseif quality == 'partial' then
+        local bonus = node.cost * (partialFraction or 0.25)
+        current = techId
+        progress = math.max(progress or 0, bonus)
+        return true
+    end
+    return false
+end
+
 ---------------------------------------------------------------------------
 -- Unlock checking — used by production/building systems to gate access
 ---------------------------------------------------------------------------

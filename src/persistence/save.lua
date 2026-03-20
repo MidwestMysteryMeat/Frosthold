@@ -264,6 +264,8 @@ local function restoreFromData(data, skipTilemap)
     if MinersMod.registerSystems then MinersMod.registerSystems() end
     local sosOk, SOSBeacon = pcall(require, 'src.building.sos_beacon')
     if sosOk and SOSBeacon.registerSystems then SOSBeacon.registerSystems() end
+    local dtOk, DataTerminal = pcall(require, 'src.building.data_terminal')
+    if dtOk and DataTerminal.registerSystems then DataTerminal.registerSystems() end
     local npcOk, NPCShipsMod = pcall(require, 'src.space.npc_ships')
     if npcOk and NPCShipsMod.registerSystems then NPCShipsMod.registerSystems() end
     local smOk, ShipMovementMod = pcall(require, 'src.space.ship_movement')
@@ -903,6 +905,9 @@ local function restoreFromData(data, skipTilemap)
         end
         if ECS.get(id, 'sos_beacon') then
             Power.addConsumer(id, 15, pos.x, pos.y, 'critical')
+        end
+        if ECS.get(id, 'data_terminal') then
+            Power.addConsumer(id, 20, pos.x, pos.y, 'low')
         end
         if ECS.get(id, 'deep_drill') then
             Power.addConsumer(id, 50, pos.x, pos.y)

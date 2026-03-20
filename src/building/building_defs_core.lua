@@ -239,6 +239,16 @@ return {
         powerDraw = 15,
         category = 'colony',
     },
+    data_terminal = {
+        name = 'Data Recovery Terminal',
+        desc = 'Processes data discs recovered from fallen colonies. Restores lost research. Requires a colonist with intellectual skill to operate.',
+        w = 2, h = 2,
+        tile = Tiles.FLOOR_METAL,
+        cost = { metal = 20, components = 8, circuit = 3 },
+        entitySpawn = 'data_terminal',
+        powerDraw = 20,
+        category = 'production',
+    },
 
     -- Endgame buildings
     transmission_array = {
