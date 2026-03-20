@@ -9,6 +9,9 @@ local GameState = require('src.game_state')
 -- Save module loaded with pcall so the menu works even if persistence breaks.
 local _saveOk, Save = pcall(require, 'src.persistence.save')
 
+-- MRP campaign persistence (roguelite meta-progression)
+local _mrpOk, MRP = pcall(require, 'src.sim.mrp')
+
 local titleFont, subtitleFont, buttonFont, versionFont
 local bgImage
 
@@ -23,6 +26,10 @@ local function rebuildButtons()
     buttons = {}
     if _saveOk and Save.exists and Save.exists() then
         buttons[#buttons + 1] = { label = 'Continue',  action = 'continue' }
+    end
+    -- Show "Continue Campaign" when a campaign file with history exists
+    if _mrpOk and MRP.getLifetime and MRP.getLifetime() > 0 then
+        buttons[#buttons + 1] = { label = 'Continue Campaign', action = 'continue_campaign' }
     end
     buttons[#buttons + 1] = { label = 'New Colony', action = 'new'     }
     buttons[#buttons + 1] = { label = 'Load Game',  action = 'load'    }
@@ -238,6 +245,19 @@ end
 
 function MainMenu._doAction(action)
     if action == 'new' then
+        -- Reset campaign on fresh start
+        if _mrpOk and MRP.reset then
+            MRP.reset()
+            MRP.save()
+        end
+        local ok, PlanetSelect = pcall(require, 'src.ui.planet_select')
+        if ok and PlanetSelect then
+            PlanetSelect.init()
+        end
+        GameState.phase = 'planet_select'
+
+    elseif action == 'continue_campaign' then
+        -- Resume existing campaign (MRP already loaded at startup)
         local ok, PlanetSelect = pcall(require, 'src.ui.planet_select')
         if ok and PlanetSelect then
             PlanetSelect.init()

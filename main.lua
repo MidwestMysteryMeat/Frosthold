@@ -337,6 +337,9 @@ function love.load()
     math.randomseed(os.time())
     registerProfilerTargets()
 
+    -- Load campaign persistence (MRP) before any game state init
+    MRP.load()
+
     -- Migrate legacy single-file save to slot system
     Save.migrateOldSave()
 
@@ -447,6 +450,20 @@ local function initGameWorld()
     Corrosion.init()               -- Morvos acid corrosion (no-op on other planets)
     Baldrungen.init()              -- Gaia A^1x escalation (no-op on other planets)
 
+    -- Redeployment seed override: reuse the same map seed as the fallen colony
+    local mrpSeedOk, MRPSeed = pcall(require, 'src.sim.mrp')
+    if mrpSeedOk then
+        local seedHistory = MRPSeed.getPlanetHistory(GameState.planet or 'erebus')
+        if #seedHistory > 0 then
+            local lastRec = seedHistory[#seedHistory]
+            if lastRec.worldSeedNumeric then
+                GameState.worldSeedNumeric = lastRec.worldSeedNumeric
+            elseif lastRec.mapSeed then
+                GameState.worldSeedNumeric = lastRec.mapSeed
+            end
+        end
+    end
+
     -- Landing zone: apply threat scaling to creature aggression
     if GameState.landingZone and GameState.landingZone.threat then
         local threatMult = { low = 0.7, medium = 1.0, high = 1.3, extreme = 1.6 }
@@ -520,6 +537,19 @@ local function initGameWorld()
 
     -- Initialize colony legacy (load fallen colony records from disk)
     if Optional.colonyLegacy and Optional.colonyLegacy.init then Optional.colonyLegacy.init() end
+
+    -- Spawn ruins from previous colony deployment (roguelite redeployment)
+    local mrpRuinOk, MRPRuin = pcall(require, 'src.sim.mrp')
+    if mrpRuinOk then
+        local ruinHistory = MRPRuin.getPlanetHistory(GameState.planet or 'erebus')
+        if #ruinHistory > 0 then
+            local lastLegacy = ruinHistory[#ruinHistory]
+            local rsok, RuinSpawner = pcall(require, 'src.sim.ruin_spawner')
+            if rsok then
+                RuinSpawner.spawnFromLegacy(lastLegacy)
+            end
+        end
+    end
 
     Elastic.init()
     Doctrines.init()
@@ -763,6 +793,16 @@ function love.update(dt)
 
     dt = math.min(dt, 0.25)
     updateFade(dt)
+
+    -- Redeployment: defeat/victory screen set this flag via pressing R.
+    -- Route back to planet select for the next run (roguelite loop).
+    if D.GameState._redeployment then
+        D.GameState._redeployment = nil
+        local psok, PS = pcall(require, 'src.ui.planet_select')
+        if psok and PS.init then PS.init() end
+        D.GameState.phase = 'planet_select'
+        return
+    end
 
     -- Main menu
     if D.GameState.phase == 'menu' then return end
