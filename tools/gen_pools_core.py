@@ -1348,6 +1348,122 @@ ITEMS = ITEMS_MAMMONA + ITEMS_PRECURSOR + ITEMS_PERSONAL + ITEMS_CONTRABAND + IT
 
 
 # ============================================================
+# LOCATION TEXT POOLS — for gen_location() batch dedup
+# ============================================================
+
+LOCATION_DATAPAD_FRAGMENTS = [
+    "They told us it was a survey. It wasn't a survey.",
+    "DON'T OPEN IT. DON'T OPEN IT. DON'T OPEN IT.",
+    "If you're reading this, you're already too close. Leave. Leave now.",
+    "The readings are wrong. Not inaccurate. Wrong. As in: they describe a place that shouldn't exist.",
+    "Day 1: Everything normal. Day 7: See previous entry. Day 7: See previous entry. Day 7: See prev",
+    "I counted them. Then I counted them again. The number changed.",
+    "The door was open when I got here. I didn't open the door. Nobody opened the door.",
+    "Last crew rotation: 14 people. Current crew rotation: 14 people. But the names are different. All of them.",
+    "Three words, written in something that isn't ink: STOP DIGGING DOWN.",
+    "The manifest says this room is empty. The manifest is accurate. The room is not.",
+    "Whoever reads this: check the walls. Not the surface. Behind them. Listen.",
+    "We found what we were looking for. That was the worst part.",
+    "The temperature in this room has been exactly 4 degrees C for seven months. Nothing is maintaining it.",
+    "I was alone when I wrote this. I was not alone when I finished.",
+    "My name is [illegible]. I was stationed here for [illegible] days. Don't trust the [illegible].",
+    "Personal log, final entry: I understand now. I wish I didn't.",
+    "The equipment works. The readings make sense. The conclusions are impossible. All three things are true.",
+    "Someone lived here before us. Not Mammona. Not the survey team. Someone else. The furniture is the wrong shape.",
+    "The signal comes from below. Always below. I've been underground for three weeks. The signal still comes from below.",
+    "Ask Dr. Kovacs about sample 7-C. Then ask why the sample was reclassified. Then ask where Dr. Kovacs is.",
+    "If you are reading this, you are already too close. Leave. Leave now. I am sorry about the door.",
+    "I stopped counting the footsteps above me. There is no floor above me.",
+    "The machine works. It has always worked. I am beginning to think it works on us.",
+    "There are 11 people on my team. There have always been 11. I have 12 names on my roster.",
+    "DO NOT RESPOND TO THE VOICE IN CORRIDOR 7. IT KNOWS YOUR NAME. THAT DOES NOT MEAN IT IS FRIENDLY.",
+]
+
+LOCATION_HISTORIES = [
+    "This isn't a Mammona site. It predates Mammona. It predates the colony. It predates the survey that found this planet. Someone was here. Someone built this. They're not here now. The building is.",
+    "Mammona ran a research operation here for eleven months. It was shut down after the incident. The shutdown was never officially recorded.",
+    "Mammona ran an extraction program here for three months. It was shut down after personnel attrition exceeded projectable parameters.",
+    "The previous crew abandoned the site mid-shift. Equipment running. Lights on. Food on the table. No signs of violence. No signs of anything. Just empty.",
+    "Two survey teams were sent here eighteen months apart. Both filed identical reports. Word for word. Neither team was aware of the other.",
+    "A colony was planned for this site. The planning documents exist. The colony was never built. The cancellation memo doesn't say why. The memo is one sentence: 'Site unsuitable. Do not revisit.'",
+    "Something happened here during the corporate era. The records were purged. Not redacted -- purged. The difference is: redacted records leave a shape. These left nothing.",
+    "The site was used as a supply cache by the Rust Reavers for two years. They abandoned it after something started using it at the same time. The two groups never met. The Reavers left first.",
+    "Construction started and stopped three times. Each time, the crew reported the same thing: the feeling of being observed by something patient. Mammona classified the reports as morale issues.",
+    "Nobody built this. The geological survey says it's natural formation. Natural formations don't have right angles. Natural formations don't have doors.",
+    "A distress signal broadcast from this location for sixty-three days. When a response team arrived, the signal stopped. No transmitter was found. No crew was found. The signal resumed the day after the response team left.",
+    "The previous occupants left in an orderly fashion. Everything labeled, everything stored, everything clean. The only thing they took with them was every mirror in the facility.",
+    "This was a punishment posting. The kind Mammona doesn't put in writing. Three months here for contract violations. Most people served the three months. Some didn't make it that long. Not because it was dangerous. Because it was quiet. The wrong kind of quiet.",
+    "An automated system has been running here without maintenance for an estimated four years. The system's purpose is unclear. It appears to be measuring something. The measurements are consistent. What it's measuring doesn't have a name.",
+    "Fire damage throughout the lower level. The fire was contained to that level only. Fires don't contain themselves. Something contained this one.",
+    "Three separate expeditions mapped this site. Each produced a different floor plan. All three are accurate. The layout depends on when you measure it.",
+    "A Mammona director used this as a personal retreat. The expense reports are buried. The director is buried deeper. The retreat is still furnished.",
+    "This was a relay station for communications that were never sent through official channels. The relay is still active. The messages it carries are not in any known language.",
+    "The site was condemned after a structural assessment. The assessor's report is thorough, detailed, and concludes with: 'Do not return. Do not ask me to return. I will not discuss what I found below level 3.'",
+    "Officially: a storage depot, decommissioned. Unofficially: the power consumption alone suggests 200 square meters of active floor space that doesn't appear on any plan.",
+]
+
+LOCATION_SECRETS = [
+    "The foundation extends deeper than the building above it. By a factor of three.",
+    "Radio signals from inside can be received outside. Signals from outside can't be received inside. The asymmetry is deliberate.",
+    "One of the terminals contains personnel files for a crew that was never officially posted here.",
+    "The walls are warmer on the inside than the outside. The heat source isn't the colony reactor. The heat source is below.",
+    "The site appears on maps from before the survey. Maps that Mammona didn't make. Maps that predate human presence in this system.",
+    "Air quality improves as you go deeper. The air at the lowest level is cleaner than the colony's filtered supply. Something is purifying it.",
+    "The structural damage follows a pattern. Not random stress fractures -- a sequence. As if something tested each wall in order.",
+    "A room exists on the lower level that isn't on any schematic. The room has power. The room has been cleaned recently.",
+    "The site's GPS coordinates shift by 0.3 meters every month. The site is not moving. The ground beneath it is.",
+    "Acoustic analysis shows the site has a resonant frequency that matches human theta brainwave patterns. Being inside it induces drowsiness. Or something that feels like drowsiness.",
+    "The locks on the interior doors are keyed to a biometric profile that matches no one on the colony roster. Or anyone in Mammona's employee database.",
+    "Water samples from the lowest level contain trace organic compounds. The compounds are not from any known organism. They are consistent with each other. Something is alive down there.",
+    "The electrical wiring has been modified. Not repaired -- modified. The modifications route power to a section that doesn't exist on the plans. The power draw is increasing.",
+    "The site contains exactly one more room than the blueprints show. The extra room moves. Not physically. It's in a different location on the floor plan each time someone maps it.",
+    "Gravity measurements inside the site are 0.2% lower than outside. The difference is too small to feel. The instruments feel it.",
+    "The colony dogs refuse to enter. Not aggressive refusal -- avoidance. They walk around the perimeter and whine. The path they walk traces a precise circle.",
+    "Scorch marks on the ceiling of the lowest room. The marks form letters in a script nobody recognizes. The letters were burned from below, not above.",
+    "The site has been photographed by satellite every 72 hours since the colony was established. In 40% of images, the site casts a shadow that doesn't match the sun's position.",
+    "A previous team sealed the lowest level with concrete. The concrete has been removed. From the inside.",
+    "Temperature records show the site maintains exactly 4.1 degrees C regardless of external conditions. This temperature corresponds to the density maximum of water. The significance of this is unclear.",
+    "The access logs show a pattern: the same person has entered the site every 72 hours for seven months. The person died four months ago.",
+    "Hidden behind a false panel: a communication relay broadcasting on a frequency that predates human radio.",
+    "The site has a designation in Mammona's system that is older than Mammona's system.",
+    "One wall is not a wall. It's a membrane. It responds to pressure. It responds to sound. It might respond to intent.",
+]
+
+LOCATION_FOUND_ITEMS = [
+    "a pressed flower from a planet with no flowers",
+    "a pocket watch that runs backward",
+    "a signal jammer the size of a cigarette lighter",
+    "a child's shoe, sized for a toddler. There are no children on this posting.",
+    "a photograph of the colony taken from inside the site. The photograph predates the colony.",
+    "a Mammona ID badge with the photo scratched off",
+    "a jar of soil. Not Erebus soil. The soil is warm.",
+    "a handwritten map of tunnels that match no known survey",
+    "a Black Maw tribute token -- safe passage, one use",
+    "dog tags for three people. Two names match colony records. The third matches nobody.",
+    "a recording device still running. Battery life: six months remaining. Recording length: nine months.",
+    "a meal, half-eaten. Still warm. Nobody was here when the team arrived.",
+    "empty voidbloom vials arranged in a circle. Seven vials. Seven sides to the circle.",
+    "a maintenance log predating the colony. Written in English. Nobody spoke English here before the colony.",
+    "a mirror, cracked. The crack follows no impact pattern. It follows the grain of something that isn't glass.",
+    "a thermal core, split in half. The inside is hollow. Something was stored in it.",
+    "a stack of Mammona insurance forms, pre-filled with the names of the current crew. Dated six months before their arrival.",
+    "a NutriLoaf wrapper folded into an origami crane. The folding technique isn't human.",
+    "a single bullet, standing upright on a shelf. Not placed -- balanced. Impossible to balance without adhesive. There's no adhesive.",
+    "a name scratched into the wall. The name is yours.",
+    "a sealed data drive with a label reading PERSONAL -- DO NOT ARCHIVE",
+    "a compass that points down",
+    "a shift schedule with one slot filled in by a hand nobody recognizes",
+    "a cryo-pod manual with handwritten annotations contradicting the manufacturer",
+    "a Mammona performance pin melted into an unrecognizable shape",
+    "a child's drawing. The child drew the lower level accurately. No child has been to the lower level.",
+    "a canteen filled with water that won't freeze. The thermometer reads -30C.",
+    "a radio tuned to a frequency between frequencies. Static that sounds like breathing.",
+    "three identical photographs of the same hallway taken decades apart. Nothing has changed. Nothing.",
+    "a severed cable. Both ends are still transmitting.",
+]
+
+
+# ============================================================
 # EVENTS (~60) — organized by era
 # ============================================================
 
@@ -3834,6 +3950,10 @@ if __name__ == "__main__":
         "ROBOT_MOTIVATIONS": len(ROBOT_MOTIVATIONS),
         "CHECK_OUTCOMES": len(CHECK_OUTCOMES),
         "FAMILY_ECONOMIC_BIAS": len(FAMILY_ECONOMIC_BIAS),
+        "LOCATION_DATAPAD_FRAGMENTS": len(LOCATION_DATAPAD_FRAGMENTS),
+        "LOCATION_HISTORIES": len(LOCATION_HISTORIES),
+        "LOCATION_SECRETS": len(LOCATION_SECRETS),
+        "LOCATION_FOUND_ITEMS": len(LOCATION_FOUND_ITEMS),
     }
 
     for k, v in counts.items():
@@ -3888,6 +4008,10 @@ if __name__ == "__main__":
         ("ROBOT_MOTIVATIONS >= 8", len(ROBOT_MOTIVATIONS) >= 8),
         ("CHECK_OUTCOMES >= 10", len(CHECK_OUTCOMES) >= 10),
         ("FAMILY_ECONOMIC_BIAS >= 15", len(FAMILY_ECONOMIC_BIAS) >= 15),
+        ("LOCATION_DATAPAD_FRAGMENTS >= 20", len(LOCATION_DATAPAD_FRAGMENTS) >= 20),
+        ("LOCATION_HISTORIES >= 15", len(LOCATION_HISTORIES) >= 15),
+        ("LOCATION_SECRETS >= 20", len(LOCATION_SECRETS) >= 20),
+        ("LOCATION_FOUND_ITEMS >= 30", len(LOCATION_FOUND_ITEMS) >= 30),
     ]
 
     all_pass = True

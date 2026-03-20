@@ -24,6 +24,7 @@ from gen_pools_core import (
     ROBOT_PARTS, ROBOT_SECRETS, SENTIENCE_LEVELS,
     ROBOT_ECONOMIC, ROBOT_STATS, ROBOT_MOTIVATIONS,
     GAME_SKILLS, NARRATIVE_ATTRIBUTES, CHECK_OUTCOMES,
+    LOCATION_DATAPAD_FRAGMENTS, LOCATION_HISTORIES, LOCATION_SECRETS, LOCATION_FOUND_ITEMS,
     generate_robot_stats, d100_check, d100_narrative,
     name, rname, robot_name, pronouns,
 )
@@ -1904,46 +1905,14 @@ def gen_location(ctx, tone=None, planet=None, era=None):
     ]
     interior2 = R(interior2_pool)
 
-    # --- Found items ---
-    item1 = ctx.pick_fresh(ITEMS, "ITEMS") if ITEMS else "a sealed data drive"
-    item2 = R(ITEMS) if ITEMS else "a Mammona ID badge"
+    # --- Found items (batch-deduped) ---
+    item1 = ctx.pick_fresh(LOCATION_FOUND_ITEMS, "location_found_items")
+    item2 = ctx.pick_fresh(LOCATION_FOUND_ITEMS, "location_found_items")
 
-    remaining = str(RI(1, 3))
-    original = str(RI(14, 30))
-    datapad_pool = [
-        "DON'T OPEN IT. DON'T OPEN IT. DON'T OPEN IT.",
-        "They told us it was a survey. It was not a survey.",
-        "Day 1: Everything normal. Day 7: See previous entry. Day 7: See previous entry. Day 7: See prev",
-        "If you are reading this, you are already too close. Leave. Leave now. I am sorry about the door.",
-        "The readings are wrong. Not inaccurate. Wrong. As in: they describe a place that should not exist.",
-        "Personnel remaining: " + remaining + ". Original complement: " + original + ". Cause of attrition: see attached. Attached file: corrupted.",
-    ]
-    datapad_text = R(datapad_pool)
+    datapad_text = ctx.pick_fresh(LOCATION_DATAPAD_FRAGMENTS, "location_datapad")
 
-    # --- What happened here (original) ---
-    op_type = R(["research operation", "extraction program",
-                 "containment protocol", "long-term observation post"])
-    op_duration = R(["three months", "eleven months", "four years"])
-    shutdown_cause = R(["the incident", "what the report calls a structural failure",
-                        "personnel attrition exceeded projectable parameters",
-                        "someone opened something that was meant to stay closed"])
-    shutdown_style = R(["orderly", "rapid", "incomplete -- someone left in a hurry",
-                        "never officially recorded"])
-    predate_duration = R(["centuries", "longer than that",
-                          "a period of time that the dating equipment returns as an error"])
-    prev_faction = R(FACTION_NAMES)
-    prev_event = R(EVENTS)
-    left_behind = R(["equipment that should not exist outside a military installation",
-                     "biological samples in cryo storage -- still viable",
-                     "a communications array pointed at a star that went dark forty years ago"])
-    lab_letter = R("ABCDEF")
-    happened_pool = [
-        "Mammona ran a " + op_type + " here for " + op_duration + ". It was shut down after " + shutdown_cause + ". The shutdown was " + shutdown_style + ".",
-        "This is not a Mammona site. It predates Mammona. It predates the colony. It predates the survey that found this planet. It has been here for " + predate_duration + ". Someone was here. Someone built this. They are not here now. The building is.",
-        prev_faction + " operated here until " + prev_event + ". What they left behind includes " + left_behind + ". What they took with them is harder to determine. The inventory was purged.",
-        "Nothing happened here. That is the official line. The scorch marks on the walls, the sealed lower level, the fact that every piece of furniture is bolted to the floor -- none of that constitutes an event. Mammona's incident log is clean. The blood spatter analysis from Lab " + lab_letter + " tells a different story.",
-    ]
-    what_happened = R(happened_pool)
+    # --- What happened here (batch-deduped) ---
+    what_happened = ctx.pick_fresh(LOCATION_HISTORIES, "location_history")
 
     # ==========================================================
     # DEEP LOCATION LAYERS
@@ -2119,25 +2088,10 @@ def gen_location(ctx, tone=None, planet=None, era=None):
         "- " + potential3
     )
 
-    # --- (f) Secrets — what the location hides ---
-    secret1 = R([
-        "The lower level connects to the bore shaft network. Not through a door -- through a gap in the rock that isn't natural.",
-        "A room behind the collapsed section contains equipment that won't exist for another twelve years. According to the patent dates.",
-        "The foundation of the site extends deeper than the building above it. By a factor of three.",
-        "One wall is not a wall. It's a membrane. It responds to pressure. It responds to sound. It might respond to intent.",
-    ])
-    secret2 = R([
-        "The thermal readings don't match the geology. Something is generating heat. The heat has a rhythm.",
-        "The site's structural integrity improves over time. Not degrades. Improves. The materials are self-repairing.",
-        "Radio signals from inside the site can be received outside. Radio signals from outside cannot be received inside. The asymmetry is deliberate.",
-        "Air samples from the lowest level contain organic compounds that match no known species. They match each other perfectly. As if from a single organism.",
-    ])
-    secret3 = R([
-        "One of the terminals contains personnel files for a crew that was never officially posted here.",
-        "The access logs show a pattern: the same person has entered the site every 72 hours for seven months. The person died four months ago.",
-        "Hidden behind a false panel: a communication relay broadcasting on a frequency that predates human radio.",
-        "The site has a designation in Mammona's system that is older than Mammona's system.",
-    ])
+    # --- (f) Secrets — what the location hides (batch-deduped) ---
+    secret1 = ctx.pick_fresh(LOCATION_SECRETS, "location_secret")
+    secret2 = ctx.pick_fresh(LOCATION_SECRETS, "location_secret")
+    secret3 = ctx.pick_fresh(LOCATION_SECRETS, "location_secret")
     secrets_block = (
         "- " + secret1 + "\n"
         "- " + secret2 + "\n"

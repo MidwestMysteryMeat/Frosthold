@@ -847,6 +847,7 @@ class Context:
         self.nicknames_used = set()
         self.robot_dialogue_used = set()
         self.robot_quest_hooks_used = set()
+        self.generic_used = {}  # generic pool dedup: pool_name -> set of used keys
         self.npcs = []
         self.pieces = []
         self.history_events = []
@@ -886,6 +887,11 @@ class Context:
             used_set = self.items_used
         elif pname in ("sensory", "SENSORY"):
             used_set = self.sensory_used
+        else:
+            # Generic dedup for any pool name not in the known set
+            if pname not in self.generic_used:
+                self.generic_used[pname] = set()
+            used_set = self.generic_used[pname]
 
         if used_set is not None:
             adjusted = []
