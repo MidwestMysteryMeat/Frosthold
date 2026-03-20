@@ -95,24 +95,48 @@ class ViewerState:
 def generator_thread(state, delay, batch_size):
     """Background thread that continuously generates lore pieces."""
     ws = WorldState()
-    state.world_state = ws  # expose to ViewerState for stats endpoint
+    state.world_state = ws
     ctx = Context(world_state=ws)
     gen_count = 0
+    world_full = False
 
     while True:
         try:
+            # Check if world is full — pause generation until reset
+            if world_full:
+                # Check if reset happened (population cleared)
+                total_pop = sum(ws.data.get("population", {}).values())
+                if total_pop == 0:
+                    world_full = False
+                    ctx = Context(world_state=ws)
+                    gen_count = 0
+                else:
+                    time.sleep(1)
+                    continue
+
+            generated_this_batch = 0
             for _ in range(batch_size):
                 content, label, gen_type = generate_piece(ctx=ctx)
 
                 if content is None:
-                    state.add_error("Generator returned None — no generators registered")
+                    # Check if ALL types are at limit
+                    all_full = all(not ws.check_limit(t) for t in GENERATORS.keys())
+                    if all_full:
+                        world_full = True
+                        ws.save()
+                        state.add_piece(
+                            "WORLD POPULATION LIMITS REACHED. All types at capacity. Press RESET WORLD to generate a fresh universe.",
+                            "System", "system"
+                        )
+                        break
                     continue
 
                 state.add_piece(content, label, gen_type)
                 ws.log_generation(gen_type, label)
                 gen_count += 1
+                generated_this_batch += 1
 
-                # Periodic world state save & context refresh
+                # Periodic world state save and context refresh
                 if gen_count % 50 == 0:
                     ws.save()
                     ctx = Context(world_state=ws)
