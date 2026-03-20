@@ -58,22 +58,22 @@ STATE_PATH = Path(__file__).parent / "world_state.json"
 # ============================================================
 
 WORLD_LIMITS = {
-    # The game has 7 canonical planets, 36 factions, 70 locations.
-    # Procedural generation adds on top of the canonical baseline.
-    # Per run: a handful of extras that feel organic, not overwhelming.
-    "planet": 3,         # 2-3 procedural planets per universe generation
-    "faction": 8,        # 2-3 per planet x 3 planets + a few extras
-    "location": 30,      # ~10 per planet x 3 planets (incl orbital, derelicts, rigs)
-    "npc": 60,           # colony population (~40-60 named characters)
-    "robot": 10,         # operational units
-    "quest": 15,         # active quest hooks
-    "history": 20,       # pre-arrival events
-    "datapad": 40,       # found documents
-    "weapon": 15,        # notable weapons
-    "artifact": 5,       # rare
+    # The game has 7 canonical planets, 36 canonical factions, 70 canonical locations.
+    # These are ALWAYS available. Procedural generation adds on top.
+    # Generation cascade: planets → locations → factions → NPCs → quests → datapads
+    "planet": 3,         # 2-3 procedural planets (7 canonical always exist)
+    "faction": 10,       # 2-3 per planet + space-faring factions (36 canonical always exist)
+    "location": 35,      # ~10 per planet + orbital/derelicts (70 canonical always exist)
+    "npc": 80,           # named characters across all planets/stations
+    "robot": 25,         # named/notable units with profiles (generic drones exist in background)
+    "quest": 20,         # active quest hooks
+    "history": 25,       # pre-arrival events
+    "datapad": 50,       # found documents
+    "weapon": 20,        # notable weapons in circulation
+    "artifact": 5,       # rare by definition
     "entity": 3,         # extremely rare
-    "vehicle": 8,        # ships/vehicles
-    "company": 8,        # corporate entities
+    "vehicle": 12,       # named ships/vehicles
+    "company": 10,       # corporate entities
 }
 
 # ============================================================
@@ -4734,39 +4734,60 @@ def generate_world(ctx, tone=None, planet=None, era=None):
             return 0
         return RI(lo, hi)
 
+    # ============================================================
+    # GENERATION CASCADE:
+    #   planets → locations ON planets → factions IN locations →
+    #   space factions → NPCs IN factions → robots → quests → datapads → details
+    #
+    # CANONICAL BASELINE (always available, not generated):
+    #   7 planets, 36 factions, 70 locations from lore bible
+    #   Procedural generation builds ON TOP of this baseline.
+    # ============================================================
+
     # --- Phase 0: UNIVERSE ---
-    # Generate procedural planets (only if not constrained to a specific planet)
+    # Generate procedural planets (each comes with 8-12 locations and 2-3 factions built in)
     if not planet and "planet" in GENERATORS:
         n_planets = _cap("planet", 2, 3)
         _gen("planet", n_planets)
+        # Note: gen_planet() already registers its locations and factions in ctx
 
-    # --- Phase 1: WORLD FOUNDATION ---
-    # History first — what happened before anyone arrived
+    # --- Phase 1: HISTORY ---
+    # What happened before anyone arrived (references canonical + procedural locations)
     _gen("history", _cap("history", 5, 8))
-    # Locations — where things happen
-    _gen("location", _cap("location", 2, 4))
-    # Factions — who has power (generated factions register in ctx)
-    _gen("faction", _cap("faction", 2, 3))
 
-    # --- Phase 2: INHABITANTS ---
-    # NPCs — they populate the factions and locations from Phase 1
-    _gen("npc", _cap("npc", 6, 10))
-    # Robots — colony infrastructure
-    _gen("robot", _cap("robot", 1, 3))
+    # --- Phase 2: ADDITIONAL LOCATIONS ---
+    # Standalone locations not tied to a procedural planet (canonical planets get extras)
+    # Includes orbital stations, derelict ships, deep space installations
+    _gen("location", _cap("location", 3, 6))
+
+    # --- Phase 3: FACTIONS ---
+    # Additional factions beyond what planets generated
+    # Includes space-faring factions (pirate fleets, trade convoys, nomad groups)
+    _gen("faction", _cap("faction", 2, 4))
+
+    # --- Phase 4: INHABITANTS ---
+    # NPCs populate factions from Phase 0+3, stationed at locations from Phase 0+2
+    # They reference the world that already exists — no phantom factions/locations
+    _gen("npc", _cap("npc", 8, 15))
+    # Named robots/AIs at various locations
+    _gen("robot", _cap("robot", 2, 4))
 
     # Wire relationships AFTER all inhabitants exist
     wire_relationships(ctx)
 
-    # --- Phase 3: NARRATIVE ---
-    # Quests — involve the NPCs from Phase 2 at locations from Phase 1
-    _gen("quest", _cap("quest", 3, 5))
-    # Datapads — reference everything above
-    _gen("datapad", _cap("datapad", 3, 5))
+    # --- Phase 5: NARRATIVE ---
+    # Quests involve Phase 4 NPCs at Phase 2 locations with Phase 3 faction stakes
+    _gen("quest", _cap("quest", 4, 6))
+    # Datapads reference everything above — NPCs, locations, factions, history
+    _gen("datapad", _cap("datapad", 4, 6))
 
-    # --- Phase 4: DETAILS ---
-    # Sprinkle in texture pieces
-    for gen_type in ["weapon", "artifact", "entity", "vehicle", "company"]:
-        if gen_type in GENERATORS and random.random() > 0.4 and ctx.world.check_limit(gen_type):
+    # --- Phase 6: DETAILS ---
+    # Texture pieces — weapons, artifacts, entities, vehicles, companies
+    for gen_type in ["weapon", "vehicle", "company"]:
+        if gen_type in GENERATORS and ctx.world.check_limit(gen_type):
+            _gen(gen_type, RI(1, 2))
+    for gen_type in ["artifact", "entity"]:
+        if gen_type in GENERATORS and random.random() > 0.3 and ctx.world.check_limit(gen_type):
             _gen(gen_type, 1)
 
     return pieces
