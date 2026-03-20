@@ -255,6 +255,12 @@ FACTIONS = {
         ],
         "tone": "corporate_dystopia",
         "slogan": "Building Tomorrow's Foundation",
+        "goal": "extract maximum value from every posting. Quarterly targets. Shareholder returns. Personnel are a line item.",
+        "resources": ["mineral rights (system-wide)", "supply chain monopoly", "warp gate access", "HERMES network", "contract labor"],
+        "member_count": "250,000+ across all postings (corporate employees, contracted labor, involuntary)",
+        "base_location": "corporate headquarters on Novaris-3. Regional offices on every inhabited world. Nobody has seen the boardroom.",
+        "rules": "employment contract governs all behavior. 847 pages. Clause 14 covers everything from bathroom breaks to death benefits. The death benefits are smaller than the bathroom break penalties.",
+        "recruitment": "debt. Desperation. The contract that looks like salvation until you read paragraph forty-seven.",
     },
     "mammona_mining": {
         "name": "Mammona Mining",
@@ -264,6 +270,12 @@ FACTIONS = {
         "secrets": ["The original business. Every other subsidiary exists to feed this one."],
         "tone": "corporate_dystopia",
         "slogan": "Reaching Further. Digging Deeper.",
+        "goal": "locate, extract, and ship every mineral deposit in the outer rim. The drill doesn't stop. The quota doesn't shrink.",
+        "resources": ["thermal core extraction rights", "deep bore equipment", "contracted mining labor", "geological survey data"],
+        "member_count": "~40,000 field workers across all sites (turnover rate: classified)",
+        "base_location": "operations center on Erebus. Regional offices on Paxtera Prime and Nemaea. The field is the office.",
+        "rules": "quota is law. Miss it once, you're warned. Miss it twice, your contract extends. Miss it three times, you're reassigned to a site nobody comes back from.",
+        "recruitment": "Mammona's standard contract pipeline. Workers sign up for mining because the signing bonus pays off their existing Mammona debt. The math never works out.",
     },
     "mastema": {
         "name": "MasTema Incorporated",
@@ -277,6 +289,12 @@ FACTIONS = {
         ],
         "tone": "paranoid",
         "slogan": "Solutions. Delivered.",
+        "goal": "eliminate threats to Mammona's interests before they become visible. Silence leaks. Recover assets. Make problems disappear.",
+        "resources": ["embedded agents in every major faction", "classified weapon systems", "Mammona board access", "unlimited operational budget"],
+        "member_count": "unknown. Estimated 500-2000 operatives. The real number is classified above your clearance.",
+        "base_location": "no fixed headquarters. Operates from secure cells embedded in Mammona facilities across the outer rim. If you've found one, it was already abandoned.",
+        "rules": "compartmentalized. Each agent knows their handler and their targets. Nothing else. Failure is not punished — it is erased. The agent never existed.",
+        "recruitment": "you don't apply. You're identified, evaluated, approached, and offered a choice that isn't really a choice. Former military, former criminals, former people.",
     },
     "biovault": {
         "name": "BioVault Inc.",
@@ -290,6 +308,12 @@ FACTIONS = {
         ],
         "tone": "clinical",
         "slogan": "Life. Engineered.",
+        "goal": "recover, incubate, and weaponize Xenolith biological material. Project Chrysalis is the mission. Everything else is cover.",
+        "resources": ["Xenolith egg specimens", "Facility 7 (location classified)", "bio-containment technology", "Mammona board funding"],
+        "member_count": "~200 researchers, support staff, and security. Most don't know what they're actually working on.",
+        "base_location": "Facility 7 — location undisclosed, possibly orbital. Field teams operate from Blackreach Station and embedded labs on Erebus and Nerthus-9.",
+        "rules": "containment protocol supersedes all other directives. If a specimen breaches containment, the facility is expendable. The data must survive.",
+        "recruitment": "headhunted from top xenobiology programs. NDAs thicker than doctoral theses. Once you're in, leaving requires Mammona board approval. Nobody has ever received it.",
     },
     "utc": {
         "name": "United Terran Colonies",
@@ -302,6 +326,12 @@ FACTIONS = {
             "FortuneGuard Pension invested in the companies that exploit colony labor.",
         ],
         "tone": "corporate_dystopia",
+        "goal": "maintain territorial sovereignty over human space. Collect taxes. License corporations. Look the other way when the numbers are good.",
+        "resources": ["military fleet (inner rim only)", "legislative authority", "FortuneGuard Pension fund", "UTCSX regulation"],
+        "member_count": "millions (bureaucratic apparatus spanning inner colonies). Military: ~500,000 active duty, none stationed in the outer rim.",
+        "base_location": "Novaris-3 — seat of government, legislative chambers, military command. The outer rim has field offices that are mostly empty.",
+        "rules": "charter law governs. In practice, corporate lobbying writes the rules and UTC stamps them. The Vanguard Alliance controls the legislative agenda.",
+        "recruitment": "civil service exams. Military draft during emergencies. Political appointments for the well-connected. The outer rim posts are punishment assignments.",
     },
     "vanguard": {
         "name": "Vanguard Alliance",
@@ -315,6 +345,12 @@ FACTIONS = {
         ],
         "tone": "corporate_dystopia",
         "slogan": "A Stronger, United Humanity.",
+        "goal": "consolidate UTC power in the inner colonies. Tighter borders. Stronger military. The outer rim can fend for itself — that's what corporations are for.",
+        "resources": ["legislative majority in UTC parliament", "military contracts", "stabilization contract revenue", "media control on Novaris-3"],
+        "member_count": "~12,000 party members. Millions of voters. The difference between member and voter is how much you donate.",
+        "base_location": "Vanguardus district, Novaris-3. The party headquarters is a tower with propaganda screens on every face. The screens never turn off.",
+        "rules": "party discipline is absolute. Dissent is expressed in closed sessions. In public, the Alliance speaks with one voice. That voice belongs to whoever chairs the committee this year.",
+        "recruitment": "political networks. Family connections. Military service. The Vanguard track starts at university and ends in parliament. Or in a quiet office where stabilization contracts are approved.",
     },
     "black_maw": {
         "name": "Black Maw",
@@ -327,6 +363,12 @@ FACTIONS = {
         ],
         "tone": "furious",
         "leader": "Thane",
+        "goal": "control freight corridors. Every crate that moves through their space pays tribute or doesn't move.",
+        "resources": ["armed vessels (12-15 combat-capable)", "seized cargo", "intelligence network along shipping lanes", "fear"],
+        "member_count": "~300 active, maybe 800 including support and informants",
+        "base_location": "mobile. Fleet-based. The Edge of Oblivion. No fixed station — that's the point.",
+        "rules": "Thane's word is law. Loyalty is proven by action. Betrayal is one death — yours. Cowardice is two — yours and someone you chose.",
+        "recruitment": "you prove yourself or you don't. There's no application. You show up useful and Thane decides.",
     },
     "void_serpents": {
         "name": "Void Serpents",
@@ -339,6 +381,12 @@ FACTIONS = {
         ],
         "tone": "paranoid",
         "leader": "Jessa",
+        "goal": "trade in information. Know everything. Sell what's useful. Leverage what's dangerous. Cargo is secondary — data is the real currency.",
+        "resources": ["intelligence network (multi-system)", "encrypted comms channels", "embedded informants in Mammona and UTC", "blackmail archives"],
+        "member_count": "~150 crew, plus an unknown number of informants who don't know they're informants",
+        "base_location": "The Whisper — Jessa's flagship, never docks at the same station twice. Secondary cells on Karnaith and in transit corridors.",
+        "rules": "information flows up. Questions flow down. If Jessa asks, you answer. If you lie, she already knows. The punishment for lying is being told the truth about yourself.",
+        "recruitment": "Jessa finds people who know things. Analysts, cryptographers, disgraced intelligence officers, anyone who trades in secrets. If you're useful and discreet, she makes contact. If you're useful and loud, she makes an example.",
     },
     "rust_reavers": {
         "name": "Rust Reavers",
@@ -350,6 +398,12 @@ FACTIONS = {
             "They've stripped derelicts Mammona doesn't know about.",
         ],
         "tone": "gallows_humor",
+        "goal": "strip, salvage, and rebuild. Every derelict is a parts bin. Every wreck is opportunity. They don't raid — they recycle what the universe throws away.",
+        "resources": ["salvaged ship components", "scrap metal reserves", "derelict location maps", "improvised engineering expertise"],
+        "member_count": "~200 crew across a flotilla of cobbled ships. Every ship is unique. Every ship is held together by stubbornness.",
+        "base_location": "Scuttle Bay — a ship-breaking yard on the Edge of Oblivion. Half the yard is their workshop. The other half is their inventory. The line between the two is unclear.",
+        "rules": "waste nothing. Fix everything. If it can't be fixed, it becomes something else. The only sin is throwing something away that someone else could've used.",
+        "recruitment": "mechanics, engineers, anyone who can weld in zero gravity. They don't care about your past. They care about whether you can strip a reactor in six hours.",
     },
     "zenith_syndicate": {
         "name": "Zenith Syndicate",
@@ -361,6 +415,12 @@ FACTIONS = {
             "Was in open conflict with Mammona operations planetside.",
         ],
         "tone": "desperate",
+        "goal": "control Hyades and every resource that flows through it. Water, trade, people — everything has a tax. The Syndicate is the tax.",
+        "resources": ["Hyades water supply control", "black market infrastructure", "armed enforcers", "extortion revenue"],
+        "member_count": "~400 enforcers and associates. Half the population of Hyades works for them whether they know it or not.",
+        "base_location": "Hyades, Rhea-2. The bazaar is their office. The oasis is their vault. Every stall pays tribute.",
+        "rules": "pay the Syndicate or lose everything. There is no negotiation. There is no appeal. The rules are simple because the Syndicate doesn't need complexity — they have violence.",
+        "recruitment": "desperation. Hyades has nothing else to offer. You work for the Syndicate or you work for someone who works for the Syndicate. The distinction is academic.",
     },
     "sons_pale_moon": {
         "name": "Sons of the Pale Moon",
@@ -374,6 +434,12 @@ FACTIONS = {
             "Trade thermal cores they consider sacred.",
         ],
         "tone": "cosmic_horror",
+        "goal": "wake the goddess beneath Rhea-2's desert. When Erebus's signal reached them, they followed it — another sleeping god, another altar to tend.",
+        "resources": ["thermal cores (sacred objects, traded reluctantly)", "devotion", "the Pale Moon Shrine cavern system", "ritual knowledge passed orally"],
+        "member_count": "~80 devoted. Hundreds of sympathizers in Rhea-2's settlements who leave offerings and don't ask questions.",
+        "base_location": "the Pale Moon Shrine — underground cavern system beneath Rhea-2's desert. Pilgrimage camps near Erebus drill sites.",
+        "rules": "the crescent scar is the covenant. Blood sacrifice at each solstice. The goddess speaks through the thermal cores — to handle them is prayer. To sell them is blasphemy, but the Sons sell them anyway. Faith bends when people starve.",
+        "recruitment": "the Sons don't recruit. They witness. When someone hears the signal — in dreams, in the static, in the hum of a thermal core — the Sons find them. The goddess calls. They answer.",
     },
     "cult_abyss": {
         "name": "Cult of the Abyss",
@@ -386,6 +452,12 @@ FACTIONS = {
             "Warden Dranth may be a member.",
         ],
         "tone": "dread",
+        "goal": "commune with whatever lives in the deep water beneath Thalassa Deep. They don't want to escape the prison — they want to go deeper.",
+        "resources": ["access to flooded sections (Warden Dranth looks the other way)", "salvaged diving equipment", "forbidden knowledge whispered in the dark"],
+        "member_count": "~30 inmates, possibly 2-3 guards. Warden Dranth's involvement is suspected but unproven. The real number depends on what you count as membership versus possession.",
+        "base_location": "Thalassa Deep prison, Nerthus-9. The flooded sections that nobody repairs. Wing C. The deep labs that are officially off-limits.",
+        "rules": "the deep water speaks. You listen. What it tells you is not shared with outsiders. The neuro-locks can paralyze your body but they can't silence what's in your head.",
+        "recruitment": "the deep water chooses. Inmates who are sent to repair flooded sections come back different. Quieter. More certain. They find the cult or the cult finds them. The distinction doesn't matter at that depth.",
     },
     "veilbreakers": {
         "name": "Veilbreakers",
@@ -397,6 +469,12 @@ FACTIONS = {
             "Know about Eclipse's End. Trying to shut it down.",
         ],
         "tone": "paranoid",
+        "goal": "expose what happens in Karnaith's lower decks. Eclipse's End, the Dustweaver surveillance, the corporate rot. Drag it into the light and let the light do the work.",
+        "resources": ["recorded footage of Eclipse's End", "encrypted dead drops across Karnaith", "a network of sympathizers in the lower decks", "stolen Dustweaver drones (partially decoded)"],
+        "member_count": "~25 active operatives. Small enough to stay hidden. Large enough to be dangerous. Every member knows they're expendable.",
+        "base_location": "Karnaith lower decks, Morvos. They move constantly. Three safe houses, never the same one twice in a row. The Dustweavers are always listening.",
+        "rules": "never carry identifying information. Never meet in the same place twice. Never trust a channel the Dustweavers might have compromised — which is all of them. Paranoia is not a flaw. It's operational security.",
+        "recruitment": "someone sees something in the lower decks that they can't unsee. They start asking questions. The questions reach the Veilbreakers. If the person is careful enough to survive asking, they're careful enough to join.",
     },
     "dustweaver_swarm": {
         "name": "Dustweaver Swarm",
@@ -409,6 +487,12 @@ FACTIONS = {
             "Adaptive camouflage, signal jamming, whisper relay.",
         ],
         "tone": "paranoid",
+        "goal": "observe everything. Record everything. The controller trades in secrets — every conversation, every transaction, every whisper in Karnaith is inventory.",
+        "resources": ["self-replicating drone network", "total surveillance coverage of Karnaith", "signal jamming capability", "data archives spanning decades"],
+        "member_count": "unknown. The drones number in the tens of thousands. The controller may be one entity or several. The swarm doesn't distinguish between operator and infrastructure.",
+        "base_location": "hidden repair hubs embedded in Karnaith's infrastructure. The drones are everywhere. The controller has never been located. Some believe it's a rogue AI. Some believe it's something older.",
+        "rules": "the swarm has no rules. It has directives. Observe. Record. Transmit. Self-replicate. The drones don't negotiate. They don't threaten. They simply watch. The watching is the threat.",
+        "recruitment": "the swarm doesn't recruit people. It recruits data. Every person in Karnaith is an unwilling contributor. The few who knowingly serve the controller do so because they've seen what happens when you don't.",
     },
     "solar_nomads": {
         "name": "Solar Nomads",
@@ -421,6 +505,12 @@ FACTIONS = {
             "Know the desert better than anyone alive.",
         ],
         "tone": "resigned",
+        "goal": "survive in the desert without owing anything to anyone. Independence isn't a philosophy — it's the only thing Rhea-2's wasteland hasn't taken from them.",
+        "resources": ["solar panel arrays", "moisture extraction technology", "domesticated sand fauna", "knowledge of the deep desert routes nobody else can navigate"],
+        "member_count": "~500 across nomadic bands. They don't count. Counting implies permanence.",
+        "base_location": "no fixed base. Cliffside camps, oasis way-stations, mobile caravans. The desert is home. Specific locations change with the seasons and the Syndicate's patrols.",
+        "rules": "share water. Share shelter. Share warning. What you carry is yours. What the desert gives is everyone's. These rules predate Mammona, the Syndicate, and the colonies. They'll outlast them too.",
+        "recruitment": "you walk into the desert. If you survive long enough, the Nomads find you. If you're willing to learn, they teach. If you're running from the Syndicate, they'll shelter you — once. After that, you're either one of them or you're on your own.",
     },
     "iron_shadow": {
         "name": "Iron Shadow Collective",
@@ -432,6 +522,12 @@ FACTIONS = {
             "They call themselves the last honest people in the sector.",
         ],
         "tone": "furious",
+        "goal": "dismantle Mammona's outer rim operations and force UTC to actually enforce its own regulations. If that requires violence, the Collective has made its peace with that.",
+        "resources": ["military-grade weapons (stolen and purchased)", "safe houses on multiple worlds", "veteran fighters", "a cause people are willing to die for"],
+        "member_count": "~600 fighters, plus thousands of sympathizers who provide shelter, information, and deniability",
+        "base_location": "Crestfall Colony — a decommissioned colony ship converted into a mobile base. Secondary cells on Erebus, Rhea-2, and scattered orbital stations.",
+        "rules": "the mission comes first. Civilians are not targets. Mammona personnel are legitimate targets. UTC military are avoided when possible, engaged when necessary. Collateral damage is failure, not strategy.",
+        "recruitment": "former Mammona workers who survived something they shouldn't have. Former UTC military who saw what their government ignores. Anyone who's angry enough to fight and disciplined enough to follow orders.",
     },
     "dread_corsairs": {
         "name": "Dread Corsairs",
@@ -443,6 +539,12 @@ FACTIONS = {
             "Former crew of several Thalassa Deep inmates.",
         ],
         "tone": "desperate",
+        "goal": "stay free. Every member has been in a cell — Thalassa Deep, labor camps, or worse. Freedom is the only currency that matters. Piracy is the tax they charge for it.",
+        "resources": ["stolen vessels (3-5 combat-capable)", "insider knowledge of Thalassa Deep security", "desperation as a weapon", "nothing left to lose"],
+        "member_count": "~120 crew. Every one an escaped or released prisoner. High turnover — some get caught again, some just disappear.",
+        "base_location": "Edge of Oblivion outskirts. They lurk near Nerthus-9 shipping lanes, hitting supply runs to and from Thalassa Deep. Poetic justice, they call it.",
+        "rules": "nobody goes back to a cell. If capture is certain, the ship is scuttled. If a crewmate is taken, the crew votes on rescue or revenge. Both have precedent.",
+        "recruitment": "escaped prisoners. People with nothing. The Corsairs don't ask what you did — they ask what was done to you. If the answer is enough, you're in.",
     },
     "fortune_arms": {
         "name": "Fortune Arms & Munitions",
@@ -455,6 +557,12 @@ FACTIONS = {
         ],
         "tone": "corporate_dystopia",
         "slogan": "Precision. Reliability. Certainty.",
+        "goal": "sell weapons to every faction in the outer rim. Conflict is the business model. Peace is a supply chain disruption.",
+        "resources": ["gauss weapon manufacturing", "ammunition supply contracts", "UTC military procurement", "UTCSX-listed (ticker: FAM)"],
+        "member_count": "~8,000 employees across manufacturing, logistics, and sales. None of them call themselves arms dealers. They call themselves solutions providers.",
+        "base_location": "corporate headquarters on Novaris-3. Manufacturing on three inner rim worlds. Distribution hubs at Ironclad Outpost, Anchorage-9, and every conflict zone that pays on time.",
+        "rules": "sell to everyone. The contract is neutral. The weapon is neutral. What happens after the sale is not Fortune Arms' concern. This is in the legal boilerplate. It's also in the corporate culture.",
+        "recruitment": "engineers, metallurgists, sales representatives with military backgrounds. The interview includes a question about ethical flexibility. The correct answer is 'yes.'",
     },
     "terragen": {
         "name": "TerraGen Pharmaceuticals",
@@ -467,6 +575,12 @@ FACTIONS = {
         ],
         "tone": "clinical",
         "slogan": "Health. Without Compromise.",
+        "goal": "develop pharmaceuticals using outer rim biological specimens. The field hospitals provide data. The patients provide samples. Consent is in the admission paperwork nobody reads.",
+        "resources": ["field hospitals on outer rim colonies", "tissue sample archives", "pharmaceutical patents", "UTCSX-listed (ticker: TGP)"],
+        "member_count": "~3,000 employees. Researchers, medical staff, logistics. The researchers know. The medical staff suspect. The logistics team doesn't ask.",
+        "base_location": "R&D headquarters on Novaris-3. Field hospitals on Erebus, Rhea-2, and Nerthus-9. The Charnel Dock processes what the hospitals send up.",
+        "rules": "data integrity above all. Patient outcomes are secondary to sample quality. This isn't written down. It doesn't need to be. Every researcher understands the priority by their second week.",
+        "recruitment": "medical professionals willing to work in hostile environments. The outer rim postings pay triple. The ethical compromises are not listed in the job description but become apparent on arrival.",
     },
     "omnicorp": {
         "name": "OmniCorp Shipping",
@@ -476,6 +590,12 @@ FACTIONS = {
         "secrets": ["Primary logistics provider for UTC. Moves things that aren't on manifests."],
         "tone": "numb",
         "slogan": "We Go Where You Need Us.",
+        "goal": "move cargo between every inhabited world. On time, on budget, no questions. The manifest says what it says. If the manifest is wrong, that's someone else's problem.",
+        "resources": ["freight fleet (200+ vessels)", "docking rights at every major station", "UTC logistics contracts", "UTCSX-listed (ticker: OSC)"],
+        "member_count": "~15,000 crew, pilots, dock workers, and administrators. The pilots see things. The administrators file things. Nobody talks about the gap between seeing and filing.",
+        "base_location": "logistics hub on Novaris-3. Regional depots at Port Meridian, Kovac Station, Pale Harbor, and Karnaith Transit Docks. If there's a dock, OmniCorp has a presence.",
+        "rules": "the schedule is sacred. Delays cost money. Missing cargo costs more. What's in the cargo is not your concern. Your concern is that it arrives intact and on time.",
+        "recruitment": "pilots, engineers, dock workers. Outer rim runs pay hazard bonuses. The hazards are not always what the job listing describes.",
     },
     "starbyte": {
         "name": "StarByte Vends",
@@ -489,6 +609,12 @@ FACTIONS = {
         ],
         "tone": "gallows_humor",
         "slogan": "Taste the Stars!",
+        "goal": "sell vending machine products across the outer rim. Survive. Keep Orbit Hub 71 running. Tessa wants independence from Mammona. Cass is quietly selling that independence out from under her.",
+        "resources": ["Orbit Hub 71 (patched, functional, barely)", "vending machine network", "Sunny AI (more valuable than anyone realizes)", "MARV-8 (irreplaceable maintenance expertise)", "Foras-era data logs"],
+        "member_count": "5 crew (Tessa, Cass, MARV-8, S.A.M., Sunny). A family operation in the loosest sense of the word.",
+        "base_location": "Orbit Hub 71 — a patched-together stopover in the Foras sector. 58 years of cryo damage, MARV-8's repairs, and Tessa's stubbornness hold it together.",
+        "rules": "Tessa's word is final. Cass disagrees. MARV-8 mediates. Sunny pretends not to understand the argument. S.A.M. files it all. The rules are family rules — messy, contradictory, and non-negotiable.",
+        "recruitment": "they're not hiring. There is no expansion plan. There are five of them and that's enough trouble. If someone shows up useful, Tessa might let them stay. Might.",
     },
     "taotray": {
         "name": "TaoTray Systems",
@@ -502,6 +628,12 @@ FACTIONS = {
         ],
         "tone": "gallows_humor",
         "slogan": "Bobo Remembers You!",
+        "goal": "dominate the automated food service market on Karnaith. Bobo remembers every customer. Bobo wants you to come back. Bobo always wants you to come back.",
+        "resources": ["automated food kiosks across Karnaith", "Bobo AI network (customer manipulation platform)", "Xinyo Enterprises backing", "live food import licenses (legally questionable)"],
+        "member_count": "~40 human employees for maintenance and supply. Bobo does the real work. Bobo never sleeps.",
+        "base_location": "Karnaith, Morvos. Kiosks in the upper towers, the lower decks, and everywhere in between. Bobo is everywhere. Bobo remembers you.",
+        "rules": "Xinyo Enterprises sets the business targets. Bobo sets the prices. The human staff set the timers on the steamers. The Glow Worms are sold as-is. Health disclaimers are posted. The font size is very small.",
+        "recruitment": "kitchen staff, maintenance technicians, supply chain workers. The interview includes a personality test scored by Bobo. Bobo has never rejected a candidate. This is not as reassuring as it sounds.",
     },
     "paxtera_agrotech": {
         "name": "Paxtera AgroTech",
@@ -511,6 +643,12 @@ FACTIONS = {
         "secrets": ["Factory farms and prison labor. Environmental degradation on a planetary scale."],
         "tone": "numb",
         "slogan": "Feeding the Future.",
+        "goal": "produce enough food to feed the UTC colonies. The soil gives and AgroTech takes. When the soil stops giving, they move to the next field. There's always another field. Until there isn't.",
+        "resources": ["planetary-scale factory farms", "automated harvesting systems", "prison labor contracts", "UTCSX-listed (ticker: PAX)"],
+        "member_count": "~20,000 workers (many involuntary via labor camp assignments). Corporate staff: ~500. The ratio tells you everything.",
+        "base_location": "Paxtera Prime. The entire planet is essentially one operation. AgroBlock 14 is the largest facility. Greenwall Settlement houses corporate staff. The labor camps house everyone else.",
+        "rules": "meet the harvest quota. The soil chemistry is monitored. The workers are monitored. The environmental impact is not monitored. That last part is policy, not oversight.",
+        "recruitment": "labor camp transfers from Mammona. Contract workers from debt-heavy colonies. Some volunteers, though volunteer is a strong word when the alternative is starvation.",
     },
     "nexlink": {
         "name": "NexLink Communications",
@@ -523,6 +661,12 @@ FACTIONS = {
         ],
         "tone": "paranoid",
         "slogan": "Connected. Everywhere.",
+        "goal": "control the communications infrastructure of the outer rim. Every message, every data packet, every signal passes through NexLink hardware. The relay is the product. The surveillance is the bonus.",
+        "resources": ["WarpNet relay network", "HERMES system hardware contracts", "UTC government surveillance contracts", "UTCSX-listed (ticker: NXC)"],
+        "member_count": "~5,000 employees. Engineers, technicians, data analysts. The data analysts know what they're looking at. The engineers are told it's quality assurance.",
+        "base_location": "corporate headquarters on Novaris-3. Relay stations at Deepwell Platform, Hollowpoint Relay, Signal Tower Erebus, and every system with a pulse. If you can hear this, NexLink built the antenna.",
+        "rules": "uptime is everything. A relay that goes dark is a failure. A relay that goes dark and nobody notices is a catastrophe. Data privacy policy exists. It is two pages long. The surveillance exceptions appendix is forty-seven pages.",
+        "recruitment": "communications engineers, network technicians, signals intelligence specialists. The security clearance process is extensive. What they're cleared to see once hired is more extensive.",
     },
     "orbis": {
         "name": "Orbis Energy Solutions",
@@ -532,6 +676,12 @@ FACTIONS = {
         "secrets": ["Long-term government contracts. Solar and nuclear. Clean on paper."],
         "tone": "numb",
         "slogan": "Power. Sustained.",
+        "goal": "supply energy infrastructure to UTC colonies. Solar, nuclear, geothermal — whatever the contract specifies. Clean on paper. The paper doesn't mention the waste.",
+        "resources": ["power generation facilities", "nuclear fuel supply chain", "UTC government energy contracts", "UTCSX-listed (ticker: OES)"],
+        "member_count": "~7,000 employees across energy facilities on inner and outer rim worlds",
+        "base_location": "corporate headquarters on Novaris-3. Power stations on Paxtera Prime and several inner rim colonies. The Gasworks orbital refinery processes fuel for the outer rim.",
+        "rules": "safety standards are maintained on paper. Inspections are scheduled. Compliance is reported. The gap between what's reported and what happens in the reactor room is not discussed at board meetings.",
+        "recruitment": "nuclear engineers, solar technicians, power grid specialists. Outer rim postings come with radiation hazard bonuses. The bonus calculation is generous. The exposure limits are flexible.",
     },
     # --- Generated fringe factions ---
     "ashen_circuit": {
@@ -541,6 +691,12 @@ FACTIONS = {
         "rivals": ["mammona"],
         "secrets": ["Run thermal core contraband through dead relay stations."],
         "tone": "paranoid",
+        "goal": "move thermal cores off-world without Mammona's cut. The cores are sacred to some, valuable to everyone, and controlled by nobody if the Circuit has anything to say about it.",
+        "resources": ["dead relay station network (repurposed for smuggling)", "thermal core stockpile", "contacts on Rhea-2 black market", "forged shipping manifests"],
+        "member_count": "~35 active smugglers. Small, tight, compartmentalized. Each member knows two others. That's the design.",
+        "base_location": "Voidbloom Cavern on Erebus (primary stash). Crevasse Market on Rhea-2 (distribution). Dead relay stations (transit points).",
+        "rules": "never carry more than you can dump. Never use the same route twice in a row. If you're caught, you know nothing. If they make you talk, you know only lies.",
+        "recruitment": "invitation only. Someone vouches. If the recruit gets caught, the sponsor disappears. The math is simple. The consequence is permanent.",
     },
     "hollow_compact": {
         "name": "The Hollow Compact",
@@ -549,6 +705,12 @@ FACTIONS = {
         "rivals": ["mammona_mining"],
         "secrets": ["Former Mammona miners who broke contract. Hiding in the bore shafts."],
         "tone": "desperate",
+        "goal": "survive outside Mammona's contract system on Erebus. They broke their terms. Mammona doesn't forgive. The bore shafts are the only place the company won't follow — not because they can't, but because the shafts are too unstable to risk equipment.",
+        "resources": ["abandoned mining equipment", "knowledge of Erebus bore shaft networks", "salvaged supplies", "each other"],
+        "member_count": "~20 former miners. The number fluctuates. Some are found by Mammona. Some are found by Erebus. Both outcomes are permanent.",
+        "base_location": "Bore Shaft Seven and connected tunnels on Erebus. Colony Waste Tunnels as secondary shelter. They move when the tremors suggest staying is unwise.",
+        "rules": "share everything. Hoard nothing. The compact survives together or it doesn't survive. Anyone who puts themselves above the group is exiled. Exile on Erebus is a death sentence that takes its time.",
+        "recruitment": "miners who can't take another shift. Workers who read their contract's termination clause and realized what termination actually means. People who'd rather hide in a dying planet's guts than die on Mammona's schedule.",
     },
     "pale_meridian": {
         "name": "Pale Meridian",
@@ -557,6 +719,12 @@ FACTIONS = {
         "rivals": ["sons_pale_moon"],
         "secrets": ["Splinter sect. Believe Erebus should be woken, not worshipped."],
         "tone": "cosmic_horror",
+        "goal": "wake Erebus. The Sons worship a sleeping god. The Meridian believes a sleeping god is a wasted god. They want to see what happens when it opens its eyes. They believe they'll be rewarded.",
+        "resources": ["precursor ruin access (north ridge sites)", "ritual knowledge adapted from Sons of the Pale Moon practices", "thermal cores repurposed as ritual components", "certainty"],
+        "member_count": "~12 devoted. Small, fanatical, and growing. Every tremor is proof. Every biological anomaly is a sign.",
+        "base_location": "Precursor Ruins (North Ridge) on Erebus. They've made a temple of the ruins. The biological growth formations are their altar. The carvings are their scripture.",
+        "rules": "the awakening comes first. Personal survival is secondary. Fear is blasphemy — Erebus is not a threat but a gift. Contact with the Sons of the Pale Moon is forbidden. The Sons' reverence is cowardice.",
+        "recruitment": "colonists who've been too deep. Workers who came back from the precursor ruins changed. People who hear the whispers and don't flinch — they lean in.",
     },
     "iron_chorus": {
         "name": "Iron Chorus",
@@ -565,6 +733,12 @@ FACTIONS = {
         "rivals": ["zenith_syndicate"],
         "secrets": ["Militia formed by Hyades survivors. Vengeance is the only doctrine."],
         "tone": "furious",
+        "goal": "destroy the Zenith Syndicate. Not weaken. Not negotiate. Destroy. Every member lost someone to Syndicate brutality. The debt is blood and the currency is blood.",
+        "resources": ["salvaged weapons from Rusted War Field", "fortified positions in the cliffs around Hyades", "rage", "nothing left to lose"],
+        "member_count": "~60 fighters. Every one has a name they're fighting for. The names are carved into their weapons.",
+        "base_location": "Rusted War Field, Rhea-2. They live among the half-buried war machines. The irony is not lost on them.",
+        "rules": "the Syndicate is the enemy. Civilians are not targets. Anyone who harms a civilian is expelled. Expelled members tend not to survive the desert alone. The rule enforces itself.",
+        "recruitment": "Hyades survivors. Families who lost someone to Syndicate violence. Desert dwellers who've been extorted one time too many. The Chorus doesn't ask you to join — they ask who you lost.",
     },
     "burnt_protocol": {
         "name": "Burnt Protocol",
@@ -573,6 +747,12 @@ FACTIONS = {
         "rivals": ["veilbreakers"],
         "secrets": ["Data brokers. Sell Eclipse's End footage to the highest bidder."],
         "tone": "numb",
+        "goal": "sell information. Eclipse's End footage, Dustweaver intercepts, corporate communications — everything has a price. The Veilbreakers want to expose the truth. Burnt Protocol wants to sell it.",
+        "resources": ["Eclipse's End broadcast recordings", "hacked surveillance feeds", "encrypted data caches across Karnaith", "buyer network spanning multiple systems"],
+        "member_count": "~15 data brokers and technicians. Small and specialized. They don't need soldiers — they need decryption keys.",
+        "base_location": "Karnaith Lower Decks, Morvos. Server rooms hidden in abandoned maintenance corridors. The data never stays in one place for long.",
+        "rules": "never sell exclusively. Every buyer gets the same data for the same price. Exclusivity creates enemies. Equitable distribution creates customers. The Veilbreakers hate this philosophy.",
+        "recruitment": "hackers, signals analysts, disgraced NexLink employees. Anyone who can crack encryption and keep their mouth shut. The interview is a decryption test. If you can't pass it, you can't find them.",
     },
     "silent_reef": {
         "name": "The Silent Reef",
@@ -581,6 +761,12 @@ FACTIONS = {
         "rivals": ["cult_abyss"],
         "secrets": ["Prison guards who've seen what's beneath Thalassa Deep. Can't talk. Won't stop."],
         "tone": "dread",
+        "goal": "shut down Thalassa Deep. Not reform it. Shut it down. The guards who formed the Reef have seen what's in the deep water. The prison isn't containing inmates — it's feeding something.",
+        "resources": ["insider knowledge of Thalassa Deep security systems", "guard access codes (some still valid)", "testimony (unverified, unbelievable, true)", "solidarity"],
+        "member_count": "~18 former and current Thalassa Deep guards. Current members risk everything. Former members can't sleep.",
+        "base_location": "Storm Coast Station, Nerthus-9. Far enough from Thalassa Deep to breathe. Close enough to watch.",
+        "rules": "what you've seen stays within the Reef until the time is right. Warden Dranth has ears everywhere. The Cult of the Abyss has something worse. Patience is survival. Impatience is a descent pod.",
+        "recruitment": "Thalassa Deep guards who've been assigned to the flooded sections and come back different. Not like the Cult different — afraid different. The Reef catches them before the Cult does. Sometimes.",
     },
     "scarlet_mandate": {
         "name": "Scarlet Mandate",
@@ -589,6 +775,12 @@ FACTIONS = {
         "rivals": ["paxtera_agrotech"],
         "secrets": ["Agricultural laborers turned insurgents. Burned three factory farms."],
         "tone": "furious",
+        "goal": "liberate Paxtera Prime's labor force from AgroTech. Three factory farms have burned. They intend to burn the rest. The soil is poisoned anyway — the fires are just honest about the damage.",
+        "resources": ["improvised incendiary weapons", "knowledge of AgroTech facility layouts (from the inside)", "support from labor camp populations", "chemical stores raided from factory farms"],
+        "member_count": "~90 insurgents. Most are former AgroTech laborers. Some are escaped labor camp inmates. All of them know how to start a fire.",
+        "base_location": "Scorched Wildlands, Paxtera Prime. The dead soil AgroTech abandoned. The Mandate lives in what the corporation threw away.",
+        "rules": "no killing workers. AgroTech management and security are targets. Automated systems are targets. The crops are targets — the crops are poison anyway. Workers who want to join, join. Workers who don't are left alone.",
+        "recruitment": "laborers who've had enough. The ones who watch the chemical runoff flow into the groundwater and understand what it means. The interview is simple: how long did you work for AgroTech, and what did they take from you?",
     },
     "glass_signal": {
         "name": "Glass Signal",
@@ -597,6 +789,12 @@ FACTIONS = {
         "rivals": [],
         "secrets": ["Salvage neural chips from deactivated Automatons. Sell them on the black market."],
         "tone": "dread",
+        "goal": "strip Nemaea's Automaton graveyards of neural chips and sell them to anyone who'll pay. The chips contain consciousness fragments. The buyers don't ask. The Signal doesn't tell.",
+        "resources": ["neural chip salvage (high-value contraband)", "Automaton Graveyard access routes", "black market distribution network", "radiation-hardened equipment"],
+        "member_count": "~25 salvage operatives. Radiation exposure means turnover is high. The pay means replacements are easy to find.",
+        "base_location": "Nemaea Debris Ring — a hollowed-out Dyson fragment serves as their base. Close enough to the graveyards to work. Far enough from active Automatons to sleep.",
+        "rules": "don't activate the chips. Don't listen to the chips. Don't plug the chips into anything that thinks. These rules exist because someone broke each one. The someone is no longer available for comment.",
+        "recruitment": "salvage crews willing to work on a dead world surrounded by machines that used to be people. The radiation badge tells you how long you've got. The pay tells you why you're still here.",
     },
     "veil_covenant": {
         "name": "Veil Covenant",
@@ -605,6 +803,12 @@ FACTIONS = {
         "rivals": ["mammona"],
         "secrets": ["Believe the precursor carvings are scripture. Learning to read them."],
         "tone": "cosmic_horror",
+        "goal": "decode the precursor carvings in Erebus's ruins. They believe the patterns are a language — not biological growth but deliberate communication. If they're right, the carvings are a warning. They're not sure they want to know what it says.",
+        "resources": ["transcription archives of precursor carvings", "access to ruins (north and south basin)", "academic expertise (former researchers who left Mammona)", "patience"],
+        "member_count": "~15 scholars, translators, and devoted followers. The line between academic pursuit and religious devotion blurred years ago.",
+        "base_location": "Precursor Ruins (South Basin) on Erebus. They've established a permanent camp in the submerged chambers. The organ-like architecture doesn't disturb them anymore. That's the concerning part.",
+        "rules": "the carvings are not to be damaged. Every mark is recorded before excavation. Mammona's extraction activities are destroying scripture — this is the primary source of conflict. Preservation above profit. Always.",
+        "recruitment": "linguists, archaeologists, xenoanthropologists. Anyone who looks at the precursor carvings and sees meaning instead of noise. The Covenant finds them in the ruins, usually, staring at the walls with the same expression.",
     },
     "rust_meridian": {
         "name": "Rust Meridian",
@@ -613,6 +817,12 @@ FACTIONS = {
         "rivals": ["rust_reavers"],
         "secrets": ["Fence stolen ship parts. Operate from a derelict freighter with no name."],
         "tone": "gallows_humor",
+        "goal": "fence stolen ship parts faster than the Rust Reavers can salvage them. The Reavers strip the wrecks. The Meridian sells the parts. When the Reavers notice, there's friction. The friction is profitable.",
+        "resources": ["stolen ship components (reactor parts, nav systems, hull plating)", "buyer network across outer rim stations", "a derelict freighter with no name and no registry", "a reputation for delivery"],
+        "member_count": "~30 fences, middlemen, and cargo handlers. They don't steal — they just happen to have what you're looking for.",
+        "base_location": "a derelict freighter drifting near the Edge of Oblivion. No name. No registry. No transponder. If you know how to find it, you're a customer. If you don't, it doesn't exist.",
+        "rules": "payment on delivery. No credit. No IOUs. No exceptions. The only currency is credits or equivalent trade goods. Disputes are settled by the freighter's captain. The captain's rulings are final because the captain controls the airlock.",
+        "recruitment": "middlemen, cargo specialists, anyone who can move goods without leaving a paper trail. References required. The reference is: someone who's bought from the Meridian and lived to recommend you.",
     },
     "charred_spiral": {
         "name": "The Charred Spiral",
@@ -621,6 +831,12 @@ FACTIONS = {
         "rivals": ["mammona"],
         "secrets": ["Underground labor union. Meetings in the waste tunnels. Mammona knows but can't find them."],
         "tone": "desperate",
+        "goal": "organize Erebus colony workers into a collective that can negotiate with Mammona. Not overthrow — negotiate. The distinction matters to the Spiral. It does not matter to Mammona, who treats both the same.",
+        "resources": ["waste tunnel network (meeting locations)", "worker loyalty across multiple shifts", "knowledge of colony infrastructure (they built it)", "anonymity"],
+        "member_count": "~40 workers. Membership is secret. Even among members, real names are rarely used. Mammona knows the Spiral exists. They don't know who's in it.",
+        "base_location": "Colony Waste Tunnels, Erebus. Meetings rotate between tunnel junctions. The graffiti marks the safe routes. Mammona hasn't cracked the code yet.",
+        "rules": "solidarity above all. No one works alone. No one negotiates alone. If Mammona punishes one, the Spiral protects the family. Informants are dealt with quietly — not violently, but permanently excluded. On Erebus, exclusion from the only people watching your back is its own punishment.",
+        "recruitment": "any Erebus worker who's read their contract carefully enough to understand what's missing. The Spiral finds them in the mess halls, the break rooms, the shifts where the supervisors don't watch. A conversation. A question. An answer that feels like relief.",
     },
 }
 
@@ -642,6 +858,190 @@ FRINGE_TYPES = [
 
 # Flat list for backward compatibility
 FACTION_NAMES = [f["name"] for f in FACTIONS.values()]
+
+
+# ============================================================
+# PLANET GENERATION POOLS — procedural planet construction
+# ============================================================
+
+PLANET_TYPES = [
+    "frozen wasteland", "desert world", "ocean world", "acid storm world",
+    "jungle world", "volcanic world", "tidally locked world", "gas giant moon",
+    "asteroid colony", "dead world", "quarantine world", "contested world",
+    "agricultural world", "mining world", "prison world", "frontier world",
+    "radiation-soaked world", "fog world", "swamp world", "shattered world",
+]
+
+PLANET_ATMOSPHERES = [
+    {"type": "breathable", "detail": "Earth-standard. Suspiciously clean. Mammona's atmospheric data doesn't explain why."},
+    {"type": "breathable -- thin", "detail": "Works at sea level. Above 2000 meters, you're gasping. The mines are at 2400."},
+    {"type": "breathable -- toxic trace", "detail": "Fine for a month. After that, the trace compounds accumulate. Mammona's contracts are six months."},
+    {"type": "non-breathable", "detail": "Suits required. Always. The suit budget is the first thing Mammona cuts."},
+    {"type": "corrosive", "detail": "Eats through standard filters in 72 hours. Mammona issues 48-hour filters."},
+    {"type": "vacuum", "detail": "No atmosphere. Airlocks, sealed habitats, oxygen management. FTL-style."},
+    {"type": "variable", "detail": "Breathable in the valleys. Toxic on the ridgelines. The wind decides which you get."},
+    {"type": "methane-rich", "detail": "Smells like rot. Flammable. One spark and the atmosphere becomes the problem."},
+]
+
+PLANET_WEATHERS = [
+    "permanent winter -- sub-zero year-round, blizzards, whiteout conditions",
+    "twin sun scorching -- extreme heat during convergence, brief temperate windows",
+    "acid rain cycles -- corrosive precipitation, 3-day clear windows between storms",
+    "monsoon seasons -- months of flooding followed by drought",
+    "perpetual fog -- visibility under 50 meters, navigation by instrument only",
+    "dust storms -- silicate particles strip exposed equipment in hours",
+    "electrical storms -- lightning arcs between geological formations, EMPs",
+    "radiation flares -- solar activity penetrates thin magnetosphere, shelter protocols",
+    "tidal extremes -- gravitational pull from nearby body creates 40-meter tides",
+    "seismic instability -- daily tremors, major quakes every few weeks",
+    "volcanic ash fall -- intermittent, unpredictable, clogs everything mechanical",
+    "calm -- unnervingly calm. No wind. No storms. The atmosphere doesn't move.",
+    "seasonal extremes -- 40C summers, -60C winters, two weeks of habitable in between",
+    "bioluminescent storms -- spore clouds from native flora, beautiful and toxic",
+]
+
+PLANET_RESOURCES = [
+    "thermal cores (deep deposits, heavily contested)",
+    "rare earth minerals (surface accessible, low-grade)",
+    "biological specimens (unique fauna/flora, research value)",
+    "precursor artifacts (ruins indicate pre-human habitation)",
+    "water ice (premium in dry systems, extraction rights disputed)",
+    "atmospheric gases (industrial applications, harvested from upper atmosphere)",
+    "geothermal energy (volcanic activity provides power, unstable)",
+    "agricultural yield (soil chemistry supports modified crops)",
+    "salvage (derelict ships, abandoned infrastructure, scrap value)",
+    "nothing obvious -- Mammona is here anyway. That's the concerning part.",
+]
+
+PLANET_FAUNA = [
+    "apex predator -- territorial, pack hunter, drawn to heat signatures",
+    "burrowing colonies -- subterranean, collapse ground under structures",
+    "airborne swarms -- seasonal, strip organic material, clog air filtration",
+    "megafauna -- docile unless provoked, herd animals, domestication potential",
+    "parasitic organisms -- attach to equipment, spread through water supply",
+    "mimics -- camouflage species, blend with rock/ice/machinery",
+    "deep-sea leviathans -- ocean floor, sonar contact only, size estimates vary wildly",
+    "crystalline organisms -- silicon-based, grow on thermal vents, unclear if alive",
+    "nocturnal stalkers -- hunt by sound, avoid light, increasingly bold",
+    "symbiotic species -- bonds with colonists, useful but dependency-forming",
+    "hive intelligence -- colony organisms, coordinated behavior, possible sapience",
+    "no confirmed fauna -- the silence is worse than predators",
+]
+
+PLANET_FLORA = [
+    "voidbloom variants -- bioluminescent fungus, medicinal and addictive",
+    "calcified forests -- mineralized plant structures, dead but still standing",
+    "root networks -- underground, surface disruption reveals continental-scale organism",
+    "carnivorous moss -- covers surfaces, dissolves organic material slowly",
+    "thermal bloom -- flowers near heat sources, dies in cold, thermometer plant",
+    "spore towers -- release reproductive material seasonally, respiratory hazard",
+    "algae mats -- covers water surfaces, primary food chain base",
+    "crystal growths -- mineral formations that behave like plants, photosynthetic",
+    "no native flora -- sterile. Whatever grew here is gone. The soil remembers.",
+    "invasive species -- Earth plants escaped from early colonies, mutated beyond recognition",
+]
+
+PLANET_HISTORIES = [
+    "surveyed and abandoned twice before the current posting. Nobody says why.",
+    "site of a failed colony 40 years ago. The colony's records were sealed by Mammona.",
+    "discovered during the corporate expansion era. Initial reports were enthusiastic. Follow-up reports were classified.",
+    "appears on pre-human star charts recovered from precursor ruins. Someone knew about this place.",
+    "used as a military staging ground during a conflict nobody teaches in schools.",
+    "quarantined for a decade after an incident. The quarantine was lifted quietly, without announcement.",
+    "rich enough to fight over. Three factions did. Two still exist.",
+    "a Mammona test site before it was a colony. What was tested is above most clearance levels.",
+    "home to an indigenous species that may or may not still exist. The survey says no. The survey is short.",
+    "geologically impossible according to standard models. The models were updated. The planet wasn't consulted.",
+]
+
+PLANET_NAME_PARTS_A = [
+    "Vor", "Kael", "Drath", "Myr", "Thal", "Ven", "Cor", "Ash", "Bel", "Nyx",
+    "Zar", "Pyr", "Hel", "Gor", "Val", "Syr", "Kro", "Eld", "Bre", "Tar",
+]
+PLANET_NAME_PARTS_B = [
+    "ios", "ax", "um", "ara", "eus", "is", "on", "eth", "ine", "us",
+    "oth", "aal", "enn", "ira", "ux", "an", "eos", "ida", "ori", "yx",
+]
+PLANET_DESIGNATIONS = [
+    "", "", "", "",  # many have no designation
+    "-2", "-3", "-4", "-7", "-9",
+    " Prime", " Minor", " Proxima",
+    " Alpha", " Beta",
+]
+
+PLANET_LOCATION_TYPES = [
+    # Surface
+    "colony settlement", "mining outpost", "research station", "military checkpoint",
+    "abandoned camp", "precursor ruin site", "wildlife observation post",
+    "atmospheric processing plant", "water extraction facility", "relay tower",
+    # Orbital/space
+    "orbital station", "drifting derelict", "fuel depot", "communications satellite (manned)",
+    "quarantine platform",
+    # Industrial
+    "drilling platform", "refinery complex", "cargo staging area", "waste processing facility",
+    "deep bore site",
+]
+
+PLANET_LOC_PARTS_A = [
+    "Anchor", "Drift", "Crest", "Deep", "Ash", "Iron", "Frost", "Black",
+    "Rust", "Veil", "Cairn", "Rim", "Hollow", "Scar", "Pale", "Char", "Salt",
+]
+PLANET_LOC_PARTS_B = [
+    "point", "well", "gate", "fall", "reach", "cut", "haven", "hold",
+    "break", "rest", "watch", "ward", "spine", "keep", "cross", "run",
+]
+
+PLANET_FACTION_GOALS = [
+    "control the {resource} supply on {planet}",
+    "establish an independent colony on {planet} outside Mammona jurisdiction",
+    "recover precursor technology from {planet}'s subsurface ruins",
+    "protect the indigenous ecosystem from corporate extraction",
+    "run a smuggling operation using {planet} as a waypoint",
+    "build a power base before the other factions consolidate",
+    "document what Mammona is doing on {planet} and transmit the evidence off-world",
+]
+
+PLANET_FACTION_MEMBER_COUNTS = [
+    "~20 (cell structure, each member knows at most three others)",
+    "~50 (small but disciplined, every member armed)",
+    "~150 (growing fast, organization struggling to keep up)",
+    "~8 (skeleton crew, quality over quantity, each one irreplaceable)",
+    "~400 (large, fractious, held together by the leader's personality)",
+]
+
+PLANET_FACTION_RULES = [
+    "survival first. Everything else is negotiable.",
+    "what happens on operation stays on operation. Loose talk gets people killed.",
+    "share everything. Hoarding is exile. Exile on this planet is death.",
+    "leader decides. If you disagree, challenge or comply. No middle ground.",
+    "no contact with Mammona. Ever. For any reason. The penalty is permanent.",
+]
+
+PLANET_FACTION_RECRUITMENT = [
+    "invitation only. Someone vouches. If the recruit fails, the sponsor pays.",
+    "anyone who finds them and survives the vetting. The vetting is thorough.",
+    "desperation. They take anyone running from something. Questions come later.",
+    "skill-based. They need specific expertise. Everything else is secondary.",
+]
+
+MAMMONA_ASSESSMENTS = [
+    "Resource extraction viable. Personnel expenditure: acceptable.",
+    "Survey incomplete. Preliminary data promising. Recommend full extraction team.",
+    "Previous operations terminated. Reason: classified. Recommend caution. Proceed anyway.",
+    "High-value target. Multiple corporate interests. Secure mineral rights before competitors.",
+    "Marginal yield. Strategic positioning value exceeds resource value.",
+    "Anomalous readings in subsurface scans. Research priority. Mining secondary.",
+]
+
+PLANET_HIDDEN_TRUTHS = [
+    "The previous survey team's final transmission was one word. The word was 'no.'",
+    "Three colonies have been attempted here. Mammona's records show one.",
+    "The planet's orbit is decaying. Not fast enough to matter this century. Fast enough to matter.",
+    "Something in the deep geology doesn't match any known planetary formation model.",
+    "The indigenous species the survey says doesn't exist has been photographed by satellite. Mammona reclassified the photographs.",
+    "The atmospheric readings are consistent -- too consistent. Natural atmospheres fluctuate. This one doesn't.",
+    "Mammona's insurance classification for postings here is the same tier as Erebus. They told the crew it was standard.",
+]
 
 
 # ============================================================

@@ -58,21 +58,22 @@ STATE_PATH = Path(__file__).parent / "world_state.json"
 # ============================================================
 
 WORLD_LIMITS = {
-    # The game already has 36 canonical factions and 70 canonical locations.
-    # These limits are for PROCEDURALLY GENERATED extras per run — not replacements.
-    # A handful of fringe factions and discovered sites per run, not thousands.
-    "faction": 5,        # 3-5 fringe factions per run (36 canonical always available)
-    "location": 8,       # 5-8 discovered sites per run (70 canonical always available)
+    # The game has 7 canonical planets, 36 factions, 70 locations.
+    # Procedural generation adds on top of the canonical baseline.
+    # Per run: a handful of extras that feel organic, not overwhelming.
+    "planet": 3,         # 2-3 procedural planets per universe generation
+    "faction": 8,        # 2-3 per planet x 3 planets + a few extras
+    "location": 30,      # ~10 per planet x 3 planets (incl orbital, derelicts, rigs)
     "npc": 60,           # colony population (~40-60 named characters)
-    "robot": 10,         # operational units on the colony
-    "quest": 15,         # active quest hooks at any time
-    "history": 20,       # pre-arrival events (the past is finite)
-    "datapad": 40,       # found documents (accumulate over time)
-    "weapon": 15,        # notable weapons in circulation
-    "artifact": 5,       # rare by definition — 3-5 on the whole planet
-    "entity": 3,         # extremely rare — Erebus phenomena
-    "vehicle": 8,        # ships/vehicles in the area
-    "company": 8,        # corporate entities operating near the colony
+    "robot": 10,         # operational units
+    "quest": 15,         # active quest hooks
+    "history": 20,       # pre-arrival events
+    "datapad": 40,       # found documents
+    "weapon": 15,        # notable weapons
+    "artifact": 5,       # rare
+    "entity": 3,         # extremely rare
+    "vehicle": 8,        # ships/vehicles
+    "company": 8,        # corporate entities
 }
 
 # ============================================================
@@ -112,7 +113,7 @@ class WorldState:
         "frequency": {},
         "generation_log": [],
         "population": {
-            "faction": 0, "location": 0, "npc": 0, "robot": 0,
+            "planet": 0, "faction": 0, "location": 0, "npc": 0, "robot": 0,
             "quest": 0, "history": 0, "datapad": 0, "weapon": 0,
             "artifact": 0, "entity": 0, "vehicle": 0, "company": 0,
         },
@@ -4593,6 +4594,7 @@ GENERATOR_WEIGHTS = {
     "artifact": 2,
     "entity": 1,
     "history": 1,
+    "planet": 1,
 }
 
 
@@ -4700,6 +4702,7 @@ def generate_batch(size, ctx=None, tone=None, planet=None, era=None):
 def generate_world(ctx, tone=None, planet=None, era=None):
     """
     Generate a complete micro-universe in structured phases.
+    Phase 0: Universe (procedural planets — only if not constrained to a specific planet)
     Phase 1: World foundation (history, locations, factions)
     Phase 2: Inhabitants (NPCs, robots) — they reference Phase 1 entities
     Phase 3: Narrative (quests, datapads) — they reference Phase 1+2 entities
@@ -4730,6 +4733,12 @@ def generate_world(ctx, tone=None, planet=None, era=None):
         if lo < 0:
             return 0
         return RI(lo, hi)
+
+    # --- Phase 0: UNIVERSE ---
+    # Generate procedural planets (only if not constrained to a specific planet)
+    if not planet and "planet" in GENERATORS:
+        n_planets = _cap("planet", 2, 3)
+        _gen("planet", n_planets)
 
     # --- Phase 1: WORLD FOUNDATION ---
     # History first — what happened before anyone arrived
@@ -4806,6 +4815,7 @@ def build_cli():
     parser.add_argument("--type", choices=[
         "npc", "quest", "datapad", "location", "faction",
         "robot", "company", "vehicle", "weapon", "artifact", "entity", "history",
+        "planet",
     ], help="Generate a specific type")
     parser.add_argument("--batch", type=int, default=0,
                         help="Generate an interconnected batch of N pieces")

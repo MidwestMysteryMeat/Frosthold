@@ -27,6 +27,14 @@ from gen_pools_core import (
     LOCATION_DATAPAD_FRAGMENTS, LOCATION_HISTORIES, LOCATION_SECRETS, LOCATION_FOUND_ITEMS,
     generate_robot_stats, d100_check, d100_narrative,
     name, rname, robot_name, pronouns,
+    # Planet generation pools
+    PLANET_TYPES, PLANET_ATMOSPHERES, PLANET_WEATHERS, PLANET_RESOURCES,
+    PLANET_FAUNA, PLANET_FLORA, PLANET_HISTORIES,
+    PLANET_NAME_PARTS_A, PLANET_NAME_PARTS_B, PLANET_DESIGNATIONS,
+    PLANET_LOCATION_TYPES, PLANET_LOC_PARTS_A, PLANET_LOC_PARTS_B,
+    PLANET_FACTION_GOALS, PLANET_FACTION_MEMBER_COUNTS,
+    PLANET_FACTION_RULES, PLANET_FACTION_RECRUITMENT,
+    MAMMONA_ASSESSMENTS, PLANET_HIDDEN_TRUTHS,
 )
 
 from gen_pools_text import (
@@ -2420,6 +2428,165 @@ def gen_faction(ctx, tone=None, planet=None, era=None):
 
 
 # ============================================================
+# 9. PLANET GENERATOR — procedural planet with locations, factions, ecology
+# ============================================================
+
+RS = random.sample
+
+
+def _generate_location_name(loc_type):
+    """Generate a name appropriate to the location type."""
+    if loc_type in ("orbital station", "communications satellite (manned)",
+                    "quarantine platform", "fuel depot"):
+        return "Station " + R(list("ABCDEFGHJKLMNPQR")) + "-" + str(RI(1, 99))
+    if loc_type == "drifting derelict":
+        return ("Derelict " + R(["Freighter", "Hauler", "Cruiser", "Transport", "Tanker"])
+                + " " + R(LAST))
+    # Surface and industrial locations
+    return R(PLANET_LOC_PARTS_A) + R(PLANET_LOC_PARTS_B)
+
+
+def _generate_planet_faction(planet_name, planet_type, resources):
+    """Generate a faction operating on a procedural planet."""
+    fname = R(FRINGE_ADJ) + " " + R(FRINGE_NOUN)
+    ftype = R(FRINGE_TYPES)
+
+    goal_template = R(PLANET_FACTION_GOALS)
+    resource_pick = R(resources) if resources else "unknown resources"
+    goal = goal_template.replace("{resource}", resource_pick).replace("{planet}", planet_name)
+
+    base_options = [
+        "hidden camp on " + planet_name + "'s surface",
+        "orbital platform above " + planet_name,
+        "abandoned " + R(["mine", "station", "outpost"]) + " on " + planet_name,
+        "mobile -- no fixed base",
+    ]
+
+    faction_key = fname.lower().replace(" ", "_").replace("'", "")
+    return {
+        "key": faction_key,
+        "name": fname,
+        "type": ftype,
+        "planet": planet_name,
+        "goal": goal,
+        "resources": [resource_pick, R(["information", "safe houses", "blackmail material",
+                                        "stolen equipment", "loyalty"])],
+        "member_count": R(PLANET_FACTION_MEMBER_COUNTS),
+        "base_location": R(base_options),
+        "rules": R(PLANET_FACTION_RULES),
+        "recruitment": R(PLANET_FACTION_RECRUITMENT),
+    }
+
+
+def gen_planet(ctx, tone=None, planet=None, era=None):
+    """Generate a fully procedural planet with weather, fauna, flora, history, and locations."""
+    if not tone:
+        tone = pick_tone()
+
+    # Generate name
+    pname = R(PLANET_NAME_PARTS_A) + R(PLANET_NAME_PARTS_B) + R(PLANET_DESIGNATIONS)
+
+    planet_type = R(PLANET_TYPES)
+    atmosphere = R(PLANET_ATMOSPHERES)
+    weather = R(PLANET_WEATHERS)
+    resources = RS(PLANET_RESOURCES, RI(2, 4))
+    fauna = RS(PLANET_FAUNA, RI(1, 3))
+    flora = RS(PLANET_FLORA, RI(1, 3))
+    history = R(PLANET_HISTORIES)
+    population = RI(0, 5000) if atmosphere["type"].startswith("breathable") else RI(0, 500)
+
+    # Generate 8-12 locations for this planet
+    locations = []
+    n_locations = RI(8, 12)
+    for _ in range(n_locations):
+        loc_type = R(PLANET_LOCATION_TYPES)
+        loc_name = _generate_location_name(loc_type)
+        locations.append({"name": loc_name, "type": loc_type, "planet": pname})
+
+    # Generate 2-3 factions operating on this planet
+    factions = []
+    n_factions = RI(2, 3)
+    for _ in range(n_factions):
+        faction = _generate_planet_faction(pname, planet_type, resources)
+        factions.append(faction)
+
+    # Register planet in context
+    planet_data = {
+        "name": pname, "type": planet_type, "atmosphere": atmosphere,
+        "weather": weather, "resources": resources, "fauna": fauna,
+        "flora": flora, "history": history, "population": population,
+        "locations": locations, "factions": factions,
+    }
+    ctx.generated_planets = getattr(ctx, "generated_planets", [])
+    ctx.generated_planets.append(planet_data)
+
+    # Register locations and factions in context for NPC/quest use
+    for loc in locations:
+        ctx.generated_locations.append(loc)
+    for fac in factions:
+        ctx.generated_factions.append(fac)
+
+    # Format output
+    loc_text = "\n".join(
+        "  " + str(i + 1) + ". **" + l["name"] + "** -- " + l["type"]
+        for i, l in enumerate(locations)
+    )
+    fac_text = "\n".join(
+        "  - **" + f["name"] + "** (" + f["type"] + ") -- " + f.get("goal", "unknown agenda")
+        for f in factions
+    )
+    fauna_text = "\n".join("  - " + f for f in fauna)
+    flora_text = "\n".join("  - " + f for f in flora)
+    resource_text = "\n".join("  - " + r for r in resources)
+
+    if population > 100:
+        pop_status = "habitable"
+    elif population > 0:
+        pop_status = "barely habitable"
+    else:
+        pop_status = "uninhabited"
+
+    output = (
+        "## PLANET: " + pname + "\n"
+        "**Type:** " + planet_type + "\n"
+        "**Atmosphere:** " + atmosphere["type"] + " -- " + atmosphere["detail"] + "\n"
+        "**Weather:** " + weather + "\n"
+        "**Population:** " + "{:,}".format(population) + " (" + pop_status + ")\n"
+        "**Tone:** " + tone + "\n"
+        "\n"
+        "**History:**\n"
+        + history + "\n"
+        "\n"
+        "**Resources:**\n"
+        + resource_text + "\n"
+        "\n"
+        "**Native Fauna:**\n"
+        + fauna_text + "\n"
+        "\n"
+        "**Native Flora:**\n"
+        + flora_text + "\n"
+        "\n"
+        "**Known Locations (" + str(n_locations) + "):**\n"
+        + loc_text + "\n"
+        "\n"
+        "**Operating Factions (" + str(n_factions) + "):**\n"
+        + fac_text + "\n"
+        "\n"
+        "**Mammona Assessment:** " + R(MAMMONA_ASSESSMENTS) + "\n"
+        "\n"
+        "**What They Don't Tell You:**\n"
+        + R(PLANET_HIDDEN_TRUTHS) + "\n"
+    )
+
+    output = enforce_contractions(output, tone)
+
+    # Log generation
+    ctx.world.log_generation("planet", pname)
+
+    return output
+
+
+# ============================================================
 # REGISTRATION
 # ============================================================
 
@@ -2432,4 +2599,5 @@ EXPANDED_GENERATORS = {
     "entity": (gen_entity, "Entity"),
     "location": (gen_location, "Location"),
     "faction": (gen_faction, "Faction"),
+    "planet": (gen_planet, "Planet"),
 }
