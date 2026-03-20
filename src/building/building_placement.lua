@@ -609,6 +609,7 @@ local function attach(Building, State)
             end
         end
 
+        GameState.buildingsConstructed = (GameState.buildingsConstructed or 0) + 1
         return true
     end
 

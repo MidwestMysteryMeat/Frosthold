@@ -274,6 +274,7 @@ function GameState.init()
     GameState.landingZone = nil
     GameState.endlessMode = nil
     GameState.raidsSurvived = 0
+    GameState.buildingsConstructed = 0
     GameState.worldSeed = ''
     GameState.worldSeedNumeric = nil
     GameState.selectedFactions = nil

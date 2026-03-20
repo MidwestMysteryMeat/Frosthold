@@ -58,6 +58,7 @@ local function restoreFromData(data, skipTilemap)
         GameState.endlessMode = gs.endlessMode or false
         GameState.mammonaSafetyNet = gs.mammonaSafetyNet ~= false
         GameState._safetyNetUsed = gs._safetyNetUsed or false
+        GameState.buildingsConstructed = gs.buildingsConstructed or 0
         GameState.hermesPhase = gs.hermesPhase or 'functional'
         GameState.hermesDirective = gs.hermesDirective
         GameState.gameMode = gs.gameMode

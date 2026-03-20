@@ -104,40 +104,111 @@ end
 function Legacy.recordFallenColony(causeOfDeath)
     local ECS = require('src.ecs.ecs')
 
-    -- Count peak population from current alive + dead
+    -- Count all colonist entities (alive and dead) and tally boss kills
     local peakPop = 0
     local bossesKilled = 0
     for id, comps in ECS.query('colonist') do
         peakPop = peakPop + 1
         local col = comps.colonist
-        if col.kills and col.kills > 0 then
-            bossesKilled = bossesKilled + (col.bossKills or 0)
+        bossesKilled = bossesKilled + (col.bossKills or 0)
+    end
+
+    -- Snapshot all resources with amount > 0
+    local resSnapshot = {}
+    for res, amount in pairs(GameState.resources or {}) do
+        if amount > 0 then
+            resSnapshot[res] = amount
         end
     end
 
-    -- Snapshot resources (top 10 by value)
-    local resSnapshot = {}
-    local resCount = 0
-    for res, amount in pairs(GameState.resources or {}) do
-        if amount > 0 and resCount < 10 then
-            resSnapshot[res] = amount
-            resCount = resCount + 1
+    -- Snapshot all placed buildings (entities with building_ref + pos)
+    local buildingSnapshot = {}
+    for id, comps in ECS.query('building_ref', 'pos') do
+        local ref = comps.building_ref
+        local pos = comps.pos
+        local dur = ECS.get(id, 'durability')
+        buildingSnapshot[#buildingSnapshot + 1] = {
+            defId = ref.defId,
+            x     = pos.x,
+            y     = pos.y,
+            hp    = dur and dur.hp or nil,
+            depth = pos.depth or 0,
+        }
+    end
+
+    -- Snapshot research state
+    local researchCompleted = {}
+    local researchInProgress = {}
+    local rok, ResearchMod = pcall(require, 'src.research.research')
+    if rok and ResearchMod.getCompletedList then
+        researchCompleted = ResearchMod.getCompletedList()
+    end
+    if rok and ResearchMod.getInProgressList then
+        researchInProgress = ResearchMod.getInProgressList()
+    end
+
+    -- Snapshot colonist records
+    local colonistRecords = {}
+    for id, comps in ECS.query('colonist') do
+        local col = comps.colonist
+        local pos = comps.pos
+        local inv = ECS.get(id, 'inventory')
+        local skillList = {}
+        if inv and inv.skills then
+            for skillId, lvl in pairs(inv.skills) do
+                skillList[#skillList + 1] = { skill = skillId, level = lvl }
+            end
+        end
+        colonistRecords[#colonistRecords + 1] = {
+            name      = col.name or 'Unknown',
+            backstory = col.backstory or nil,
+            deathX    = pos and pos.x or nil,
+            deathY    = pos and pos.y or nil,
+            skills    = skillList,
+        }
+    end
+
+    -- Map seed from tilemap (best-effort via pcall)
+    local mapSeed = GameState.worldSeedNumeric
+    local wok, World = pcall(require, 'src.world.tilemap')
+    if wok and World.getLayerData then
+        local layerData = World.getLayerData()
+        if layerData and layerData.seed then
+            mapSeed = layerData.seed
         end
     end
 
     local record = {
-        colonyName     = GameState.colonyName or 'Unnamed Colony',
-        daysSurvived   = GameState.day or 0,
-        peakPopulation = peakPop,
-        causeOfDeath   = causeOfDeath or 'unknown',
-        wealth         = GameState.getColonyWealth and GameState.getColonyWealth() or 0,
-        raidsSurvived  = GameState.raidsSurvived or 0,
-        bossesKilled   = bossesKilled,
-        timestamp      = os.time(),
-        resources      = resSnapshot,
-        x              = GameState.startX or math.random(30, 100),
-        y              = GameState.startY or math.random(30, 100),
+        planetId           = GameState.planet or 'erebus',
+        colonyName         = GameState.colonyName or 'Unnamed Colony',
+        daysSurvived       = GameState.day or 0,
+        peakPopulation     = peakPop,
+        causeOfDeath       = causeOfDeath or 'unknown',
+        wealth             = GameState.getColonyWealth and GameState.getColonyWealth() or 0,
+        raidsSurvived      = GameState.raidsSurvived or 0,
+        buildingsConstructed = GameState.buildingsConstructed or 0,
+        bossesKilled       = bossesKilled,
+        timestamp          = os.time(),
+        resources          = resSnapshot,
+        buildings          = buildingSnapshot,
+        researchCompleted  = researchCompleted,
+        researchInProgress = researchInProgress,
+        colonists          = colonistRecords,
+        mapSeed            = mapSeed,
+        worldSeedNumeric   = GameState.worldSeedNumeric,
+        landingZone        = GameState.landingZone,
+        nemeses            = {},
+        mrpEarned          = 0,
+        x                  = GameState.startX or math.random(30, 100),
+        y                  = GameState.startY or math.random(30, 100),
     }
+
+    -- Store via MRP campaign layer
+    local mok, MRP = pcall(require, 'src.sim.mrp')
+    if mok then
+        MRP.addPlanetDeployment(record.planetId, record)
+        MRP.save()
+    end
 
     legacies[#legacies + 1] = record
 

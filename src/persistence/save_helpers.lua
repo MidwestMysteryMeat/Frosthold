@@ -228,6 +228,7 @@ function Helpers.buildSaveData()
             endlessMode = GameState.endlessMode,
             mammonaSafetyNet = GameState.mammonaSafetyNet,
             _safetyNetUsed = GameState._safetyNetUsed,
+            buildingsConstructed = GameState.buildingsConstructed or 0,
             hermesPhase = GameState.hermesPhase,
             hermesDirective = GameState.hermesDirective,
             gameMode = GameState.gameMode,

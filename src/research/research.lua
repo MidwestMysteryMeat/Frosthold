@@ -880,6 +880,26 @@ function Research.getProgressPercent()
     return prog / cost
 end
 
+function Research.getCompletedList()
+    local list = {}
+    for nodeId, done in pairs(completed) do
+        if done then
+            local node = NODES[nodeId]
+            list[#list + 1] = { techId = nodeId, tier = node and node.tier or 1 }
+        end
+    end
+    return list
+end
+
+function Research.getInProgressList()
+    if not current then return {} end
+    local node = NODES[current]
+    if not node then return {} end
+    return {
+        { techId = current, progress = progress / node.cost }
+    }
+end
+
 ---------------------------------------------------------------------------
 -- Unlock checking — used by production/building systems to gate access
 ---------------------------------------------------------------------------
