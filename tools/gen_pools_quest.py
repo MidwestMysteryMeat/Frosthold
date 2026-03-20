@@ -87,7 +87,7 @@ QUEST_ARCHETYPES = {
             "Expand the quarantine to the entire hab block. Forty percent of the colony locked down. Possibly for nothing.\nOR\nKeep the quarantine small and tight. If it's already spread beyond the bay, this is a death sentence for everyone who's already exposed.",
         ],
         "twists": [
-            "The infection isn't a disease. It's an improvement. The infected are stronger, faster, and clearheaded for the first time in months. They don't want to be cured.",
+            "The infected are getting better. Faster reflexes, clearer thinking, fewer symptoms of everything else. Whatever this is, the colonists who have it call it a gift. They're refusing treatment.",
             "{npc_first} was patient zero, but not from this outbreak. This is the second time. The first was on {location}. {npc_first} survived. The colony didn't.",
             "The contamination source is the water recycler. It's been contaminated since before the crew arrived. Everyone has it. The seven in quarantine are just the ones showing symptoms.",
         ],
@@ -167,7 +167,7 @@ QUEST_ARCHETYPES = {
         "twists": [
             "The missing colonists aren't dead. They're in the deep bore. Living. Changed. They don't want to come back. They want to bring the rest down.",
             "Nothing is hunting them. They're choosing to go. All three heard the same frequency in their sleep. {npc_first} heard it last night.",
-            "The predator isn't in the bore shaft. It's in the colony. It's been here the whole time. It's one of the remaining colonists. It doesn't know it yet.",
+            "The bore shaft is empty. Whatever has been taking people lives in the colony, eats in the mess hall, and sleeps in a bunk. One of the remaining colonists has been the predator all along. They don't know it yet.",
         ],
     },
     "infection_spread": {
@@ -496,7 +496,7 @@ QUEST_ARCHETYPES = {
             "The Price",
         ],
         "trigger": "A shuttle lands unannounced. One passenger. They're carrying a ledger and a weapon. They're looking for {npc}. The debt is old. The interest is new. {faction} sent them.",
-        "setup": "{sensory} The collector sits in the mess hall like they own it. They might. The ledger says {npc_first} owes {faction} for a contract broken on {location}. The sum is more than {npc_first} will earn in a lifetime. The collector doesn't want money. They want something else. Something in the colony.",
+        "setup": "{sensory} The collector sits in the mess hall like they own it. They might. The ledger says {npc_first} owes {faction} for a contract broken on {location}. The sum is more than {npc_first} will earn in a lifetime. Money won't settle this. The collector came for something specific -- something inside the colony walls.",
         "objectives": [
             "Determine what {faction} actually wants. The debt is leverage. The real price isn't in the ledger.",
             "Protect {npc_first} or let the collector work. Colony autonomy versus external authority. The collector has legal documents. Mammona-stamped.",
@@ -903,7 +903,7 @@ QUEST_ARCHETYPES = {
             "Send {npc_first} with a team to flank whatever's coming. Aggressive. Risky. Could break the assault before it starts.\nOR\nKeep everyone behind the wall. Together. Numbers in defense. Let them come to you. Make them pay for every meter.",
         ],
         "twists": [
-            "The assault stops. Abruptly. Whatever was coming just... leaves. Not defeated. Satisfied. It got what it wanted. Something was taken during the attack. Something nobody noticed in the chaos.",
+            "The assault stops. Abruptly. Whatever was coming turns and walks back into the dark. Satisfied. An inventory check the next morning reveals a component missing from the reactor. Taken during the assault, while everyone was fighting at the perimeter.",
             "Dawn comes. The defenders are alive. The perimeter is wrecked. And in the morning light, {npc_first} sees what they were fighting. Not creatures. Colonists. From the deep bore. Changed. They weren't attacking. They were trying to come home.",
             "A second force arrives at dawn. Not hostile. A relief column from a colony that wasn't supposed to exist. They're well-armed, well-supplied, and they know exactly what attacked you. They've fought it before. They've been expecting it.",
         ],

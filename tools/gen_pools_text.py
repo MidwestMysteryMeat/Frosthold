@@ -333,7 +333,7 @@ SENSORY = {
         "The office smelled like ozone and old decisions. The desk had seen better contracts.",
         "She lit a smokestick and let the silence do the talking.",
         "Everyone had an angle. The trick was figuring out whose angle would get you killed first.",
-        "Rain on the viewport. A figure in the corridor. A question nobody wanted answered.",
+        "Rain on the viewport. A figure in the corridor. The kind of question that answers itself if you wait long enough.",
         "Trust was a commodity. Like rations. You spent it carefully and never got a refund.",
         "The truth was in the ledger. So was the motive. Same column.",
     ],
@@ -866,7 +866,7 @@ DIALOGUE = {
             "The carvings in the north ridge ruins changed. Same wall. Different symbols.",
         ],
         "corporate_dystopia": [
-            "The real product isn't minerals. It's the data. We're the experiment.",
+            "Mammona doesn't care about the minerals. They're mining us -- behavioral data, stress responses, exposure thresholds. The ore is a byproduct.",
             "Our insurance was cancelled three weeks before deployment. Nobody told us.",
             "HERMES updated the colony's legal designation last week. We're listed as 'equipment' now.",
         ],
@@ -1241,7 +1241,7 @@ DIALOGUE = {
             "Someone's been using my tools and not putting them back. I've started scratching my name into the handles.",
             "The shower timer got cut to three minutes. Three minutes. In a place where you're covered in drill dust.",
             "The bunk mattresses are older than the colony. I know because they have a different colony's name stamped on them.",
-            "Mammona's motivational posters keep falling off the wall. Not because of the adhesive. Because people keep pulling them down.",
+            "Mammona's motivational posters keep disappearing. Maintenance replaces them every Tuesday. By Wednesday morning the walls are bare again.",
             "The heating runs when it wants. Not when I want. The heating has opinions about my schedule.",
             "There's a draft in Section D that nobody can find the source of. Maintenance says it's impossible. The draft disagrees.",
             "The laundry cycle takes three days. I've been wearing the same thermals for five. So has everyone else.",
@@ -1411,7 +1411,7 @@ DIALOGUE = {
             "I remember sleeping through the night. A full night. Eight hours. I can't imagine it now. Like remembering a dream of a dream.",
         ],
         "dread": [
-            "The first time I heard the hum, I thought it was the reactor. It's not the reactor. I know that now.",
+            "The first time I heard the hum, I checked the reactor logs. Reactor was off. The hum didn't care.",
         ],
         "body_horror": [
             "I used to know exactly what my hands looked like. Every line. Every scar. Now I have to check.",
@@ -1507,7 +1507,7 @@ DIALOGUE = {
             "Mammona walks into a bar. Buys the bar. Burns it down. Claims the insurance. That's not a joke. That's Q3.",
         ],
         "melancholy": [
-            "I tried to tell a joke at dinner. Nobody laughed. Not because it wasn't funny. Because nobody remembered how.",
+            "I tried to tell a joke at dinner. Silence. Forks scraping trays. Someone looked up, confused, like they'd forgotten what laughter was for.",
         ],
         "survival_horror": [
             "What do you call a colonist who goes outside without a weapon? An optimist. Briefly.",
@@ -1831,7 +1831,7 @@ MIDDLES = [
     "Sleep comes in bursts. Two hours here, three there. {first} has given up on a full cycle. Gets more done than anyone on the shift.",
     "{first} doesn't drink. Hasn't since {prev_location}. Keeps a cup of water at the mess table instead. Nobody asks. The ones who know don't have to.",
     "Between shifts, {first} can be found near the perimeter. Watching. Not the ice. The door. Always the door.",
-    "The other colonists leave {first} alone. Not because {gl}'s unfriendly. Because the last person who pushed got a detailed list of their own failures delivered without raising {gp} voice.",
+    "The other colonists leave {first} alone. Friendliness has nothing to do with it. The last person who pushed got a detailed list of their own failures delivered without {first} ever raising {gp} voice.",
     "{first} writes letters that {gl} never sends. Folds them into tight squares. The drawer under {gp} bunk is full of tight squares.",
     "{g} traded {gp} last personal item for {item}. Says it was worth it. Won't make eye contact when {gl} says it.",
     "Mammona's psych evaluation calls {first} 'functional.' {first} calls that generous.",
@@ -1851,7 +1851,7 @@ MIDDLES = [
     "{first} keeps a tally of shifts worked since arriving. Scratched into the bunk frame. Four hundred and counting.",
     "Sends half of every pay cycle to {prev_location}. Won't say who it goes to. The other half goes to the debt.",
     "Knows every corridor, every vent, every locked door in the colony. Mapped them in the first week.",
-    "Does {gp} job and half of someone else's. Not because {gl}'s asked. Because the someone else can't.",
+    "Does {gp} job and half of someone else's. The someone else can't manage it. {first} picked up the slack without comment and kept picking it up.",
     "Carries {item} like it's a loaded weapon. Treats it with the same care.",
     "{first} has opinions about NutriLoaf. Strong ones. Has a ranking system. Shares it with anyone who'll listen.",
     "Goes to the infirmary every third day for something that's not in {gp} file. Comes back quieter.",
@@ -1874,7 +1874,7 @@ SECRET_TEMPLATES = [
     "{first} isn't {gp} real name. {gp} real name is in a Mammona blacklist.",
     "Before the posting, {faction} approached {first} with an offer. {g} hasn't accepted. {g} hasn't refused.",
     "{first} can read the precursor glyphs. Not all of them. Enough. {g} doesn't know how.",
-    "The {item} that {first} carries isn't a memento. It's a key. {g} doesn't know what it opens yet.",
+    "The {item} that {first} carries opens something. {g} doesn't know what, and calling it a memento is easier than explaining why {gl} can't put it down.",
     "There's a reason {first} requested Erebus specifically. {g} knows what's down there. {g} wants to see it.",
     # --- expanded secrets (17-35) ---
     "{first} has been dosing {go}self with something from the medical stores. Not for pain. For prevention. Won't say against what.",

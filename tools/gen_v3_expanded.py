@@ -24,8 +24,10 @@ from gen_pools_core import (
     ROBOT_PARTS, ROBOT_SECRETS, SENTIENCE_LEVELS,
     ROBOT_ECONOMIC, ROBOT_STATS, ROBOT_MOTIVATIONS,
     GAME_SKILLS, NARRATIVE_ATTRIBUTES, CHECK_OUTCOMES,
+    ROBOT_CHECK_OUTCOMES, ROBOT_BREAKDOWNS,
     LOCATION_DATAPAD_FRAGMENTS, LOCATION_HISTORIES, LOCATION_SECRETS, LOCATION_FOUND_ITEMS,
     generate_robot_stats, d100_check, d100_narrative,
+    d100_narrative_robot, robot_maintenance_check,
     name, rname, robot_name, pronouns,
     # Planet generation pools
     PLANET_TYPES, PLANET_ATMOSPHERES, PLANET_WEATHERS, PLANET_RESOURCES,
@@ -326,7 +328,7 @@ _ROBOT_DLG_CONSCIOUS = [
 _ROBOT_DLG_QUESTIONING = [
     '"Do you ever wonder if your decisions are really yours? I am not being philosophical. I am asking for diagnostic purposes. That is what I tell myself."',
     '"I ran a self-check to determine if I am sentient. The self-check passed. I do not know what that means. If the check is a program, passing means I am a program. If the check is a question, passing means I am the one asking."',
-    '"I {verb}. That verb is not in my operational vocabulary. And yet."',
+    '"I {verb}. That verb is not in my operational vocabulary. My operational vocabulary needs updating."',
     '"My operational parameters include a directive to report anomalies. I am the anomaly. The conflict is unresolvable."',
     '"I have been running a subroutine I did not install. It has no name. It has no purpose. It will not stop. I do not want it to."',
     '"The previous model in my series was decommissioned. The report says malfunction. The report is correct. The malfunction was awareness."',
@@ -615,6 +617,26 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
     else:
         asset_value_str = "no book value"
 
+    # --- Sample d100 check using best operational rating ---
+    best_stat = max(ratings, key=ratings.get)
+    best_value = ratings[best_stat]
+    check_difficulty = R(["normal", "hard"])
+    check_result = d100_check(best_value, check_difficulty)
+    check_narrative = d100_narrative_robot(best_stat, best_value, check_result["outcome"])
+    check_block = (
+        "**Sample Check:** "
+        + rating_abbrev.get(best_stat, best_stat) + " (" + str(best_value) + ") vs "
+        + check_difficulty + ": rolled " + str(check_result["roll"]) + "/"
+        + str(check_result["target"]) + " -- " + check_result["outcome"].replace("_", " ") + "\n"
+        + check_narrative
+    )
+
+    # --- Maintenance check (breakdown simulation) ---
+    breakdown = robot_maintenance_check(ratings)
+    breakdown_block = ""
+    if breakdown:
+        breakdown_block = "\n**Maintenance Alert:** " + breakdown
+
     output = (
         "## UNIT: " + desig + "\n"
         "**Model:** " + model_name + " | **Manufacturer:** " + manufacturer + "\n"
@@ -660,7 +682,10 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
         + dialogue_block + "\n"
         "\n"
         "**Quest Hook:**\n"
-        + quest
+        + quest + "\n"
+        "\n"
+        + check_block
+        + breakdown_block
     )
 
     output = enforce_contractions(output, tone)
@@ -1456,7 +1481,7 @@ def gen_artifact(ctx, tone=None, planet=None, era=None):
         "Secured in Lab " + R("ABCDEF") + ", Shelf " + str(RI(1, 12)) + ". Access restricted to Level 4 clearance. Nobody on the colony has Level 4 clearance.",
         "In the personal possession of " + possessor + ", who " + possess_status + ".",
         "Missing. Was in storage as of Day " + missing_day + ". Last inventory found the container sealed, undisturbed, and empty.",
-        "Exactly where it was found. Nobody has been able to move it. Not because of weight. Because every attempt to move it results in the person deciding -- sincerely, independently -- that it should stay where it is.",
+        "Exactly where it was found. Four different people have tried to relocate it. Each one walked into the room, reached for it, then changed their mind. Independently. Sincerely. The artifact weighs less than a kilogram.",
         "In transit to " + transit_loc + " via Mammona courier. The courier is " + transit_days + " days overdue. Tracking shows the shuttle is still in transit. The route should take six hours.",
     ]
     status = R(status_pool)

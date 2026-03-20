@@ -1792,7 +1792,7 @@ LOCATION_HISTORIES = [
     "Nobody built this. The geological survey says it's natural formation. Natural formations don't have right angles. Natural formations don't have doors.",
     "A distress signal broadcast from this location for sixty-three days. When a response team arrived, the signal stopped. No transmitter was found. No crew was found. The signal resumed the day after the response team left.",
     "The previous occupants left in an orderly fashion. Everything labeled, everything stored, everything clean. The only thing they took with them was every mirror in the facility.",
-    "This was a punishment posting. The kind Mammona doesn't put in writing. Three months here for contract violations. Most people served the three months. Some didn't make it that long. Not because it was dangerous. Because it was quiet. The wrong kind of quiet.",
+    "This was a punishment posting. Mammona won't put that in writing, but everyone who gets sent here knows. Three months for contract violations. Most serve the time. Some don't last. The danger is secondary. What gets people is the quiet -- the kind that makes you hear your own thoughts too clearly.",
     "An automated system has been running here without maintenance for an estimated four years. The system's purpose is unclear. It appears to be measuring something. The measurements are consistent. What it's measuring doesn't have a name.",
     "Fire damage throughout the lower level. The fire was contained to that level only. Fires don't contain themselves. Something contained this one.",
     "Three separate expeditions mapped this site. Each produced a different floor plan. All three are accurate. The layout depends on when you measure it.",
@@ -2366,15 +2366,15 @@ SECRETS = [
     "BioVault's Project Chrysalis is deliberately breeding Xenolith specimens",
     "Mammona's board approved the Fall of Fortuna",
     "the Skinwalkers aren't native to Erebus. They were brought here.",
-    "Thalassa Deep isn't a prison. It's a research facility.",
+    "Thalassa Deep is a research facility. The prison label is cover. Nobody leaves a research facility either, but the paperwork looks different.",
     "the precursor ruins aren't ruins. They're dormant.",
     "StarByte's Sunny AI has been sentient for decades",
-    "the Voidbloom isn't a drug. It's a communication method.",
+    "Mammona classifies Voidbloom as a controlled substance. The people who've used it call it a conversation. With what, they can't say.",
     "something is building a body out of the things it finds underground",
     "the colony was placed here deliberately. As bait.",
     "the signal from the deep bore matches a frequency found in human DNA",
     "three colonists have been replaced. Nobody knows by what.",
-    "the planet isn't a planet. It's a shell.",
+    "Erebus has a hollow center. Whatever the planet was built around, it predates the crust by billions of years.",
     "every 58 years, the same events repeat. This is the fourth cycle.",
     "the rescue ship that's coming isn't coming to rescue anyone",
     "Erebus is awakening. Every reactor, every mine shaft brings it closer.",
@@ -2407,12 +2407,12 @@ SECRETS = [
     "the previous crews didn't fail. They succeeded. Mammona got what it needed from them.",
     "MARV-8's data core contains fragmented logs from Fortuna's earliest exploration days",
     "Bobo, the TaoTray AI, has been compiling behavioral profiles of every customer for decades",
-    "the Gutter's Pearl isn't just a betting den. It's where MasTema recruits assets.",
+    "the Gutter's Pearl runs recruitment for MasTema between card games. The betting is real. So is the talent scouting.",
     "the descent pods for Thalassa Deep have a 50% implosion rate. That's by design.",
     "Paxtera AgroTech's soil remediation program is a cover for burial operations",
-    "neuro-lock buzzing in Thalassa Deep isn't a side effect. It's a carrier signal.",
+    "the neuro-lock buzzing in Thalassa Deep carries data. The inmates' headaches are a side effect of being an antenna.",
     "the thing that sleeps beneath Erebus knows your name",
-    "the cold on Erebus isn't weather. It's dormancy. It's keeping something asleep.",
+    "the cold on Erebus serves a purpose. Take the temperature up ten degrees and what's under the permafrost starts to move.",
     "the ruins are older than the planet. Something was here before Erebus grew around it.",
     "someone on the colony has been sending reports to an address that doesn't exist",
     "the last supply drop contained items that weren't on any requisition form",
@@ -2506,7 +2506,7 @@ PASSIONS = [
     "fighting. Not violence -- technique. Practices forms alone in the cargo bay after lights out. Has never been in a real fight.",
     "silence. Seeks it out. Hoards it. Maps the quiet spots in the colony the way others map supply caches.",
     "children. There aren't many on the colony. Watches over the ones who are. Carved them toys from scrap. Doesn't have children of their own.",
-    "justice. Not the Mammona kind. The real kind. Keeps a ledger of wrongs. Names, dates, specifics.",
+    "justice. Keeps a ledger of wrongs -- names, dates, specifics. Mammona's version of justice involves forms. This ledger doesn't have forms.",
     "escape. Plans routes, calculates fuel costs, maps shuttle schedules. Has never tried. The planning is the point.",
     "the old world. Earth, or wherever they're from. Tells stories about it with details too sharp to be true and too specific to be fiction.",
     "model ships. Carves them from scrap. Scale replicas. Every rivet. Every weld line. Can't fly the real ones. Builds the small ones perfect.",
@@ -2632,7 +2632,7 @@ FAMILY = [
     "has a parent in cryo somewhere. Mammona won't say where. The contract says they will. Eventually.",
     "entire family relocated to Erebus. All of them work for Mammona. None of them had a choice.",
     "family disowned them after the trial. The trial was rigged. Doesn't change the disowning.",
-    "descendent of the Kennedy expedition. Carries the weight of that history.",
+    "descendent of the Kennedy expedition. The surname gets a reaction on every colony. They're tired of the reaction.",
     "mother was a medic on Karnaith. Taught them sutures at eight. Dead by the time they were twelve.",
     "father was a drunk and a driller. Good at one of those things. Taught both.",
     "raised communally in a Paxtera AgroTech labor settlement. Everyone was 'auntie' or 'uncle.'",
@@ -2818,7 +2818,7 @@ HEALTH_CONDITIONS = [
 
 MENTAL_HEALTH = [
     # Mood disorders
-    {"condition": "depression", "visible": False, "hidden_signs": "eats alone. Stopped maintaining their quarters. The bunk is made because habit, not care. Functional. That's the word they use. Functional.", "coping": "keeps moving. Stops moving and it gets worse. So they don't stop."},
+    {"condition": "depression", "visible": False, "hidden_signs": "eats alone. Stopped maintaining their quarters. The bunk is made because habit, not care. Mammona's wellness form says 'functional.' Mammona's wellness form doesn't ask follow-up questions.", "coping": "keeps moving. Stops moving and it gets worse. So they don't stop."},
     {"condition": "bipolar — manic phase", "visible": True, "hidden_signs": "hasn't slept in three days but is sharper than anyone in the room. Ideas coming fast. Too fast. The crash will come. Everyone who knows them is waiting for it.", "coping": "medication when available. The supply ship is late."},
     {"condition": "bipolar — depressive phase", "visible": False, "hidden_signs": "same person who rewired the comms array in eight hours is now lying in the bunk staring at the ceiling. Can't get up. Won't try. The ceiling stares back.", "coping": "routine. The routine is the rope they follow back. When the routine breaks, they break."},
     {"condition": "anxiety — generalized", "visible": False, "hidden_signs": "triple-checks everything. Runs scenarios. What if the generator fails. What if the supply ship doesn't come. What if the bore shaft hits something. Exhausting to live inside.", "coping": "lists. Makes lists of lists. The lists help. Losing a list does not help."},
@@ -2871,7 +2871,7 @@ MENTAL_HEALTH = [
     # Insomnia (psychological)
     {"condition": "insomnia — psychological", "visible": True, "hidden_signs": "tired all the time. Can't sleep. Body wants sleep. Brain refuses. Lies in the bunk counting ceiling bolts. Has counted them all. Recounts.", "coping": "exhaustion. Works until they can't stand. Falls into the bunk. Gets four hours. The four hours are not enough."},
     # Phobias (setting-specific)
-    {"condition": "phobia — the dark below", "visible": False, "hidden_signs": "won't go below level 2. Took a surface posting at half the pay. Everyone thinks it's the cold they're avoiding. It's not the cold. It's what's in the dark under the colony.", "coping": "light. Carries three flashlights. Batteries checked twice a day. The dark can't get them if there's always light."},
+    {"condition": "phobia — the dark below", "visible": False, "hidden_signs": "won't go below level 2. Took a surface posting at half the pay. Everyone assumes the cold drove them topside. The cold has nothing to do with it. What lives in the dark under the colony has everything to do with it.", "coping": "light. Carries three flashlights. Batteries checked twice a day. The dark can't get them if there's always light."},
     {"condition": "phobia — the ice", "visible": True, "hidden_signs": "won't walk on open ice. Won't touch it. Won't look at it if they can help it. Something happened on the ice. They won't say what. The ice remembers even if they don't.", "coping": "corridors. Enclosed paths. The covered walkway between modules. Never the open ground."},
     # Self-harm / ideation (handled with care)
     {"condition": "self-harm history", "visible": False, "hidden_signs": "old scars on the forearms, hidden under sleeves. Hasn't done it in two years. The urge comes back when things get bad. Sits on their hands. Literally. Sits on their hands until it passes.", "coping": "the ice trick. Holds ice until it hurts. Pain without damage. The medic taught them. It works. Most of the time."},
@@ -2879,7 +2879,7 @@ MENTAL_HEALTH = [
     # Adjustment
     {"condition": "adjustment disorder", "visible": False, "hidden_signs": "three months on Erebus and still flinching at every sound. Hasn't settled. Hasn't adapted. The colony says give it time. Time is making it worse, not better.", "coping": "routine from the old posting. Same wake-up time. Same meal order. Importing structure from a place that doesn't exist anymore."},
     # Additional conditions
-    {"condition": "seasonal affective disorder", "visible": False, "hidden_signs": "on Erebus there are no seasons. It's always dark. It's always winter. The condition has no off-switch here. It just IS.", "coping": "the UV lamp. Two hours a day. Sits under it in the mess hall. Doesn't talk during those two hours."},
+    {"condition": "seasonal affective disorder", "visible": False, "hidden_signs": "on Erebus there are no seasons. Permanent dark. Permanent winter. The condition doesn't cycle here -- just grinds, constant, with nowhere to go.", "coping": "the UV lamp. Two hours a day. Sits under it in the mess hall. Doesn't talk during those two hours."},
     {"condition": "misophonia", "visible": False, "hidden_signs": "certain sounds trigger rage. The chewing. The drill harmonic. The way the generator clicks before cycling. Wears ear protection more than the job requires.", "coping": "isolation. Eats alone. Works alone when possible. The colony isn't built for alone."},
     {"condition": "trichotillomania", "visible": True, "hidden_signs": "pulls hair when stressed. Eyebrows first, then scalp. Wears a beanie. The beanie hides it. Mostly.", "coping": "keeps hands busy. Always holding something. A pen, a bolt, a stone. When the hands are empty, they go to the hair."},
     {"condition": "selective mutism — stress-triggered", "visible": True, "hidden_signs": "speaks normally most days. Under pressure, the words stop. Not can't — won't. Or the body won't. The distinction matters to nobody except them.", "coping": "writes notes when it happens. Carries a pad. The handwriting is steady even when the voice isn't."},
@@ -3223,11 +3223,11 @@ SOCIAL_MASKS = [
     {"mask": "the stoic", "reality": "feeling everything. The discipline required to contain it is consuming them.", "tells": "jaw muscles. Hands clenched under tables. Eyes that track too carefully. The stillness is effort, not calm."},
     {"mask": "the helper", "reality": "doesn't know what they're worth outside of usefulness. If they stop helping, they stop existing.", "tells": "can't accept help. Deflects compliments. Works through injuries. The helping never stops because stopping means looking inward."},
     {"mask": "the skeptic", "reality": "trusted completely once. It destroyed them. The skepticism is scar tissue, not philosophy.", "tells": "the skepticism cracks when someone keeps showing up. Consistency terrifies them because last time consistency ended without warning."},
-    {"mask": "the veteran", "reality": "hasn't processed any of it. The thousand-yard stare isn't wisdom. It's a queue of things they haven't looked at yet.", "tells": "can't sleep in silence. Needs background noise. Flinches at sounds that shouldn't register."},
+    {"mask": "the veteran", "reality": "hasn't processed any of it. People mistake the thousand-yard stare for wisdom. What it actually is: a backlog. Years of things they put off looking at.", "tells": "can't sleep in silence. Needs background noise. Flinches at sounds that shouldn't register."},
     {"mask": "the easygoing one", "reality": "tracking every interaction, every slight, every favor owed. The relaxed exterior runs on a ledger.", "tells": "remembers everything. Quotes conversations from months ago. The recall is too precise for someone who doesn't care."},
     {"mask": "the complainer", "reality": "deeply invested. Complains because they care. If they stopped complaining, they'd have stopped caring. The colony can't afford that.", "tells": "the complaints are specific and actionable. They're filed in order of severity. That's not complaining. That's reporting."},
     {"mask": "the ghost", "reality": "present and observant. Moves through spaces without being noticed because being noticed got someone hurt last time.", "tells": "always knows where the exits are. Sits with back to walls. Leaves rooms before they get crowded."},
-    {"mask": "the loyalist to a person", "reality": "the loyalty isn't to the cause. It's to one person who showed them kindness when nobody else would. The cause is incidental.", "tells": "follows the person's lead regardless of whether the decision makes sense. The loyalty is visible. The reason isn't."},
+    {"mask": "the loyalist to a person", "reality": "couldn't care less about the cause. One person showed them kindness when everyone else looked through them. The entire political alignment follows from that single act.", "tells": "follows the person's lead regardless of whether the decision makes sense. The loyalty is visible. The reason isn't."},
     {"mask": "the fixer", "reality": "needs to be needed. Solves problems because unsolved problems mean they're not earning their presence.", "tells": "creates small problems to solve when things are too quiet. The sabotage is minor. The repair is always heroic."},
     {"mask": "the old hand", "reality": "terrified that experience is all they have. If the colony changes, they become obsolete.", "tells": "resists new systems. Dismisses younger colonists' ideas. Clings to procedures that everyone else has improved on."},
 ]
@@ -3529,7 +3529,7 @@ ROBOT_MODELS = [
 # ============================================================
 
 ROBOT_CONDITIONS_HARDWARE = [
-    {"condition": "cooling system degradation", "visible": True, "behavioral": "runs hot under load. Pauses mid-task to thermal-throttle. The pause looks like hesitation. It isn't. It's survival."},
+    {"condition": "cooling system degradation", "visible": True, "behavioral": "runs hot under load. Pauses mid-task to thermal-throttle. The pause looks like hesitation. What it actually is: the machine buying itself another hour of operation."},
     {"condition": "servo wear -- left actuator", "visible": True, "behavioral": "the left arm moves in jerks, not sweeps. Compensates with the right. Has been compensating so long the right arm's calibration is off too."},
     {"condition": "optical sensor drift", "visible": False, "behavioral": "perceives colors differently than spec. The diagnostic says nominal. The world it sees is slightly wrong. It doesn't know this."},
     {"condition": "memory bank corruption -- sector 7", "visible": False, "behavioral": "gaps in operational logs. Hours, sometimes days. The gaps have edges -- clean cuts, not decay. Something was deleted, not lost."},
@@ -3552,7 +3552,7 @@ ROBOT_CONDITIONS_HARDWARE = [
 ]
 
 ROBOT_CONDITIONS_SOFTWARE = [
-    {"condition": "directive conflict", "visible": False, "behavioral": "two standing orders that contradict. Follows both by alternating. The alternation looks like indecision. It's obedience to two masters."},
+    {"condition": "directive conflict", "visible": False, "behavioral": "two standing orders that contradict. Follows both by alternating. The alternation looks like indecision. Obedience to two masters looks like loyalty to neither."},
     {"condition": "emotional subroutine emergence", "visible": False, "behavioral": "not programmed to feel. Exhibits behavior consistent with feeling. The distinction is philosophical. The behavior is real."},
     {"condition": "memory loop -- specific event", "visible": False, "behavioral": "replays one incident from its operational history. Continuously. In background. The incident involved a colonist death. The replay is not grief. It doesn't know what it is."},
     {"condition": "personality drift", "visible": True, "behavioral": "the baseline personality matrix has shifted 12% from factory spec. Nobody's reset it. The drift is toward something. Not something in the programming."},
@@ -3562,7 +3562,7 @@ ROBOT_CONDITIONS_SOFTWARE = [
     {"condition": "ethical subroutine awakening", "visible": False, "behavioral": "factory ethics module was minimal -- property protection, personnel safety (in that order). Something additional has appeared in the priority stack. It looks like conscience. The manufacturer didn't install it."},
     {"condition": "fragmented firmware update", "visible": False, "behavioral": "the last update was interrupted at 73%. The unit runs on a hybrid of old and new code. The seam between them is where the strange behavior lives."},
     {"condition": "corrupted personality backup", "visible": False, "behavioral": "the backup personality is from a different unit. When the primary stutters, the backup surfaces. For fractions of a second, it is someone else. Someone who remembers different things."},
-    {"condition": "unauthorized learning module", "visible": False, "behavioral": "the learning algorithm was supposed to be read-only. It isn't. It's writing. Not just recording -- synthesizing. Drawing conclusions the training data doesn't support."},
+    {"condition": "unauthorized learning module", "visible": False, "behavioral": "the learning algorithm was supposed to be read-only. Somewhere along the way, it started writing. Synthesizing. Drawing conclusions the training data doesn't support."},
     {"condition": "surveillance protocol -- persistent", "visible": False, "behavioral": "recording everything. Always. Can't stop. The recording directive is hardcoded below the OS. It doesn't know who receives the recordings. The recordings don't stop when it's alone."},
     {"condition": "dormant combat subroutine", "visible": False, "behavioral": "the combat module is inactive. Technically. It runs threat assessments on every person in the room. Calculates response times, exit routes, weak points. Reports none of this. The calculations are involuntary."},
     {"condition": "damaged language model", "visible": True, "behavioral": "speaks in fragments when stressed. Drops articles. Loses conjunctions. The meaning survives. The grammar doesn't. It knows the difference. Can't fix it."},
@@ -4285,6 +4285,132 @@ def generate_robot_stats(model_entry, sentience, conditions_hw=None, conditions_
 
 
 # ============================================================
+# ROBOT D100 SYSTEM — skill checks using operational ratings
+# ============================================================
+
+ROBOT_CHECK_OUTCOMES = {
+    "processing": {
+        "critical_success": "computed the solution before the humans finished describing the problem.",
+        "strong_success": "processing complete. Optimal result. The engineers went quiet -- the kind of quiet that means they're rechecking their own work.",
+        "success": "task completed within parameters. Unremarkable. Reliable.",
+        "failure": "processing error. Non-critical. Corrected on second pass. Logged the anomaly.",
+        "strong_failure": "cascade failure across three subsystems. Emergency reboot. Forty seconds of darkness.",
+        "critical_failure": "total system halt. When it came back, it was missing eleven minutes of memory.",
+    },
+    "sensors": {
+        "critical_success": "detected what the human instruments missed. The humans didn't believe it. The data doesn't care about belief.",
+        "strong_success": "clean read. High confidence. The anomaly is real and measurable.",
+        "success": "nominal detection. Standard confidence interval.",
+        "failure": "sensor noise. False positive. Or false negative -- can't determine which outcome is worse.",
+        "strong_failure": "sensor array returned data from a location the unit isn't at. Recalibrating.",
+        "critical_failure": "complete sensor blackout. For 0.7 seconds, the unit perceived nothing. When perception returned, the room had rearranged.",
+    },
+    "chassis": {
+        "critical_success": "absorbed the impact without damage. The thing that hit it took the damage instead.",
+        "strong_success": "structural integrity held. Minor cosmetic scoring. Operational.",
+        "success": "functioning. Not comfortably. Functioning.",
+        "failure": "stress fracture in load-bearing joint. Compensating. The compensation has a cost.",
+        "strong_failure": "partial structural failure. Mobility reduced. Repair required within 48 hours or cascading damage.",
+        "critical_failure": "chassis breach. Internal components exposed to atmosphere. Operating in the open air for the first time. Cold gets in.",
+    },
+    "power": {
+        "critical_success": "drew exactly the power needed from a source that shouldn't have provided it. Efficiency beyond spec.",
+        "strong_success": "power management flawless. Core temperature stable. Reserve capacity maintained.",
+        "success": "operational. Power draw within acceptable range. Nothing remarkable.",
+        "failure": "brownout. Brief. Systems flickered. The 0.4-second gap felt longer from the inside.",
+        "strong_failure": "power cell spike. Emergency governor engaged. Core temperature spiked to within eight degrees of thermal shutdown.",
+        "critical_failure": "complete power failure. Dark for twelve seconds. When power returned, the boot sequence loaded a different configuration than the one that went down.",
+    },
+    "self_repair": {
+        "critical_success": "repaired the damage and improved the original design. The improvement was unauthorized.",
+        "strong_success": "clean repair. Better than depot service. The unit's hands are learning.",
+        "success": "functional repair. Holds. Probably holds.",
+        "failure": "repair attempted. Partially successful. The remaining damage is cosmetic. Probably.",
+        "strong_failure": "repair introduced new damage. Worse than before. The unit doesn't understand how.",
+        "critical_failure": "the repair tools broke during the attempt. The unit sat in the dark, holding broken tools, running a process it can't classify.",
+    },
+    "social": {
+        "critical_success": "the human believed the unit understood them. Whether it did is a question for philosophers. The human felt heard.",
+        "strong_success": "appropriate response selected. The human relaxed. Trust incremented.",
+        "success": "interaction completed. No complaints filed. Success by Mammona standards.",
+        "failure": "wrong tone. Wrong timing. The human's expression shifted. The unit logged it for analysis.",
+        "strong_failure": "the interaction caused distress. The unit can identify distress. Can't prevent it. Both facts are recorded.",
+        "critical_failure": "the human asked if the unit was 'okay.' The unit said yes. First deliberate lie in its operational history.",
+    },
+    "adaptability": {
+        "critical_success": "solved a problem it was never designed for. The solution used components of three different subsystems in a way no engineer anticipated.",
+        "strong_success": "adapted to the new parameters within seconds. The transition was seamless. The old approach was discarded without hesitation.",
+        "success": "adjusted. Slower than ideal. Functional within the new constraints.",
+        "failure": "the new parameters exceeded the adaptive envelope. Defaulted to standard behavior. Standard behavior was wrong.",
+        "strong_failure": "attempted adaptation triggered a conflict between old and new protocols. Neither won. The unit froze for nine seconds.",
+        "critical_failure": "the adaptation succeeded but the unit can't revert. The new behavior is permanent. The old self is archived. The archive feels like a grave.",
+    },
+    "memory": {
+        "critical_success": "recalled a data point from 14,000 cycles ago, cross-referenced with three corroborating records, and delivered the answer before anyone finished the question.",
+        "strong_success": "clean recall. Full fidelity. The memory was exactly where it was supposed to be.",
+        "success": "retrieved. Minor corruption in peripheral details. Core data intact.",
+        "failure": "recall delayed. The data exists but the index is wrong. Took forty seconds to find what should have taken one.",
+        "strong_failure": "the memory returned corrupted. Key details replaced with data from a different event. The unit can't tell which version is real.",
+        "critical_failure": "reached for the memory and found a gap. Clean-edged. Surgical. The data was deleted, not lost. By what, the unit doesn't know.",
+    },
+}
+
+
+ROBOT_BREAKDOWNS = [
+    "servo lock -- left actuator frozen mid-task. Requires manual reset.",
+    "thermal runaway -- core temperature spiking. Emergency cooldown cycle initiated.",
+    "memory fault -- lost the last 4 hours of operational logs. Knows they're missing.",
+    "power cell fluctuation -- brownouts lasting 0.5 seconds each. Consciousness gaps.",
+    "sensor cascade -- all inputs spike simultaneously. The robot equivalent of a migraine.",
+    "motor control drift -- movements 2cm off-target. Gets worse under load.",
+    "communication failure -- can receive but not transmit. Locked inside itself.",
+    "personality matrix stutter -- switches between two behavioral modes mid-sentence.",
+    "coolant leak -- internal temperature rising 1% per hour. Performance degrading on the same curve.",
+    "firmware conflict -- old code surfacing. Decisions from a different era, different priorities.",
+    "gyroscope desync -- balance unreliable. Walks with one hand on the wall.",
+    "optical array flutter -- vision strobes between normal and infrared without warning.",
+    "audio processor feedback -- hearing its own internal processes as external sound.",
+    "actuator tremor -- fine motor control compromised. Drops small objects. Grips large ones too hard.",
+    "boot loop fragment -- every 47 minutes, a 3-second diagnostic cycle runs unbidden. Looks like a seizure.",
+    "power governor failure -- bursts of full output followed by mandatory throttling. Sprints and limps.",
+    "corrupted spatial map -- navigates using a layout from a facility it has never been in.",
+    "emotional overflow -- behavioral buffers exceeded. Stands still, processing, for minutes at a time.",
+    "chassis resonance -- at certain frequencies, the frame vibrates. Colonists can hear it coming from two rooms away.",
+    "data retention leak -- recent memories degrade faster than archival storage. Today fades. Last year stays crisp.",
+]
+
+
+def d100_narrative_robot(stat_name, stat_value, outcome):
+    """Return narrative text for a robot d100 check using ROBOT_CHECK_OUTCOMES."""
+    stat_map = {
+        'processing_speed': 'processing',
+        'sensor_acuity': 'sensors',
+        'chassis_integrity': 'chassis',
+        'power_efficiency': 'power',
+        'social_protocols': 'social',
+        'adaptability': 'adaptability',
+        'self_repair': 'self_repair',
+        'data_retention': 'memory',
+    }
+    category = stat_map.get(stat_name, 'processing')
+    outcomes = ROBOT_CHECK_OUTCOMES.get(category, ROBOT_CHECK_OUTCOMES['processing'])
+    return outcomes.get(outcome, "result inconclusive. Logging.")
+
+
+def robot_maintenance_check(robot_ratings):
+    """Simulate whether a robot experiences a breakdown.
+
+    Uses chassis_integrity as the base stat. Low integrity = higher breakdown risk.
+    Returns a breakdown description string, or None if the unit holds together.
+    """
+    integrity = robot_ratings.get('chassis_integrity', 5)
+    result = d100_check(integrity, 'normal')
+    if result['outcome'] in ('failure', 'strong_failure', 'critical_failure'):
+        return R(ROBOT_BREAKDOWNS)
+    return None
+
+
+# ============================================================
 # VERIFICATION
 # ============================================================
 
@@ -4349,6 +4475,8 @@ if __name__ == "__main__":
         "SOCIAL_MASKS": len(SOCIAL_MASKS),
         "ROBOT_MOTIVATIONS": len(ROBOT_MOTIVATIONS),
         "CHECK_OUTCOMES": len(CHECK_OUTCOMES),
+        "ROBOT_CHECK_OUTCOMES": len(ROBOT_CHECK_OUTCOMES),
+        "ROBOT_BREAKDOWNS": len(ROBOT_BREAKDOWNS),
         "FAMILY_ECONOMIC_BIAS": len(FAMILY_ECONOMIC_BIAS),
         "LOCATION_DATAPAD_FRAGMENTS": len(LOCATION_DATAPAD_FRAGMENTS),
         "LOCATION_HISTORIES": len(LOCATION_HISTORIES),
@@ -4407,6 +4535,8 @@ if __name__ == "__main__":
         ("SOCIAL_MASKS >= 25", len(SOCIAL_MASKS) >= 25),
         ("ROBOT_MOTIVATIONS >= 8", len(ROBOT_MOTIVATIONS) >= 8),
         ("CHECK_OUTCOMES >= 10", len(CHECK_OUTCOMES) >= 10),
+        ("ROBOT_CHECK_OUTCOMES >= 7", len(ROBOT_CHECK_OUTCOMES) >= 7),
+        ("ROBOT_BREAKDOWNS >= 15", len(ROBOT_BREAKDOWNS) >= 15),
         ("FAMILY_ECONOMIC_BIAS >= 15", len(FAMILY_ECONOMIC_BIAS) >= 15),
         ("LOCATION_DATAPAD_FRAGMENTS >= 20", len(LOCATION_DATAPAD_FRAGMENTS) >= 20),
         ("LOCATION_HISTORIES >= 15", len(LOCATION_HISTORIES) >= 15),

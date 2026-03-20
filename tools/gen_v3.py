@@ -2858,10 +2858,10 @@ def gen_history(ctx, tone=None, planet=None, era=None):
         "the evidence leads to a sealed drive in the maintenance crawlspace. The drive is still warm.",
     ])
     inv_failure = R([
-        "the trail goes cold. Not because the evidence is gone. Because someone cleaned it. Recently.",
+        "the trail goes cold. Cleaned. Every surface, every log, every witness memory -- sanitized in the last 48 hours by someone thorough.",
         "dead end. But the dead end is instructive -- someone put a wall exactly where you needed a door.",
         "the investigation alerts someone. Within hours, the remaining evidence begins to disappear.",
-        "nothing. But 'nothing' on a Mammona posting is never nothing. It's a redaction.",
+        "nothing. Which, on a Mammona posting, means someone made the evidence into nothing. Absence with fingerprints.",
     ])
 
     # --- (e) What Changed After — lasting effects on the colony ---
@@ -3656,7 +3656,7 @@ Something is wrong with this place. {R([
     "Not broken-wrong. Alive-wrong. Like the ground knows I'm standing on it.",
     "The kind of wrong that doesn't show up on instruments but your bones know.",
 ])} {R([
-    "It's not the cold, it's not the work, it's not Mammona. It's underneath all of that.",
+    "The cold, the work, Mammona -- those are the surface problems. What keeps me up at night is underneath all of that.",
     "Everyone here feels it. Nobody says it. That silence is louder than the drill.",
     "I wake up at the same time every night and the walls are humming.",
 ])}
@@ -3682,7 +3682,7 @@ I'm fine. {R(["I want you to know that.", "That's the official version.", "For n
     entries.append(f"""{recipient_first},
 
 {R([
-    "I stopped counting the days. Not because I gave up. Because the days stopped being countable.",
+    "I stopped counting the days. The days stopped holding still long enough to count.",
     "Time moves differently here. I don't mean metaphorically. The clocks disagree with each other.",
     "I've been here long enough that 'here' has stopped feeling like a place and started feeling like a state of being.",
 ])}
@@ -3710,7 +3710,7 @@ I've made peace with some things. The cold. The food. The way {feature_detail}. 
 I know what's underneath. {R([
     "I've known for a while. I think everyone here knows.",
     "Mammona knows. They've always known. The contract is a leash, not a lifeline.",
-    "The drill isn't looking for resources. It's looking for something else.",
+    "The drill passed through three resource deposits without stopping. It's aimed at something specific. Something deeper than ore.",
 ])} {R([
     "Saying it would make it real, and real things have to be dealt with.",
     "I can't write it down. Writing it down makes it permanent.",
@@ -3757,7 +3757,7 @@ def _unsent_angry(ctx, tone, first, last, g, gl, gp, go, loc,
 {R([
     "Don't write back. I won't read it.",
     "I'm not looking for sympathy. I'm looking for an explanation.",
-    "This isn't a letter. It's a receipt.",
+    "Call this a receipt. One life, exchanged for corporate profit, net balance outstanding.",
 ])}
 
 -- {first}
@@ -3860,7 +3860,7 @@ def _unsent_angry(ctx, tone, first, last, g, gl, gp, go, loc,
 
 {R([
     "I'm sorry. For the anger and for everything after it.",
-    "Take care of yourself. That's not a platitude. It's the only thing I have left to give.",
+    "Take care of yourself. I mean that literally. I can't give you anything else from here -- this is what's left.",
     "Goodbye, " + recipient_first + ". The word feels different when you mean it.",
 ])}
 
@@ -4003,7 +4003,7 @@ def _unsent_practical(ctx, tone, first, last, g, gl, gp, go, loc,
 ])}
 
 {R([
-    "I love you. That's not code for anything. It's the one true sentence in all of these letters.",
+    "I love you. Everything else in these letters might be a lie by now, but that sentence isn't.",
     "Don't mourn me yet. Don't celebrate either. Just remember.",
     "Whatever happens next, I was here. I saw it. These letters prove it.",
 ])}
@@ -4140,13 +4140,13 @@ def _unsent_apologetic(ctx, tone, first, last, g, gl, gp, go, loc,
 {R([
     f"{loc} is the right place for someone like me. A posting at the end of the line for a person who ran out of line. The cold here matches something inside.",
     f"I thought coming to {loc} would be penance. It isn't. Penance requires someone to forgive you. Nobody here knows what I did. I'm just another colonist with a past they don't talk about.",
-    f"I've stopped expecting to feel better. That's not self-pity. It's accuracy.",
+    f"I've stopped expecting to feel better. Self-pity would be complaining about it. I'm just describing the terrain.",
 ])}
 
 {R([
     "If these letters ever reach you, know that the person who wrote them was trying. Failing. But trying.",
-    "I love you. I know that doesn't fix anything. It's still true.",
-    "Don't come looking for me. Not because of the danger. Because the person you'd find isn't the person you remember.",
+    "I love you. That won't fix what's happening here, and I'm past pretending it might. But it hasn't stopped being true.",
+    "Don't come looking for me. The danger is real, but the bigger problem is that you'd find a stranger wearing my face. Erebus changes the inside first.",
 ])}
 
 -- {first}
