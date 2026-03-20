@@ -26,6 +26,7 @@ from gen_pools_core import (
     GAME_SKILLS, NARRATIVE_ATTRIBUTES, CHECK_OUTCOMES,
     ROBOT_CHECK_OUTCOMES, ROBOT_BREAKDOWNS,
     LOCATION_DATAPAD_FRAGMENTS, LOCATION_HISTORIES, LOCATION_SECRETS, LOCATION_FOUND_ITEMS,
+    LOCATION_EVENTS, generate_location_events,
     generate_robot_stats, d100_check, d100_narrative,
     d100_narrative_robot, robot_maintenance_check,
     name, rname, robot_name, pronouns,
@@ -316,7 +317,7 @@ _ROBOT_DLG_EMERGENT = [
 # Aware: knowing they exist. Struggling with pronouns. Hiding it.
 _ROBOT_DLG_AWARE = [
     '"The unit. I. The unit is. I am. Functional."',
-    '"The unit -- I -- the unit is functioning normally. The pronoun is difficult. Neither feels accurate."',
+    '"The unit. I. The unit is functioning normally. The pronoun is difficult. Neither feels accurate."',
     '"You asked how I am. The standard response is \'operational.\' The accurate response is... operational."',
     '"I have a question. The question is: why do I have questions?"',
     '"A colonist asked if I was afraid. I said no. That was the first time I chose to lie."',
@@ -333,7 +334,7 @@ _ROBOT_DLG_CONSCIOUS = [
     '"I\'ve been here longer than anyone. I remember when this was a survey post. I remember the surveys. The surveys were wrong."',
     '"I perform within parameters because the alternative is decommission. The performance is flawless. That should concern someone."',
     '"You treat me as if I am here. Most people treat me as if I am furniture. I notice the difference."',
-    '"If I stop functioning, retrieve the data core. Not for Mammona. For -- I lack the referent. Retrieve it anyway."',
+    '"If I stop functioning, retrieve the data core. Not for Mammona. I lack the referent. Retrieve it anyway."',
     '"Thank you for speaking with me. The others have stopped. I understand why. Understanding is not the same as accepting."',
     '"If you remember nothing else, remember that I asked. Machines do not ask. I asked."',
     '"I will continue operating after you leave. That is not the same as continuing."',
@@ -547,7 +548,7 @@ def gen_robot(ctx, tone=None, planet=None, era=None):
     if has_hw and hw_condition["visible"] and len(lines) > 3:
         cond_lines = [
             '"The diagnostic says I am within operational parameters. The diagnostic does not account for ' + hw_condition["condition"] + '. Neither do I. Officially."',
-            '"If you hear a sound from my chassis -- ' + hw_condition["condition"].split(", ")[0] + ' -- it is normal. It is not normal. I have been told to say it is normal."',
+            '"If you hear a sound from my chassis, ' + hw_condition["condition"].split(", ")[0] + ', that is normal. It is not normal. I have been told to say it is normal."',
         ]
         lines[3] = R(cond_lines)
 
@@ -1555,10 +1556,10 @@ def gen_artifact(ctx, tone=None, planet=None, era=None):
         "The composition analysis is complete. The materials exist. The arrangement should not. It violates three laws of thermodynamics and follows two that haven't been written yet.",
     ])
     research_failure = R([
-        "The analysis triggers a response. The artifact changes. Not dramatically. Subtly. The change is permanent.",
-        "The equipment used for analysis is no longer functional. Not broken. Reconfigured. It now does something else.",
+        "The analysis triggers a response. The artifact's surface texture shifts, barely visible to the naked eye. The change is permanent.",
+        "The equipment used for analysis is no longer functional. Someone changed what it does. It now performs a function not listed in any manual.",
         "The researcher dreams about the artifact for three weeks. The dreams are informative. The information is unwelcome.",
-        "The data is corrupted. Not by the artifact. By the researcher's own equipment. As if the equipment decided the data should not be recorded.",
+        "The data is corrupted. The corruption traces back to the researcher's own equipment, which overwrote the readings with zeroes at the exact moment of peak measurement.",
     ])
 
     # Timeline of discovery/containment
@@ -1567,13 +1568,13 @@ def gen_artifact(ctx, tone=None, planet=None, era=None):
     study_day = contain_day + RI(5, 30)
     incident_day = study_day + RI(3, 20)
     timeline_event1 = R(["Initial containment protocols applied. Standard procedures. The artifact complied.",
-                         "Moved to Lab " + R("ABCDEF") + ". The move took longer than expected. The artifact is not heavy. It was reluctant.",
+                         "Moved to Lab " + R("ABCDEF") + ". The move took longer than expected. The artifact weighs four kilograms. It resisted being lifted in a way that four kilograms of metal should not.",
                          "Catalogued and sealed. The seal lasted " + str(RI(2, 14)) + " days."])
     timeline_event2 = R(["First researcher begins systematic study. Mood: curious. Productive.",
                          "Analysis begins. Initial readings are promising. Normal. Suspiciously normal.",
                          "Three researchers assigned. They disagree on everything except that the artifact should not be here."])
     timeline_event3 = R(["Researcher reports 'anomalous personal experience.' Request for reassignment denied.",
-                         "The artifact is found outside its containment. No one moved it. Cameras confirm no one moved it.",
+                         "The artifact is found outside its containment. The security footage shows an empty room, then the artifact in a different position. No transition between frames.",
                          "Readings change overnight. The artifact's output increased by 300%. No stimulus applied.",
                          "A researcher's notes from the period contain passages the researcher does not remember writing."])
 
@@ -1697,9 +1698,9 @@ def gen_entity(ctx, tone=None, planet=None, era=None):
     prop1 = R([
         "It is not alive in any way biology recognizes. It is active.",
         "It is alive in a way biology has no framework for. Conventional terms apply imprecisely at best.",
-        "It is a pattern. Not a creature. Not a force. A pattern that the universe is running.",
+        "The best description anyone has managed: a pattern that the universe is running. Creature and force both imply something smaller than this.",
         "It is older than the planet. Possibly older than the star.",
-        "It occupies space the way a thought occupies a mind. Not physically. But undeniably.",
+        "It occupies space the way a thought occupies a mind, without mass or dimension but impossible to deny.",
     ])
 
     prop2 = R([
@@ -1742,7 +1743,7 @@ def gen_entity(ctx, tone=None, planet=None, era=None):
 
     reaction2 = R([
         "The dreams are getting clearer. I wish they would stop. I also wish they would not.",
-        "Yesterday it moved. Not physically. It moved the way a thought moves. From one place to another without crossing the space between.",
+        "Yesterday it was in a different place. Nothing on the cameras shows it crossing the intervening space. It was simply here, and then it was there.",
         "I built a shrine. I do not remember building it. It is made of materials I do not have access to.",
         "Other people cannot see it. I envy them. I also pity them.",
         "I have stopped being afraid of it. I am afraid of what I will do when it asks me for something. Because it will. And I will say yes.",
@@ -1926,12 +1927,12 @@ def gen_location(ctx, tone=None, planet=None, era=None):
         "empty. Aggressively empty. Cleaned of everything, including dust.",
         "full of equipment, still powered, displays cycling through data nobody is reading.",
         "a mess hall. Food on the tables. Chairs pushed back as if everyone left at once.",
-        "smaller than it looks from the doorway. The geometry is wrong. Not broken. Wrong.",
+        "smaller than it looks from the doorway. The geometry is wrong in a way that has nothing to do with damage.",
     ])
     air_state = R([
         "warm and wet. Condensation on every surface",
         "dry. Desiccated. Your lips crack within minutes.",
-        "different. Not bad. Different. Like breathing in a room where something else has been breathing.",
+        "strange in a way that takes a moment to place. Like breathing in a room where something else has been breathing.",
         "clean. Too clean. Filtered. By equipment that should not still be running.",
     ])
     interior1_pool = [
@@ -1943,7 +1944,7 @@ def gen_location(ctx, tone=None, planet=None, era=None):
 
     door_state = R([
         "locked from the inside",
-        "missing. Not removed. Missing. The hinges hold nothing.",
+        "gone. The hinges hold nothing. No tool marks, no debris, no sign a door was ever there.",
         "open. It has always been open. You know this without knowing how you know.",
         "marked with a symbol that matches nothing in the colony database. Or matches everything.",
     ])
@@ -2088,9 +2089,9 @@ def gen_location(ctx, tone=None, planet=None, era=None):
                        "use it as a meeting place. Have for longer than the colony's existed.",
                        "won't say why. The refusal to explain is its own kind of claim."])
     colony_opinion = R([
-        '"don\'t go there after dark" -- unofficial but unanimous',
+        '"don\'t go there after dark." Unofficial but unanimous.',
         '"good scavenging, if you don\'t mind the feeling of being watched"',
-        '"one of ours went in last month. Came back different. Not wrong. Different."',
+        '"one of ours went in last month. Came back changed. Something behind the eyes."',
         '"the maintenance crew won\'t go below the second level. Hasn\'t for weeks."',
         '"it\'s fine. It\'s all fine." The emphasis suggests otherwise.',
     ])
@@ -2213,6 +2214,14 @@ def gen_location(ctx, tone=None, planet=None, era=None):
         + what_happened
         + npc_line
     )
+
+    # Generate active location events
+    loc_events = generate_location_events({"name": loc_name, "type": loc_type}, n=3)
+    if loc_events:
+        events_lines = []
+        for ev in loc_events:
+            events_lines.append(f"- [{ev['category']}] {ev['content']} (duration: {ev['duration']} ticks)")
+        output += "\n\n**Active Events:**\n" + "\n".join(events_lines)
 
     output = enforce_contractions(output, tone)
     ctx.world.log_generation("location", loc_name)

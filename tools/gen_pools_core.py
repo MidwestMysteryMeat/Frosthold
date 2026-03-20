@@ -4948,6 +4948,112 @@ def generate_robot_thoughts(sentience_level, n=3):
 
 
 # ============================================================
+# LOCATION EVENTS — cycling environmental/social/anomalous events
+# ============================================================
+
+LOCATION_EVENTS = {
+    "environmental": {
+        "duration": (60, 480),
+        "events": [
+            "temperature drop in Section {section}. Three degrees in twenty minutes. No environmental cause.",
+            "condensation forming on the walls of Corridor {corridor}. Pattern looks deliberate.",
+            "a crack appeared in the south wall overnight. The crack is warm.",
+            "ice forming on interior surfaces despite heating. The crystals follow the wiring pattern.",
+            "the lights in {section} are dimmer. Maintenance checked. Lights are at full power.",
+            "ambient noise level dropped. The silence is measurable. Something stopped making sound.",
+            "air pressure differential between levels 2 and 3. The differential is increasing.",
+            "frost patterns on the viewport. The patterns are symmetrical. Frost is never symmetrical.",
+        ],
+    },
+    "mechanical": {
+        "duration": (30, 240),
+        "events": [
+            "the water recycler is producing 3% more output than input. The extra water has no source.",
+            "generator cycle skipped. Resumed without intervention. Logged as 'self-correcting.'",
+            "airlock {airlock} opened and closed at 0300. Nobody was near it. Log shows manual override.",
+            "drill harmonic shifted frequency. The new frequency matches the one from three postings ago.",
+            "HERMES rerouted power to an unused section. When asked, HERMES said: 'precautionary.'",
+            "ventilation in the lower corridors reversed direction for eleven seconds. Then resumed.",
+            "the cargo elevator descended to a floor that doesn't exist on the schematics.",
+            "three consoles in the operations room displayed the same error simultaneously. The error code isn't in the manual.",
+        ],
+    },
+    "social": {
+        "duration": (120, 720),
+        "events": [
+            "two colonists haven't spoken since Tuesday. Nobody knows why. Both claim everything's fine.",
+            "someone left flowers on a bunk. Synthetic flowers. The bunk's occupant has been dead for three weeks.",
+            "graffiti appeared in the bathroom. Coordinates. Different coordinates each day.",
+            "the mess hall's seating arrangement changed overnight. Nobody moved their seat consciously.",
+            "a rumor about the supply ship is circulating. The rumor is different depending on who tells it.",
+            "night shift is refusing to work alone in Section C. They submitted the request formally. In writing. All of them.",
+            "someone is leaving NutriLoaf wrappers folded into shapes outside specific bunks. The shapes are accurate origami.",
+            "the colony dogs gathered at the south entrance. All of them. At the same time. Sat there for an hour. Then dispersed.",
+        ],
+    },
+    "anomalous": {
+        "duration": (30, 180),
+        "events": [
+            "a colonist heard their name called from an empty corridor. Audio logs confirm the sound.",
+            "the shadows in the bore shaft entrance are moving against the light source, not with it.",
+            "a sealed door was found open. The seal is intact. The door is open. Both things are true.",
+            "temperature readings from the lower level are returning negative values. The sensors don't have a negative setting.",
+            "HERMES reported a colonist in Section D. Section D is sealed. HERMES insists.",
+            "the rock samples from the morning shift are heavier than the rock samples from the afternoon shift. Same rock. Same scale.",
+            "a photograph on a colonist's wall has changed. The people in it are in different positions. The colonist hasn't noticed.",
+            "the bore shaft produced a sound at 0247. Duration: four seconds. The sound matched a human voice saying a word in a language the colony's translation software doesn't recognize.",
+        ],
+    },
+    "mammona": {
+        "duration": (240, 960),
+        "events": [
+            "a memo arrived reclassifying Section B from 'operational' to 'under review.' No inspection has been scheduled.",
+            "supply manifest discrepancy. Twelve thermal cores listed as 'in transit.' Transit from where is unlisted.",
+            "HERMES pushed a software update at 0200. The changelog is empty. Colony response time is 0.3 seconds slower.",
+            "insurance reclassification notice for three colonists. The reclassification is to a lower tier. The colonists weren't informed.",
+            "a new clause appeared in the colony's operating agreement. Clause 14.7.3. Nobody can find the previous version to compare.",
+            "Mammona corporate sent a survey. One question: 'Rate your confidence in colony leadership, 1-5.' The survey is mandatory. The results are anonymous. The submission is tracked.",
+        ],
+    },
+}
+
+
+def generate_location_events(location_data, n=3):
+    """Generate up to n active events for a location."""
+    events = []
+    categories = list(LOCATION_EVENTS.keys())
+    weights = {"environmental": 3, "mechanical": 3, "social": 2, "anomalous": 1, "mammona": 1}
+
+    used_cats = set()
+    for _ in range(n):
+        available = [c for c in categories if c not in used_cats]
+        if not available:
+            break
+        weighted = []
+        for c in available:
+            weighted.extend([c] * weights.get(c, 1))
+        cat = random.choice(weighted)
+        used_cats.add(cat)
+
+        pool = LOCATION_EVENTS[cat]
+        event_text = random.choice(pool["events"])
+        duration = random.randint(*pool["duration"])
+
+        # Fill placeholders
+        event_text = event_text.replace("{section}", random.choice("ABCDEFG"))
+        event_text = event_text.replace("{corridor}", str(random.randint(1, 12)))
+        event_text = event_text.replace("{airlock}", str(random.randint(1, 6)))
+
+        events.append({
+            "content": event_text,
+            "category": cat,
+            "duration": duration,
+        })
+
+    return events
+
+
+# ============================================================
 # VERIFICATION
 # ============================================================
 
@@ -5173,6 +5279,18 @@ if __name__ == "__main__":
     print(f"  generate_robot_thoughts('emergent') -> {len(test_robot_thoughts)} thoughts")
     for t in test_robot_thoughts:
         print(f"    \"{t['content'][:60]}\" (dur: {t['duration']})")
+
+    # Location events
+    print()
+    total_loc_events = sum(len(v["events"]) for v in LOCATION_EVENTS.values())
+    print(f"LOCATION_EVENTS: {len(LOCATION_EVENTS)} categories, {total_loc_events} total events")
+    for cat, data in LOCATION_EVENTS.items():
+        print(f"  {cat}: {len(data['events'])} events, duration {data['duration']}")
+
+    test_loc_events = generate_location_events({}, n=3)
+    print(f"  generate_location_events() -> {len(test_loc_events)} events")
+    for e in test_loc_events:
+        print(f"    [{e['category']}] \"{e['content'][:60]}\" (dur: {e['duration']})")
 
     print()
     print("All checks complete.")

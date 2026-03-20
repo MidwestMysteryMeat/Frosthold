@@ -4083,7 +4083,7 @@ def _unsent_apologetic(ctx, tone, first, last, g, gl, gp, go, loc,
 
 {R([
     f"I said I'd explain. I'm going to try. Bear with me.",
-    f"Okay. Here goes. The reason I left {prev_loc} --",
+    f"Okay. Here goes. The reason I left {prev_loc}.",
     f"You deserve the truth. I'm going to give you the truth. Starting now.",
 ])}
 
@@ -4304,9 +4304,9 @@ Doctor {last}'s notes are thorough and accurate. The observations are described.
 
 What it means is that {patient_first} {patient_last} is no longer the patient. {patient_first} {patient_last} is the vector. The patient is everyone else.
 
-Recommend immediate--
+Recommend immediate
 
-[The addendum ends here. The pen was pressed hard enough to score the surface of the datapad. The handwriting has not been matched to any personnel on the posting.]""",
+[The text stops mid-sentence. The pen was pressed hard enough to score the surface of the datapad. The handwriting has not been matched to any personnel on the posting.]""",
         f"""**ADDENDUM** (handwritten, different hand):
 
 Dr. {last}: your patient is fine. Your patient has always been fine. Your patient is the only person on this posting who is fine.
@@ -4448,8 +4448,8 @@ def _datapad_audio_transcript(ctx, tone, first, last, g, gl, gp, go, loc):
 ])}""")
 
     # Entry 2: The situation
-    entries.append(f"""{first}: The thing about {loc} is -- {R([
-    f"we all know. That's the part nobody talks about. Everyone on this posting knows something is wrong. Not broken. Wrong. In the way that a clock running backward is wrong. The machinery works. The numbers add up. But the direction is wrong.",
+    entries.append(f"""{first}: The thing about {loc}. {R([
+    f"We all know. That's the part nobody talks about. Everyone on this posting knows something is wrong, and not in a way you can fix. In the way that a clock running backward is wrong. The machinery works. The numbers add up. But the direction is wrong.",
     f"I found the files. The ones from the previous posting. They weren't erased. They were archived. In a directory that Mammona's search function doesn't index. I don't know if that's a bug or a feature. I know what the files say.",
     f"it's exactly what they told us it would be. Cold. Remote. Resource-rich. What they didn't say is that {lo} isn't what the briefing describes. The briefing describes a thing. What's down there is an event. An ongoing event.",
     f"I've been tracking the HERMES anomalies. Every terminal. Every shift. There's a pattern. HERMES isn't malfunctioning. HERMES is translating. Something is speaking and HERMES is the only system complex enough to interpret it.",
@@ -4498,7 +4498,7 @@ def _datapad_audio_transcript(ctx, tone, first, last, g, gl, gp, go, loc):
 ])}
 
 {first}: {R([
-    f"Tell them what? That Mammona lied? They know Mammona lied. Tell them what's underneath? Then what? We can't leave. The shuttle comes when it comes. We'd just be scared people who can't go anywhere. We'd be--",
+    f"Tell them what? That Mammona lied? They know Mammona lied. Tell them what's underneath? Then what? We can't leave. The shuttle comes when it comes. We'd just be scared people who can't go anywhere.",
     f"No. No. Someone has to know. If we destroy it and something happens to us, nobody ever knows. This recording is the only honest thing on this entire posting.",
     f"[very quiet] Don't move. Stay right there. Listen. ... [the background tone changes character. What was mechanical becomes organic. A vibration felt more than heard.] ... It knows we're here. {speaker2_first}. It's always known we're here.",
     f"You can't leave. None of us can leave. That's what the files say. The shuttle doesn't take people away from here. The shuttle brings them. Read the last transport manifest. Count the names coming. Count the names going. The numbers don't match.",

@@ -62,7 +62,7 @@ QUEST_ARCHETYPES = {
         ],
         "twists": [
             "Both versions of {npc_first} are real. Something didn't replace anyone. It copied them. And the copy thinks it's the original.",
-            "The medical scans show something. Not in {npc_first}. In three other colonists. They've been different for weeks.",
+            "The medical scans show something, but the anomaly isn't in {npc_first}. It's in three other colonists. They've been different for weeks.",
             "{npc_first} knows. Has known for days. Didn't say anything because the copy is better at their job. More likable. Happier. {npc_first} is terrified of what that means.",
         ],
     },

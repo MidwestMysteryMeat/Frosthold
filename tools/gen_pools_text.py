@@ -92,7 +92,7 @@ SENSORY = {
         "The wrench he set down rolled three centimeters to the left. Toward the wall. Uphill.",
     ],
     "cosmic_horror": [
-        "The geometry of the room was wrong. Not broken. Wrong. Angles that existed but shouldn't.",
+        "The geometry of the room was wrong in a way that had nothing to do with damage. Angles that existed but shouldn't.",
         "Looking at it too long caused nosebleeds. Not looking at it was worse.",
         "It wasn't big. That was the terrifying part. Something that powerful should be big.",
         "The stars outside the viewport had rearranged. Nobody mentioned it.",
@@ -103,7 +103,7 @@ SENSORY = {
     ],
     "body_horror": [
         "The growth had spread to the second joint. It was warm. It pulsed.",
-        "Their teeth had changed. Not fallen out. Changed. Into something else.",
+        "Their teeth had changed shape overnight. Same roots, same count, different geometry. Something else's geometry.",
         "Under the skin, something moved. Small. Deliberate. Mapping.",
         "The wound healed too fast. What grew back wasn't the same tissue.",
         "They found fingernails embedded in the wall. From the inside.",
