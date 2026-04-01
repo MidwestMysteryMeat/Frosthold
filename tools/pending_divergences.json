@@ -1,0 +1,63 @@
+[
+  {
+    "type": "faction_conflict",
+    "subject": "void_serpents_vs_orbis",
+    "description": "Territory Dispute erupts between Void Serpents and Orbis Energy Solutions across contested shipping lanes",
+    "cause": "Long-simmering rivalry finally boiled over",
+    "timestamp": "day_63",
+    "consequences": [
+      "Void Serpents and Orbis Energy Solutions are now openly hostile",
+      "Trade routes between their territories are disrupted",
+      "Neutral parties forced to pick sides"
+    ],
+    "invalidates": [
+      "void_serpents_allied_orbis",
+      "orbis_allied_void_serpents"
+    ],
+    "enables": [
+      "void_serpents_vs_orbis_conflict",
+      "war_profiteering_void_serpents_orbis"
+    ],
+    "id": "div_001"
+  },
+  {
+    "type": "resource_crisis",
+    "subject": "Rhea-2",
+    "description": "Toxic bloom contaminates Rhea-2's habitable zones",
+    "cause": "Deliberate sabotage by an unknown party",
+    "timestamp": "day_67",
+    "consequences": [
+      "evacuation of exposed sectors",
+      "medical infrastructure overwhelmed",
+      "quarantine zones established"
+    ],
+    "invalidates": [
+      "Rhea-2_stable_supply"
+    ],
+    "enables": [
+      "Rhea-2_crisis_atmospheric_contamination",
+      "Rhea-2_emergency"
+    ],
+    "id": "div_002"
+  },
+  {
+    "type": "betrayal",
+    "subject": "beckett_vance",
+    "description": "Beckett Vance of The Hollow Compact defects to Mammona Mining",
+    "cause": "Motivated by blackmail material held by the enemy",
+    "timestamp": "day_92",
+    "consequences": [
+      "The Hollow Compact loses internal intelligence",
+      "Mammona Mining gains an insider with knowledge of The Hollow Compact's operations",
+      "Trust within The Hollow Compact erodes"
+    ],
+    "invalidates": [
+      "beckett_vance_loyal_hollow_compact"
+    ],
+    "enables": [
+      "beckett_vance_allied_mammona_mining",
+      "hollow_compact_security_breach"
+    ],
+    "id": "div_003"
+  }
+]

@@ -1,0 +1,63 @@
+[
+  {
+    "type": "secret_revealed",
+    "subject": "public",
+    "description": "It becomes public knowledge that Mammona knows about the Xenolith eggs and is collecting them",
+    "cause": "Revealed by an anonymous tip",
+    "timestamp": "day_127",
+    "consequences": [
+      "Trust in the implicated parties collapses",
+      "Demand for answers from colony leadership",
+      "Related cover-ups begin to unravel"
+    ],
+    "invalidates": [
+      "secret_hidden_0091"
+    ],
+    "enables": [
+      "public_unrest",
+      "investigation_launched"
+    ],
+    "id": "div_001"
+  },
+  {
+    "type": "resource_crisis",
+    "subject": "Nemaea",
+    "description": "Primary thermal core veins on Nemaea are exhausted",
+    "cause": "A cascading infrastructure failure",
+    "timestamp": "day_39",
+    "consequences": [
+      "energy rationing across Nemaea",
+      "mining operations shift to secondary deposits",
+      "faction conflicts over remaining reserves intensify"
+    ],
+    "invalidates": [
+      "Nemaea_stable_supply"
+    ],
+    "enables": [
+      "Nemaea_crisis_thermal_core_depletion",
+      "Nemaea_emergency"
+    ],
+    "id": "div_002"
+  },
+  {
+    "type": "alliance_formed",
+    "subject": "void_serpents_and_black_maw",
+    "description": "Void Serpents and Black Maw form a non-aggression treaty",
+    "cause": "economic collapse left no alternative",
+    "timestamp": "day_1",
+    "consequences": [
+      "Void Serpents and Black Maw now cooperate openly",
+      "Rivals of both factions face a stronger combined front",
+      "Former rivalry between Void Serpents and Black Maw is suspended"
+    ],
+    "invalidates": [
+      "void_serpents_vs_black_maw_conflict",
+      "black_maw_vs_void_serpents_conflict"
+    ],
+    "enables": [
+      "void_serpents_allied_black_maw",
+      "black_maw_allied_void_serpents"
+    ],
+    "id": "div_003"
+  }
+]

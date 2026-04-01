@@ -1,0 +1,22 @@
+[
+  {
+    "type": "territory_change",
+    "subject": "eclipses_end",
+    "description": "Eclipse's End on Morvos falls from Burnt Protocol to Veilbreakers via economic pressure and buyout",
+    "cause": "Veilbreakers seized control through economic pressure and buyout",
+    "timestamp": "day_114",
+    "consequences": [
+      "Burnt Protocol loses control of Eclipse's End",
+      "Veilbreakers now controls Eclipse's End and its resources",
+      "Personnel at Eclipse's End must swear new allegiance or flee"
+    ],
+    "invalidates": [
+      "burnt_protocol_controls_eclipses_end"
+    ],
+    "enables": [
+      "veilbreakers_controls_eclipses_end",
+      "eclipses_end_contested"
+    ],
+    "id": "div_001"
+  }
+]

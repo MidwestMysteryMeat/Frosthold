@@ -1,0 +1,69 @@
+{
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors"
+    }
+  },
+  "2": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "lora_name": "PixelArtRedmond15V-PixelArt-PIXARFK.safetensors",
+      "strength_model": 0.75,
+      "strength_clip": 0.75,
+      "model": ["1", 0],
+      "clip": ["1", 1]
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "PIXARFK, pixel art, game sprite, 16-bit style, clean outlines, detailed pixel shading, front-facing creature, (transparent background:1.3), centered, muted palette, dark browns, steel grays, icy blues, warm orange accents, frozen tundra, ice and snow, cold blue lighting, arctic, massive ice golem creature, boss monster, front view, full body, game boss sprite, imposing",
+      "clip": ["2", 1]
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "human, person, humanoid, background scenery, landscape, multiple creatures, group, text label, name tag, UI element, blurry, smooth shading, anti-aliased, gradient, soft edges, 3d render, photograph, photorealistic, realistic, watermark, text, signature, logo, username, low quality, jpeg artifacts, compression artifacts, deformed, disfigured, extra limbs, mutated, out of frame, cropped, worst quality, low resolution",
+      "clip": ["2", 1]
+    }
+  },
+  "5": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 512,
+      "height": 640,
+      "batch_size": 1
+    }
+  },
+  "6": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["2", 0],
+      "seed": 42,
+      "steps": 28,
+      "cfg": 7.5,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1.0,
+      "positive": ["3", 0],
+      "negative": ["4", 0],
+      "latent_image": ["5", 0]
+    }
+  },
+  "7": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["6", 0],
+      "vae": ["1", 2]
+    }
+  },
+  "8": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "frosthold_test",
+      "images": ["7", 0]
+    }
+  }
+}

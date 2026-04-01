@@ -1,0 +1,21 @@
+[
+  {
+    "type": "npc_death",
+    "subject": "npc_noor_petrov",
+    "description": "Noor Petrov is killed by an airlock malfunction during EVA",
+    "cause": "an airlock malfunction during EVA",
+    "timestamp": "day_95",
+    "consequences": [
+      "Noor Petrov's responsibilities must be reassigned",
+      "Morale impact on anyone who knew Noor"
+    ],
+    "invalidates": [
+      "npc_noor_petrov_alive"
+    ],
+    "enables": [
+      "npc_noor_petrov_dead",
+      "vacancy_npc_noor_petrov"
+    ],
+    "id": "div_001"
+  }
+]
