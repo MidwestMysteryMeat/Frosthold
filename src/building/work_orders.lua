@@ -164,50 +164,57 @@ function WorkOrders.getActiveBill(machineId)
     local pOk, Production = pcall(require, 'src.building.production')
 
     for _, bill in ipairs(machine.bills) do
-        if bill.paused then goto nextBill end
+        local skip = false
+
+        if bill.paused then skip = true end
 
         -- Check pause conditions
-        if bill.pauseCondition == 'low_food' then
-            if (GameState.resources.food or 0) < 10 then
-                bill.suspended = true
-                goto nextBill
-            end
-        elseif bill.pauseCondition == 'low_fuel' then
-            if (GameState.resources.fuel or 0) < 5 then
-                bill.suspended = true
-                goto nextBill
-            end
-        end
-        bill.suspended = false
-
-        -- Check completion
-        if bill.mode == 'count' then
-            if bill.produced >= bill.target then goto nextBill end
-
-        elseif bill.mode == 'until_x' then
-            -- Check colony stockpile of the output item
-            if pOk then
-                local recipe = Production.RECIPES[bill.recipeId]
-                if recipe then
-                    local allMet = true
-                    for outputItem, _ in pairs(recipe.outputs) do
-                        local ITEM_TO_RES = Production.ITEM_TO_RES
-                        local resKey = ITEM_TO_RES and ITEM_TO_RES[outputItem] or outputItem
-                        local current = GameState.resources[resKey] or 0
-                        if current < bill.target then
-                            allMet = false
-                            break
-                        end
-                    end
-                    if allMet then goto nextBill end
+        if not skip then
+            if bill.pauseCondition == 'low_food' then
+                if (GameState.resources.food or 0) < 10 then
+                    bill.suspended = true
+                    skip = true
+                end
+            elseif bill.pauseCondition == 'low_fuel' then
+                if (GameState.resources.fuel or 0) < 5 then
+                    bill.suspended = true
+                    skip = true
                 end
             end
         end
-        -- 'forever' never completes
 
-        return bill
+        if not skip then
+            bill.suspended = false
 
-        ::nextBill::
+            -- Check completion
+            if bill.mode == 'count' then
+                if bill.produced >= bill.target then skip = true end
+
+            elseif bill.mode == 'until_x' then
+                -- Check colony stockpile of the output item
+                if pOk then
+                    local recipe = Production.RECIPES[bill.recipeId]
+                    if recipe then
+                        local allMet = true
+                        for outputItem, _ in pairs(recipe.outputs) do
+                            local ITEM_TO_RES = Production.ITEM_TO_RES
+                            local resKey = ITEM_TO_RES and ITEM_TO_RES[outputItem] or outputItem
+                            local current = GameState.resources[resKey] or 0
+                            if current < bill.target then
+                                allMet = false
+                                break
+                            end
+                        end
+                        if allMet then skip = true end
+                    end
+                end
+            end
+            -- 'forever' never completes
+
+            if not skip then
+                return bill
+            end
+        end
     end
 
     return nil

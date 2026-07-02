@@ -645,7 +645,14 @@ local function drawColonistsTab(cx, cy, cw, mx, my)
     drawSectionHeader(cx, y, 'Modify Selected Colonist')
     y = y + HEADER_H
 
-    local selId = GameState.selectedEntities and GameState.selectedEntities[1] or nil
+    -- selectedEntities is a dictionary keyed by entity ID, not an array
+    local selId = nil
+    if GameState.selectedEntities then
+        for id in pairs(GameState.selectedEntities) do
+            selId = id
+            break
+        end
+    end
     if not selId or not ECS.get(selId, 'colonist') then
         love.graphics.setColor(0.5, 0.5, 0.5)
         love.graphics.print('Select a colonist first.', cx, y)

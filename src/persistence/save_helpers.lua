@@ -115,6 +115,8 @@ local KNOWN_COMPONENTS = {
     'npc_ship',
     'sos_beacon',
     'data_terminal',
+    'automaton',
+    'slave',
 }
 
 local function gatherEntities()

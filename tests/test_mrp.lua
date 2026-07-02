@@ -490,8 +490,10 @@ T.test('round-trip preserves deployment count', function()
 end)
 
 ---------------------------------------------------------------------------
--- Run
+-- Run (only when executed directly, not via run_all.lua)
 ---------------------------------------------------------------------------
 
-local failCount = T.summary()
-os.exit(failCount > 0 and 1 or 0)
+if arg and arg[0] and arg[0]:find('test_mrp') then
+    local failCount = T.summary()
+    os.exit(failCount > 0 and 1 or 0)
+end

@@ -511,6 +511,9 @@ applyDetonationLayer = function(cx, cy, depth, def, damage, radius)
         local cok, Creatures = pcall(require, 'src.creatures.creatures')
         if cok then
             for crId, comps in ECS.query('creature', 'pos') do
+                local cr = comps.creature
+                -- Skip dead creatures
+                if cr.state == 'dead' then goto continue_creature end
                 local cp = comps.pos
                 if (cp.depth or 0) == depth then
                     local dx = cp.x - cx
@@ -524,6 +527,7 @@ applyDetonationLayer = function(cx, cy, depth, def, damage, radius)
                         end
                     end
                 end
+                ::continue_creature::
             end
         end
 

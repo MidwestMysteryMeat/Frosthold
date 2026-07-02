@@ -142,6 +142,8 @@ local function loadOptional(path)
     return ok and mod or false
 end
 
+local SimRunner = loadOptional('src.testing.run_simulation')
+
 -- Space UI panels (optional)
 local ShipHUD         = loadOptional('src.ui.ship_hud')
 local StationPanel    = loadOptional('src.ui.station_panel')
@@ -356,6 +358,13 @@ function love.load()
     -- Autoplay: skip menu and start colony immediately
     if AUTOPLAY then
         Autoplay.init({ days = AUTOPLAY_DAYS or 30 })
+        GameState.phase = 'starting'
+    end
+
+    -- Simulation test mode: skip menu and run simulation agents
+    if SIMULATION_TEST and SimRunner then
+        local scenario = SIMULATION_SCENARIO or 'survival'
+        SimRunner.setup(scenario)
         GameState.phase = 'starting'
     end
 end
@@ -1010,6 +1019,19 @@ function love.update(dt)
             love.event.quit(0)
         end
     end
+
+    -- Simulation test tick
+    if SIMULATION_TEST and SimRunner and SimRunner.isRunning then
+        -- Start simulation after game is playing
+        if GameState.phase == 'playing' and not SimRunner.isRunning() then
+            SimRunner.start()
+        end
+        SimRunner.step(dt)
+        if not SimRunner.isRunning() then
+            SimRunner.printSummary()
+            love.event.quit(0)
+        end
+    end
 end
 
 ---------------------------------------------------------------------------
@@ -1191,6 +1213,29 @@ function love.draw()
     -- Autoplay overlay
     if AUTOPLAY and Autoplay.isActive() then
         Autoplay.draw()
+    end
+
+    -- Simulation test overlay
+    if SIMULATION_TEST and SimRunner and SimRunner.isRunning and SimRunner.isRunning() then
+        local results = SimRunner.getResults()
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle('fill', 4, 20, 350, 80, 4)
+        love.graphics.setColor(0.3, 0.8, 1.0)
+        love.graphics.print(string.format(
+            'SIMULATION TEST [%s]', results.scenario or 'unknown'
+        ), 10, 26)
+        love.graphics.setColor(0.8, 0.8, 0.8)
+        love.graphics.print(string.format(
+            'Day %d/%d  Ticks: %d  Time: %.1fs',
+            results.daysReached or 0, results.targetDays or 0,
+            results.ticksReached or 0, results.realTimeSeconds or 0
+        ), 10, 46)
+        local ic = results.issueCounts or {}
+        love.graphics.setColor(1.0, 0.4, 0.4)
+        love.graphics.print(string.format(
+            'Issues: %d crit, %d high, %d med, %d low',
+            ic.critical or 0, ic.high or 0, ic.medium or 0, ic.low or 0
+        ), 10, 66)
     end
 
     SettingsPanel.endColorblindPass()

@@ -101,10 +101,11 @@ function Surgery.queueOperation(tableEntityId, opId, patientId, targetPart)
     end
 
     machine._surgeryQueue[#machine._surgeryQueue + 1] = {
-        opId      = opId,
-        patientId = patientId,
+        opId       = opId,
+        patientId  = patientId,
         targetPart = targetPart,
-        progress  = 0,
+        tableId    = tableEntityId,
+        progress   = 0,
     }
 
     return true

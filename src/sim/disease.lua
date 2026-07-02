@@ -580,4 +580,34 @@ end
 -- Auto-register on require
 Disease.registerSystems()
 
+---------------------------------------------------------------------------
+-- Persistence: getState / restoreState
+-- Disease state is primarily stored in ECS components (disease, diseaseImmunity)
+-- which are automatically persisted. This provides explicit state hooks.
+---------------------------------------------------------------------------
+
+function Disease.getState()
+    -- Collect active disease data for all entities with disease component
+    local diseaseStates = {}
+    for id, comps in ECS.query('disease') do
+        local d = comps.disease
+        diseaseStates[id] = {
+            id = d.id,
+            severity = d.severity,
+            immunity = d.immunity,
+            daysInfected = d.daysInfected,
+            treated = d.treated,
+            diagnosed = d.diagnosed,
+        }
+    end
+    return { diseases = diseaseStates }
+end
+
+function Disease.restoreState(saved)
+    if not saved or not saved.diseases then return end
+    -- Disease components are restored via ECS entity restoration in save.lua
+    -- This function exists for consistency with other modules
+    -- and to handle any future non-ECS disease state
+end
+
 return Disease

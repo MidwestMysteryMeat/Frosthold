@@ -323,19 +323,20 @@ end
 -- ECS system: frostbite application (when warmth need stays critical)
 ---------------------------------------------------------------------------
 
-local frostbiteTimers = {} -- { [entityId] = secondsBelowThreshold }
+-- Frostbite timers are now stored in needs component for persistence
+-- local frostbiteTimers = {} -- DEPRECATED: moved to needs._frostbiteTimer
 
 local function frostbiteCheckSystem(dt, id, comps)
     local needs = comps.needs
     local col   = comps.colonist
 
     if col.state == 'dead' then
-        frostbiteTimers[id] = nil
+        needs._frostbiteTimer = nil
         return
     end
 
     if needs.warmth < 10 then
-        frostbiteTimers[id] = (frostbiteTimers[id] or 0) + dt
+        needs._frostbiteTimer = (needs._frostbiteTimer or 0) + dt
         -- Base: 5 minutes of critical cold before frostbite
         local frostbiteThreshold = 300
         -- Starting colony bonus: first hour of real-time, triple the threshold
@@ -354,8 +355,8 @@ local function frostbiteCheckSystem(dt, id, comps)
             frostbiteThreshold = frostbiteThreshold * 1.5
         end
         -- Apply frostbite after threshold seconds of critical cold
-        if frostbiteTimers[id] >= frostbiteThreshold then
-            frostbiteTimers[id] = 0
+        if needs._frostbiteTimer >= frostbiteThreshold then
+            needs._frostbiteTimer = 0
             -- Pick an extremity (hands/feet first)
             local extremities = { 'left_arm', 'right_arm', 'left_leg', 'right_leg' }
             local target = extremities[math.random(#extremities)]
@@ -365,7 +366,7 @@ local function frostbiteCheckSystem(dt, id, comps)
             end
         end
     else
-        frostbiteTimers[id] = nil
+        needs._frostbiteTimer = nil
     end
 end
 
@@ -407,11 +408,13 @@ end
 Wounds.registerSystems()
 
 ---------------------------------------------------------------------------
--- Cleanup: remove frostbite timer for a destroyed entity
+-- Cleanup: frostbite timers are now stored in needs component
+-- This function is kept for API compatibility but is now a no-op
 ---------------------------------------------------------------------------
 
 function Wounds.onEntityRemoved(entityId)
-    frostbiteTimers[entityId] = nil
+    -- Frostbite timers now stored in needs._frostbiteTimer
+    -- They are cleaned up automatically when the entity is destroyed
 end
 
 return Wounds

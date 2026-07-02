@@ -1,9 +1,14 @@
 -- Parse launch flags before conf runs
 AUTOPLAY = false
 AUTOPLAY_DAYS = 30
+SIMULATION_TEST = false
+SIMULATION_SCENARIO = 'survival'
+
 for i, v in ipairs(arg or {}) do
     if v == '--autoplay' then AUTOPLAY = true end
     if v == '--days' and arg[i + 1] then AUTOPLAY_DAYS = tonumber(arg[i + 1]) or 30 end
+    if v == '--simulation' then SIMULATION_TEST = true end
+    if v == '--scenario' and arg[i + 1] then SIMULATION_SCENARIO = arg[i + 1] end
 end
 
 function love.conf(t)

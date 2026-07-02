@@ -481,11 +481,11 @@ function Selection.drawNeedsTab(id, col, needs, y)
         ty = ty + fh + 2
         for _, t in ipairs(col.traits) do
             if ty > screenH - 10 then break end
-            if t.workSpeed and t.workSpeed > 0 or t.moraleMod and t.moraleMod > 0 or
-               t.combatMod and t.combatMod > 0 or t.coldResist and t.coldResist > 0 then
+            if (t.workSpeed and t.workSpeed > 0) or (t.moraleMod and t.moraleMod > 0) or
+               (t.combatMod and t.combatMod > 0) or (t.coldResist and t.coldResist > 0) then
                 love.graphics.setColor(0.3, 0.9, 0.4)
-            elseif t.workSpeed and t.workSpeed < 0 or t.moraleMod and t.moraleMod < 0 or
-                   t.combatMod and t.combatMod < 0 or t.coldResist and t.coldResist < 0 then
+            elseif (t.workSpeed and t.workSpeed < 0) or (t.moraleMod and t.moraleMod < 0) or
+                   (t.combatMod and t.combatMod < 0) or (t.coldResist and t.coldResist < 0) then
                 love.graphics.setColor(0.9, 0.4, 0.3)
             else
                 love.graphics.setColor(0.7, 0.7, 0.5)

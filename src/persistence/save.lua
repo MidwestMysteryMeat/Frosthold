@@ -141,8 +141,13 @@ local function restoreFromData(data, skipTilemap)
 
     ECS.init()
     local idRemap = {}
-    if data.entities then
-        for _, ent in ipairs(data.entities) do
+    if data.entities and type(data.entities) == 'table' then
+        for idx, ent in ipairs(data.entities) do
+            -- Validate entity structure
+            if type(ent) ~= 'table' then
+                print('[Save] Warning: skipping malformed entity at index ' .. idx)
+                goto continue_entity
+            end
             local oldId = ent._savedId
             local id = ECS.spawn()
             if oldId then
@@ -150,9 +155,15 @@ local function restoreFromData(data, skipTilemap)
             end
             for compName, compData in pairs(ent) do
                 if compName ~= '_savedId' then
-                    ECS.set(id, compName, compData)
+                    -- Validate component data is a table (all ECS components should be)
+                    if type(compData) == 'table' then
+                        ECS.set(id, compName, compData)
+                    else
+                        print('[Save] Warning: skipping non-table component ' .. compName .. ' on entity ' .. (oldId or id))
+                    end
                 end
             end
+            ::continue_entity::
         end
     end
 
