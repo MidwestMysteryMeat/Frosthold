@@ -77,8 +77,9 @@ T.test('insert and extract item on belt', function()
     -- Cannot insert a second item
     T.eq(C.insertItem(12, 12, 'coal'), false, 'second insert rejected')
 
+    -- extractItem returns the full item table (belts carry item data since SP1)
     local extracted = C.extractItem(12, 12)
-    T.eq(extracted, 'metal_ingot', 'extract returns item ID')
+    T.eq(extracted.id, 'metal_ingot', 'extract returns the item with its ID')
     T.eq(C.hasItem(12, 12), false, 'belt empty after extract')
 end)
 

@@ -17,6 +17,7 @@ ItemDefs.ITEMS = {
     iron_ore     = { category = 'raw_ore',   weight = 3.0, immune = true },
     lead_ore     = { category = 'raw_ore',   weight = 3.0, immune = true },
     copper_ore   = { category = 'raw_ore',   weight = 3.0, immune = true },
+    coal         = { category = 'raw_ore',   weight = 2.5, immune = true },
     uranium_ore  = { category = 'hazmat',    weight = 4.0, immune = true, radioactive = true },
     stone_chunk  = { category = 'raw_stone', weight = 4.0, immune = true },
     logs         = { category = 'raw_wood',  weight = 5.0, immune = false },

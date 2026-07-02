@@ -5,6 +5,8 @@
 
 local MRP = {}
 
+local loadstring = loadstring or load -- Lua 5.1/LuaJIT vs 5.2+ (headless test runner)
+
 local CAMPAIGN_FILE = 'frosthold_campaign.dat'
 
 -- Tier thresholds based on lifetime MRP earned

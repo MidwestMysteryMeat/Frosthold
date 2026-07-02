@@ -572,16 +572,27 @@ end
 -- Buy a colonist from a merchant for thermal cores
 ---------------------------------------------------------------------------
 
+-- Drain networked storage first, then take the shortfall from the GameState
+-- counter. SNet.withdraw returns what it actually took; ignoring that return
+-- made purchases free whenever the currency sat in the counter.
+local function spendFromStorageOrCounter(resource, amount, x, y)
+    if amount <= 0 then return end
+    local taken = 0
+    local SNet = getStorageNet()
+    if SNet then
+        taken = SNet.withdraw(resource, amount, x or GameState.startX, y or GameState.startY) or 0
+    end
+    if taken < amount then
+        GameState.spendResource(resource, amount - taken)
+    end
+end
+
 function Recruitment.buyColonist(cost, factionId)
     if (GameState.resources.thermalCores or 0) < cost then
         return false, 'Not enough thermal cores'
     end
 
-    if cost > 0 then
-        local SNet = getStorageNet()
-        if SNet then SNet.withdraw('thermalCores', cost, GameState.startX, GameState.startY)
-        else GameState.spendResource('thermalCores', cost) end
-    end
+    spendFromStorageOrCounter('thermalCores', cost)
 
     local World = require('src.world.tilemap')
     local Colonist = require('src.colonist.colonist')
@@ -616,11 +627,7 @@ function Recruitment.buyPrisoner(cost, factionId)
     if cost > 0 and (GameState.resources.thermalCores or 0) < cost then
         return false, 'Not enough thermal cores'
     end
-    if cost > 0 then
-        local SNet = getStorageNet()
-        if SNet then SNet.withdraw('thermalCores', cost, GameState.startX, GameState.startY)
-        else GameState.spendResource('thermalCores', cost) end
-    end
+    spendFromStorageOrCounter('thermalCores', cost)
 
     local _, prisonPos = findAvailablePrisonerBed()
     if not prisonPos then
@@ -736,17 +743,11 @@ function Recruitment.startClone(vatEntityId)
         return false, 'Need ' .. CLONE_COMP_COST .. ' components'
     end
 
-    local SNet = getStorageNet()
     local vatPos = ECS.get(vatEntityId, 'pos')
     local vx = vatPos and vatPos.x or GameState.startX
     local vy = vatPos and vatPos.y or GameState.startY
-    if SNet then
-        SNet.withdraw('food', CLONE_FOOD_COST, vx, vy)
-        SNet.withdraw('components', CLONE_COMP_COST, vx, vy)
-    else
-        GameState.spendResource('food', CLONE_FOOD_COST)
-        GameState.spendResource('components', CLONE_COMP_COST)
-    end
+    spendFromStorageOrCounter('food', CLONE_FOOD_COST, vx, vy)
+    spendFromStorageOrCounter('components', CLONE_COMP_COST, vx, vy)
 
     vat.active = true
     vat.progress = 0

@@ -352,11 +352,12 @@ local function deliverSupply()
     local pending = state.pendingSupply
     if not pending or pending.delivered then return end
 
-    local Items = getItems()
+    -- Package keys are resource-bag names (food/fuel/metal), not item ids:
+    -- spawning them as items created unusable junk entities. Quota shipments
+    -- deduct these counters, so the supply drop credits the same counters.
     for res, amount in pairs(pending.package or {}) do
         if amount > 0 then
-            if Items then Items.spawn(GameState.startX, GameState.startY, res, amount, nil, 0)
-            else GameState.addResource(res, amount) end
+            GameState.addResource(res, amount)
         end
     end
     pending.delivered = true

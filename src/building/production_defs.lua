@@ -30,6 +30,7 @@ local ITEMS = {
 
     -- Advanced materials
     steel        = { name = 'Steel',           stack = 30, category = 'advanced' },
+    plasteel     = { name = 'Plasteel',        stack = 30, category = 'advanced' },
     components   = { name = 'Components',      stack = 20, category = 'advanced' },
     circuit      = { name = 'Circuit',         stack = 20, category = 'advanced' },
     insulation   = { name = 'Insulation',      stack = 30, category = 'advanced' },

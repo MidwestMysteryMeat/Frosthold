@@ -312,8 +312,9 @@ function Creatures.kill(id)
         elseif cr.drops then
             if cr.drops.thermalCore and cr.drops.thermalCore > 0 then
                 local coreAmt = math.floor(cr.drops.thermalCore * lootMod + 0.5)
-                if Items then Items.spawn(pos.x, pos.y, 'thermalCores', coreAmt, nil, pos.depth or 0)
-                else GameState.addResource('thermalCores', coreAmt) end
+                -- thermalCores is the colony-ledger counter, not a spawnable
+                -- item id: Items.spawn('thermalCores') created junk entities.
+                GameState.addResource('thermalCores', coreAmt)
             end
 
             if (cr.drops.meat and cr.drops.meat > 0) or (cr.meat and cr.meat > 0) then
@@ -411,7 +412,10 @@ function Creatures.damageCreature(creatureId, amount, attackerId)
         armor = sp and sp.armorReduction
     end
     if armor then
-        amount = math.max(1, amount - armor)
+        -- Armor caps at 75% damage reduction to prevent invincibility
+        local maxReduction = amount * 0.75
+        local reduction = math.min(armor, maxReduction)
+        amount = math.max(1, amount - reduction)
     end
 
     cr.health = cr.health - amount

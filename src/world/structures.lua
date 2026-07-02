@@ -304,6 +304,10 @@ for _, g in ipairs(GENERATORS) do totalGenWeight = totalGenWeight + g.weight end
 function Structures.generate(tileData, mapW, mapH)
     structureRecords = {}
 
+    -- Largest generator (compound) needs a 14x7 footprint plus 12-tile margins;
+    -- smaller maps make the placement intervals empty and math.random errors.
+    if mapW < 40 or mapH < 40 then return end
+
     local area = mapW * mapH
     local target = math.max(3, math.min(12, math.floor(area / 2500) + math.random(-1, 2)))
 

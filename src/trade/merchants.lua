@@ -26,6 +26,28 @@ end
 
 local Merchants = {}
 
+-- Spend counter-based currency: drain networked storage first, then take the
+-- shortfall from the GameState counter. SNet.withdraw returns what it took;
+-- ignoring that return made purchases free when currency sat in the counter.
+local function spendCurrency(currency, amount)
+    if amount <= 0 then return end
+    local taken = 0
+    local SNet = getStorageNet()
+    if SNet then
+        taken = SNet.withdraw(currency, amount, GameState.startX, GameState.startY) or 0
+    end
+    if taken < amount then
+        GameState.spendResource(currency, amount - taken)
+    end
+end
+
+-- Refund goes straight back to the counter: addResource would apply the
+-- scarcity multiplier, and the currency name is not a spawnable item id.
+local function refundCurrency(currency, amount)
+    if amount <= 0 then return end
+    GameState.resources[currency] = (GameState.resources[currency] or 0) + amount
+end
+
 ---------------------------------------------------------------------------
 -- Merchant type definitions
 ---------------------------------------------------------------------------
@@ -519,9 +541,7 @@ function Merchants.buyItem(itemName, quantity)
             return false, 'Recruitment system unavailable'
         end
 
-        local SNet = getStorageNet()
-        if SNet then SNet.withdraw(currency, totalCost, GameState.startX, GameState.startY)
-        else GameState.spendResource(currency, totalCost) end
+        spendCurrency(currency, totalCost)
 
         local spawned = 0
         for i = 1, quantity do
@@ -535,11 +555,7 @@ function Merchants.buyItem(itemName, quantity)
                 spawned = spawned + 1
             else
                 local refund = pricePerUnit * (quantity - spawned)
-                if refund > 0 then
-                    local Items = getItems()
-                    if Items then Items.spawn(GameState.startX, GameState.startY, currency, refund, nil, 0)
-                    else GameState.addResource(currency, refund) end
-                end
+                refundCurrency(currency, refund)
                 if spawned == 0 then
                     return false, err or 'Purchase failed'
                 end
@@ -550,9 +566,7 @@ function Merchants.buyItem(itemName, quantity)
         end
     else
         -- Execute
-        local SNet = getStorageNet()
-        if SNet then SNet.withdraw(currency, totalCost, GameState.startX, GameState.startY)
-        else GameState.spendResource(currency, totalCost) end
+        spendCurrency(currency, totalCost)
         local Items = getItems()
         if Items then Items.spawn(GameState.startX, GameState.startY, itemName, quantity, nil, 0)
         else GameState.addResource(itemName, quantity) end
@@ -599,12 +613,17 @@ function Merchants.sellItem(itemName, quantity)
         return false, 'You have no ' .. tostring(itemName) .. ' to sell'
     end
 
-    -- Apply negotiator bonus (better sale price) + supply/demand pressure
+    -- Apply negotiator bonus (better sale price) + faction trade modifier + supply/demand pressure
     local bonus = getNegotiatorBonus()
+    local factionMult = 1.0
+    local fok, Factions = pcall(require, 'src.colony.factions')
+    if fok and merc.typeDef.factionId then
+        factionMult = Factions.getTradeMult(merc.typeDef.factionId)
+    end
     local pressure = pricePressure[itemName] or 0
     -- Selling pushes prices down (inverse of buy pressure on sell side)
     local pressureMult = 1 + math.max(-MAX_PRESSURE, math.min(MAX_PRESSURE, -pressure))
-    local pricePerUnit = math.max(1, math.floor(slot.sellPrice * (1 + bonus) * pressureMult + 0.5))
+    local pricePerUnit = math.max(1, math.floor(slot.sellPrice * (1 + bonus) * factionMult * pressureMult + 0.5))
     local totalEarned = pricePerUnit * quantity
 
     -- Execute

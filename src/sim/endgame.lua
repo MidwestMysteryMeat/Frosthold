@@ -20,6 +20,15 @@ Endgame.CHARGE_TIME = CHARGE_TIME  -- exposed for UI
 -- ECS system: tick endgame buildings
 ---------------------------------------------------------------------------
 
+--- End the run: milestone rewards land first, then the victory screen and
+--- MRP payout (GameOver.triggerVictory). Endless mode never reaches here.
+local function completeVictory(vType, vReason)
+    local gok, GameOver = pcall(require, 'src.ui.game_over')
+    if gok and GameOver.triggerVictory then
+        GameOver.triggerVictory(vType, vReason)
+    end
+end
+
 local function endgameBuildingSystem(dt, id, comps)
     local eg = comps.endgame_building
     if not eg then return end
@@ -65,18 +74,24 @@ local function endgameBuildingSystem(dt, id, comps)
                     eg.phase = 'complete'
                     local mok, Milestones = pcall(require, 'src.sim.milestones')
                     if mok then Milestones.complete('mammona_claim') end
+                    completeVictory('mammona_signal',
+                        'The final wave breaks against your walls. The transmission array holds, and Mammona honors the claim.')
                 end
             end
 
         elseif eg.type == 'launch_pad' then
-            -- Launch pad no longer ends the game — it becomes a shipyard prerequisite
-            -- in the interplanetary travel system. Just mark as complete.
+            -- Completed pad stays usable as the shipyard prerequisite, but
+            -- activating it ends the run: the crew lifts off.
             eg.phase = 'complete'
+            completeVictory('exodus',
+                'The ship clears the storm wall. Whatever is left of the colony, it is behind you now.')
 
         elseif eg.type == 'sealing_apparatus' then
             eg.phase = 'complete'
             local mok, Milestones = pcall(require, 'src.sim.milestones')
             if mok then Milestones.complete('seal_deep') end
+            completeVictory('seal_deep',
+                'The apparatus grinds shut and the deep goes quiet. The planet sleeps again.')
 
         elseif eg.type == 'extraction_beacon' then
             -- Mammona extraction: requires That Which Sleeps defeated
@@ -85,6 +100,8 @@ local function endgameBuildingSystem(dt, id, comps)
                 eg.phase = 'complete'
                 local mok, Milestones = pcall(require, 'src.sim.milestones')
                 if mok then Milestones.complete('mammona_extraction') end
+                completeVictory('mammona_extraction',
+                    'The beacon flares once. Fleet inbound: Mammona wants the reserves, and they are bringing everyone.')
             else
                 -- Boss not yet defeated: revert to ready, cannot activate
                 eg.phase = 'ready'

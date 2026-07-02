@@ -4,6 +4,8 @@
 
 local ECS = {}
 
+local unpack = unpack or table.unpack -- Lua 5.1/LuaJIT vs 5.2+ (headless test runner)
+
 local nextId     = 1
 local entities   = {}       -- set of alive entity IDs: entities[id] = true
 local components = {}       -- components[compName][entityId] = data

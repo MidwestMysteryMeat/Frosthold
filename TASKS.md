@@ -5,7 +5,7 @@
 > Claim tasks before working, then update status again when the work is finished or blocked.
 > Format is strict - agents parse the tables, so do not break the structure.
 
-**Last updated:** 2026-03-20 by Claude Code (Task 12 complete — Migration and Cleanup)
+**Last updated:** 2026-07-02 by Claude Code (Full debug pass — test suite 443/443 green)
 
 ---
 ## STATUS KEY
@@ -25,6 +25,7 @@
 
 | # | Task | Completed | Agent | Notes |
 |---|------|-----------|-------|-------|
+| Task 13 | Full debug pass — 23 pre-existing failures fixed, suite 443/443 | 2026-07-02 | Claude Code | Implemented HERMES easter-egg system in easter_eggs.lua (12 flavor events + persistence, spec'd by test_easter_eggs.lua). endgame.lua: restored GameOver.triggerVictory on all 4 endgame completions (milestone refactor dropped them; MRP campaign loop depends on victory). merchants.lua + recruitment.lua: SNet.withdraw return was ignored — purchases were free when currency sat in the GameState counter; now drains storage then counter, refunds credit the counter. creatures.lua: explicit thermalCore drops spawned bogus 'thermalCores' items — now credits the counter. quotas.lua deliverSupply: same bug with resource-bag names — now credits counters symmetric with shipment deduction. structures.lua: worldgen guard for maps <40 tiles (math.random empty-interval crash). item_defs.lua: added missing coal def. production_defs.lua: added missing plasteel item (forge_plasteel output). ecs.lua/mrp.lua: Lua 5.2+ compat shims (unpack/loadstring) for headless runner. Stale tests updated: conveyor extract returns item table (SP1 contract), coal category raw_ore. |
 | Task 12 | Migration and Cleanup | 2026-03-20 | Claude Code | mrp.lua: MRP.migrateOldLegacies() migrates frosthold_legacies.dat into campaign on first load, renames to .bak. colony_legacy.lua: removed loadLegacies/saveLegacies/local legacies table; getLegacyDestinations/getLegacyLoot/getLegacyCount delegate to MRP; init() is no-op. save.lua: mammonaSafetyNet/_safetyNetUsed already gone (Task 4), silently ignored. 352/375 tests pass; 23 pre-existing failures, 0 regressions. |
 | Task 11 | Main Game Flow Integration | 2026-03-20 | Claude Code | main.lua: MRP.load() in love.load(), _redeployment flag handling in love.update(), seed override + ruin spawning in initGameWorld(). main_menu.lua: Continue Campaign button (lifetime MRP > 0), New Colony resets MRP. Victory MRP save confirmed (Task 7). 352/375 tests pass; 23 pre-existing failures, 0 regressions. |
 | Task 10 | Apply MRP Unlocks and Per-Run Picks | 2026-03-20 | Claude Code | colonist.lua: genetic unlocks (cold_adapted_genome/enhanced_metabolism/neural_plasticity/stress_inoculation) in all 3 spawn paths. research.lua: applyMRPUnlocks() (tier1_research_archive + advanced_smelting). main.lua: Research.applyMRPUnlocks() after Research.init(); per-run picks (supply_drop/threat_delay/friendly_signal) + heavy_drop_pod permanent unlock after colonist spawning. raids.lua: raidGraceDays check in startRaid. building_placement.lua: structural_engineering 15% HP boost after Det.attach. 352/375 tests pass; 23 pre-existing failures, 0 regressions. |

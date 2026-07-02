@@ -28,13 +28,13 @@ T.test('spawn creates entity with pos and item components', function()
     T.eq(item.hauled, false, 'starts unhauled')
 end)
 
-T.test('spawn defaults amount to 1 and category to raw', function()
+T.test('spawn defaults amount to 1 and category from item defs', function()
     H.resetAll()
     local id = Items.spawn(5, 5, 'coal')
 
     local item = ECS.get(id, 'item')
     T.eq(item.amount, 1, 'default amount is 1')
-    T.eq(item.category, 'raw', 'default category is raw')
+    T.eq(item.category, 'raw_ore', 'default category comes from item defs')
 end)
 
 T.test('getAt finds unhauled item at position', function()
