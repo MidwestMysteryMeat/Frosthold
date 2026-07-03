@@ -1,3 +1,6 @@
+-- NOTE: art/audio are NOT in the repo — they are owner-licensed packs
+-- stripped from version control (see assets/ASSETS_PLACEHOLDER.md).
+-- Loaders below must tolerate missing files on fresh clones.
 -- sound.lua -- Sound manager
 -- Loads, plays, and mixes sounds by category.
 -- Supports positional audio (volume attenuation by camera distance).

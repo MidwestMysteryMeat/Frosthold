@@ -1,3 +1,6 @@
+-- NOTE: art/audio are NOT in the repo — they are owner-licensed packs
+-- stripped from version control (see assets/ASSETS_PLACEHOLDER.md).
+-- Loaders below must tolerate missing files on fresh clones.
 -- sprites.lua — Sprite loader and cache
 -- Lazy-loads PNGs from assets/sprites/, caches Love2D Image objects.
 -- Provides mapping from game IDs (tile types, species, items) to sprites.

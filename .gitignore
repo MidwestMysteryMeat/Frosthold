@@ -47,3 +47,18 @@ node_modules/
 
 # LLM Arena (separate project)
 # Keep generate_lore_pdf.py but ignore its output is already tracked
+
+# --- Licensed art/audio: stripped from the repo (owner-licensed packs) ---
+# See ASSETS_PLACEHOLDER.md. Files live only on the dev machine.
+*.ogg
+*.wav
+*.mp3
+*.flac
+*.m4a
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.bmp
+*.tga

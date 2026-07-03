@@ -56,3 +56,11 @@ Developed with AI assistance — **Anthropic Claude** (Claude Code) for implemen
 ## License
 
 MIT — see [LICENSE](LICENSE). Sprites were generated for this project (see `ART_MVP_PROMPT.md` for the pipeline).
+
+## Art & audio licensing
+
+This repo intentionally contains **no art or audio**. Those assets are
+purchased packs licensed to the project owner only and are stripped from
+version control (`.gitignore` + `assets/ASSETS_PLACEHOLDER.md`). The code
+expects them at their original `assets/` paths on the owner's machine;
+fresh clones run with placeholders/silence where the engine allows.
