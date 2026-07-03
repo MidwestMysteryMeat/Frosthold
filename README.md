@@ -51,7 +51,7 @@ Project conventions live in `CLAUDE.md`; the shared task board is `TASKS.md`.
 
 ## AI development note
 
-Built primarily through AI-assisted "vibe coding" with **Anthropic Claude** (Claude Code) and **OpenAI Codex** for review, following the strict ECS/persistence conventions in `CLAUDE.md`. Human direction owned the architecture, design, and priorities; the AI agents did most of the implementation and wrote the test suite. The 2026-07-02 pass took the suite from 380/443 to 443/443 (fixing free merchant purchases, missing victory triggers, and junk item spawns) with Claude. Code is AI-generated-then-human-reviewed and well-covered by tests, but not professionally security-audited.
+Developed with AI assistance — **Anthropic Claude** (Claude Code) for implementation and **OpenAI Codex** for review — following the strict ECS/persistence conventions in `CLAUDE.md`. Human direction owned the architecture, design, and priorities. The 2026-07-02 pass took the test suite from 380/443 to 443/443 (fixing free merchant purchases, missing victory triggers, and junk item spawns) with Claude. The code is well-covered by tests but has not been professionally security-audited.
 
 ## License
 
