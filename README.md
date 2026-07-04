@@ -55,7 +55,7 @@ Developed with AI assistance — **Anthropic Claude** (Claude Code) for implemen
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Sprites were generated for this project (see `ART_MVP_PROMPT.md` for the pipeline).
+Proprietary — see [LICENSE](LICENSE). Licensed under the **Ephemeral / Proprietary License** (All Rights Reserved with a Sharing Exception). Sprites were generated for this project (see `ART_MVP_PROMPT.md` for the pipeline).
 
 ## Art & audio licensing
 
