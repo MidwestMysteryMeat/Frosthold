@@ -368,7 +368,7 @@ function Renderer.drawWorld(world, state)
     end
 
     if atmosphereOverlay then
-        if _Atmosphere and __Atmosphere.getTileO2 and __Atmosphere.getTileCO2 then
+        if _Atmosphere and _Atmosphere.getTileO2 and _Atmosphere.getTileCO2 then
             for y = y1, y2 do
                 for x = x1, x2 do
                     local o2 = _Atmosphere.getTileO2(x, y, viewDepth)
@@ -386,7 +386,7 @@ function Renderer.drawWorld(world, state)
     end
 
     if logisticsOverlay then
-        if _Conveyors and __Conveyors.getAllBelts then
+        if _Conveyors and _Conveyors.getAllBelts then
             for k, belt in pairs(_Conveyors.getAllBelts()) do
                 local bx = k % 10000
                 local by = math.floor(k / 10000)
@@ -419,7 +419,7 @@ function Renderer.drawWorld(world, state)
     end
 
     if containmentOverlay then
-        if _Containment and __Containment.getCellSnapshot then
+        if _Containment and _Containment.getCellSnapshot then
             for id, comps in ECS.query('containment_cell', 'pos') do
                 local pos = comps.pos
                 if (pos.depth or 0) == viewDepth and pos.x >= x1 and pos.x <= x2 and pos.y >= y1 and pos.y <= y2 then
@@ -439,7 +439,7 @@ function Renderer.drawWorld(world, state)
     end
 
     if structuralOverlay and viewDepth > 0 then
-        if _Structural and __Structural.getStability then
+        if _Structural and _Structural.getStability then
             for y = y1, y2 do
                 for x = x1, x2 do
                     local stability = _Structural.getStability(x, y, viewDepth)
@@ -453,7 +453,7 @@ function Renderer.drawWorld(world, state)
     end
 
     if atmosphereOverlay then
-        if _TileGas and __TileGas.getGasAt then
+        if _TileGas and _TileGas.getGasAt then
             for y = y1, y2 do
                 for x = x1, x2 do
                     local level, gType = _TileGas.getGasAt(x, y, viewDepth)
