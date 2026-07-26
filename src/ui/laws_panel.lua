@@ -366,7 +366,9 @@ function LawsPanel.draw()
                 if law.tier < 4 then
                     local lineY = cardY + cardH
                     if lineY > 50 and lineY + 8 < sh then
-                        if enacted then
+                        -- law.enacted, not the `enacted` local: that one is scoped
+                        -- to the on-screen-card branch above, which has closed here.
+                        if law.enacted then
                             love.graphics.setColor(0.3, 0.6, 0.3, 0.5)
                         else
                             love.graphics.setColor(0.2, 0.2, 0.2, 0.4)

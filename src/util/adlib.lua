@@ -1126,7 +1126,7 @@ function Adlib.artifactName(category, alien)
     elseif style == 3 then
         return prefix .. ' ' .. base .. ' ' .. pick(suffixes)
     else
-        return pick(FIRST_NAMES) .. "'s " .. base
+        return pickFirstName(Adlib.rollGender()) .. "'s " .. base
     end
 end
 
