@@ -68,5 +68,3 @@ fresh clones run with placeholders/silence where the engine allows.
 ---
 
 <sub>Support development — <a href="https://ko-fi.com/midwestmysterymeat">Ko-fi</a></sub>
-
-<img src=".github/donation-qrcode.png" width="120" alt="Donation QR code">
