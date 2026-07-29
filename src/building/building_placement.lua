@@ -79,17 +79,29 @@ local function attach(Building, State)
 
         if def.heatOutput then
             local Thermal = require('src.sim.thermal')
-            Thermal.addHeatSource(x, y, def.heatOutput, depth,
-                def.heatTarget, def.heatDanger, def.heatControllable)
-            State.placed[key(x, y, depth)] = {
+            local powerGated = def.powerDraw and def.powerDraw > 0
+            if not powerGated then
+                Thermal.addHeatSource(x, y, def.heatOutput, depth,
+                    def.heatTarget, def.heatDanger, def.heatControllable)
+            end
+            local info = {
                 def = def,
                 x = x,
                 y = y,
                 depth = depth,
                 fuel = 100,
                 active = true,
+                powered = not powerGated,
                 upgradeLevel = 0,
             }
+            State.placed[key(x, y, depth)] = info
+            -- Electric heat buildings (heater, radiator, coolers) draw
+            -- grid power and stop heating/cooling when unpowered.
+            if powerGated then
+                local Power = require('src.sim.power')
+                info._powerId = 'heatbld_' .. key(x, y, depth)
+                Power.addConsumer(info._powerId, def.powerDraw, x, y)
+            end
         end
 
         if def.entitySpawn == 'bed' then
@@ -671,7 +683,14 @@ local function attach(Building, State)
                 if uok and info.upgradeLevel and info.upgradeLevel > 0 then
                     heatOut = Upgrades.getEffectiveStat(info, 'heatOutput')
                 end
-                Thermal.removeHeatSource(x, y, heatOut, depth)
+                -- Only registered while active + powered.
+                if info.active and info.powered ~= false then
+                    Thermal.removeHeatSource(x, y, heatOut, depth)
+                end
+                if info._powerId then
+                    local PowerMod = require('src.sim.power')
+                    PowerMod.removeConsumer(info._powerId)
+                end
             end
             if info.def.ventType then
                 local ok, Atmosphere = pcall(require, 'src.sim.atmosphere')
@@ -794,42 +813,83 @@ local function attach(Building, State)
     local REFUEL_THRESHOLD  = 30
     local FUEL_PER_WOOD     = 25
 
+    -- Heat buildings are tile-backed rather than ECS-backed, so their power
+    -- consumers must be re-created explicitly after Power.init() on save load.
+    function Building.restorePowerConsumers()
+        local PowerMod = require('src.sim.power')
+        for placedKey, info in pairs(State.placed) do
+            local def = info.def
+            if not info.subTile and def and def.heatOutput
+                and def.powerDraw and def.powerDraw > 0 then
+                info._powerId = 'heatbld_' .. placedKey
+                info.powered = false
+                PowerMod.addConsumer(info._powerId, def.powerDraw, info.x, info.y)
+            end
+        end
+    end
+
     function Building.update(dt)
         local uok, Upgrades = pcall(require, 'src.building.upgrades')
         for _, info in pairs(State.placed) do
-            if info.def.fuelRate and not info.subTile then
-                local fuelRate = info.def.fuelRate
-                local heatOut = info.def.heatOutput
+            local def = info.def
+            if not info.subTile and (def.fuelRate or (info._powerId and def.heatOutput)) then
+                local fuelRate = def.fuelRate
+                local heatOut = def.heatOutput
                 if uok and info.upgradeLevel and info.upgradeLevel > 0 then
-                    fuelRate = Upgrades.getEffectiveStat(info, 'fuelRate')
+                    if def.fuelRate then
+                        fuelRate = Upgrades.getEffectiveStat(info, 'fuelRate')
+                    end
                     heatOut = Upgrades.getEffectiveStat(info, 'heatOutput')
                 end
 
-                if info.active then
-                    info.fuel = info.fuel - fuelRate * dt
+                -- Electric heat buildings: only heat/cool while the grid
+                -- powers them. Heat source is registered iff active+powered.
+                if info._powerId and heatOut then
+                    local PowerMod = require('src.sim.power')
+                    local powered = PowerMod.isConsumerPowered(info._powerId)
+                    if info.powered == nil then info.powered = true end
+                    if powered ~= info.powered then
+                        local Thermal = require('src.sim.thermal')
+                        if powered and info.active and (info.fuel or 100) > 0 then
+                            Thermal.addHeatSource(info.x, info.y, heatOut, info.depth or 0,
+                                def.heatTarget, def.heatDanger, def.heatControllable)
+                        elseif not powered and info.active then
+                            Thermal.removeHeatSource(info.x, info.y, heatOut, info.depth or 0)
+                        end
+                        info.powered = powered
+                    end
                 end
 
-                -- Auto-refuel from colony wood before (or after) burning out
-                if info.fuel < REFUEL_THRESHOLD then
-                    while info.fuel < REFUEL_THRESHOLD
-                        and GameState.spendResource('wood', 1) do
-                        info.fuel = math.min(100, info.fuel + FUEL_PER_WOOD)
+                if fuelRate then
+                    -- Burn fuel only while running (active and powered).
+                    if info.active and info.powered ~= false then
+                        info.fuel = info.fuel - fuelRate * dt
                     end
-                    -- Re-ignite a burned-out heater once it has fuel again
-                    if not info.active and info.fuel > 0 and heatOut then
-                        info.active = true
-                        local Thermal = require('src.sim.thermal')
-                        Thermal.addHeatSource(info.x, info.y, heatOut, info.depth or 0,
-                            info.def.heatTarget, info.def.heatDanger, info.def.heatControllable)
-                    end
-                end
 
-                if info.active and info.fuel <= 0 then
-                    info.fuel = 0
-                    info.active = false
-                    if heatOut then
-                        local Thermal = require('src.sim.thermal')
-                        Thermal.removeHeatSource(info.x, info.y, heatOut, info.depth or 0)
+                    -- Auto-refuel from colony wood before (or after) burning out.
+                    if info.fuel < REFUEL_THRESHOLD then
+                        while info.fuel < REFUEL_THRESHOLD
+                            and GameState.spendResource('wood', 1) do
+                            info.fuel = math.min(100, info.fuel + FUEL_PER_WOOD)
+                        end
+                        -- Re-ignite a burned-out heater once it has fuel again.
+                        if not info.active and info.fuel > 0 and heatOut then
+                            info.active = true
+                            if info.powered ~= false then
+                                local Thermal = require('src.sim.thermal')
+                                Thermal.addHeatSource(info.x, info.y, heatOut, info.depth or 0,
+                                    def.heatTarget, def.heatDanger, def.heatControllable)
+                            end
+                        end
+                    end
+
+                    if info.active and info.fuel <= 0 then
+                        info.fuel = 0
+                        info.active = false
+                        if heatOut and info.powered ~= false then
+                            local Thermal = require('src.sim.thermal')
+                            Thermal.removeHeatSource(info.x, info.y, heatOut, info.depth or 0)
+                        end
                     end
                 end
             end

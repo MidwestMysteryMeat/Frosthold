@@ -45,14 +45,14 @@ return {
         lightPreset = 'campfire',
     },
     heater = {
-        name = 'Thermal Heater', desc = 'Electric heater. Adjustable target temperature.',
+        name = 'Thermal Heater', desc = 'Electric heater. Adjustable target temperature. Needs grid power.',
         w = 1, h = 1,
         tile = Tiles.FLOOR_METAL,
         cost = { metal = 10, components = 2 },
         heatOutput = 80,
         heatTarget = 21,
         heatControllable = true,
-        fuelRate = 0.02,
+        powerDraw = 15,
         lightRadius = 5, lightIntensity = 0.7,
     },
     radiator = {
@@ -64,7 +64,6 @@ return {
         heatTarget = 25,
         heatControllable = true,
         heatDanger = { radius = 1, tempOffset = 25 },
-        fuelRate = 0.01,
         powerDraw = 30,
     },
     cooler = {

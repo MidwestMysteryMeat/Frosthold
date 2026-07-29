@@ -822,6 +822,12 @@ local function restoreFromData(data, skipTilemap)
 
     local Power = require('src.sim.power')
     Power.init()
+    do
+        local BuildingMod = require('src.building.building')
+        if BuildingMod.restorePowerConsumers then
+            BuildingMod.restorePowerConsumers()
+        end
+    end
     for id, comps in ECS.query('building_ref', 'pos') do
         local ref = comps.building_ref
         local pos = comps.pos

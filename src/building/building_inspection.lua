@@ -48,6 +48,7 @@ local function attach(Building, State)
 
             if matchedDef then
                 local level = info.upgradeLevel or 0
+                local powerGated = matchedDef.powerDraw and matchedDef.powerDraw > 0
                 State.placed[placedKey] = {
                     def = matchedDef,
                     x = info.x,
@@ -55,12 +56,14 @@ local function attach(Building, State)
                     depth = info.depth or 0,
                     fuel = info.fuel or 100,
                     active = info.active or false,
+                    powered = not powerGated,
                     ventKey = info.ventKey,
                     subTile = info.subTile or nil,
                     upgradeLevel = level,
                 }
 
-                if matchedDef.heatOutput and (info.active ~= false) and tok then
+                if matchedDef.heatOutput and not powerGated
+                    and (info.active ~= false) and tok then
                     local heatOut = matchedDef.heatOutput
                     if level > 0 then
                         local uok, Upgrades = pcall(require, 'src.building.upgrades')
