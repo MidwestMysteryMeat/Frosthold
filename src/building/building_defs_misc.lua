@@ -144,7 +144,11 @@ return {
         tile = Tiles.FLOOR_STONE,
         cost = { wood = 8 },
         heatOutput = 30,
-        lightRadius = 4,
+        -- Warmth zone: heats nearby tiles even outdoors (capped so it never
+        -- overheats an already-warm room).
+        heatDanger = { radius = 4, tempOffset = 60, maxTemp = 25 },
+        lightPreset = 'campfire',
+        sightRadius = 5,
         entitySpawn = 'recreation',
         recType = 'bonfire', recJoy = 0.08, recCapacity = 6,
     },

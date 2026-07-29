@@ -790,22 +790,47 @@ local function attach(Building, State)
         end
     end
 
+    -- Auto-refuel: 1 wood from colony stores buys this much fuel
+    local REFUEL_THRESHOLD  = 30
+    local FUEL_PER_WOOD     = 25
+
     function Building.update(dt)
         local uok, Upgrades = pcall(require, 'src.building.upgrades')
         for _, info in pairs(State.placed) do
-            if info.active and info.def.fuelRate then
+            if info.def.fuelRate and not info.subTile then
                 local fuelRate = info.def.fuelRate
                 local heatOut = info.def.heatOutput
                 if uok and info.upgradeLevel and info.upgradeLevel > 0 then
                     fuelRate = Upgrades.getEffectiveStat(info, 'fuelRate')
                     heatOut = Upgrades.getEffectiveStat(info, 'heatOutput')
                 end
-                info.fuel = info.fuel - fuelRate * dt
-                if info.fuel <= 0 then
+
+                if info.active then
+                    info.fuel = info.fuel - fuelRate * dt
+                end
+
+                -- Auto-refuel from colony wood before (or after) burning out
+                if info.fuel < REFUEL_THRESHOLD then
+                    while info.fuel < REFUEL_THRESHOLD
+                        and GameState.spendResource('wood', 1) do
+                        info.fuel = math.min(100, info.fuel + FUEL_PER_WOOD)
+                    end
+                    -- Re-ignite a burned-out heater once it has fuel again
+                    if not info.active and info.fuel > 0 and heatOut then
+                        info.active = true
+                        local Thermal = require('src.sim.thermal')
+                        Thermal.addHeatSource(info.x, info.y, heatOut, info.depth or 0,
+                            info.def.heatTarget, info.def.heatDanger, info.def.heatControllable)
+                    end
+                end
+
+                if info.active and info.fuel <= 0 then
                     info.fuel = 0
                     info.active = false
-                    local Thermal = require('src.sim.thermal')
-                    Thermal.removeHeatSource(info.x, info.y, heatOut, info.depth or 0)
+                    if heatOut then
+                        local Thermal = require('src.sim.thermal')
+                        Thermal.removeHeatSource(info.x, info.y, heatOut, info.depth or 0)
+                    end
                 end
             end
         end

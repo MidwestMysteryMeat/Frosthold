@@ -38,6 +38,9 @@ return {
         cost = { wood = 8 },
         heatOutput = 40,
         heatTarget = 25,
+        -- Warmth zone: heats nearby tiles even outdoors (capped so it never
+        -- overheats an already-warm room).
+        heatDanger = { radius = 4, tempOffset = 60, maxTemp = 25 },
         fuelRate = 0.05,
         lightPreset = 'campfire',
     },

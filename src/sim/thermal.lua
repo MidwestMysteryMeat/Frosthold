@@ -579,37 +579,6 @@ function Thermal.step(dt)
     end
 
     -------------------------------------------------------------------
-    -- Phase 4.5: Danger zone tile offsets
-    -- Extreme heat/cold sources affect nearby tiles directly.
-    -- This creates localized hot/cold spots within a room:
-    -- the room stays at target temp, but tiles near a nuclear reactor
-    -- or cryogenic cooler are hotter/colder — dangerous to colonists.
-    -------------------------------------------------------------------
-    for key, danger in pairs(heatDanger) do
-        if not heatSources[key] then goto next_danger end
-        local dDepth = math.floor(key / 100000000)
-        local idx = key - dDepth * 100000000
-        local cy = math.floor((idx - 1) / w)
-        local cx = (idx - 1) % w
-        local layerTempData = world.rawTempData(dDepth)
-        if layerTempData then
-            for dy2 = -danger.radius, danger.radius do
-                for dx2 = -danger.radius, danger.radius do
-                    local nx, ny = cx + dx2, cy + dy2
-                    if world.inBounds(nx, ny) then
-                        -- Fall off with distance
-                        local dist = math.max(math.abs(dx2), math.abs(dy2))
-                        local falloff = 1.0 - (dist / (danger.radius + 1))
-                        local ni = ny * w + nx + 1
-                        layerTempData[ni] = layerTempData[ni] + danger.tempOffset * falloff
-                    end
-                end
-            end
-        end
-        ::next_danger::
-    end
-
-    -------------------------------------------------------------------
     -- Phase 5: Outdoor tiles — snap toward ambient
     -- Point heat sources on outdoor tiles still warm locally.
     -- Generator zones provide diminished outdoor warmth.
@@ -626,11 +595,14 @@ function Thermal.step(dt)
                 if hs then
                     local effectiveWatts = math.abs(hs) * warmthMult
                     local target = heatTargets[idx] or (ambient + effectiveWatts * 0.3)
+                    -- The *20 matches the tick-rate scaling used by the ambient
+                    -- snap below; without it the snap overwhelms the source and
+                    -- outdoor heat sources never rise above ambient.
                     if hs > 0 and cur < target then
-                        cur = cur + effectiveWatts * dt * 0.1
+                        cur = cur + effectiveWatts * dt * 20 * 0.1
                         if cur > target then cur = target end
                     elseif hs < 0 and cur > target then
-                        cur = cur - effectiveWatts * dt * 0.1
+                        cur = cur - effectiveWatts * dt * 20 * 0.1
                         if cur < target then cur = target end
                     end
                 end
@@ -661,6 +633,46 @@ function Thermal.step(dt)
                 end
             end
         end
+    end
+
+    -------------------------------------------------------------------
+    -- Phase 5.5: Danger zone tile offsets
+    -- Extreme heat/cold sources affect nearby tiles directly.
+    -- This creates localized hot/cold spots within a room:
+    -- the room stays at target temp, but tiles near a nuclear reactor
+    -- or cryogenic cooler are hotter/colder — dangerous to colonists.
+    -- Runs AFTER the outdoor snap so warmth zones (campfire, bonfire)
+    -- survive on outdoor tiles instead of being pulled back to ambient.
+    -------------------------------------------------------------------
+    for key, danger in pairs(heatDanger) do
+        if not heatSources[key] then goto next_danger end
+        local dDepth = math.floor(key / 100000000)
+        local idx = key - dDepth * 100000000
+        local cy = math.floor((idx - 1) / w)
+        local cx = (idx - 1) % w
+        local layerTempData = world.rawTempData(dDepth)
+        if layerTempData then
+            for dy2 = -danger.radius, danger.radius do
+                for dx2 = -danger.radius, danger.radius do
+                    local nx, ny = cx + dx2, cy + dy2
+                    if world.inBounds(nx, ny) then
+                        -- Fall off with distance
+                        local dist = math.max(math.abs(dx2), math.abs(dy2))
+                        local falloff = 1.0 - (dist / (danger.radius + 1))
+                        local ni = ny * w + nx + 1
+                        local boosted = layerTempData[ni] + danger.tempOffset * falloff
+                        -- Optional cap: warmth-zone sources (campfire, bonfire)
+                        -- never push tiles above maxTemp, so they warm harsh
+                        -- outdoors without cooking colonists in heated rooms.
+                        if danger.maxTemp and danger.tempOffset > 0 and boosted > danger.maxTemp then
+                            boosted = math.max(layerTempData[ni], danger.maxTemp)
+                        end
+                        layerTempData[ni] = boosted
+                    end
+                end
+            end
+        end
+        ::next_danger::
     end
 
     -- Underground layers: unroomed tiles converge to geothermal baseline
