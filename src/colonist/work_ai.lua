@@ -1178,6 +1178,17 @@ local function workAISystem(dt, id, comps)
         block = 'work'
     end
 
+    -- Player-forced tasks override the schedule. Previously the sleep/eat/
+    -- free blocks unclaimed them within a tick, silently dropping the
+    -- player's order. Only critical needs (starvation, freezing,
+    -- suffocation) interrupt a forced task now.
+    if col.task then
+        local curTask = Jobs.getTask(col.task.taskId)
+        if curTask and curTask.data and curTask.data.forcedFor == id then
+            block = 'work'
+        end
+    end
+
     ---------------------------------------------------------------------------
     -- SLEEP block
     ---------------------------------------------------------------------------

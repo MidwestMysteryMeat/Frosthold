@@ -447,6 +447,15 @@ function UI.mousepressed(x, y, button)
     if BuildMenu.mousepressed(x, y, button) then
         return true
     end
+
+    -- Consume any click landing on the visible selection/zone panel
+    -- background. Without this the click fell through to map input,
+    -- which started a selection box and CLEARED the current selection.
+    local panelRect = Selection.getPanelRect()
+    if panelRect and y >= panelRect.y then
+        return true
+    end
+
     return false
 end
 

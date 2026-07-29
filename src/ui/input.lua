@@ -895,19 +895,43 @@ function Input.mousereleased(x, y, button)
         local isDrag = math.abs(selectionBox.x2 - selectionBox.x1) > 4 or
                        math.abs(selectionBox.y2 - selectionBox.y1) > 4
 
-        for id, comps in ECS.query('pos', 'colonist') do
-            local pos = comps.pos
-            if (pos.depth or 0) ~= vd then goto nextSelectCol end
-            if isDrag then
-                if pos.x >= tx1 and pos.x <= tx2 and pos.y >= ty1 and pos.y <= ty2 then
-                    GameState.selectedEntities[id] = true
-                end
-            else
-                if pos.x == tx1 and pos.y == ty1 then
+        if isDrag then
+            for id, comps in ECS.query('pos', 'colonist') do
+                local pos = comps.pos
+                if (pos.depth or 0) == vd
+                    and pos.x >= tx1 and pos.x <= tx2
+                    and pos.y >= ty1 and pos.y <= ty2 then
                     GameState.selectedEntities[id] = true
                 end
             end
-            ::nextSelectCol::
+        else
+            -- Single click: pick the nearest colonist within 0.75 tiles of
+            -- the click, using the RENDERED (interpolated) position. Sprites
+            -- are drawn between prevX/Y and x/y, so an exact-tile test made
+            -- moving colonists nearly impossible to click.
+            local clickTX = wx1 / ts
+            local clickTY = wy1 / ts
+            local a = GameState.alpha or 0
+            local bestId, bestDist = nil, 0.75
+            for id, comps in ECS.query('pos', 'colonist') do
+                local pos = comps.pos
+                if (pos.depth or 0) == vd then
+                    local px = pos.prevX or pos.x
+                    local py = pos.prevY or pos.y
+                    local ix = px + (pos.x - px) * a + 0.5
+                    local iy = py + (pos.y - py) * a + 0.5
+                    local dxT = ix - clickTX
+                    local dyT = iy - clickTY
+                    local d = math.sqrt(dxT * dxT + dyT * dyT)
+                    if d < bestDist then
+                        bestDist = d
+                        bestId = id
+                    end
+                end
+            end
+            if bestId then
+                GameState.selectedEntities[bestId] = true
+            end
         end
 
         -- Prisoner selection (single click only — prisoners are individuals)

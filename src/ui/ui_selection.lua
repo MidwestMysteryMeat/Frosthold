@@ -18,6 +18,10 @@ local selectedTab = 'needs'
 -- Drag state for work priority painting
 local dragWork = nil
 
+-- Screen rect of the visible panel (nil when hidden) — used by UI input
+-- handling to stop clicks on the panel background from reaching the map.
+local panelRect = nil
+
 -- Shared screen dimensions (set from coordinator)
 local screenW, screenH = 1280, 720
 
@@ -28,6 +32,7 @@ end
 
 function Selection.init()
     selectedTab = 'needs'
+    panelRect = nil
     tabBtns = {}
     workCells = {}
     scheduleCells = {}
@@ -47,6 +52,7 @@ function Selection.getSelectedTab() return selectedTab end
 function Selection.setSelectedTab(tab) selectedTab = tab end
 function Selection.getDragWork() return dragWork end
 function Selection.setDragWork(val) dragWork = val end
+function Selection.getPanelRect() return panelRect end
 
 ---------------------------------------------------------------------------
 -- Selection panel (bottom) with tabs
@@ -72,8 +78,11 @@ function Selection.drawSelectionPanel()
     local panelY = screenH - panelH
 
     if #selected == 0 and not GameState.selectedZoneId then
+        panelRect = nil
         return
     end
+
+    panelRect = { x = 0, y = panelY, w = screenW, h = panelH }
 
     -- Panel background — stronger separation from map
     love.graphics.setColor(0.03, 0.04, 0.07, 0.92)

@@ -195,7 +195,9 @@ function Jobs.findBestTask(colonistId)
     local buckets = {}  -- { [priorityLevel] = { [column] = { tasks } } }
 
     for taskId, task in pairs(taskQueue) do
-        if not task.claimed and not task.complete then
+        if not task.claimed and not task.complete
+            -- Player-forced tasks may only be picked up by their colonist
+            and not (task.data and task.data.forcedFor and task.data.forcedFor ~= colonistId) then
             local prioCol = task.def.priority
             local level = allPrio1 and 1 or priorities[prioCol]
 
