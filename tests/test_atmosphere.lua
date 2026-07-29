@@ -177,6 +177,76 @@ T.test('vent air_intake increases O2 in room', function()
     restoreThermal()
 end)
 
+T.test('ordinary doors leak ambient air but sealed doors remain airtight', function()
+    H.resetAll()
+    local Atmosphere = require('src.sim.atmosphere')
+    local Tilemap = require('src.world.tilemap')
+    local Tiles = require('src.world.tiles')
+
+    Tilemap.init(4, 4)
+    Atmosphere.init()
+    setupThermalRooms({
+        [1] = {
+            tiles = { 1 },
+            avgTemp = 10,
+            sealed = true,
+            depth = 0,
+            doorSegs = { { tileType = Tiles.DOOR } },
+        },
+        [2] = {
+            tiles = { 2 },
+            avgTemp = 10,
+            sealed = true,
+            depth = 0,
+            doorSegs = { { tileType = Tiles.DOOR_SEALED } },
+        },
+    })
+
+    local origGetRoom = Tilemap.getRoom
+    Tilemap.getRoom = function() return 0 end
+    Atmosphere.step(0)
+    local all = Atmosphere.getAllRoomAtmo()
+    all[1].o2 = 50
+    all[2].o2 = 50
+
+    Atmosphere.step(1)
+    T.gt(Atmosphere.getRoomO2(1), 50, 'ordinary door admits ambient oxygen')
+    T.eq(Atmosphere.getRoomO2(2), 50, 'sealed door does not leak oxygen')
+
+    Tilemap.getRoom = origGetRoom
+    restoreThermal()
+end)
+
+T.test('colonist breathing is not double-counted as permanent tile gas', function()
+    H.resetAll()
+    local Atmosphere = require('src.sim.atmosphere')
+    local Tilemap = require('src.world.tilemap')
+    local TileGas = require('src.sim.tile_gas')
+
+    Tilemap.init(8, 8)
+    Atmosphere.init()
+    setupThermalRooms({
+        [1] = {
+            tiles = { 19, 20, 27, 28 },
+            avgTemp = 10,
+            sealed = true,
+            depth = 0,
+        },
+    })
+    H.spawnTestColonist(2, 2)
+
+    local origGetRoom = Tilemap.getRoom
+    Tilemap.getRoom = function() return 1 end
+    Atmosphere.step(10)
+
+    T.gt(Atmosphere.getRoomCO2(1), 0, 'breathing still raises room CO2')
+    T.eq(TileGas.getTileCO2(2, 2, 0), 0,
+        'breathing does not also inject non-dissipating tile CO2')
+
+    Tilemap.getRoom = origGetRoom
+    restoreThermal()
+end)
+
 T.test('tile getters reflect local gas concentration', function()
     H.resetAll()
     local Atmosphere = require('src.sim.atmosphere')

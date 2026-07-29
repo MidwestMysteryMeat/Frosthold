@@ -89,3 +89,21 @@ T.test('disease pressure scales severity growth', function()
 
     T.ok(harshSeverity > mildSeverity, 'higher disease pressure increases severity faster')
 end)
+
+T.test('deep-cold damage gate stays below the planet ambient temperature', function()
+    H.resetAll()
+    local GameState = require('src.game_state')
+    local ThermalDeepening = require('src.sim.thermal_deepening')
+
+    GameState.baseTemp = -40
+    T.eq(ThermalDeepening.getHeatGateThreshold(), -65,
+        'default planet gate is 25 degrees below ambient')
+
+    GameState.baseTemp = -80
+    T.eq(ThermalDeepening.getHeatGateThreshold(), -105,
+        'colder planets move the deep-cold gate down')
+
+    GameState.baseTemp = -10
+    T.eq(ThermalDeepening.getHeatGateThreshold(), -60,
+        'gate never rises above the absolute cold floor')
+end)

@@ -18,16 +18,10 @@ local function isBarrierBlocking(x, y, depth)
     return _Defenses and _Defenses.isBlockingBarrierAt and _Defenses.isBlockingBarrierAt(x, y, depth)
 end
 
--- Check for locked doors (simple tilemap toggle)
-local _tilemapLoaded = false
-local _Tilemap = nil
-local function isDoorLocked(x, y)
-    if not _tilemapLoaded then
-        _tilemapLoaded = true
-        local ok, mod = pcall(require, 'src.world.tilemap')
-        if ok then _Tilemap = mod end
-    end
-    return _Tilemap and _Tilemap.isDoorLocked and _Tilemap.isDoorLocked(x, y)
+-- Check the world supplied by the caller. Reading the global tilemap here
+-- polluted lightweight/test worlds with unrelated door and snow state.
+local function isDoorLocked(world, x, y)
+    return world.isDoorLocked and world.isDoorLocked(x, y) or false
 end
 
 local _ecsLoaded = false
@@ -227,10 +221,10 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
             local nx, ny = cur.x + dir[1], cur.y + dir[2]
             local nk = key(nx, ny, cur.d)
             if not closed[nk] and world.inBounds(nx, ny) and world.isWalkable(nx, ny, cur.d)
-                and tileAllowed(nx, ny, cur.d) and not isDoorLocked(nx, ny) then
+                and tileAllowed(nx, ny, cur.d) and not isDoorLocked(world, nx, ny) then
                 -- Deep snow blocks passage
                 local snowDepth = 0
-                if _Tilemap then snowDepth = _Tilemap.getSnow(nx, ny, cur.d) end
+                if world.getSnow then snowDepth = world.getSnow(nx, ny, cur.d) end
                 if snowDepth >= 7 then goto skip_neighbor end
 
                 local moveCost = 1

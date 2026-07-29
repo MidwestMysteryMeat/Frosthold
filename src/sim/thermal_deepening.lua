@@ -1,5 +1,6 @@
 -- thermal_deepening.lua — Heat-gated zones, battery heat exchange, thermal core synthesis
--- Heat-gated areas are map regions below -40C that damage unprotected colonists.
+-- Heat-gated areas are extreme regions below the planet-relative cold threshold
+-- that damage unprotected colonists.
 -- Thermal batteries store excess room heat and release it when temps drop.
 -- Thermal core valuation varies by faction.
 
@@ -12,10 +13,18 @@ local ThermalDeepening = {}
 -- Constants
 ---------------------------------------------------------------------------
 
--- Colonists in tiles colder than this without a thermal suit take cold damage
-local HEAT_GATE_THRESHOLD = -40  -- degrees C
+-- Colonists in tiles colder than this without a thermal suit take cold damage.
+-- Keep the gate below normal outdoor ambient so ordinary weather does not
+-- turn the entire starting surface into a deep-cold damage zone.
+local HEAT_GATE_MARGIN    = 25   -- degrees below planet ambient
+local HEAT_GATE_FLOOR     = -60  -- never gate warmer than this
 local COLD_DAMAGE_RATE    = 0.5  -- HP per sim-second without suit
 local COLD_CHECK_INTERVAL = 2.0  -- seconds between cold damage ticks
+
+local function getHeatGateThreshold()
+    local base = GameState.baseTemp or -40
+    return math.min(HEAT_GATE_FLOOR, base - HEAT_GATE_MARGIN)
+end
 
 -- Battery heat exchange
 local BATTERY_HEAT_ABSORB = 0.02   -- fraction of excess heat absorbed per tick
@@ -45,6 +54,7 @@ local function checkHeatGatedDamage(dt)
     if not tokT then return end
 
     local tokC, Clothing = pcall(require, 'src.colonist.clothing')
+    local gateThreshold = getHeatGateThreshold()
 
     for id, comps in ECS.query('colonist', 'pos', 'needs') do
         local col = comps.colonist
@@ -53,7 +63,7 @@ local function checkHeatGatedDamage(dt)
         local pos = comps.pos
         local temp = Thermal.getTileTemp(pos.x, pos.y)
 
-        if temp and temp < HEAT_GATE_THRESHOLD then
+        if temp and temp < gateThreshold then
             -- Check if colonist has clothing cold protection
             local protected = false
             if tokC and Clothing.getProtection then
@@ -193,7 +203,7 @@ function ThermalDeepening.seedDeepColdResources(tilemap)
             local tile = tData[idx]
 
             -- Only place on walkable ground tiles in deep cold zones
-            if temp and temp < HEAT_GATE_THRESHOLD
+            if temp and temp < getHeatGateThreshold()
                and not Tiles.isSolid(tile)
                and tile ~= Tiles.LAVA_VENT then
                 -- 3% chance per eligible tile
@@ -247,14 +257,14 @@ end
 ---------------------------------------------------------------------------
 
 function ThermalDeepening.getHeatGateThreshold()
-    return HEAT_GATE_THRESHOLD
+    return getHeatGateThreshold()
 end
 
 function ThermalDeepening.isTileHeatGated(x, y)
     local tokT, Thermal = pcall(require, 'src.sim.thermal')
     if not tokT then return false end
     local temp = Thermal.getTileTemp(x, y)
-    return temp and temp < HEAT_GATE_THRESHOLD
+    return temp and temp < getHeatGateThreshold()
 end
 
 function ThermalDeepening.getBatteryHeatLevel(entityId)

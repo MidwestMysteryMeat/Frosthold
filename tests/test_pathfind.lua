@@ -171,6 +171,27 @@ T.test('find respects blocking energy barriers', function()
     package.loaded['src.combat.defenses'] = nil
 end)
 
+T.test('find uses the supplied world for snow and door state', function()
+    H.resetAll()
+    local Tilemap = require('src.world.tilemap')
+    Tilemap.init(3, 1)
+    Tilemap.setSnow(1, 0, 7, 0)
+
+    package.loaded['src.util.pathfind'] = nil
+    local Pathfind = require('src.util.pathfind')
+    local world = makeGrid(3, 1)
+
+    local path = Pathfind.find(0, 0, 2, 0, world)
+    T.notnil(path, 'unrelated global snow does not pollute a supplied world')
+    T.eq(#path, 2, 'supplied open grid remains traversable')
+
+    world.isDoorLocked = function(x, y)
+        return x == 1 and y == 0
+    end
+    local blocked = Pathfind.find(0, 0, 2, 0, world)
+    T.isnil(blocked, 'supplied world door lock blocks its only route')
+end)
+
 T.test('colonist pathfinding respects restricted zones', function()
     H.resetAll()
     local Zones = require('src.world.zones')

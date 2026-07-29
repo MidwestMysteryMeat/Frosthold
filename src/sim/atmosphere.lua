@@ -26,6 +26,7 @@ local AMBIENT_CO2         = 0     -- outdoor CO2 percentage
 local COLONIST_O2_RATE    = 0.08  -- O2 consumed per colonist per second
 local COLONIST_CO2_RATE   = 0.06  -- CO2 produced per colonist per second
 local UNSEALED_EQUALIZE   = 0.5   -- rate unsealed rooms equalize with ambient
+local DOOR_LEAK_RATE      = 0.08  -- passive air leak per ordinary door per second
 local AIR_INTAKE_RATE     = 0.4   -- O2 pulled in per second by air_intake
 local AIR_EXHAUST_RATE    = 0.3   -- CO2 pushed out per second by air_exhaust
 local AIR_PURIFIER_RATE   = 0.5   -- CO2 converted to O2 per second by purifier
@@ -148,6 +149,25 @@ function Atmosphere.step(dt)
         if room.sealed then
             atmo.o2 = clamp(atmo.o2, 0, 100)
             atmo.co2 = clamp(atmo.co2, 0, 100)
+
+            -- Ordinary doors are not airtight: each normal door leaks air
+            -- toward the neighboring room (or ambient). Sealed/lead doors
+            -- remain airtight.
+            local doorSegs = room.doorSegs
+            if doorSegs then
+                local TilesMod = require('src.world.tiles')
+                for _, seg in ipairs(doorSegs) do
+                    if seg.tileType == TilesMod.DOOR then
+                        local nAtmo = seg.otherRoom and seg.otherRoom > 0
+                            and roomAtmo[seg.otherRoom] or nil
+                        local nO2  = nAtmo and nAtmo.o2  or AMBIENT_O2
+                        local nCO2 = nAtmo and nAtmo.co2 or AMBIENT_CO2
+                        local f = math.min(1, DOOR_LEAK_RATE * dt)
+                        atmo.o2  = clamp(atmo.o2  + (nO2  - atmo.o2)  * f, 0, 100)
+                        atmo.co2 = clamp(atmo.co2 + (nCO2 - atmo.co2) * f, 0, 100)
+                    end
+                end
+            end
         else
             atmo.o2 = clamp(atmo.o2 + (AMBIENT_O2 - atmo.o2) * math.min(1, UNSEALED_EQUALIZE * dt), 0, 100)
             atmo.co2 = clamp(atmo.co2 + (AMBIENT_CO2 - atmo.co2) * math.min(1, UNSEALED_EQUALIZE * dt), 0, 100)
@@ -157,8 +177,7 @@ function Atmosphere.step(dt)
     -- Run sources FIRST (breathing, emitters, ventilation), then derive room values.
     -- This ensures the derived O2/CO2 reflects this tick's changes, not last tick's.
 
-    -- Colonist breathing: keep the old room-level contract alive for tests/UI,
-    -- then mirror the same pressure into tile gas when that system is active.
+    -- Colonist breathing updates the room mixture used by tests and UI.
     for _, comps in ECS.query('pos', 'colonist') do
         local pos = comps.pos
         local col = comps.colonist
@@ -170,9 +189,9 @@ function Atmosphere.step(dt)
                 local atmo = roomAtmo[rid]
                 atmo.o2 = clamp(atmo.o2 - (COLONIST_O2_RATE * dt * 18) / volume, 0, 100)
                 atmo.co2 = clamp(atmo.co2 + (COLONIST_CO2_RATE * dt * 18) / volume, 0, 100)
-                if tgOk and math.random() < COLONIST_CO2_RATE * dt * 20 / volume then
-                    TileGas.addGas(pos.x, pos.y, 1, TileGas.TYPE_CO2, pos.depth or 0)
-                end
+                -- Breathing is represented by the room mixture above. Adding
+                -- tile CO2 here double-counted it, and indoor tile gas does
+                -- not dissipate, permanently fouling occupied bedrooms.
             end
         end
     end

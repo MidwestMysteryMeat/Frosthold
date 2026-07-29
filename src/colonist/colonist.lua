@@ -886,11 +886,17 @@ local function movementSystem(dt, id, comps)
     -- Status effects slow movement (frostbite, exhaustion)
     if _StatusFx then speed = speed * _StatusFx.getMoveSpeedMult(id) end
     local posDepth = pos.depth or 0
-    if _TileSnowMod and _TileSnowMod.getMovementMult then
-        speed = speed * _TileSnowMod.getMovementMult(pos.x, pos.y, posDepth)
-    end
-    if _TileFluidsMod and _TileFluidsMod.getMovementMult then
-        speed = speed * _TileFluidsMod.getMovementMult(pos.x, pos.y, posDepth)
+    do
+        local envMult = 1.0
+        if _TileSnowMod and _TileSnowMod.getMovementMult then
+            envMult = envMult * _TileSnowMod.getMovementMult(pos.x, pos.y, posDepth)
+        end
+        if _TileFluidsMod and _TileFluidsMod.getMovementMult then
+            envMult = envMult * _TileFluidsMod.getMovementMult(pos.x, pos.y, posDepth)
+        end
+        -- Deep snow/water on the current tile slows escape but must not pin
+        -- a colonist forever after the tile becomes impassable beneath them.
+        speed = speed * math.max(0.15, envMult)
     end
     if _TileGasMod then
         if _TileGasMod.isToxic and _TileGasMod.isToxic(pos.x, pos.y, posDepth) then
@@ -918,9 +924,13 @@ local function movementSystem(dt, id, comps)
             -- dropped immediately, so colonists crossing each other
             -- constantly abandoned their tasks.)
             path.blockedTicks = (path.blockedTicks or 0) + 1
-            path.moveTimer = 1  -- ready to step the moment it clears
-            if path.blockedTicks > 3 then
-                path.blockedTicks = nil
+            if path.blockedTicks <= 3 then
+                path.moveTimer = 1  -- ready to step the moment it clears
+                return
+            end
+            path.blockedTicks = 0
+            path.stuckCycles = (path.stuckCycles or 0) + 1
+            if path.stuckCycles < 4 then
                 local dest = path.nodes[#path.nodes]
                 local WorldMod = require('src.world.tilemap')
                 local route = Pathfind.find(pos.x, pos.y, dest.x, dest.y,
@@ -928,17 +938,27 @@ local function movementSystem(dt, id, comps)
                 if route then
                     path.nodes = route
                     path.index = 1
-                    path.moveTimer = 0
+                    path.moveTimer = 1  -- attempt the first step immediately
                 else
                     -- No way around — drop the path (work AI applies backoff)
                     path.nodes = nil
                     path.index = 1
                     path.moveTimer = 0
+                    path.stuckCycles = nil
                 end
+                return
             end
+            -- Release persistent blockers back to work AI. Never overlap
+            -- entities: occupancy stores only one entity per tile.
+            path.stuckCycles = nil
+            path.nodes = nil
+            path.index = 1
+            path.moveTimer = 0
             return
+        else
+            path.blockedTicks = nil
+            path.stuckCycles = nil
         end
-        path.blockedTicks = nil
         path.moveTimer = path.moveTimer - 1
         -- Release old tile, claim new one
         Occupancy.release(pos.x, pos.y, id, pos.depth)

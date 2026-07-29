@@ -354,7 +354,6 @@ def find_sprites_grid(content_mask, min_gap_x=6, min_gap_y=6, strip_labels=False
 
     # Split sprites that are too wide (indicates merge through narrow gaps)
     if arr is not None and c1 is not None:
-        max_w = config_max_width if 'config_max_width' in dir() else 150
         sprites = split_wide_sprites(sprites, arr, c1, c2, max_width=150)
 
     return sprites

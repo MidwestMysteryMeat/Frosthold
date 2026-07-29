@@ -119,3 +119,52 @@ T.test('inventory starts empty with at least base max weight', function()
     T.gte(inv.maxWeight, 50, 'maxWeight is at least the base 50')
     T.eq(inv.currentWeight, 0, 'currentWeight starts at 0')
 end)
+
+T.test('colonist can escape a tile buried by impassable snow', function()
+    H.resetAll()
+    local ECS = require('src.ecs.ecs')
+    local Colonist = require('src.colonist.colonist')
+    local Lighting = require('src.sim.lighting')
+    local Occupancy = require('src.util.occupancy')
+    local World = require('src.world.tilemap')
+
+    World.init(16, 16)
+    Lighting.init(World)
+    local id = H.spawnTestColonist(5, 5)
+    ECS.get(id, 'path').nodes = { { x = 6, y = 5 } }
+    World.setSnow(5, 5, 7, 0)
+    World.setSnow(6, 5, 0, 0)
+    Occupancy.rebuild()
+    Colonist.registerSystems()
+
+    ECS.update(3)
+    local pos = ECS.get(id, 'pos')
+    T.eq(pos.x, 6, 'movement retains a nonzero escape speed')
+    T.eq(pos.y, 5, 'colonist reaches the clear neighboring tile')
+end)
+
+T.test('persistent occupied destination releases the blocked path', function()
+    H.resetAll()
+    local ECS = require('src.ecs.ecs')
+    local Colonist = require('src.colonist.colonist')
+    local Lighting = require('src.sim.lighting')
+    local Occupancy = require('src.util.occupancy')
+    local World = require('src.world.tilemap')
+
+    World.init(16, 16)
+    Lighting.init(World)
+    local mover = H.spawnTestColonist(5, 5)
+    local blocker = H.spawnTestColonist(6, 5)
+    ECS.get(mover, 'path').nodes = { { x = 6, y = 5 } }
+    Occupancy.rebuild()
+    Colonist.registerSystems()
+
+    for _ = 1, 24 do
+        ECS.update(1)
+    end
+
+    T.isnil(ECS.get(mover, 'path').nodes,
+        'path is returned to work AI after repeated blocked reroutes')
+    T.eq(ECS.get(mover, 'pos').x, 5, 'mover never overlaps the blocker')
+    T.eq(Occupancy.getAt(6, 5, 0), blocker, 'blocker keeps its tile reservation')
+end)
