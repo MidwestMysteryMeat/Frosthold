@@ -1103,6 +1103,72 @@ local function workAISystem(dt, id, comps)
         col.state = 'idle'
     end
 
+    ---------------------------------------------------------------------------
+    -- Cold emergency: freezing colonists drop work and seek warmth.
+    -- Triggers below warmth 40, releases at warmth 70 (hysteresis).
+    ---------------------------------------------------------------------------
+    local coldNeeds = ECS.get(id, 'needs')
+    if col.state == 'seeking_warmth' then
+        if not coldNeeds or coldNeeds.warmth >= 70 then
+            col.state = 'idle'
+        elseif path.nodes then
+            return  -- still walking toward warmth
+        else
+            local hereTemp = World.getTemp(pos.x, pos.y, pos.depth or 0)
+            if hereTemp > 10 then
+                return  -- warm enough here: stand and recover
+            end
+            col.state = 'idle'  -- warmth lost (fire out?) — re-search below
+        end
+    end
+
+    if coldNeeds and coldNeeds.warmth < 40 and col.state ~= 'seeking_warmth' then
+        col._warmSearchCd = (col._warmSearchCd or 0) - dt
+        if col._warmSearchCd <= 0 then
+            local wsDepth = pos.depth or 0
+            if World.getTemp(pos.x, pos.y, wsDepth) > 10 then
+                -- Current tile is already warm: stay put until recovered
+                if col.task then Jobs.unclaimTask(col.task.taskId) end
+                col.task = nil
+                path.nodes = nil
+                col.state = 'seeking_warmth'
+                return
+            end
+            -- Search expanding rings for the nearest reachable warm tile
+            local warmRoute = nil
+            for r = 1, 20 do
+                for dx = -r, r do
+                    for dy = -r, r do
+                        if math.abs(dx) == r or math.abs(dy) == r then
+                            local wx, wy = pos.x + dx, pos.y + dy
+                            if World.inBounds(wx, wy)
+                                and World.getTemp(wx, wy, wsDepth) > 15
+                                and World.isWalkable(wx, wy, wsDepth)
+                                and Zones.isTileAllowed(wx, wy, wsDepth) then
+                                warmRoute = Pathfind.find(pos.x, pos.y, wx, wy,
+                                    World, id, wsDepth, wsDepth)
+                                if warmRoute then break end
+                            end
+                        end
+                    end
+                    if warmRoute then break end
+                end
+                if warmRoute then break end
+            end
+            if warmRoute then
+                if col.task then Jobs.unclaimTask(col.task.taskId) end
+                col.task = nil
+                col.state = 'seeking_warmth'
+                path.nodes = warmRoute
+                path.index = 1
+                path.moveTimer = 0
+                return
+            end
+            -- No warm tile exists yet — back off before searching again
+            col._warmSearchCd = 5.0
+        end
+    end
+
     -- Get current schedule block
     local block = Schedule.getCurrentBlock(sched)
 

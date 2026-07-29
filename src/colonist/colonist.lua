@@ -471,8 +471,8 @@ local HYPOTHERMIA = {
     { name = 'normal',     minWarmth = 60,  workMult = 1.0,  moveMult = 1.0, healthDrain = 0,   morale = 0 },
     { name = 'chilled',    minWarmth = 40,  workMult = 0.9,  moveMult = 1.0, healthDrain = 0,   morale = -1 },
     { name = 'cold',       minWarmth = 20,  workMult = 0.7,  moveMult = 0.9, healthDrain = 0,   morale = -3 },
-    { name = 'hypothermic',minWarmth = 10,  workMult = 0.5,  moveMult = 0.7, healthDrain = 0.5, morale = -6 },
-    { name = 'severe',     minWarmth = 0,   workMult = 0.2,  moveMult = 0.5, healthDrain = 2,   morale = -10 },
+    { name = 'hypothermic',minWarmth = 10,  workMult = 0.5,  moveMult = 0.7, healthDrain = 0.25, morale = -6 },
+    { name = 'severe',     minWarmth = 0,   workMult = 0.2,  moveMult = 0.5, healthDrain = 1,   morale = -10 },
 }
 
 local function getHypothermiaTier(warmth)
@@ -595,10 +595,10 @@ local function needsDecaySystem(dt, id, comps)
         -- Combine trait/suit cold resistance with clothing cold protection (0-100 -> 0-1)
         local totalColdResist = (coldResist or 0) + (coldProt / 100)
         totalColdResist = math.min(totalColdResist, 0.95)  -- cap at 95%
-        local coldRate = (10 - tileTemp) * 0.02 * (1 - totalColdResist) * dt
+        local coldRate = (10 - tileTemp) * 0.005 * (1 - totalColdResist) * dt
         needs.warmth = math.max(0, needs.warmth - coldRate)
-    elseif tileTemp > 15 then
-        needs.warmth = math.min(100, needs.warmth + 0.5 * dt)
+    elseif tileTemp > 10 then
+        needs.warmth = math.min(100, needs.warmth + 2.0 * dt)
     end
 
     -- Hypothermia stage (progressive cold effects)
@@ -821,6 +821,18 @@ local function needsDecaySystem(dt, id, comps)
             if GameState.autoPause and GameState.autoPause.onMentalBreak then
                 GameState.paused = true
             end
+        end
+    end
+
+    -- Passive health recovery: while sleeping, or whenever all core needs
+    -- are in good shape. Without this, health lost to cold/hunger was
+    -- never regained (only hot springs healed) and colonists ratcheted
+    -- toward death across successive cold snaps.
+    if col.health > 0 and col.health < col.maxHealth then
+        local needsHealthy = needs.warmth > 50 and needs.food > 50
+            and (needs.water or 80) > 50 and needs.rest > 50
+        if col.state == 'sleeping' or needsHealthy then
+            col.health = math.min(col.maxHealth, col.health + 0.2 * dt)
         end
     end
 
