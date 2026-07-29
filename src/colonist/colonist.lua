@@ -913,12 +913,32 @@ local function movementSystem(dt, id, comps)
         local nodeDepth = node.depth or 0
         -- Block step if tile is occupied by another entity
         if Occupancy.isOccupiedBy(node.x, node.y, id, nodeDepth) then
-            -- Cancel path — tile is blocked
-            path.nodes = nil
-            path.index = 1
-            path.moveTimer = 0
+            -- Next tile occupied: wait up to 3 ticks for it to clear, then
+            -- re-path around the blocker. (Previously the whole path was
+            -- dropped immediately, so colonists crossing each other
+            -- constantly abandoned their tasks.)
+            path.blockedTicks = (path.blockedTicks or 0) + 1
+            path.moveTimer = 1  -- ready to step the moment it clears
+            if path.blockedTicks > 3 then
+                path.blockedTicks = nil
+                local dest = path.nodes[#path.nodes]
+                local WorldMod = require('src.world.tilemap')
+                local route = Pathfind.find(pos.x, pos.y, dest.x, dest.y,
+                    WorldMod, id, pos.depth or 0, dest.depth or (pos.depth or 0))
+                if route then
+                    path.nodes = route
+                    path.index = 1
+                    path.moveTimer = 0
+                else
+                    -- No way around — drop the path (work AI applies backoff)
+                    path.nodes = nil
+                    path.index = 1
+                    path.moveTimer = 0
+                end
+            end
             return
         end
+        path.blockedTicks = nil
         path.moveTimer = path.moveTimer - 1
         -- Release old tile, claim new one
         Occupancy.release(pos.x, pos.y, id, pos.depth)

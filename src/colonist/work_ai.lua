@@ -1559,7 +1559,10 @@ local function workAISystem(dt, id, comps)
                 if dx <= 1 and dy <= 1 and sameDepth then
                     col.task.arrived = true
                 else
-                    -- Can't reach task — unclaim and retry
+                    -- Can't reach task — unclaim, and back off from this
+                    -- task for 10 s so we don't livelock retrying it
+                    task._noPathUntil = task._noPathUntil or {}
+                    task._noPathUntil[id] = GameState.simTick + 200  -- 10 s @ 20 Hz
                     Jobs.unclaimTask(task.id)
                     col.task = nil
                     col.state = 'idle'
@@ -1605,7 +1608,12 @@ local function workAISystem(dt, id, comps)
                 path.index = 1
                 path.moveTimer = 0
             else
-                -- Can't path — unclaim
+                -- Can't path — unclaim, and back off from this task for
+                -- 10 s. findBestTask always returns the nearest task, so
+                -- without a backoff an unreachable task was re-picked
+                -- every tick forever, idling the colonist.
+                task._noPathUntil = task._noPathUntil or {}
+                task._noPathUntil[id] = GameState.simTick + 200  -- 10 s @ 20 Hz
                 Jobs.unclaimTask(task.id)
                 col.task = nil
                 col.state = 'idle'

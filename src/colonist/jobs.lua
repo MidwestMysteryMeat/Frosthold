@@ -157,9 +157,12 @@ end
 -- Work priority defaults
 ---------------------------------------------------------------------------
 
--- Priority columns in order of importance (left = checked first)
+-- Priority columns in order of importance (left = checked first).
+-- Hauling sits after mining: at equal priority levels, ties resolve by
+-- column order, and hauling-first meant loose items starved build/cook/
+-- mine orders (colonists hauled rocks while the campfire sat unbuilt).
 Jobs.PRIORITY_COLUMNS = {
-    'medical', 'hauling', 'cooking', 'building', 'mining',
+    'medical', 'cooking', 'building', 'mining', 'hauling',
     'operating', 'hunting', 'research', 'cleaning',
 }
 
@@ -197,7 +200,10 @@ function Jobs.findBestTask(colonistId)
     for taskId, task in pairs(taskQueue) do
         if not task.claimed and not task.complete
             -- Player-forced tasks may only be picked up by their colonist
-            and not (task.data and task.data.forcedFor and task.data.forcedFor ~= colonistId) then
+            and not (task.data and task.data.forcedFor and task.data.forcedFor ~= colonistId)
+            -- Skip tasks this colonist recently failed to path to (backoff)
+            and not (task._noPathUntil and task._noPathUntil[colonistId]
+                     and GameState.simTick < task._noPathUntil[colonistId]) then
             local prioCol = task.def.priority
             local level = allPrio1 and 1 or priorities[prioCol]
 
