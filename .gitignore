@@ -48,13 +48,15 @@ node_modules/
 # LLM Arena (separate project)
 # Keep generate_lore_pdf.py but ignore its output is already tracked
 
-# --- Licensed art/audio: stripped from the repo (owner-licensed packs) ---
-# See ASSETS_PLACEHOLDER.md. Files live only on the dev machine.
+# --- Audio: purchased packs, licensed to the owner only, NOT distributed ---
+# See assets/ASSETS_PLACEHOLDER.md. The game runs silent without them.
 *.ogg
 *.wav
 *.mp3
 *.flac
 *.m4a
+
+# --- Images: ignored by default so stray screenshots/downloads stay out ---
 *.png
 *.jpg
 *.jpeg
@@ -62,6 +64,11 @@ node_modules/
 *.webp
 *.bmp
 *.tga
+
+# Exception: assets/sprites/ is the project's OWN art — AI-generated for this
+# project and regenerable via tools/comfyui + tools/slice_sprites.py. It ships
+# with the repo. Audio above stays excluded.
+!assets/sprites/**/*.png
 
 # Acceptance simulation batch logs (tools/run_acceptance.ps1)
 _simruns/
