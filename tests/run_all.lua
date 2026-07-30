@@ -48,6 +48,7 @@ local suites = {
     'tests.test_wounds',
     'tests.test_equipment',
     'tests.test_early_survival',
+    'tests.test_cold_survival',
     'tests.test_hope',
     'tests.test_policies',
     'tests.test_doctrines',
