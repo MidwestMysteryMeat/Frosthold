@@ -222,10 +222,15 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
             local nk = key(nx, ny, cur.d)
             if not closed[nk] and world.inBounds(nx, ny) and world.isWalkable(nx, ny, cur.d)
                 and tileAllowed(nx, ny, cur.d) and not isDoorLocked(world, nx, ny) then
-                -- Deep snow blocks passage
+                -- Deep snow is punishing but NEVER an absolute wall. A long
+                -- blizzard buries every outdoor tile to max depth (7); when
+                -- that depth was treated as impassable, pathfinding failed
+                -- across the whole surface, colonists were stranded wherever
+                -- they stood, and the colony froze to death with no route to
+                -- any fire. Colonists now plough through at high cost
+                -- (movementSystem keeps a nonzero speed floor to match).
                 local snowDepth = 0
                 if world.getSnow then snowDepth = world.getSnow(nx, ny, cur.d) end
-                if snowDepth >= 7 then goto skip_neighbor end
 
                 local moveCost = 1
                 -- Tile movement penalty (marsh, etc.) when the caller exposes
@@ -239,10 +244,17 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
                         moveCost = nProps.movePenalty
                     end
                 end
-                -- Snow increases movement cost
-                if snowDepth >= 5 then moveCost = moveCost + 4
-                elseif snowDepth >= 3 then moveCost = moveCost + 2
-                elseif snowDepth >= 1 then moveCost = moveCost + 1
+                -- Snow biases routes toward cleared ground. Surcharges are kept
+                -- SMALL on purpose: the heuristic is plain Manhattan distance
+                -- (min step cost 1), so a large per-tile surcharge makes the
+                -- heuristic a gross underestimate and A* degenerates into
+                -- Dijkstra. During a blizzard every outdoor tile carried the
+                -- surcharge, so ~93% of queries blew the MAX_NODES budget and
+                -- the sim dropped from ~250 to ~17 ticks/second. Real traversal
+                -- slowness is modelled by TileSnow.getMovementMult, not here.
+                if snowDepth >= 7 then moveCost = moveCost + 3
+                elseif snowDepth >= 5 then moveCost = moveCost + 2
+                elseif snowDepth >= 3 then moveCost = moveCost + 1
                 end
                 if respectHazards then
                     moveCost = moveCost + getWaterHazardCost(world, nx, ny, cur.d)

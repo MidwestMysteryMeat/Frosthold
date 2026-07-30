@@ -149,6 +149,17 @@ function SimRunner.start(opts)
     SimRunner.info('Target: ' .. state.targetDays .. ' days')
     SimRunner.info('Agents: ' .. #state.agents)
 
+    -- Headless runs: fast-forward and never auto-pause (a death popup
+    -- pause would stall the simulation forever with no player present).
+    local GameState = require('src.game_state')
+    GameState.speed = state.scenario.speed or 32
+    GameState.paused = false
+    if GameState.autoPause then
+        for k in pairs(GameState.autoPause) do
+            GameState.autoPause[k] = false
+        end
+    end
+
     -- Initialize all agents
     for _, agent in ipairs(state.agents) do
         agent:init()
@@ -203,6 +214,16 @@ function SimRunner.step(dt)
 
     local GameState = require('src.game_state')
     if GameState.phase ~= 'playing' then return end
+
+    -- Wall-clock heartbeat: proves the sim is advancing (and shows when
+    -- something pauses or stalls the game with no player present).
+    state._lastBeat = state._lastBeat or os.clock()
+    if os.clock() - state._lastBeat > 15 then
+        state._lastBeat = os.clock()
+        SimRunner.info(string.format('heartbeat: day %s hour %.1f tick %s paused=%s speed=%s',
+            tostring(GameState.day), GameState.hour or -1,
+            tostring(GameState.simTick), tostring(GameState.paused), tostring(GameState.speed)))
+    end
 
     state.elapsedReal = os.clock() - state.startTime
 

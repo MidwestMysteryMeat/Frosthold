@@ -191,12 +191,31 @@ function Filth.step(dt)
         activeCleanTasks = activeCleanTasks + 1
     end
 
-    -- Find dirtiest tiles and create clean tasks
+    -- Find dirtiest tiles and create clean tasks.
+    -- Only tiles near the colony (or indoors) qualify: auto-created clean
+    -- tasks for wilderness blood trails marched colonists across the map
+    -- into predator territory at night.
+    local CLEAN_HOME_RADIUS = 24
+    local GameState = require('src.game_state')
+    local homeX = GameState.startX
+    local homeY = GameState.startY
     if activeCleanTasks < MAX_CLEAN_TASKS then
         local candidates = {}
         for k, level in pairs(filthGrid) do
             if level >= CLEAN_THRESHOLD and not cleanTaskTiles[k] then
-                candidates[#candidates + 1] = { key = k, level = level }
+                local depth = math.floor(k / 1000000)
+                local idx = k - depth * 1000000
+                local x = (idx - 1) % mapW
+                local y = math.floor((idx - 1) / mapW)
+                local nearHome = true
+                if homeX and homeY then
+                    nearHome = math.abs(x - homeX) <= CLEAN_HOME_RADIUS
+                        and math.abs(y - homeY) <= CLEAN_HOME_RADIUS
+                end
+                local indoors = (World.getRoom(x, y, depth) or 0) > 0
+                if nearHome or indoors then
+                    candidates[#candidates + 1] = { key = k, level = level }
+                end
             end
         end
 

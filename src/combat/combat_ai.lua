@@ -300,6 +300,25 @@ local function combatAISystem(dt, id, comps)
     local forceF = (not hasWeapon and not hasTrait(col, 'brave'))
 
     if hpRatio <= fleeThreshold or forceF then
+        -- Exposure outranks a creature once it is the more certain death.
+        -- work_ai returns early for state 'fleeing', so its cold-emergency
+        -- block never runs while a colonist is running away: a colonist chased
+        -- by a lingering predator froze solid at warmth 0 without ever trying
+        -- to reach a fire. Breaking off hands control back to work_ai, which
+        -- then paths to warmth.
+        --   * warmth < 25: break off from a DISTANT threat (> 6 tiles)
+        --   * warmth < 12: break off regardless of distance — at this point
+        --     hypothermia is draining 1 HP/s and will finish the job first
+        local fleeNeeds = ECS.get(id, 'needs')
+        if fleeNeeds and (fleeNeeds.warmth < 12
+            or (fleeNeeds.warmth < 25 and threatDist > 6)) then
+            if col.state == 'fleeing' then
+                col.state = 'idle'
+                path.nodes = nil
+            end
+            return
+        end
+
         -- FLEE
         if col.state ~= 'fleeing' then
             col.state = 'fleeing'

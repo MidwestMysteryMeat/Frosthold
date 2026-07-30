@@ -381,15 +381,34 @@ local function creatureAI(dt, id, comps)
             cr.lureY = nil
         end
 
-        -- Leash check: return home if too far
+        -- Leash check: return home if too far.
+        -- The retry MUST be throttled. An out-of-leash creature whose den is
+        -- unreachable (walled off, buried, across water) used to re-run a full
+        -- A* every single tick; the search exhausts the whole MAX_NODES budget
+        -- before failing, and with a map full of creatures this alone burned
+        -- ~1100 failed searches and 3.3 million node expansions every 15
+        -- seconds, dragging the sim from ~250 to ~17 ticks/second. After a few
+        -- failures the creature simply adopts its current spot as home — a
+        -- wild animal's territory is allowed to move.
         if pos.homeX and distSq(pos.x, pos.y, pos.homeX, pos.homeY) > cr.leashRange * cr.leashRange then
             cr.state = 'returning'
-            local pd = pos.depth or 0
-            local route = Pathfind.find(pos.x, pos.y, pos.homeX, pos.homeY, _World, id, pd, pd)
-            if route then
-                path.nodes = route
-                path.index = 1
-                path.moveTimer = 0
+            cr._homeRetryCd = (cr._homeRetryCd or 0) - dt
+            if cr._homeRetryCd <= 0 then
+                local pd = pos.depth or 0
+                local route = Pathfind.find(pos.x, pos.y, pos.homeX, pos.homeY, _World, id, pd, pd)
+                if route then
+                    path.nodes = route
+                    path.index = 1
+                    path.moveTimer = 0
+                    cr._homeFails = nil
+                else
+                    cr._homeRetryCd = 5.0
+                    cr._homeFails = (cr._homeFails or 0) + 1
+                    if cr._homeFails >= 3 then
+                        pos.homeX, pos.homeY = pos.x, pos.y
+                        cr._homeFails = nil
+                    end
+                end
             end
             return
         end
