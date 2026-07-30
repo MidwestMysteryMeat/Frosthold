@@ -3,6 +3,7 @@
 -- Left column: world seed + map size.  Right column: active factions.
 
 local GameState  = require('src.game_state')
+local Layout = require('src.ui.ui_layout')
 local Difficulty = require('src.ui.difficulty')
 
 local CreateWorld = {}
@@ -717,7 +718,7 @@ function CreateWorld.keypressed(key)
 
     if key == 'backspace' and seedFocused then
         if #seedText > 0 then
-            seedText = seedText:sub(1, -2)
+            seedText = Layout.dropLastChar(seedText)
         end
         return
     end

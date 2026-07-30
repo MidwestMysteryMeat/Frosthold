@@ -1,6 +1,7 @@
 -- ui_hud.lua — Resource bar, time bar, critical alerts, colonist bar, selection box, toolbar
 
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 local ECS       = require('src.ecs.ecs')
 
 local HUD = {}
@@ -85,22 +86,12 @@ local function lazyLoadHUDMods()
     if not ok then _Building = false end
 end
 
+-- Delegates to ui_layout so there is one truncation implementation. The local
+-- version walked byte indices, which splits multi-byte characters and makes
+-- font:getWidth throw.
 local function truncateTextForWidth(text, maxWidth, font)
-    text = tostring(text or '')
-    font = font or (love.graphics and love.graphics.getFont and love.graphics.getFont()) or nil
-    if not font or not font.getWidth or maxWidth <= 0 then return text end
-    if font:getWidth(text) <= maxWidth then return text end
-
-    local ellipsis = '...'
-    local limit = math.max(0, #text)
-    while limit > 0 do
-        local candidate = text:sub(1, limit) .. ellipsis
-        if font:getWidth(candidate) <= maxWidth then
-            return candidate
-        end
-        limit = limit - 1
-    end
-    return ellipsis
+    if maxWidth and maxWidth <= 0 then return tostring(text or '') end
+    return Layout.truncate(text, maxWidth, font)
 end
 
 HUD._truncateTextForWidth = truncateTextForWidth
@@ -826,8 +817,7 @@ function HUD.drawColonistBar()
         love.graphics.rectangle('line', cx, barY, cardW, cardH, 3)
 
         -- Name (truncated)
-        local name = c.col.name or '???'
-        if #name > 8 then name = name:sub(1, 7) .. '.' end
+        local name = Layout.truncate(c.col.name or '???', cardW - 6)
         love.graphics.setColor(0.9, 0.9, 0.9)
         love.graphics.print(name, cx + 3, barY + 2)
 

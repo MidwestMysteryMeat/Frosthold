@@ -4,6 +4,7 @@
 
 local ECS       = require('src.ecs.ecs')
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 
 local FarmPanel = {}
 
@@ -38,10 +39,13 @@ local function drawCropPicker(sw, sh, Agriculture)
     love.graphics.setColor(0.7, 0.85, 0.7)
     love.graphics.print('SELECT CROP TO PLANT', 20, 58)
     love.graphics.setColor(0.45, 0.45, 0.45)
-    love.graphics.print('Click a crop, or ESC to cancel', 250, 58)
+    love.graphics.print('Click a crop, or ESC to cancel',
+        20 + Layout.textWidth('SELECT CROP TO PLANT') + Layout.FIELD_GAP, 58)
 
     local CROPS = Agriculture.CROPS
-    local cardW = 260
+    -- 260px cards held 344px of stats, so every card bled ~92px into the one
+    -- beside it. Size the card to the widest line it can contain instead.
+    local cardW = math.max(260, Layout.textWidth('Grow: 00:00  Yield: 00-00 cooked_meal  Seed: 00 food') + 20)
     local cardH = 90
     local cols = math.max(1, math.floor((sw - 40) / (cardW + 10)))
     local x0 = 20
@@ -60,7 +64,8 @@ local function drawCropPicker(sw, sh, Agriculture)
         local cx = x0 + col * (cardW + 10)
         local cy = y0
 
-        if cy > 40 and cy < sh - 10 then
+        local cardMaxW = cardW - 16
+        if cy + cardH > 78 and cy < sh - Layout.BOTTOM_RESERVE - 10 then
             local canAfford = (GameState.resources.food or 0) >= def.seedCost
 
             -- Card background
@@ -71,11 +76,11 @@ local function drawCropPicker(sw, sh, Agriculture)
 
             -- Name
             love.graphics.setColor(canAfford and 0.9 or 0.5, canAfford and 0.9 or 0.5, canAfford and 0.85 or 0.45)
-            love.graphics.print(def.name, cx + 8, cy + 4)
+            love.graphics.print(Layout.truncate(def.name, cardMaxW), cx + 8, cy + 4)
 
             -- Desc
             love.graphics.setColor(0.5, 0.5, 0.5)
-            love.graphics.print(def.desc or '', cx + 8, cy + 20, 0, 1, 1)
+            love.graphics.print(Layout.truncate(def.desc or '', cardMaxW), cx + 8, cy + 20)
 
             -- Stats line
             local growMins = math.floor(def.growTime / 60)
@@ -83,13 +88,13 @@ local function drawCropPicker(sw, sh, Agriculture)
             local statsStr = string.format('Grow: %d:%02d  Yield: %d-%d %s  Seed: %d food',
                 growMins, growSecs, def.yield.min, def.yield.max, def.yield.item, def.seedCost)
             love.graphics.setColor(0.55, 0.55, 0.45)
-            love.graphics.print(statsStr, cx + 8, cy + 38)
+            love.graphics.print(Layout.truncate(statsStr, cardMaxW), cx + 8, cy + 38)
 
             -- Temp range
             love.graphics.setColor(0.45, 0.5, 0.55)
             local tempStr = string.format('Temp: %d to %d°C (ideal %d-%d)',
                 def.minTemp, def.maxTemp, def.idealTemp[1], def.idealTemp[2])
-            love.graphics.print(tempStr, cx + 8, cy + 54)
+            love.graphics.print(Layout.truncate(tempStr, cardMaxW), cx + 8, cy + 54)
 
             -- Traits
             local traits = {}
@@ -99,7 +104,7 @@ local function drawCropPicker(sw, sh, Agriculture)
             if def.hardiness and def.hardiness >= 0.7 then traits[#traits + 1] = 'Hardy' end
             if #traits > 0 then
                 love.graphics.setColor(0.5, 0.7, 0.5)
-                love.graphics.print(table.concat(traits, '  '), cx + 8, cy + 70)
+                love.graphics.print(Layout.truncate(table.concat(traits, '  '), cardMaxW), cx + 8, cy + 70)
             end
 
             if canAfford then
@@ -163,7 +168,7 @@ function FarmPanel.draw()
 
     local cropCount = 0
     for id, comps in ECS.query('crop', 'pos') do
-        if y > 40 and y < sh - 10 then
+        if y + rowH > 78 and y < sh - Layout.BOTTOM_RESERVE - 10 then
             cropCount = cropCount + 1
             local crop = comps.crop
             local pos = comps.pos
@@ -177,7 +182,7 @@ function FarmPanel.draw()
 
             -- Crop name and position
             love.graphics.setColor(0.85, 0.85, 0.85)
-            love.graphics.print(crop.name or crop.type, 30, y + 4)
+            love.graphics.print(Layout.fitLabel(crop.name or crop.type, 30, 200), 30, y + 4)
             love.graphics.setColor(0.5, 0.5, 0.5)
             love.graphics.print(string.format('(%d, %d)', pos.x, pos.y), 200, y + 4)
 
@@ -246,15 +251,13 @@ function FarmPanel.draw()
                     love.graphics.setColor(0.7, 0.7, 0.7)
                     love.graphics.print(string.format('Farm Plot (%d, %d)', comps.pos.x, comps.pos.y), 30, y + 6)
 
-                    -- Plant button
-                    local btnX = sw - 110
-                    love.graphics.setColor(0.15, 0.3, 0.15)
-                    love.graphics.rectangle('fill', btnX, y + 3, 60, 24, 3)
-                    love.graphics.setColor(0.4, 0.8, 0.4)
-                    love.graphics.print('Plant', btnX + 12, y + 6)
+                    -- Plant button, sized to its label
+                    local btnRect = Layout.buttonRectRight('Plant', sw - 40, y + 3, { h = 24, minW = 60 })
+                    Layout.drawButton('Plant', btnRect, 'normal',
+                        { normal = { 0.15, 0.3, 0.15 }, text = { 0.4, 0.8, 0.4 } })
 
                     plantBtns[#plantBtns + 1] = {
-                        x = btnX, y = y + 3, w = 60, h = 24,
+                        x = btnRect.x, y = btnRect.y, w = btnRect.w, h = btnRect.h,
                         plotId = id, px = comps.pos.x, py = comps.pos.y,
                     }
                 end

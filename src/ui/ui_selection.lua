@@ -1,6 +1,7 @@
 -- ui_selection.lua — Selection panel (bottom): colonist tabs (needs/health/social/work/schedule/gear)
 
 local GameState = require('src.game_state')
+local Layout = require('src.ui.ui_layout')
 local ECS       = require('src.ecs.ecs')
 local BuildingInfo = require('src.ui.ui_building_info')
 
@@ -392,7 +393,7 @@ function Selection.drawPrisonerPanel(id, prisoner, panelY)
     if prisoner.backstory then
         love.graphics.setColor(0.5, 0.5, 0.45)
         local backstory = prisoner.backstory
-        if #backstory > 60 then backstory = backstory:sub(1, 57) .. '...' end
+        backstory = Layout.truncate(backstory, screenW - 32)
         love.graphics.print(backstory, 16, panelY + 70)
     end
 

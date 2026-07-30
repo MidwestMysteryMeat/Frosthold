@@ -5,6 +5,7 @@
 
 local ECS       = require('src.ecs.ecs')
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 
 local EquipPanel = {}
 
@@ -127,8 +128,18 @@ local function drawColonistGear(sw, sh, Equipment)
         end
     end
 
-    local slotY = 118
     local slotH = 55
+    -- This view ignored scrollY entirely: seven 61px slot cards plus the
+    -- Auto-Equip button need ~470px below y=118, which does not fit the 540px
+    -- minimum window, and the wheel moved a scrollY nothing here read.
+    local sw2, sh2 = love.graphics.getDimensions()
+    local viewTop = 112
+    local viewH = sh2 - viewTop - Layout.BOTTOM_RESERVE
+    local SLOT_COUNT = 7   -- weapon, under, outer, head, hands, feet, accessory
+    local contentH = SLOT_COUNT * (slotH + 6) + 46
+    scrollY = (Layout.clampScroll(scrollY, contentH, viewH))
+    Layout.pushClip(0, viewTop, sw2, viewH)
+    local slotY = 118 - scrollY
 
     local slots = {
         { key = 'weapon',    label = 'WEAPON',    data = equip and equip.weapon,         slotType = 'equipment' },
@@ -167,12 +178,13 @@ local function drawColonistGear(sw, sh, Equipment)
                 else
                     love.graphics.setColor(0.9, 0.85, 0.75)
                 end
-                love.graphics.print(nameStr, 140, slotY + 4)
+                local valueMaxW = (sw - 185) - Layout.MIN_GAP - 140
+                love.graphics.print(Layout.truncate(nameStr, valueMaxW), 140, slotY + 4)
 
                 -- Protection stats line
                 love.graphics.setColor(0.55, 0.65, 0.75)
-                love.graphics.print(string.format('Cold: +%d  Heat: +%d  Armor: %d',
-                    item.cold or 0, item.heat or 0, item.armor or 0), 140, slotY + 22)
+                love.graphics.print(Layout.truncate(string.format('Cold: +%d  Heat: +%d  Armor: %d',
+                    item.cold or 0, item.heat or 0, item.armor or 0), valueMaxW), 140, slotY + 22)
 
                 -- Remove button
                 local ubX = sw - 110
@@ -187,16 +199,19 @@ local function drawColonistGear(sw, sh, Equipment)
                 }
             else
                 -- Equipment item (weapon / accessory)
+                local valueMaxW = (sw - 185) - Layout.MIN_GAP - 140
                 love.graphics.setColor(0.9, 0.85, 0.75)
-                love.graphics.print(slot.data.name or slot.data.id, 140, slotY + 6)
+                love.graphics.print(Layout.truncate(slot.data.name or slot.data.id, valueMaxW), 140, slotY + 6)
 
                 love.graphics.setColor(0.55, 0.55, 0.5)
                 if slot.key == 'weapon' then
-                    love.graphics.print(string.format('DMG: %d  Range: %d  %s',
-                        slot.data.dmg or 0, slot.data.range or 1, slot.data.category or ''), 140, slotY + 24)
+                    love.graphics.print(Layout.truncate(string.format('DMG: %d  Range: %d  %s',
+                        slot.data.dmg or 0, slot.data.range or 1, slot.data.category or ''), valueMaxW),
+                        140, slotY + 24)
                 elseif slot.key == 'accessory' then
-                    love.graphics.print(string.format('Effect: %s +%s',
-                        slot.data.effect or '?', tostring(slot.data.value or 0)), 140, slotY + 24)
+                    love.graphics.print(Layout.truncate(string.format('Effect: %s +%s',
+                        slot.data.effect or '?', tostring(slot.data.value or 0)), valueMaxW),
+                        140, slotY + 24)
                 end
 
                 -- Unequip button
@@ -243,6 +258,8 @@ local function drawColonistGear(sw, sh, Equipment)
         x = autoX, y = autoY, w = 120, h = 30,
         action = 'auto',
     }
+
+    Layout.popClip()
 end
 
 ---------------------------------------------------------------------------
@@ -277,22 +294,22 @@ local function drawItemPicker(sw, sh, Equipment)
                 love.graphics.setColor(0.18, 0.18, 0.18)
                 love.graphics.rectangle('line', 20, y, sw - 40, rowH - 4, 3)
 
+                local btnRect = Layout.buttonRectRight('Equip', sw - 40, y + 4, { h = 26 })
+
                 love.graphics.setColor(0.9, 0.85, 0.75)
-                love.graphics.print(def.name or entry.id, 30, y + 4)
+                love.graphics.print(Layout.fitLabel(def.name or entry.id, 30, 220), 30, y + 4)
 
                 love.graphics.setColor(0.55, 0.65, 0.75)
-                love.graphics.print(string.format('Cold: +%d  Heat: +%d  Armor: %d  Dur: %d',
-                    def.cold or 0, def.heat or 0, def.armor or 0, def.maxDurability or 0), 220, y + 4)
+                love.graphics.print(Layout.truncate(string.format('Cold: +%d  Heat: +%d  Armor: %d  Dur: %d',
+                    def.cold or 0, def.heat or 0, def.armor or 0, def.maxDurability or 0),
+                    btnRect.x - Layout.MIN_GAP - 220), 220, y + 4)
 
-                -- Equip button
-                local btnX = sw - 90
-                love.graphics.setColor(0.12, 0.22, 0.12)
-                love.graphics.rectangle('fill', btnX, y + 4, 50, 26, 3)
-                love.graphics.setColor(0.4, 0.75, 0.4)
-                love.graphics.print('Equip', btnX + 6, y + 8)
+                -- Equip button, sized to its label
+                Layout.drawButton('Equip', btnRect, 'normal',
+                    { normal = { 0.12, 0.22, 0.12 }, text = { 0.4, 0.75, 0.4 } })
 
                 itemBtns[#itemBtns + 1] = {
-                    x = btnX, y = y + 4, w = 50, h = 26,
+                    x = btnRect.x, y = btnRect.y, w = btnRect.w, h = btnRect.h,
                     itemId = entry.id, isClothing = true,
                 }
             end
@@ -322,30 +339,38 @@ local function drawItemPicker(sw, sh, Equipment)
                     love.graphics.setColor(0.18, 0.18, 0.18)
                     love.graphics.rectangle('line', 20, y, sw - 40, rowH - 4, 3)
 
-                    love.graphics.setColor(0.9, 0.85, 0.75)
-                    love.graphics.print(def.name or entry.id, 30, y + 4)
+                    local btnRect = Layout.buttonRectRight('Equip', sw - 40, y + 4, { h = 26 })
 
-                    love.graphics.setColor(0.55, 0.55, 0.5)
+                    love.graphics.setColor(0.9, 0.85, 0.75)
+                    love.graphics.print(Layout.fitLabel(def.name or entry.id, 30, 220), 30, y + 4)
+
+                    -- One measured run of fields. 'DMG: 18 Range: 12 ranged'
+                    -- printed at x=220 reached x=428 while 'Acc:' printed at
+                    -- x=420, so the two stat groups overlapped.
+                    local statMaxX = btnRect.x - Layout.MIN_GAP
                     if selectedSlot == 'weapon' then
-                        love.graphics.print(string.format('DMG: %d  Range: %d  %s',
-                            def.dmg or 0, def.range or 1, def.category or ''), 220, y + 4)
+                        local fields = {
+                            { text = string.format('DMG: %d', def.dmg or 0) },
+                            { text = string.format('Range: %d', def.range or 1) },
+                            { text = def.category or '' },
+                        }
                         if def.accuracy then
-                            love.graphics.print(string.format('Acc: %d%%', def.accuracy * 100), 420, y + 4)
+                            fields[#fields + 1] = { text = string.format('Acc: %d%%', def.accuracy * 100) }
                         end
+                        Layout.drawInline(220, y + 4, fields,
+                            { maxX = statMaxX, color = { 0.55, 0.55, 0.5 } })
                     else
-                        love.graphics.print(string.format('%s +%s',
-                            def.effect or '?', tostring(def.value or 0)), 220, y + 4)
+                        love.graphics.setColor(0.55, 0.55, 0.5)
+                        love.graphics.print(Layout.truncate(string.format('%s +%s',
+                            def.effect or '?', tostring(def.value or 0)), statMaxX - 220), 220, y + 4)
                     end
 
-                    -- Equip button
-                    local btnX = sw - 90
-                    love.graphics.setColor(0.12, 0.22, 0.12)
-                    love.graphics.rectangle('fill', btnX, y + 4, 50, 26, 3)
-                    love.graphics.setColor(0.4, 0.75, 0.4)
-                    love.graphics.print('Equip', btnX + 6, y + 8)
+                    -- Equip button, sized to its label
+                    Layout.drawButton('Equip', btnRect, 'normal',
+                        { normal = { 0.12, 0.22, 0.12 }, text = { 0.4, 0.75, 0.4 } })
 
                     itemBtns[#itemBtns + 1] = {
-                        x = btnX, y = y + 4, w = 50, h = 26,
+                        x = btnRect.x, y = btnRect.y, w = btnRect.w, h = btnRect.h,
                         itemId = entry.id, isClothing = false,
                     }
                 end

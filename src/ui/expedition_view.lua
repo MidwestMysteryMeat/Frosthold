@@ -5,6 +5,8 @@
 local GameState   = require('src.game_state')
 local ExpMap      = require('src.exploration.expedition_map')
 
+local Layout = require('src.ui.ui_layout')
+
 local ExpView = {}
 
 local active = false
@@ -182,30 +184,42 @@ function ExpView.draw()
     local panelW = sw - panelX - 10
     local panelY = 50
 
+    -- Every line in this column is ellipsised to panelW. The column narrows as
+    -- the map grows, and unbounded prints ran off the right edge of the screen.
+    local function infoLine(text, gap)
+        love.graphics.print(Layout.truncate(text, panelW), panelX, panelY)
+        panelY = panelY + (gap or 18)
+    end
+
     -- Expedition info
     love.graphics.setColor(0.8, 0.85, 0.9)
-    love.graphics.print('Destination: ' .. exp.destName, panelX, panelY)
-    panelY = panelY + 18
+    infoLine('Destination: ' .. exp.destName)
     love.graphics.setColor(0.6, 0.7, 0.8)
-    love.graphics.print('Risk: ' .. exp.risk .. '/5', panelX, panelY)
-    panelY = panelY + 18
-    love.graphics.print('Party: ' .. #map.explorers, panelX, panelY)
-    panelY = panelY + 18
+    infoLine('Risk: ' .. exp.risk .. '/5')
+    infoLine('Party: ' .. #map.explorers)
 
     -- Loot collected so far
     if #map.lootCollected > 0 then
         love.graphics.setColor(1, 0.85, 0.2)
-        love.graphics.print('Loot found:', panelX, panelY)
-        panelY = panelY + 16
+        infoLine('Loot found:', 16)
         -- Aggregate by item
         local agg = {}
         for _, loot in ipairs(map.lootCollected) do
             agg[loot.itemId] = (agg[loot.itemId] or 0) + loot.amount
         end
+        -- Sorted, and capped so a long loot list cannot push the event log off
+        -- the bottom of the screen (which produced a negative scissor height).
+        local lootNames = {}
+        for item in pairs(agg) do lootNames[#lootNames + 1] = item end
+        table.sort(lootNames)
         love.graphics.setColor(0.8, 0.8, 0.6)
-        for item, amt in pairs(agg) do
-            love.graphics.print('  ' .. item .. ': ' .. amt, panelX, panelY)
-            panelY = panelY + 14
+        local shown = math.min(#lootNames, 8)
+        for i = 1, shown do
+            local item = lootNames[i]
+            infoLine('  ' .. item .. ': ' .. agg[item], 14)
+        end
+        if #lootNames > shown then
+            infoLine(string.format('  +%d more', #lootNames - shown), 14)
         end
     end
 
@@ -214,8 +228,7 @@ function ExpView.draw()
     -- Combat summary
     if map.encountersWon > 0 or map.encountersLost > 0 then
         love.graphics.setColor(0.7, 0.7, 0.7)
-        love.graphics.print('Fights won: ' .. map.encountersWon .. '  lost: ' .. map.encountersLost, panelX, panelY)
-        panelY = panelY + 18
+        infoLine('Fights won: ' .. map.encountersWon .. '  lost: ' .. map.encountersLost)
     end
 
     -- Completion status
@@ -228,41 +241,52 @@ function ExpView.draw()
         else
             love.graphics.setColor(1, 0.3, 0.2)
         end
-        love.graphics.print('COMPLETED: ' .. oc:upper(), panelX, panelY)
-        panelY = panelY + 18
+        infoLine('COMPLETED: ' .. oc:upper())
     end
 
     -- POI legend
     panelY = panelY + 12
     love.graphics.setColor(0.6, 0.6, 0.6)
-    love.graphics.print('Legend:', panelX, panelY)
-    panelY = panelY + 16
+    infoLine('Legend:', 16)
     local legendItems = { 'entrance', 'loot', 'encounter', 'objective' }
     for _, ptype in ipairs(legendItems) do
         local c = POI_COLORS[ptype]
         love.graphics.setColor(c[1], c[2], c[3])
         love.graphics.rectangle('fill', panelX, panelY + 2, 10, 10)
         love.graphics.setColor(0.7, 0.7, 0.7)
-        love.graphics.print(POI_SYMBOLS[ptype] .. ' ' .. ptype, panelX + 14, panelY)
+        love.graphics.print(Layout.truncate(POI_SYMBOLS[ptype] .. ' ' .. ptype, panelW - 14),
+            panelX + 14, panelY)
         panelY = panelY + 14
     end
 
     -- Event log (bottom of right panel)
     panelY = panelY + 16
     love.graphics.setColor(0.5, 0.55, 0.6)
-    love.graphics.print('Event Log:', panelX, panelY)
-    panelY = panelY + 16
+    infoLine('Event Log:', 16)
 
-    local logH = sh - panelY - 10
-    love.graphics.setScissor(panelX, panelY, panelW, logH)
-    local logY = panelY - logScroll
-    for i = #map.log, 1, -1 do
-        local entry = map.log[i]
-        love.graphics.setColor(0.65, 0.7, 0.75)
-        love.graphics.print(string.format('[%.0fs] %s', entry.time, entry.text), panelX, logY)
-        logY = logY + 14
+    -- The info column above grows with loot and outcome lines. Once it reached
+    -- the bottom of the screen logH went negative, and setScissor errors on a
+    -- negative height: an expedition with a long loot list crashed the game.
+    local logBottom = sh - Layout.BOTTOM_RESERVE - 10
+    local logH = math.max(0, logBottom - panelY)
+    if logH >= 14 then
+        local logCount = #map.log
+        local clip = Layout.pushClip(panelX, panelY, panelW, logH)
+        logScroll = (Layout.clampScroll(logScroll, logCount * 14, logH))
+        local logY = panelY - logScroll
+        for i = logCount, 1, -1 do
+            if logY > clip.y + clip.h then break end
+            local entry = map.log[i]
+            if logY + 14 >= clip.y then
+                love.graphics.setColor(0.65, 0.7, 0.75)
+                love.graphics.print(
+                    Layout.truncate(string.format('[%.0fs] %s', entry.time, entry.text), panelW),
+                    panelX, logY)
+            end
+            logY = logY + 14
+        end
+        Layout.popClip()
     end
-    love.graphics.setScissor()
 end
 
 ---------------------------------------------------------------------------

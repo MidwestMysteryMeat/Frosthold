@@ -2,10 +2,14 @@
 -- Shows three law tracks (Labor, Sustenance, Order) with tiered escalation.
 -- Laws are PERMANENT once enacted — the UI must make this very clear.
 
+local Layout = require('src.ui.ui_layout')
+
 local LawsPanel = {}
 
 local visible = false
 local scrollY = 0
+local contentH = 0
+local viewH = 0
 local lawRects = {}
 local confirmTarget = nil  -- { treeId, lawId, law } awaiting confirmation
 local confirmRects = {}    -- { yes = {x,y,w,h}, no = {x,y,w,h} }
@@ -76,17 +80,9 @@ local function drawConfirmDialog(sw, sh, law)
     love.graphics.setColor(0.95, 0.95, 0.95)
     love.graphics.print(law.name or '???', dlgX + 16, dlgY + 56)
     love.graphics.setColor(0.6, 0.6, 0.6)
-    local desc = law.desc or ''
-    -- Word-wrap description to fit dialog
-    local maxChars = math.floor((dlgW - 32) / 7)
-    if #desc > maxChars then
-        local line1 = desc:sub(1, maxChars)
-        local line2 = desc:sub(maxChars + 1)
-        love.graphics.print(line1, dlgX + 16, dlgY + 76)
-        love.graphics.print(line2, dlgX + 16, dlgY + 92)
-    else
-        love.graphics.print(desc, dlgX + 16, dlgY + 76)
-    end
+    -- printf wraps on measured width. The old math.floor((dlgW-32)/7) assumed
+    -- 7px per character, so a long law description ran 44px outside the dialog.
+    love.graphics.printf(law.desc or '', dlgX + 16, dlgY + 76, dlgW - 32)
 
     -- Buttons
     local btnW = 100
@@ -195,7 +191,10 @@ function LawsPanel.draw()
     love.graphics.setColor(0.9, 0.85, 0.7)
     love.graphics.print('COLONY LAWS', 20, 16)
     love.graphics.setColor(0.45, 0.45, 0.45)
-    love.graphics.print('L / ESC to close', sw - 130, 16)
+    do
+        local hint = 'L / ESC to close'
+        love.graphics.print(hint, sw - Layout.textWidth(hint) - 20, 16)
+    end
 
     -- Moral line warning
     if Laws.hasCrossedMoralLine() then
@@ -213,6 +212,20 @@ function LawsPanel.draw()
     local colGap = 12
     local totalGap = (colCount - 1) * colGap + margin * 2
     local colW = math.floor((sw - totalGap) / colCount)
+
+    -- Clip the columns below the subtitle. Cards straddling y=50 used to paint
+    -- over the header bar and remained clickable there.
+    local listTop = 74
+    local listH = sh - listTop - Layout.BOTTOM_RESERVE - 8
+    local maxLaws = 0
+    for _, treeId in ipairs(TREE_ORDER) do
+        local ts = Laws.getTreeState(treeId)
+        if ts then maxLaws = math.max(maxLaws, #ts.laws) end
+    end
+    contentH = 36 + maxLaws * 98 + 8
+    scrollY = (Layout.clampScroll(scrollY, contentH, listH))
+    viewH = listH
+    local clip = Layout.pushClip(0, listTop, sw, listH)
     local baseY = 80 - scrollY
 
     for colIdx, treeId in ipairs(TREE_ORDER) do
@@ -224,7 +237,7 @@ function LawsPanel.draw()
 
             -- Tree header
             local headerY = baseY
-            if headerY > 50 and headerY < sh then
+            if headerY + 28 > clip.y and headerY < clip.y + clip.h then
                 love.graphics.setColor(tc[1], tc[2], tc[3], 0.15)
                 love.graphics.rectangle('fill', colX, headerY, colW, 28, 4)
                 love.graphics.setColor(tc[1], tc[2], tc[3], 0.6)
@@ -238,7 +251,7 @@ function LawsPanel.draw()
             local cardH = 90
 
             for _, law in ipairs(treeState.laws) do
-                if cardY + cardH > 50 and cardY < sh then
+                if cardY + cardH > clip.y and cardY < clip.y + clip.h then
                     local enacted = law.enacted
                     local canEnact = law.canEnact
 
@@ -275,41 +288,32 @@ function LawsPanel.draw()
                     love.graphics.print(tostring(law.tier), tierX + 6, tierY + 1)
 
                     -- Status indicator
+                    -- Badge right-aligned by measurement; 'AVAILABLE' at a
+                    -- hardcoded colW-72 landed exactly on the card border and
+                    -- overlapped long law names by 8px.
+                    local badge, badgeColor
                     if enacted then
-                        love.graphics.setColor(0.3, 0.8, 0.3)
-                        love.graphics.print('ENACTED', colX + colW - 62, cardY + 6)
+                        badge, badgeColor = 'ENACTED', { 0.3, 0.8, 0.3 }
                     elseif canEnact then
-                        love.graphics.setColor(tc[1], tc[2], tc[3], 0.8)
-                        love.graphics.print('AVAILABLE', colX + colW - 72, cardY + 6)
+                        badge, badgeColor = 'AVAILABLE', { tc[1], tc[2], tc[3], 0.8 }
                     else
-                        love.graphics.setColor(0.3, 0.3, 0.3)
-                        love.graphics.print('LOCKED', colX + colW - 54, cardY + 6)
+                        badge, badgeColor = 'LOCKED', { 0.3, 0.3, 0.3 }
                     end
+                    local badgeX = colX + colW - Layout.textWidth(badge) - 8
+                    love.graphics.setColor(badgeColor)
+                    love.graphics.print(badge, badgeX, cardY + 6)
 
                     -- Law name
                     local nameColor = enacted and 0.95 or (canEnact and 0.85 or 0.4)
                     love.graphics.setColor(nameColor, nameColor, nameColor)
-                    local maxNameChars = math.floor((colW - 40) / 7)
-                    local name = law.name or '???'
-                    if #name > maxNameChars then name = name:sub(1, maxNameChars - 2) .. '..' end
-                    love.graphics.print(name, colX + 32, cardY + 6)
+                    love.graphics.print(Layout.fitLabel(law.name or '???', colX + 32, badgeX),
+                        colX + 32, cardY + 6)
 
-                    -- Description
+                    -- Description: wrapped to the card, two lines max. Slicing
+                    -- at 6px per character overflowed 120px into the next column.
                     local descAlpha = enacted and 0.6 or (canEnact and 0.55 or 0.3)
                     love.graphics.setColor(descAlpha, descAlpha, descAlpha)
-                    local desc = law.desc or ''
-                    local maxDescChars = math.floor((colW - 16) / 6)
-                    if #desc > maxDescChars then
-                        local line1 = desc:sub(1, maxDescChars)
-                        local line2 = desc:sub(maxDescChars + 1)
-                        if #line2 > maxDescChars then
-                            line2 = line2:sub(1, maxDescChars - 2) .. '..'
-                        end
-                        love.graphics.print(line1, colX + 8, cardY + 26)
-                        love.graphics.print(line2, colX + 8, cardY + 40)
-                    else
-                        love.graphics.print(desc, colX + 8, cardY + 26)
-                    end
+                    love.graphics.printf(law.desc or '', colX + 8, cardY + 26, colW - 16)
 
                     -- Effects summary (compact)
                     local rawLaw = Laws.LAW_TREES[treeId]
@@ -323,10 +327,9 @@ function LawsPanel.draw()
                         local fx = formatEffects(fullLaw)
                         if #fx > 0 then
                             love.graphics.setColor(0.55, 0.45, 0.3, enacted and 0.8 or 0.6)
-                            local fxStr = table.concat(fx, ' | ')
-                            local maxFx = math.floor((colW - 16) / 6)
-                            if #fxStr > maxFx then fxStr = fxStr:sub(1, maxFx - 2) .. '..' end
-                            love.graphics.print(fxStr, colX + 8, cardY + 58)
+                            love.graphics.print(
+                                Layout.truncate(table.concat(fx, ' | '), colW - 16),
+                                colX + 8, cardY + 58)
                         end
 
                         -- Hope/discontent impact
@@ -353,8 +356,11 @@ function LawsPanel.draw()
                         love.graphics.print('!!!', colX + colW - 26, cardY + cardH - 18)
                     end
 
-                    -- Clickable rect (only for enactable laws)
-                    if canEnact and not enacted then
+                    -- Clickable rect (only for enactable laws that are fully
+                    -- inside the clipped list — a card scrolled under the header
+                    -- must not stay clickable there)
+                    if canEnact and not enacted
+                       and cardY >= clip.y and cardY + cardH <= clip.y + clip.h then
                         lawRects[#lawRects + 1] = {
                             x = colX, y = cardY, w = colW, h = cardH,
                             treeId = treeId, lawId = law.id, law = law,
@@ -382,6 +388,9 @@ function LawsPanel.draw()
             end
         end
     end
+
+    Layout.popClip()
+    Layout.drawScrollbar({ x = 0, y = listTop, w = sw, h = listH }, scrollY, contentH)
 
     -- Confirmation dialog overlay (drawn last, on top of everything)
     if confirmTarget then
@@ -473,7 +482,7 @@ end
 function LawsPanel.wheelmoved(dx, dy)
     if not visible then return false end
     if confirmTarget then return true end
-    scrollY = math.max(0, scrollY - dy * 30)
+    scrollY = (Layout.clampScroll(scrollY - dy * 30, contentH, viewH))
     return true
 end
 

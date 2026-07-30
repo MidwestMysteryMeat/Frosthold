@@ -5,6 +5,7 @@
 
 local ECS       = require('src.ecs.ecs')
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 
 local MedPanel = {}
 
@@ -117,14 +118,22 @@ local function drawList()
     end
     table.sort(colonists, function(a, b) return (a.col.name or '') < (b.col.name or '') end)
 
+    -- One column table drives both the header and the rows. The health
+    -- percentage used to be printed at x=310 and reach x=342, two pixels into
+    -- the Wounds column at x=340.
+    local COL = { name = 20, health = 200, healthPct = 306, wounds = 360, disease = 430, implants = 610 }
+    local listTop = 56
+    local listH = sh - listTop - Layout.BOTTOM_RESERVE - 24
+    Layout.pushClip(0, listTop, sw, listH)
+
     -- List header
     local y = 60 - scrollY
     love.graphics.setColor(C.label)
-    love.graphics.print('Name', 20, y)
-    love.graphics.print('Health', 200, y)
-    love.graphics.print('Wounds', 340, y)
-    love.graphics.print('Disease', 420, y)
-    love.graphics.print('Implants', 600, y)
+    love.graphics.print('Name', COL.name, y)
+    love.graphics.print('Health', COL.health, y)
+    love.graphics.print('Wounds', COL.wounds, y)
+    love.graphics.print('Disease', COL.disease, y)
+    love.graphics.print('Implants', COL.implants, y)
     y = y + 22
 
     love.graphics.setColor(C.headerLine)
@@ -133,14 +142,15 @@ local function drawList()
 
     -- Rows
     for _, entry in ipairs(colonists) do
-        if y > sh then break end
-        if y > 50 then
+        if y > listTop + listH then break end
+        if y + 24 > listTop then
             local rowH = 24
             addZone(entry.id, 20, y, sw - 40, rowH, 'select_colonist', entry.id)
 
             -- Name
             love.graphics.setColor(C.label)
-            love.graphics.print(entry.col.name or '???', 20, y + 2)
+            love.graphics.print(Layout.fitLabel(entry.col.name or '???', COL.name, COL.health),
+                COL.name, y + 2)
 
             -- Health bar
             local hp = entry.col.health or 100
@@ -148,40 +158,42 @@ local function drawList()
             local frac = math.max(0, math.min(1, hp / maxHp))
             local barW = 100
             love.graphics.setColor(0.2, 0.15, 0.15)
-            love.graphics.rectangle('fill', 200, y + 4, barW, 14)
+            love.graphics.rectangle('fill', COL.health, y + 4, barW, 14)
             love.graphics.setColor(healthColor(frac))
-            love.graphics.rectangle('fill', 200, y + 4, barW * frac, 14)
+            love.graphics.rectangle('fill', COL.health, y + 4, barW * frac, 14)
             love.graphics.setColor(C.label)
-            love.graphics.print(string.format('%d%%', math.floor(frac * 100)), 310, y + 2)
+            love.graphics.print(string.format('%d%%', math.floor(frac * 100)), COL.healthPct, y + 2)
 
             -- Wound count
             local wc = getWoundCount(entry.id)
             if wc > 0 then
                 love.graphics.setColor(C.critical)
-                love.graphics.print(tostring(wc), 340, y + 2)
+                love.graphics.print(tostring(wc), COL.wounds, y + 2)
             else
                 love.graphics.setColor(C.dim)
-                love.graphics.print('0', 340, y + 2)
+                love.graphics.print('0', COL.wounds, y + 2)
             end
 
             -- Disease
             local dis = getDisease(entry.id)
             if dis then
                 love.graphics.setColor(C.disease)
-                love.graphics.print(string.format('%s (%.0f%%)', dis.id, dis.severity or 0), 420, y + 2)
+                love.graphics.print(Layout.fitLabel(
+                    string.format('%s (%.0f%%)', dis.id, dis.severity or 0),
+                    COL.disease, COL.implants), COL.disease, y + 2)
             else
                 love.graphics.setColor(C.dim)
-                love.graphics.print('none', 420, y + 2)
+                love.graphics.print('none', COL.disease, y + 2)
             end
 
             -- Implants
             local ic = getImplantCount(entry.id)
             if ic > 0 then
                 love.graphics.setColor(C.implant)
-                love.graphics.print(tostring(ic), 600, y + 2)
+                love.graphics.print(tostring(ic), COL.implants, y + 2)
             else
                 love.graphics.setColor(C.dim)
-                love.graphics.print('0', 600, y + 2)
+                love.graphics.print('0', COL.implants, y + 2)
             end
         end
         y = y + 26
@@ -191,6 +203,9 @@ local function drawList()
         love.graphics.setColor(C.dim)
         love.graphics.print('No living colonists.', 20, y)
     end
+
+    Layout.popClip()
+    scrollY = (Layout.clampScroll(scrollY, #colonists * 26 + 30, listH))
 end
 
 ---------------------------------------------------------------------------
@@ -257,15 +272,20 @@ local function drawDetail()
 
                 -- HP text
                 love.graphics.setColor(C.label)
-                love.graphics.print(string.format('%d/%d', part.hp, part.maxHp), barX + barW + 8, y)
+                -- '100/100' from barX+barW+8 reached barX+barW+64, six pixels
+                -- from the status label; a four-digit maxHp overran it.
+                local hpX = barX + barW + 8
+                local statusX = hpX + Layout.textWidth('0000/0000') + Layout.MIN_GAP
+                love.graphics.print(Layout.fitLabel(
+                    string.format('%d/%d', part.hp, part.maxHp), hpX, statusX), hpX, y)
 
                 -- Status label
                 if part.status == 'destroyed' then
                     love.graphics.setColor(C.destroyed)
-                    love.graphics.print('DESTROYED', barX + barW + 70, y)
+                    love.graphics.print('DESTROYED', statusX, y)
                 elseif part.status == 'injured' then
                     love.graphics.setColor(C.injured)
-                    love.graphics.print('injured', barX + barW + 70, y)
+                    love.graphics.print('injured', statusX, y)
                 end
             end
             y = y + 18
@@ -594,6 +614,12 @@ function MedPanel.draw()
     love.graphics.setColor(C.label)
     love.graphics.print('Medical Overview (H)', sw / 2 - 70, 16)
 
+    -- Clip every view below the header. The detail and surgery views scroll a
+    -- bare `y = 100 - scrollY` cursor, so their section titles used to print at
+    -- negative y across the header bar.
+    local bodyTop = 52
+    local bodyH = sh - bodyTop - Layout.BOTTOM_RESERVE - 22
+    Layout.pushClip(0, bodyTop, sw, bodyH)
     if view == 'list' then
         drawList()
     elseif view == 'detail' then
@@ -601,10 +627,11 @@ function MedPanel.draw()
     elseif view == 'surgery' then
         drawSurgery()
     end
+    Layout.popClip()
 
-    -- Footer hint
+    -- Footer hint, kept clear of the bottom toolbar
     love.graphics.setColor(C.dim)
-    love.graphics.print('H — close    Scroll — navigate', 20, sh - 20)
+    love.graphics.print('H — close    Scroll — navigate', 20, sh - Layout.BOTTOM_RESERVE - 18)
 end
 
 ---------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 -- Log: personal event history
 
 local ECS       = require('src.ecs.ecs')
+local Layout = require('src.ui.ui_layout')
 local GameState = require('src.game_state')
 
 local ColonistInfo = {}
@@ -95,7 +96,7 @@ function ColonistInfo.drawBioTab(id, col, y)
             -- Short desc to the right
             if t.desc then
                 love.graphics.setColor(0.5, 0.5, 0.5)
-                local descTrunc = #t.desc > 50 and t.desc:sub(1, 50) .. '...' or t.desc
+                local descTrunc = Layout.truncate(t.desc, screenW - (x + 140) - 20)
                 love.graphics.print(descTrunc, x + 140, y)
             end
             y = y + 13

@@ -1,14 +1,18 @@
 -- policy_panel.lua — Colony policy management panel
 
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 
 local PolicyPanel = {}
 
 local visible = false
 local policyRects = {}
+local scrollY = 0
+local contentH = 0
 
 function PolicyPanel.toggle()
     visible = not visible
+    scrollY = 0
 end
 
 function PolicyPanel.isVisible()
@@ -37,7 +41,10 @@ function PolicyPanel.draw()
     love.graphics.setColor(0.9, 0.85, 0.7)
     love.graphics.print('COLONY POLICIES', 20, 16)
     love.graphics.setColor(0.45, 0.45, 0.45)
-    love.graphics.print('P / ESC to close', sw - 130, 16)
+    do
+        local hint = 'P / ESC to close'
+        love.graphics.print(hint, sw - Layout.textWidth(hint) - 20, 16)
+    end
 
     -- Active modifiers summary
     local sumY = 58
@@ -50,20 +57,29 @@ function PolicyPanel.draw()
     if fdm ~= 1 then mods[#mods + 1] = string.format('Food drain: %.0f%%', fdm * 100) end
     if mda ~= 0 then mods[#mods + 1] = string.format('Morale drain: %+.0f%%', mda * 100) end
     if #mods > 0 then
-        love.graphics.print('Active effects: ' .. table.concat(mods, '  |  '), 20, sumY)
+        love.graphics.print(Layout.truncate('Active effects: ' .. table.concat(mods, '  |  '), sw - 40),
+            20, sumY)
     else
         love.graphics.print('No active policies. Click to toggle.', 20, sumY)
     end
 
-    -- Policy cards
+    -- Policy cards. This list had no scroll at all and no bottom guard, so with
+    -- more than about nine policies the rest were drawn off-screen and could
+    -- never be toggled; wheelmoved was a stub that consumed the event.
     local order = Policies.getOrder and Policies.getOrder() or {}
-    local cardY = 84
     local cardW = math.min(sw - 40, 800)
     local cardH = 64
+    local listTop = 78
+    local listH = sh - listTop - Layout.BOTTOM_RESERVE - 8
+    contentH = #order * (cardH + 8)
+    scrollY = (Layout.clampScroll(scrollY, contentH, listH))
+
+    local clip = Layout.pushClip(0, listTop, sw, listH)
+    local cardY = 84 - scrollY
 
     for _, policyId in ipairs(order) do
         local pol = Policies.get and Policies.get(policyId)
-        if pol then
+        if pol and cardY + cardH > clip.y and cardY < clip.y + clip.h then
             local isActive = Policies.isActive(policyId)
 
             policyRects[#policyRects + 1] = {
@@ -86,27 +102,25 @@ function PolicyPanel.draw()
             end
             love.graphics.rectangle('line', 20, cardY, cardW, cardH, 4)
 
-            -- Toggle indicator
-            if isActive then
-                love.graphics.setColor(0.3, 0.8, 0.3)
-                love.graphics.rectangle('fill', 30, cardY + 8, 30, 16, 3)
-                love.graphics.setColor(0, 0, 0)
-                love.graphics.print('ON', 36, cardY + 9)
-            else
-                love.graphics.setColor(0.25, 0.25, 0.25)
-                love.graphics.rectangle('fill', 30, cardY + 8, 30, 16, 3)
-                love.graphics.setColor(0.5, 0.5, 0.5)
-                love.graphics.print('OFF', 33, cardY + 9)
-            end
+            -- Toggle indicator, sized to hold 'OFF' at the real font height
+            local chipRect = Layout.buttonRect('OFF', 30, cardY + 6, { h = Layout.textHeight() + 4, padX = 6 })
+            Layout.drawButton(isActive and 'ON' or 'OFF', chipRect, 'normal', {
+                normal = isActive and { 0.3, 0.8, 0.3 } or { 0.25, 0.25, 0.25 },
+                text   = isActive and { 0, 0, 0 } or { 0.5, 0.5, 0.5 },
+            })
+
+            -- Text column stops at the card edge instead of running past it
+            local textX = 72
+            local textMaxW = (20 + cardW) - textX - Layout.ROW_PAD
 
             -- Name
             local nc = isActive and 1 or 0.65
             love.graphics.setColor(nc, nc, nc)
-            love.graphics.print(pol.name or policyId, 72, cardY + 8)
+            love.graphics.print(Layout.truncate(pol.name or policyId, textMaxW), textX, cardY + 8)
 
             -- Description
             love.graphics.setColor(0.5, 0.5, 0.5)
-            love.graphics.print(pol.description or '', 72, cardY + 26)
+            love.graphics.print(Layout.truncate(pol.description or '', textMaxW), textX, cardY + 26)
 
             -- Effects
             if pol.effects then
@@ -135,13 +149,16 @@ function PolicyPanel.draw()
                 if e.supplyBonus then fx[#fx + 1] = 'Supply bonus' end
                 if #fx > 0 then
                     love.graphics.setColor(0.55, 0.5, 0.35)
-                    love.graphics.print(table.concat(fx, ' | '), 72, cardY + 44)
+                    love.graphics.print(Layout.truncate(table.concat(fx, ' | '), textMaxW),
+                        textX, cardY + 44)
                 end
             end
-
-            cardY = cardY + cardH + 8
         end
+        cardY = cardY + cardH + 8
     end
+
+    Layout.popClip()
+    Layout.drawScrollbar({ x = 0, y = listTop, w = sw, h = listH }, scrollY, contentH)
 end
 
 function PolicyPanel.keypressed(key)
@@ -172,6 +189,9 @@ end
 
 function PolicyPanel.wheelmoved(dx, dy)
     if not visible then return false end
+    local _, sh = love.graphics.getDimensions()
+    local listH = sh - 78 - Layout.BOTTOM_RESERVE - 8
+    scrollY = (Layout.clampScroll(scrollY - dy * 30, contentH, listH))
     return true
 end
 

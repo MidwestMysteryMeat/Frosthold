@@ -3,6 +3,7 @@
 -- Auto-categorizes buildings from their def fields with manual overrides.
 
 local GameState = require('src.game_state')
+local Layout = require('src.ui.ui_layout')
 local Building  = require('src.building.building')
 local rok, Research = pcall(require, 'src.research.research')
 local sok_snd, Sound = pcall(require, 'src.audio.sound')
@@ -488,7 +489,7 @@ end
 function BuildMenu.keypressed(key)
     if not GameState.buildMode or not searchFocused then return false end
     if key == 'backspace' then
-        searchTerm = searchTerm:sub(1, -2)
+        searchTerm = Layout.dropLastChar(searchTerm)
         scrollOffset = 0
         return true
     end

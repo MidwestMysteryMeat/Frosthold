@@ -1,6 +1,7 @@
 -- trade_panel.lua — Merchant trading interface with quantity selector
 
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 
 local TradePanel = {}
 
@@ -100,12 +101,15 @@ function TradePanel.draw()
     love.graphics.setColor(0.9, 0.85, 0.7)
     love.graphics.print('TRADE', 20, 16)
     love.graphics.setColor(0.45, 0.45, 0.45)
-    love.graphics.print('T / ESC to close', sw - 130, 16)
+    do
+        local hint = 'T / ESC to close'
+        love.graphics.print(hint, sw - Layout.textWidth(hint) - 20, 16)
+    end
 
     -- Thermal cores balance
     love.graphics.setColor(1, 0.5, 0.2)
-    love.graphics.print(string.format('Thermal Cores: %d',
-        GameState.resources.thermalCores or 0), sw / 2 - 80, 16)
+    Layout.printCentered(string.format('Thermal Cores: %d',
+        GameState.resources.thermalCores or 0), { x = 0, y = 0, w = sw, h = 50 }, 16)
 
     if not merchant or not (Merchants.isTrading and Merchants.isTrading()) then
         love.graphics.setColor(0.5, 0.5, 0.5)
@@ -141,10 +145,13 @@ function TradePanel.draw()
     love.graphics.setColor(0.7, 0.8, 0.7)
     love.graphics.print('BUY (from merchant)', 20, 80)
 
+    -- Rows stop above the trade log; the log now stops above the bottom
+    -- toolbar, which the last log line used to disappear underneath.
+    local rowsBottom = sh - Layout.BOTTOM_RESERVE - 80
     local by = 100 - scrollY
     if merchant.inventory then
         for _, slot in ipairs(merchant.inventory) do
-            if by > 50 and by < sh - 90 then
+            if by > 50 and by + rowH < rowsBottom then
                 local itemName = slot.item or '?'
                 local stock = slot.stock or 0
                 local unitPrice = slot.buyPrice or 0
@@ -158,7 +165,7 @@ function TradePanel.draw()
 
                 -- Item name and stock
                 love.graphics.setColor(0.8, 0.8, 0.8)
-                love.graphics.print(itemName, 28, by + 4)
+                love.graphics.print(Layout.fitLabel(itemName, 28, 150), 28, by + 4)
                 love.graphics.setColor(0.5, 0.5, 0.5)
                 love.graphics.print(string.format('stock: %d', stock), 28, by + 18)
 
@@ -275,7 +282,7 @@ function TradePanel.draw()
     table.sort(sellable, function(a, b) return a.name < b.name end)
 
     for _, res in ipairs(sellable) do
-        if sy > 50 and sy < sh - 90 then
+        if sy > 50 and sy + rowH < rowsBottom then
             local colW = midX - 30
             local sellPrice = sellPriceLookup[res.name]
             local canSell = sellPrice and sellPrice > 0
@@ -288,7 +295,7 @@ function TradePanel.draw()
 
             -- Resource name and owned amount
             love.graphics.setColor(0.8, 0.8, 0.8)
-            love.graphics.print(res.name, midX + 18, sy + 4)
+            love.graphics.print(Layout.fitLabel(res.name, midX + 18, midX + 150), midX + 18, sy + 4)
             love.graphics.setColor(0.5, 0.5, 0.5)
             love.graphics.print(string.format('owned: %d', res.amount), midX + 18, sy + 18)
 
@@ -375,14 +382,15 @@ function TradePanel.draw()
 
     local tradeLog = Merchants.getLog and Merchants.getLog() or {}
     if #tradeLog > 0 then
+        local logTop = sh - Layout.BOTTOM_RESERVE - 76
         love.graphics.setColor(0.25, 0.3, 0.35)
-        love.graphics.line(20, sh - 80, sw - 20, sh - 80)
+        love.graphics.line(20, logTop, sw - 20, logTop)
         love.graphics.setColor(0.55, 0.55, 0.5)
-        love.graphics.print('Recent trades:', 20, sh - 74)
-        local ly = sh - 58
+        love.graphics.print('Recent trades:', 20, logTop + 6)
+        local ly = logTop + 22
         for i = #tradeLog, math.max(1, #tradeLog - 3), -1 do
             love.graphics.setColor(0.5, 0.5, 0.4)
-            love.graphics.print(tradeLog[i].msg or '', 20, ly)
+            love.graphics.print(Layout.truncate(tradeLog[i].msg or '', sw - 40), 20, ly)
             ly = ly + 14
         end
     end

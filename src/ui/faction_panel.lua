@@ -1,14 +1,21 @@
 -- faction_panel.lua — Faction diplomacy and trade route panel
 -- Shows all factions, reputation bars, standings, trade modifiers, gift buttons,
 -- and trade route management (establish/cancel for allied factions).
--- Toggle with F key.
+-- Toggle with Shift+F.
+--
+-- Layout goes through src/ui/ui_layout.lua. The previous version placed every
+-- field at a hand-picked pixel offset, so at the real 16px font the labels ran
+-- into their values ("Trades:fuel, metal") and the fixed-width gift button cut
+-- its own label in half.
 
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 
 local FactionPanel = {}
 
 local visible = false
 local scrollY = 0
+local contentH = 0
 local hitZones = {}
 
 -- Lazy-loaded modules
@@ -46,6 +53,7 @@ local C = {
     routeBtnHov = { 0.3, 0.5, 0.35, 1 },
     cancelBtn  = { 0.5, 0.2, 0.15, 0.9 },
     cancelBtnHov = { 0.65, 0.3, 0.2, 1 },
+    disabledBtn = { 0.13, 0.14, 0.16, 0.9 },
     tradeGood  = { 0.6, 0.7, 0.5 },
     bonus      = { 0.5, 0.7, 0.9 },
     disrupted  = { 0.9, 0.5, 0.2 },
@@ -59,6 +67,11 @@ local STANDING_COLORS = {
     friendly   = C.friendly,
     allied     = C.allied,
 }
+
+local GIFT_AMOUNT = 5
+local CARD_PAD = Layout.ROW_PAD
+local CARD_GAP = 8
+local REP_BAR_H = 10
 
 ---------------------------------------------------------------------------
 -- Toggle
@@ -74,12 +87,21 @@ function FactionPanel.isVisible()
     return visible
 end
 
+function FactionPanel.close()
+    visible = false
+    scrollY = 0
+    hitZones = {}
+end
+
 ---------------------------------------------------------------------------
 -- Helpers
 ---------------------------------------------------------------------------
 
-local function addZone(id, x, y, w, h, action, data)
-    hitZones[#hitZones + 1] = { id = id, x = x, y = y, w = w, h = h, action = action, data = data }
+local function addZone(id, rect, action, data)
+    hitZones[#hitZones + 1] = {
+        id = id, x = rect.x, y = rect.y, w = rect.w, h = rect.h,
+        action = action, data = data,
+    }
 end
 
 local function showToast(msg)
@@ -87,187 +109,205 @@ local function showToast(msg)
     if uok and UIMod.showSaveToast then UIMod.showSaveToast(msg) end
 end
 
-local GIFT_AMOUNT = 5
+--- Does this faction get a trade-route row on its card?
+local function routeState(factionId, standing)
+    local hasRoute = _TradeRoutes and _TradeRoutes.hasRoute(factionId) or false
+    local eligible = _TradeRoutes and _TradeRoutes.ROUTE_DEFS[factionId] ~= nil
+    -- The route row is shown for any faction that has a route definition, not
+    -- only allied ones. Hiding the row until you were already allied meant the
+    -- footer promised "trade routes deliver goods" with nothing on screen that
+    -- could ever produce one.
+    return hasRoute, eligible, standing == 'allied'
+end
+
+--- Height a card needs. Kept separate from drawing so scroll bounds and
+--- off-screen cards agree with what is actually rendered.
+local function cardHeight(fac, line)
+    local hasRoute, eligible = routeState(fac.id, fac.standing)
+    local h = 6                                   -- top padding
+        + line                                    -- name + standing
+        + line                                    -- description
+        + REP_BAR_H + 6                           -- reputation bar
+        + line                                    -- rep / trade / core value
+        + line                                    -- trades
+        + math.max(line, Layout.BTN_H)            -- prefers + gift button
+        + 6                                       -- bottom padding
+    if hasRoute or eligible then
+        h = h + math.max(line, Layout.BTN_H) + 2
+    end
+    return h
+end
 
 ---------------------------------------------------------------------------
--- Draw a single faction card, returns card height used
+-- Draw a single faction card
 ---------------------------------------------------------------------------
 
-local function drawFactionCard(fac, def, cardX, y, cardW, mx, my)
-    local hasRoute = _TradeRoutes and _TradeRoutes.hasRoute(fac.id)
-    local isAllied = fac.standing == 'allied'
-    local cardH = hasRoute and 130 or (isAllied and 130 or 110)
+local function drawFactionCard(fac, def, card, mx, my, line, clip)
+    local hasRoute, eligible, isAllied = routeState(fac.id, fac.standing)
+    local left = card.x + CARD_PAD
+    local right = card.x + card.w - CARD_PAD
+    local visibleCard = card.y + card.h > clip.y and card.y < clip.y + clip.h
 
     -- Card background
-    local isHover = mx >= cardX and mx <= cardX + cardW and my >= y and my < y + cardH
-    if isHover then
-        love.graphics.setColor(C.cardHover)
-    else
-        love.graphics.setColor(C.cardBg)
-    end
-    love.graphics.rectangle('fill', cardX, y, cardW, cardH, 3, 3)
+    local isHover = Layout.hit(mx, my, card)
+    love.graphics.setColor(isHover and C.cardHover or C.cardBg)
+    love.graphics.rectangle('fill', card.x, card.y, card.w, card.h, 3, 3)
 
-    -- Faction name
-    love.graphics.setColor(C.white)
-    love.graphics.print(fac.name, cardX + 10, y + 6)
+    local y = card.y + 6
 
-    -- Standing badge
-    local standColor = STANDING_COLORS[fac.standing] or C.neutral
-    love.graphics.setColor(standColor)
+    -- Faction name, with the standing badge pinned right. The name is
+    -- ellipsised at the badge, never drawn through it.
     local standLabel = (fac.standing or 'neutral'):upper()
-    love.graphics.print(standLabel, cardX + cardW - 80, y + 6)
+    local standW = Layout.textWidth(standLabel)
+    local badgeX = right - standW
+    love.graphics.setColor(C.white)
+    love.graphics.print(Layout.fitLabel(fac.name or fac.id, left, badgeX), left, y)
+    love.graphics.setColor(STANDING_COLORS[fac.standing] or C.neutral)
+    love.graphics.print(standLabel, badgeX, y)
+    y = y + line
 
     -- Description
     love.graphics.setColor(C.dim)
-    love.graphics.print(fac.desc or '', cardX + 10, y + 22)
+    love.graphics.print(Layout.truncate(def.desc or '', right - left), left, y)
+    y = y + line
 
-    -- Reputation bar: -100 to +100, centered at midpoint
-    local barX = cardX + 10
-    local barY = y + 40
-    local barW = cardW - 20
-    local barH = 10
-
-    love.graphics.setColor(C.repBarBg)
-    love.graphics.rectangle('fill', barX, barY, barW, barH, 2, 2)
-
-    -- Center line
-    local centerX = barX + barW / 2
-    love.graphics.setColor(C.dim)
-    love.graphics.line(centerX, barY, centerX, barY + barH)
-
-    -- Fill from center
+    -- Reputation bar: -100 to +100, filled outward from the midpoint
     local rep = fac.rep or 0
+    local barW = right - left
+    love.graphics.setColor(C.repBarBg)
+    love.graphics.rectangle('fill', left, y, barW, REP_BAR_H, 2, 2)
+    local centerX = left + barW / 2
+    love.graphics.setColor(C.dim)
+    love.graphics.line(centerX, y, centerX, y + REP_BAR_H)
     if rep > 0 then
-        local fillW = (rep / 100) * (barW / 2)
         love.graphics.setColor(C.repBarPos)
-        love.graphics.rectangle('fill', centerX, barY + 1, fillW, barH - 2)
+        love.graphics.rectangle('fill', centerX, y + 1, (rep / 100) * (barW / 2), REP_BAR_H - 2)
     elseif rep < 0 then
         local fillW = (math.abs(rep) / 100) * (barW / 2)
         love.graphics.setColor(C.repBarNeg)
-        love.graphics.rectangle('fill', centerX - fillW, barY + 1, fillW, barH - 2)
+        love.graphics.rectangle('fill', centerX - fillW, y + 1, fillW, REP_BAR_H - 2)
     end
+    y = y + REP_BAR_H + 6
 
-    -- Rep number
-    love.graphics.setColor(C.label)
-    love.graphics.print(string.format('Rep: %d', rep), barX, barY + barH + 2)
-
-    -- Trade mult
-    local tradeMult = _Factions.getTradeMult(fac.id)
-    love.graphics.setColor(C.dim)
-    love.graphics.print(string.format('Trade: %.0f%%', tradeMult * 100), barX + 80, barY + barH + 2)
-
-    -- Core price mult
-    local coreMult = _Factions.getCorePriceMult(fac.id)
-    love.graphics.setColor(C.dim)
-    love.graphics.print(string.format('Core value: %.0fx', coreMult), barX + 170, barY + barH + 2)
-
-    -- Research bonus (if any)
+    -- Numbers row. drawInline spaces the fields instead of trusting hardcoded
+    -- x offsets, which is what produced "Trade: 100%Core value: 1x".
+    local stats = {
+        { text = string.format('Rep: %d', rep), color = C.label },
+        { text = string.format('Trade: %.0f%%', _Factions.getTradeMult(fac.id) * 100), color = C.dim },
+        { text = string.format('Core value: %.1fx', _Factions.getCorePriceMult(fac.id)), color = C.dim },
+    }
     if def.researchBonus and def.researchBonus > 0 then
-        love.graphics.setColor(C.bonus)
-        love.graphics.print(string.format('+%d%% research (allied)', math.floor(def.researchBonus * 100)),
-            barX + 290, barY + barH + 2)
+        stats[#stats + 1] = {
+            text = string.format('+%d%% research (allied)', math.floor(def.researchBonus * 100)),
+            color = C.bonus,
+        }
+    end
+    Layout.drawInline(left, y, stats, { maxX = right })
+    y = y + line
+
+    -- Label column width is measured from the widest label on the card, so the
+    -- value column can never sit inside a label.
+    local valueX = left + math.max(Layout.textWidth('Trades:'), Layout.textWidth('Prefers:'))
+        + Layout.MIN_GAP
+
+    -- Trade goods
+    Layout.labelValue('Trades:', table.concat(def.tradeGoods or {}, ', '), left, y, valueX, {
+        labelColor = C.dim, valueColor = C.tradeGood, maxValueW = right - valueX,
+    })
+    y = y + line
+
+    -- Gift preference and the gift button
+    local giftRes = def.giftPreference
+    local available = _Factions.getGiftableAmount and _Factions.getGiftableAmount(giftRes) or 0
+    local canAfford = available >= GIFT_AMOUNT
+
+    local giftLabel = string.format('Gift %d %s', GIFT_AMOUNT, giftRes or '?')
+    local giftRect = Layout.buttonRectRight(giftLabel, right, y, { maxW = card.w - CARD_PAD * 2 })
+    local giftState = 'normal'
+    if not canAfford then
+        giftState = 'disabled'
+    elseif Layout.hit(mx, my, giftRect) then
+        giftState = 'hover'
+    end
+    Layout.drawButton(giftLabel, giftRect, giftState, {
+        normal = C.giftBtn, hover = C.giftBtnHov, disabled = C.disabledBtn,
+    })
+    if canAfford and visibleCard then
+        addZone(fac.id .. '_gift', giftRect, 'gift', {
+            factionId = fac.id, resource = giftRes, amount = GIFT_AMOUNT,
+        })
     end
 
-    -- Trade goods row
-    local goodsY = y + 72
-    love.graphics.setColor(C.dim)
-    love.graphics.print('Trades:', cardX + 10, goodsY)
-    love.graphics.setColor(C.tradeGood)
-    love.graphics.print(table.concat(def.tradeGoods or {}, ', '), cardX + 58, goodsY)
+    Layout.labelValue('Prefers:', string.format('%s (%d available)', giftRes or '?', available),
+        left, y + math.floor((Layout.BTN_H - line) / 2) + 2, valueX, {
+            labelColor = C.dim,
+            valueColor = canAfford and C.friendly or C.dim,
+            maxValueW = giftRect.x - Layout.MIN_GAP - valueX,
+        })
+    y = y + math.max(line, Layout.BTN_H)
 
-    -- Gift preference + button
-    love.graphics.setColor(C.dim)
-    love.graphics.print('Prefers:', cardX + 10, goodsY + 16)
-    love.graphics.setColor(C.friendly)
-    love.graphics.print(def.giftPreference or '?', cardX + 58, goodsY + 16)
-
-    -- Gift button
-    local btnW = 90
-    local btnH = 20
-    local giftBtnX = cardX + cardW - btnW - 10
-    local giftBtnY = goodsY + 4
-    local giftHover = mx >= giftBtnX and mx <= giftBtnX + btnW and my >= giftBtnY and my < giftBtnY + btnH
-
-    love.graphics.setColor(giftHover and C.giftBtnHov or C.giftBtn)
-    love.graphics.rectangle('fill', giftBtnX, giftBtnY, btnW, btnH, 3, 3)
-    love.graphics.setColor(C.white)
-    love.graphics.print(string.format('Gift %d %s', GIFT_AMOUNT, (def.giftPreference or '?'):sub(1, 8)),
-        giftBtnX + 4, giftBtnY + 3)
-
-    addZone(fac.id .. '_gift', giftBtnX, giftBtnY, btnW, btnH, 'gift', {
-        factionId = fac.id,
-        resource = def.giftPreference,
-        amount = GIFT_AMOUNT,
-    })
-
-    -- Trade route section (allied factions only, or if route exists)
-    if _TradeRoutes and (isAllied or hasRoute) then
-        local routeY = goodsY + 36
+    -- Trade route row
+    if _TradeRoutes and (hasRoute or eligible) then
+        local routeDef = _TradeRoutes.ROUTE_DEFS[fac.id]
+        local btnRect, btnLabel, btnAction, btnColors
+        local statusText, statusColor
 
         if hasRoute then
             local route = _TradeRoutes.getRoute(fac.id)
-            local routeDef = _TradeRoutes.ROUTE_DEFS[fac.id]
-
             if route.disrupted then
-                love.graphics.setColor(C.disrupted)
-                love.graphics.print(string.format('Trade route DISRUPTED (until day %d)', route.disruptedUntil),
-                    cardX + 10, routeY)
+                statusText = string.format('Trade route DISRUPTED (until day %d)', route.disruptedUntil)
+                statusColor = C.disrupted
             else
-                love.graphics.setColor(C.routeActive)
                 local nextShip = route.lastShipment + (routeDef and routeDef.interval or 0)
-                love.graphics.print(string.format('Trade route active (%d shipments, next day %d, %d fuel/ship)',
-                    route.totalShipments, nextShip, routeDef and routeDef.fuelCost or 0),
-                    cardX + 10, routeY)
+                statusText = string.format('Trade route active - %d shipments, next day %d, %d fuel/ship',
+                    route.totalShipments, nextShip, routeDef and routeDef.fuelCost or 0)
+                statusColor = C.routeActive
             end
-
-            -- Cancel button
-            local cBtnW = 60
-            local cBtnH = 18
-            local cBtnX = cardX + cardW - cBtnW - 10
-            local cBtnY = routeY
-            local cHover = mx >= cBtnX and mx <= cBtnX + cBtnW and my >= cBtnY and my < cBtnY + cBtnH
-
-            love.graphics.setColor(cHover and C.cancelBtnHov or C.cancelBtn)
-            love.graphics.rectangle('fill', cBtnX, cBtnY, cBtnW, cBtnH, 3, 3)
-            love.graphics.setColor(C.white)
-            love.graphics.print('Cancel', cBtnX + 8, cBtnY + 2)
-
-            addZone(fac.id .. '_cancel_route', cBtnX, cBtnY, cBtnW, cBtnH, 'cancel_route', {
-                factionId = fac.id,
-            })
+            btnLabel = 'Cancel'
+            btnAction = 'cancel_route'
+            btnColors = { normal = C.cancelBtn, hover = C.cancelBtnHov }
         else
-            -- Establish button
-            local routeDef = _TradeRoutes.ROUTE_DEFS[fac.id]
-            if routeDef then
-                local goodsList = {}
-                for _, g in ipairs(routeDef.goods) do
-                    goodsList[#goodsList + 1] = g.item
-                end
-
-                love.graphics.setColor(C.dim)
-                love.graphics.print(string.format('Route available: %s (every %dd, %d fuel)',
-                    table.concat(goodsList, '/'), routeDef.interval, routeDef.fuelCost),
-                    cardX + 10, routeY)
-
-                local eBtnW = 70
-                local eBtnH = 18
-                local eBtnX = cardX + cardW - eBtnW - 10
-                local eBtnY = routeY
-                local eHover = mx >= eBtnX and mx <= eBtnX + eBtnW and my >= eBtnY and my < eBtnY + eBtnH
-
-                love.graphics.setColor(eHover and C.routeBtnHov or C.routeBtn)
-                love.graphics.rectangle('fill', eBtnX, eBtnY, eBtnW, eBtnH, 3, 3)
-                love.graphics.setColor(C.white)
-                love.graphics.print('Establish', eBtnX + 4, eBtnY + 2)
-
-                addZone(fac.id .. '_establish_route', eBtnX, eBtnY, eBtnW, eBtnH, 'establish_route', {
-                    factionId = fac.id,
-                })
+            local goodsList = {}
+            for _, g in ipairs(routeDef.goods or {}) do
+                goodsList[#goodsList + 1] = g.item
+            end
+            statusColor = C.dim
+            if isAllied then
+                statusText = string.format('Route available: %s (every %dd, %d fuel)',
+                    table.concat(goodsList, '/'), routeDef.interval, routeDef.fuelCost)
+                btnLabel = 'Establish'
+                btnAction = 'establish_route'
+                btnColors = { normal = C.routeBtn, hover = C.routeBtnHov }
+            else
+                -- Say why the button is off instead of hiding the whole row and
+                -- leaving the footer's promise unexplained.
+                statusText = string.format('Route needs allied standing: %s (every %dd, %d fuel)',
+                    table.concat(goodsList, '/'), routeDef.interval, routeDef.fuelCost)
+                btnLabel = 'Establish'
+                btnAction = nil
+                btnColors = { normal = C.routeBtn, hover = C.routeBtnHov }
             end
         end
+
+        btnRect = Layout.buttonRectRight(btnLabel, right, y, { h = 20 })
+        local state = 'normal'
+        if not btnAction then
+            state = 'disabled'
+        elseif Layout.hit(mx, my, btnRect) then
+            state = 'hover'
+        end
+        btnColors.disabled = C.disabledBtn
+        Layout.drawButton(btnLabel, btnRect, state, btnColors)
+        if btnAction and visibleCard then
+            addZone(fac.id .. '_' .. btnAction, btnRect, btnAction, { factionId = fac.id })
+        end
+
+        love.graphics.setColor(statusColor)
+        love.graphics.print(Layout.truncate(statusText, btnRect.x - Layout.MIN_GAP - left),
+            left, y + 2)
     end
 
-    return cardH
+    return card.h
 end
 
 ---------------------------------------------------------------------------
@@ -282,11 +322,9 @@ function FactionPanel.draw()
     local sw, sh = love.graphics.getDimensions()
     hitZones = {}
 
-    -- Panel dimensions (centered, not full screen)
-    local panelW = math.min(620, sw - 60)
-    local panelH = sh - 80
-    local panelX = (sw - panelW) / 2
-    local panelY = 40
+    local frame = Layout.panelFrame(sw, sh, { w = 680, h = sh - 100, margin = 30 })
+    local panel, header, content, footer = frame.panel, frame.header, frame.content, frame.footer
+    local line = Layout.textHeight() + 4
 
     -- Backdrop
     love.graphics.setColor(0, 0, 0, 0.6)
@@ -294,56 +332,56 @@ function FactionPanel.draw()
 
     -- Panel background
     love.graphics.setColor(C.bg)
-    love.graphics.rectangle('fill', panelX, panelY, panelW, panelH, 4, 4)
+    love.graphics.rectangle('fill', panel.x, panel.y, panel.w, panel.h, 4, 4)
 
-    -- Header bar
+    -- Header
     love.graphics.setColor(C.header)
-    love.graphics.rectangle('fill', panelX, panelY, panelW, 44, 4, 4)
+    love.graphics.rectangle('fill', header.x, header.y, header.w, header.h, 4, 4)
     love.graphics.setColor(C.headerLine)
-    love.graphics.line(panelX, panelY + 44, panelX + panelW, panelY + 44)
-
-    -- Title
+    love.graphics.line(header.x, header.y + header.h, header.x + header.w, header.y + header.h)
     love.graphics.setColor(C.label)
-    love.graphics.print('Faction Diplomacy (F)', panelX + panelW / 2 - 75, panelY + 14)
-
-    -- Scissor to clip content area
-    local contentY = panelY + 48
-    local contentH = panelH - 48 - 24
-    love.graphics.setScissor(panelX, contentY, panelW, contentH)
+    Layout.printCentered('Faction Diplomacy', header, header.y + math.floor((header.h - line) / 2) + 2)
 
     -- Gather faction data
     local factions = _Factions.getAll()
     local defs = _Factions.FACTION_DEFS
-
     local mx, my = love.mouse.getPosition()
-    local cardGap = 8
-    local cardX = panelX + 12
-    local cardW = panelW - 24
 
-    local cursorY = contentY + 6 - scrollY
-
+    -- Total content height first, so the scroll offset can be clamped before
+    -- anything is drawn. Scrolling past the end used to leave an empty panel.
+    contentH = 0
+    local rows = {}
     for _, fac in ipairs(factions) do
         local def = defs[fac.id]
         if def then
-            if cursorY < contentY + contentH and cursorY + 140 > contentY then
-                local h = drawFactionCard(fac, def, cardX, cursorY, cardW, mx, my)
-                cursorY = cursorY + h + cardGap
-            else
-                -- Estimate height for off-screen cards (scroll math)
-                local hasRoute = _TradeRoutes and _TradeRoutes.hasRoute(fac.id)
-                local isAllied = fac.standing == 'allied'
-                local h = hasRoute and 130 or (isAllied and 130 or 110)
-                cursorY = cursorY + h + cardGap
-            end
+            local h = cardHeight(fac, line)
+            rows[#rows + 1] = { fac = fac, def = def, h = h }
+            contentH = contentH + h + CARD_GAP
         end
     end
+    scrollY = (Layout.clampScroll(scrollY, contentH, content.h))
 
-    love.graphics.setScissor()
+    local clip = Layout.pushClip(content.x, content.y, content.w, content.h)
+    local cardX = content.x + 12
+    local cardW = content.w - 24 - 8   -- 8px lane for the scrollbar
+    local cursorY = content.y + 6 - scrollY
+
+    for _, row in ipairs(rows) do
+        if cursorY + row.h > content.y and cursorY < content.y + content.h then
+            drawFactionCard(row.fac, row.def,
+                { x = cardX, y = cursorY, w = cardW, h = row.h }, mx, my, line, clip)
+        end
+        cursorY = cursorY + row.h + CARD_GAP
+    end
+
+    Layout.popClip()
+    Layout.drawScrollbar(content, scrollY, contentH)
 
     -- Footer
     love.graphics.setColor(C.dim)
-    love.graphics.print('F - close    Scroll - navigate    Gift sends resources, Trade routes deliver goods',
-        panelX + 12, panelY + panelH - 18)
+    love.graphics.print(Layout.truncate(
+        'Shift+F or ESC - close    Scroll - navigate    Gift sends resources, Trade routes deliver goods',
+        footer.w - 24), footer.x + 12, footer.y + 4)
 end
 
 ---------------------------------------------------------------------------
@@ -353,7 +391,7 @@ end
 function FactionPanel.keypressed(key)
     if not visible then return false end
     if key == 'f' or key == 'escape' then
-        FactionPanel.toggle()
+        FactionPanel.close()
         return true
     end
     return true -- consume keys while open
@@ -367,25 +405,21 @@ function FactionPanel.mousepressed(x, y, button)
     if not _Factions then return true end
 
     for _, zone in ipairs(hitZones) do
-        if x >= zone.x and x <= zone.x + zone.w and y >= zone.y and y <= zone.y + zone.h then
+        if Layout.hit(x, y, zone) then
             if zone.action == 'gift' then
                 local data = zone.data
-                local ok, repGain = _Factions.sendGift(data.factionId, data.resource, data.amount)
+                local ok, detail = _Factions.sendGift(data.factionId, data.resource, data.amount)
                 if ok then
-                    showToast(string.format('Sent %d %s (+%.0f rep)', data.amount, data.resource, repGain))
+                    showToast(string.format('Sent %d %s (+%.0f rep)', data.amount, data.resource, detail))
                 else
-                    showToast('Not enough ' .. (data.resource or 'resources'))
+                    showToast(detail or ('Not enough ' .. tostring(data.resource)))
                 end
                 return true
 
             elseif zone.action == 'establish_route' then
                 if _TradeRoutes then
                     local ok, err = _TradeRoutes.establish(zone.data.factionId)
-                    if ok then
-                        showToast('Trade route established')
-                    else
-                        showToast(err or 'Cannot establish route')
-                    end
+                    showToast(ok and 'Trade route established' or (err or 'Cannot establish route'))
                 end
                 return true
 
@@ -402,9 +436,18 @@ function FactionPanel.mousepressed(x, y, button)
     return true -- consume click while open
 end
 
+--- Hit zones from the last drawn frame. Exposed for the dev screenshot pass
+--- (src/testing/ui_shots.lua), which clicks the gift button to prove the action
+--- fires and reports back in-game.
+function FactionPanel.getHitZones()
+    return hitZones
+end
+
 function FactionPanel.wheelmoved(dx, dy)
     if not visible then return false end
-    scrollY = math.max(0, scrollY - dy * 30)
+    local sw, sh = love.graphics.getDimensions()
+    local frame = Layout.panelFrame(sw, sh, { w = 680, h = sh - 100, margin = 30 })
+    scrollY = (Layout.clampScroll(scrollY - dy * 30, contentH, frame.content.h))
     return true
 end
 

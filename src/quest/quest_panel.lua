@@ -6,6 +6,8 @@ local GameState  = require('src.game_state')
 local Goals      = require('src.colony.goals')
 local Objectives = require('src.quest.quest_objectives')
 
+local Layout     = require('src.ui.ui_layout')
+
 local ok_quest, Quest = pcall(require, 'src.quest.quest')
 
 local QuestPanel = {}
@@ -22,9 +24,9 @@ local panelX, panelY, panelW, panelH = 0, 0, 0, 0
 local function recalcLayout()
     local sw, sh = love.graphics.getDimensions()
     panelW = math.min(520, sw - 60)
-    panelH = math.min(560, sh - 80)
+    panelH = math.min(560, sh - 80 - Layout.BOTTOM_RESERVE)
     panelX = math.floor((sw - panelW) / 2)
-    panelY = math.floor((sh - panelH) / 2)
+    panelY = math.floor((sh - Layout.BOTTOM_RESERVE - panelH) / 2)
 end
 
 ---------------------------------------------------------------------------
@@ -66,7 +68,10 @@ end
 -- Goal entry drawing
 ---------------------------------------------------------------------------
 
-local GOAL_ENTRY_H = 126
+-- 86px of header/description/bar/status, then four 14px rows: three steps plus
+-- the "+N more" marker. At 126 the third step was clipped in half and the marker
+-- landed on the next card's border.
+local GOAL_ENTRY_H = 148
 
 local function drawGoalEntry(goal, x, y, w)
     local font = love.graphics.getFont()
@@ -84,8 +89,11 @@ local function drawGoalEntry(goal, x, y, w)
     love.graphics.setColor(0.55, 0.72, 0.95)
     love.graphics.print(pctText, x + w - font:getWidth(pctText) - 8, y + 6)
 
+    -- One line, ellipsised. printf wrapped a long description to a second line
+    -- the fixed-height card had no room for, so it was drawn half-cut under the
+    -- progress bar.
     love.graphics.setColor(0.7, 0.74, 0.8)
-    love.graphics.printf(goal.desc or '', x + 8, y + 24, w - 16, 'left')
+    love.graphics.print(Layout.truncate(goal.desc or '', w - 16, font), x + 8, y + 24)
 
     local barX, barY, barW, barH = x + 8, y + 52, w - 16, 10
     love.graphics.setColor(0.12, 0.14, 0.18, 1)
@@ -96,16 +104,24 @@ local function drawGoalEntry(goal, x, y, w)
     love.graphics.setColor(0.52, 0.7, 0.88)
     love.graphics.print(goal.status or 'No status', x + 8, y + 68)
 
+    -- Step rows must finish inside the card: three rows of 14px from y+86 ended
+    -- at y+128 against a 126px card, so the last one was clipped in half.
     local sy = y + 86
+    local stepBottom = y + GOAL_ENTRY_H - 4
     for i, step in ipairs(goal.steps or {}) do
+        if sy + 14 > stepBottom then
+            love.graphics.setColor(0.5, 0.5, 0.55)
+            love.graphics.print(string.format('+%d more', #goal.steps - i + 1), x + 18, sy)
+            break
+        end
         if i > 3 then
             love.graphics.setColor(0.5, 0.5, 0.55)
-            love.graphics.print('...', x + 18, sy)
+            love.graphics.print(string.format('+%d more', #goal.steps - i + 1), x + 18, sy)
             break
         end
         local prefix = step.done and '[x]' or '[ ]'
         love.graphics.setColor(step.done and {0.35, 0.85, 0.45} or {0.65, 0.67, 0.72})
-        love.graphics.print(prefix .. ' ' .. step.label, x + 12, sy)
+        love.graphics.print(Layout.truncate(prefix .. ' ' .. step.label, w - 24, font), x + 12, sy)
         sy = sy + 14
     end
 
@@ -117,6 +133,17 @@ end
 ---------------------------------------------------------------------------
 
 local ENTRY_H = 94  -- taller to fit extra info
+
+--- Rect of an entry's Accept/Abandon button. Shared by the draw pass and the
+--- hit test, which previously each recomputed the geometry from constants and
+--- would have silently disagreed the moment either changed.
+local function actionButtonRect(label, entryX, entryY, entryW, font)
+    return Layout.buttonRectRight(label, entryX + entryW - 8, entryY + ENTRY_H - 26, {
+        h = Layout.textHeight(font) + 8,
+        minW = label == 'Accept' and 60 or 66,
+        font = font,
+    })
+end
 
 local function drawQuestEntry(q, x, y, w, showAccept, showAbandon)
     local font = love.graphics.getFont()
@@ -155,12 +182,15 @@ local function drawQuestEntry(q, x, y, w, showAccept, showAbandon)
         love.graphics.print(fTxt, infoX - font:getWidth(fTxt), y + 4)
     end
 
-    -- Row 2: Description (truncated)
+    -- Row 2: Description, ellipsised at whatever the warning leaves free.
+    -- Truncating at a byte count (50/60 chars) let a description reach x+408
+    -- while 'TRIGGERS RAID' started at x+392.
+    local descRight = x + w - 8
+    if q.threatInfo then
+        descRight = descRight - font:getWidth('TRIGGERS RAID') - Layout.MIN_GAP
+    end
     love.graphics.setColor(0.7, 0.7, 0.75)
-    local desc = q.desc or ''
-    local maxDescLen = q.threatInfo and 50 or 60
-    if #desc > maxDescLen then desc = desc:sub(1, maxDescLen - 3) .. '...' end
-    love.graphics.print(desc, x + 8, y + 20)
+    love.graphics.print(Layout.truncate(q.desc or '', descRight - (x + 8), font), x + 8, y + 20)
 
     -- Threat warning (same row as desc, right side)
     if q.threatInfo then
@@ -171,8 +201,14 @@ local function drawQuestEntry(q, x, y, w, showAccept, showAbandon)
 
     -- Row 3: Objectives
     if q.objectives then
+        -- The card is ENTRY_H tall and the reward line sits at ENTRY_H-18, so
+        -- only the rows that fit above it are drawn; an uncapped loop used to
+        -- write the fourth objective straight through the reward text.
         local oy = y + 36
-        for _, obj in ipairs(q.objectives) do
+        local objLimit = math.floor(((y + ENTRY_H - 20) - oy) / 14)
+        local shown = math.min(#q.objectives, math.max(1, objLimit))
+        for i = 1, shown do
+            local obj = q.objectives[i]
             local objDesc = Objectives.describe(obj)
             if obj.done then
                 love.graphics.setColor(0.3, 0.8, 0.3)
@@ -180,8 +216,12 @@ local function drawQuestEntry(q, x, y, w, showAccept, showAbandon)
             else
                 love.graphics.setColor(0.6, 0.6, 0.65)
             end
-            love.graphics.print(objDesc, x + 16, oy)
+            love.graphics.print(Layout.truncate(objDesc, w - 24, font), x + 16, oy)
             oy = oy + 14
+        end
+        if #q.objectives > shown then
+            love.graphics.setColor(0.5, 0.5, 0.55)
+            love.graphics.print(string.format('+%d more', #q.objectives - shown), x + 16, oy)
         end
     end
 
@@ -208,31 +248,28 @@ local function drawQuestEntry(q, x, y, w, showAccept, showAbandon)
     if q.exclusiveReward then
         rewardParts[#rewardParts + 1] = q.exclusiveReward.name
     end
-    if #rewardParts > 0 then
-        love.graphics.setColor(0.6, 0.8, 0.4)
-        love.graphics.print('Reward: ' .. table.concat(rewardParts, ', '), x + 8, y + ENTRY_H - 18)
-    end
-
-    -- Accept button (board tab)
+    -- Action buttons are laid out first so the reward line knows where to stop.
+    -- A five-part reward list used to run underneath the Accept button.
+    local actionRect = nil
     if showAccept then
-        local btnW, btnH = 60, 20
-        local btnX = x + w - btnW - 8
-        local btnY = y + ENTRY_H - 24
-        love.graphics.setColor(0.2, 0.5, 0.3, 0.9)
-        love.graphics.rectangle('fill', btnX, btnY, btnW, btnH, 3)
-        love.graphics.setColor(0.9, 0.95, 0.9)
-        love.graphics.print('Accept', btnX + btnW / 2 - font:getWidth('Accept') / 2, btnY + 3)
+        actionRect = actionButtonRect('Accept', x, y, w, font)
+    elseif showAbandon then
+        actionRect = actionButtonRect('Abandon', x, y, w, font)
     end
 
-    -- Abandon button (active tab)
-    if showAbandon then
-        local btnW, btnH = 66, 20
-        local btnX = x + w - btnW - 8
-        local btnY = y + ENTRY_H - 24
-        love.graphics.setColor(0.5, 0.2, 0.2, 0.9)
-        love.graphics.rectangle('fill', btnX, btnY, btnW, btnH, 3)
-        love.graphics.setColor(0.95, 0.8, 0.8)
-        love.graphics.print('Abandon', btnX + btnW / 2 - font:getWidth('Abandon') / 2, btnY + 3)
+    if #rewardParts > 0 then
+        local rewardRight = actionRect and (actionRect.x - Layout.MIN_GAP) or (x + w - 8)
+        love.graphics.setColor(0.6, 0.8, 0.4)
+        love.graphics.print(Layout.truncate('Reward: ' .. table.concat(rewardParts, ', '),
+            rewardRight - (x + 8), font), x + 8, y + ENTRY_H - 18)
+    end
+
+    if actionRect then
+        Layout.drawButton(showAccept and 'Accept' or 'Abandon', actionRect, 'normal', {
+            normal = showAccept and { 0.2, 0.5, 0.3, 0.9 } or { 0.5, 0.2, 0.2, 0.9 },
+            text   = showAccept and { 0.9, 0.95, 0.9 } or { 0.95, 0.8, 0.8 },
+            font   = font,
+        })
     end
 
     -- Time remaining / Board TTL
@@ -280,8 +317,8 @@ function QuestPanel.draw()
 
     -- Content area
     local contentY = panelY + 34
-    local contentH = panelH - 34
-    love.graphics.setScissor(panelX, contentY, panelW, contentH)
+    local contentH = panelH - 34 - 20
+    Layout.pushClip(panelX, contentY, panelW, contentH)
 
     local quests = {}
     local showAccept = false
@@ -330,11 +367,17 @@ function QuestPanel.draw()
         end
     end
 
-    love.graphics.setScissor()
+    Layout.popClip()
 
-    -- Close hint
+    -- Close hint, in its own footer strip below the scrolled content
+    love.graphics.setColor(0.08, 0.1, 0.15, 0.95)
+    love.graphics.rectangle('fill', panelX + 1, panelY + panelH - 20, panelW - 2, 19)
     love.graphics.setColor(0.5, 0.5, 0.55)
-    love.graphics.print('Q to close', panelX + panelW - 70, panelY + panelH - 16)
+    do
+        local hint = 'Q to close'
+        love.graphics.print(hint, panelX + panelW - Layout.textWidth(hint) - 10,
+            panelY + panelH - 18)
+    end
 end
 
 ---------------------------------------------------------------------------
@@ -378,34 +421,22 @@ function QuestPanel.mousepressed(x, y, button)
         end
     end
 
-    -- Accept button clicks (board tab)
-    if tab == 'board' and button == 1 and ok_quest then
-        local quests = Quest.getAvailable()
+    -- Accept / Abandon clicks. The rect comes from the same helper the draw
+    -- pass uses, and a button scrolled out of the content area is not clickable
+    -- any more — it used to still respond from behind the tab strip.
+    local actionTabs = { board = { 'Accept', Quest and Quest.getAvailable },
+                         active = { 'Abandon', Quest and Quest.getActive } }
+    local spec = actionTabs[tab]
+    if spec and button == 1 and ok_quest and spec[2] then
+        local font = love.graphics.getFont()
         local contentY = panelY + 34
+        local contentBottom = panelY + panelH - 20   -- above the footer strip
         local ey = contentY + 4 - scrollY
-        for _, q in ipairs(quests) do
-            local btnW, btnH = 60, 20
-            local btnX = panelX + 8 + (panelW - 16) - btnW - 8
-            local btnY = ey + ENTRY_H - 24
-            if x >= btnX and x <= btnX + btnW and y >= btnY and y <= btnY + btnH then
-                Quest.accept(q.id)
-                return true
-            end
-            ey = ey + ENTRY_H + 6
-        end
-    end
-
-    -- Abandon button clicks (active tab)
-    if tab == 'active' and button == 1 and ok_quest then
-        local quests = Quest.getActive()
-        local contentY = panelY + 34
-        local ey = contentY + 4 - scrollY
-        for _, q in ipairs(quests) do
-            local btnW, btnH = 66, 20
-            local btnX = panelX + 8 + (panelW - 16) - btnW - 8
-            local btnY = ey + ENTRY_H - 24
-            if x >= btnX and x <= btnX + btnW and y >= btnY and y <= btnY + btnH then
-                Quest.abandon(q.id)
+        for _, q in ipairs(spec[2]()) do
+            local rect = actionButtonRect(spec[1], panelX + 8, ey, panelW - 16, font)
+            if rect.y >= contentY and rect.y + rect.h <= contentBottom
+               and Layout.hit(x, y, rect) then
+                if spec[1] == 'Accept' then Quest.accept(q.id) else Quest.abandon(q.id) end
                 return true
             end
             ey = ey + ENTRY_H + 6
@@ -433,6 +464,9 @@ end
 function QuestPanel.toggle()
     isOpen = not isOpen
     scrollY = 0
+    -- Refreshing only in keypressed meant opening the panel from the bottom
+    -- toolbar showed a stale board.
+    if isOpen and ok_quest and Quest.refreshBoard then Quest.refreshBoard() end
 end
 
 return QuestPanel

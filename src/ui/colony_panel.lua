@@ -5,6 +5,7 @@
 
 local ECS       = require('src.ecs.ecs')
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 
 local ColonyPanel = {}
 
@@ -139,10 +140,11 @@ function ColonyPanel.draw()
     love.graphics.setColor(C.headerLine)
     love.graphics.line(0, 50, sw, 50)
 
-    -- Title
+    -- Title, actually centred rather than offset by a guessed 120px
     love.graphics.setColor(C.label)
     local aliveCount = ECS.countWith('colonist')
-    love.graphics.print(string.format('Colony Overview (C) — %d colonists', aliveCount), sw / 2 - 120, 16)
+    Layout.printCentered(string.format('Colony Overview (C) — %d colonists', aliveCount),
+        { x = 0, y = 0, w = sw, h = 50 }, 16)
 
     -- Colony stats summary
     local hok, Hope = pcall(require, 'src.colony.hope')
@@ -169,13 +171,22 @@ function ColonyPanel.draw()
     end
     sortColonists(colonists)
 
-    -- Column headers (sortable)
+    -- Column geometry, measured rather than guessed. The health percentage used
+    -- to be printed at x=225 and reach x=257, straight through the Mood value at
+    -- x=240.
     local headerY = 58
+    local HP_BAR_W = 70
+    local COL_NAME = 20
+    local COL_HEALTH = 150
+    local COL_HP_PCT = COL_HEALTH + HP_BAR_W + Layout.MIN_GAP
+    local COL_MOOD = COL_HP_PCT + Layout.textWidth('100%') + Layout.FIELD_GAP
+    local COL_TASK = COL_MOOD + Layout.textWidth('Mood') + Layout.FIELD_GAP
+
     local cols = {
-        { key = 'name',   label = 'Name',    x = 20,  w = 120 },
-        { key = 'health', label = 'Health',   x = 150, w = 80 },
-        { key = 'mood',   label = 'Mood',     x = 240, w = 60 },
-        { key = 'task',   label = 'Activity',  x = 310, w = 100 },
+        { key = 'name',   label = 'Name',     x = COL_NAME,   w = COL_HEALTH - COL_NAME - 8 },
+        { key = 'health', label = 'Health',   x = COL_HEALTH, w = COL_MOOD - COL_HEALTH - 8 },
+        { key = 'mood',   label = 'Mood',     x = COL_MOOD,   w = COL_TASK - COL_MOOD - 8 },
+        { key = 'task',   label = 'Activity', x = COL_TASK,   w = 100 },
     }
 
     for _, c in ipairs(cols) do
@@ -190,35 +201,48 @@ function ColonyPanel.draw()
         end
     end
 
-    -- Skill column headers
-    local skillStartX = 420
-    local skillColW = 55
+    -- Skill and status columns. 420 + 8*55 + 70 = 930px of fixed columns ran off
+    -- the right edge at the 960px minimum window width, and 'Wounds' at
+    -- statusX with 'Disease' 60px later left 5px of gap, so the two headers read
+    -- as one word.
+    local skillStartX = COL_TASK + 110
+    local statusW = Layout.textWidth('Wounds') + Layout.FIELD_GAP
+    local diseaseW = 130
+    local skillColW = math.max(
+        Layout.textWidth('combat') + 6,
+        math.floor((sw - 20 - skillStartX - statusW - diseaseW) / #SKILL_ORDER))
     love.graphics.setColor(C.dim)
     for i, sk in ipairs(SKILL_ORDER) do
         local sx = skillStartX + (i - 1) * skillColW
-        local abbr = sk:sub(1, 5)
-        love.graphics.print(abbr, sx, headerY)
+        love.graphics.print(Layout.truncate(sk, skillColW - 4), sx, headerY)
     end
 
     -- Status columns
     local statusX = skillStartX + #SKILL_ORDER * skillColW + 10
+    local diseaseX = statusX + statusW
     love.graphics.setColor(C.dim)
     love.graphics.print('Wounds', statusX, headerY)
-    love.graphics.print('Disease', statusX + 60, headerY)
+    love.graphics.print('Disease', diseaseX, headerY)
 
     -- Separator
     love.graphics.setColor(C.headerLine)
     love.graphics.line(20, headerY + 16, sw - 20, headerY + 16)
 
-    -- Rows
+    -- Rows, clipped to the band between the header and the footer. Rows used to
+    -- be admitted from y > 50 and drawn to y > sh, so the first row painted over
+    -- the header and the last ran under the footer and the bottom toolbar.
     local rowH = 24
     local startY = headerY + 20
     local mx, my = love.mouse.getPosition()
+    local listTop = headerY + 18
+    local listH = sh - listTop - Layout.BOTTOM_RESERVE - 24
+    scrollY = (Layout.clampScroll(scrollY, #colonists * rowH + 8, listH))
+    local clip = Layout.pushClip(0, listTop, sw, listH)
 
     for idx, entry in ipairs(colonists) do
         local y = startY + (idx - 1) * rowH - scrollY
-        if y > sh then break end
-        if y + rowH > 50 then
+        if y > clip.y + clip.h then break end
+        if y + rowH > clip.y then
             -- Row background
             local isHover = mx >= 20 and mx <= sw - 20 and my >= y and my < y + rowH
             if isHover then
@@ -232,15 +256,15 @@ function ColonyPanel.draw()
 
             addZone(entry.id, 20, y, sw - 40, rowH, 'select', entry)
 
-            -- Name
+            -- Name, ellipsised before it can reach the health bar
             love.graphics.setColor(C.label)
-            love.graphics.print(entry.col.name or '???', 20, y + 4)
+            love.graphics.print(Layout.fitLabel(entry.col.name or '???', COL_NAME, COL_HEALTH),
+                COL_NAME, y + 4)
 
             -- Health bar
             local hf = healthFrac(entry.col)
-            local barW = 70
             love.graphics.setColor(0.2, 0.15, 0.15)
-            love.graphics.rectangle('fill', 150, y + 6, barW, 12)
+            love.graphics.rectangle('fill', COL_HEALTH, y + 6, HP_BAR_W, 12)
             if hf < 0.3 then
                 love.graphics.setColor(C.critical)
             elseif hf < 0.7 then
@@ -248,14 +272,14 @@ function ColonyPanel.draw()
             else
                 love.graphics.setColor(C.healthy)
             end
-            love.graphics.rectangle('fill', 150, y + 6, barW * hf, 12)
+            love.graphics.rectangle('fill', COL_HEALTH, y + 6, HP_BAR_W * hf, 12)
             love.graphics.setColor(C.label)
-            love.graphics.print(string.format('%d%%', math.floor(hf * 100)), 225, y + 4)
+            love.graphics.print(string.format('%d%%', math.floor(hf * 100)), COL_HP_PCT, y + 4)
 
             -- Mood
             local mood = entry.needs and entry.needs.morale or 50
             love.graphics.setColor(moodColor(mood))
-            love.graphics.print(string.format('%.0f', mood), 240, y + 4)
+            love.graphics.print(string.format('%.0f', mood), COL_MOOD, y + 4)
 
             -- Activity
             local task = entry.col.state or 'idle'
@@ -267,7 +291,7 @@ function ColonyPanel.draw()
                 end
             end
             love.graphics.setColor(C.dim)
-            love.graphics.print(task, 310, y + 4)
+            love.graphics.print(Layout.fitLabel(task, COL_TASK, skillStartX), COL_TASK, y + 4)
 
             -- Skills
             local skills = entry.col.skills or {}
@@ -295,7 +319,7 @@ function ColonyPanel.draw()
             local dis = getDisease(entry.id)
             if dis then
                 love.graphics.setColor(C.disease)
-                love.graphics.print(dis.id, statusX + 60, y + 4)
+                love.graphics.print(Layout.truncate(dis.id, sw - 20 - diseaseX), diseaseX, y + 4)
             end
         end
     end
@@ -305,9 +329,15 @@ function ColonyPanel.draw()
         love.graphics.print('No living colonists.', 20, startY)
     end
 
-    -- Footer
+    Layout.popClip()
+    Layout.drawScrollbar({ x = 0, y = listTop, w = sw, h = listH },
+        scrollY, #colonists * rowH + 8)
+
+    -- Footer, kept above the bottom toolbar instead of underneath it
     love.graphics.setColor(C.dim)
-    love.graphics.print('C — close    Click header to sort    Click row to select + center camera    Scroll — navigate', 20, sh - 20)
+    love.graphics.print(Layout.truncate(
+        'C — close    Click header to sort    Click row to select + center camera    Scroll — navigate',
+        sw - 40), 20, sh - Layout.BOTTOM_RESERVE - 18)
 end
 
 ---------------------------------------------------------------------------

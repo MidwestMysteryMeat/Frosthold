@@ -2,6 +2,7 @@
 -- Toggle with Y key. Shows all tamed creatures with role/health/bond/hunger.
 
 local GameState = require('src.game_state')
+local Layout    = require('src.ui.ui_layout')
 
 local ok_ecs, ECS = pcall(require, 'src.ecs.ecs')
 local ok_taming, Taming = pcall(require, 'src.creatures.taming')
@@ -98,14 +99,21 @@ function TamingPanel.draw()
 
             local col1 = startX + 8
             local col2 = startX + 200
-            local col3 = startX + 420
+            -- Buttons are sized to the widest label they can hold, then pinned
+            -- to the right of the card. 'Slaughter' in a hardcoded 90px button
+            -- fit, but an unmapped role id printed 144px of text through it.
+            local btnW = math.max(
+                Layout.buttonWidth('Slaughter', { minW = 90 }),
+                Layout.buttonWidth('Confirm?',  { minW = 90 }))
+            local col3 = startX + cardW - 8 - btnW
 
             -- Species name + individual name
             love.graphics.setColor(0.9, 0.85, 0.6)
-            love.graphics.print(speciesDisplayName(animal.species), col1, cy + 4)
+            love.graphics.print(Layout.fitLabel(speciesDisplayName(animal.species), col1, col2),
+                col1, cy + 4)
             if animal.name then
                 love.graphics.setColor(0.6, 0.6, 0.6)
-                love.graphics.print(animal.name, col1, cy + 20)
+                love.graphics.print(Layout.fitLabel(animal.name, col1, col2), col1, cy + 20)
             end
 
             -- Health bar
@@ -120,7 +128,10 @@ function TamingPanel.draw()
             love.graphics.setColor(hr, hg, 0.1)
             love.graphics.rectangle('fill', col1, cy + 38, 120 * hpFrac, 8, 2)
             love.graphics.setColor(0.6, 0.6, 0.6)
-            love.graphics.print(string.format('HP %d/%d', hp, maxHP), col1 + 125, cy + 34)
+            -- 'HP 100/100' from col1+125 ran 13px into the trained-ability list
+            -- printed at col2 on the same rows.
+            love.graphics.print(Layout.fitLabel(string.format('HP %d/%d', hp, maxHP),
+                col1 + 125, col2), col1 + 125, cy + 34)
 
             -- Bond bar
             local bond = animal.bond or 1
@@ -130,7 +141,8 @@ function TamingPanel.draw()
             love.graphics.setColor(0.3, 0.6, 0.9)
             love.graphics.rectangle('fill', col2, cy + 6, 100 * bondFrac, 8, 2)
             love.graphics.setColor(0.6, 0.7, 0.8)
-            love.graphics.print(string.format('Bond %d/10', bond), col2 + 105, cy + 2)
+            love.graphics.print(Layout.fitLabel(string.format('Bond %d/10', bond), col2 + 105, col3),
+                col2 + 105, cy + 2)
 
             -- Hunger indicator
             local hunger = animal.hunger or 100
@@ -149,41 +161,37 @@ function TamingPanel.draw()
                 end
             end
             if #trainedList > 0 then
+                -- Sorted: pairs() order changed frame to frame, so the list
+                -- visibly reshuffled while the panel was open.
+                table.sort(trainedList)
                 love.graphics.setColor(0.5, 0.7, 0.5)
-                love.graphics.print(table.concat(trainedList, ', '), col2, cy + 38)
+                love.graphics.print(Layout.fitLabel(table.concat(trainedList, ', '), col2, col3),
+                    col2, cy + 38)
             end
 
             -- Role button (clickable to cycle)
             local roleLbl = ROLE_LABELS[animal.role] or animal.role or '?'
-            local roleBtnX = col3
-            local roleBtnW = 90
-            love.graphics.setColor(0.12, 0.18, 0.25)
-            love.graphics.rectangle('fill', roleBtnX, cy + 6, roleBtnW, 22, 3)
-            love.graphics.setColor(0.3, 0.5, 0.7)
-            love.graphics.rectangle('line', roleBtnX, cy + 6, roleBtnW, 22, 3)
-            love.graphics.setColor(0.8, 0.85, 0.9)
-            love.graphics.print(roleLbl, roleBtnX + 6, cy + 9)
+            local roleRect = { x = col3, y = cy + 6, w = btnW, h = 22 }
+            Layout.drawButton(roleLbl, roleRect, 'normal', {
+                normal = { 0.12, 0.18, 0.25 },
+                border = { 0.3, 0.5, 0.7 },
+                text   = { 0.8, 0.85, 0.9 },
+            })
             hitZones[#hitZones + 1] = {
-                x = roleBtnX, y = cy + 6, w = roleBtnW, h = 22,
+                x = roleRect.x, y = roleRect.y, w = roleRect.w, h = roleRect.h,
                 action = 'role', id = animal.id, currentRole = animal.role,
             }
 
             -- Slaughter button
-            local slBtnX = col3
-            local slBtnW = 90
             local isConfirm = (confirmSlaughter == animal.id)
-            if isConfirm then
-                love.graphics.setColor(0.5, 0.08, 0.08)
-            else
-                love.graphics.setColor(0.25, 0.08, 0.08)
-            end
-            love.graphics.rectangle('fill', slBtnX, cy + 34, slBtnW, 22, 3)
-            love.graphics.setColor(0.8, 0.3, 0.3)
-            love.graphics.rectangle('line', slBtnX, cy + 34, slBtnW, 22, 3)
-            love.graphics.setColor(0.9, 0.4, 0.4)
-            love.graphics.print(isConfirm and 'Confirm?' or 'Slaughter', slBtnX + 6, cy + 37)
+            local slRect = { x = col3, y = cy + 34, w = btnW, h = 22 }
+            Layout.drawButton(isConfirm and 'Confirm?' or 'Slaughter', slRect, 'normal', {
+                normal = isConfirm and { 0.5, 0.08, 0.08 } or { 0.25, 0.08, 0.08 },
+                border = { 0.8, 0.3, 0.3 },
+                text   = { 0.9, 0.4, 0.4 },
+            })
             hitZones[#hitZones + 1] = {
-                x = slBtnX, y = cy + 34, w = slBtnW, h = 22,
+                x = slRect.x, y = slRect.y, w = slRect.w, h = slRect.h,
                 action = 'slaughter', id = animal.id,
             }
         end

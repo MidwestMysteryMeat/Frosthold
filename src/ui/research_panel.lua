@@ -1,6 +1,7 @@
 -- research_panel.lua — Tech tree panel for selecting and viewing research
 
 local Research = require('src.research.research')
+local Layout   = require('src.ui.ui_layout')
 
 local ResearchPanel = {}
 
@@ -98,7 +99,18 @@ function ResearchPanel.draw()
     love.graphics.setColor(searchFocused and 0.45 or 0.28, searchFocused and 0.7 or 0.35, searchFocused and 1 or 0.45, 0.75)
     love.graphics.rectangle('line', searchBox.x, searchBox.y, searchBox.w, searchBox.h, 4)
     love.graphics.setColor(searchTerm ~= '' and 0.9 or 0.45, searchTerm ~= '' and 0.92 or 0.45, searchTerm ~= '' and 0.95 or 0.45)
-    love.graphics.print(searchText, searchBox.x + 8, searchBox.y + 4)
+    -- A long search term used to run straight out of the box and across the
+    -- header. Show the tail, so what you just typed stays visible.
+    do
+        local shown = searchText
+        local budget = searchBox.w - 16
+        if Layout.textWidth(shown) > budget then
+            local n = 1
+            while n < #shown and Layout.textWidth(shown:sub(n)) > budget do n = n + 1 end
+            shown = shown:sub(n)
+        end
+        love.graphics.print(shown, searchBox.x + 8, searchBox.y + 4)
+    end
 
     -- Current research progress
     local currentId = Research.getCurrent()
@@ -126,6 +138,13 @@ function ResearchPanel.draw()
     local gapY = 6
     local baseY = 90 - scrollY
 
+    -- Clip the grid to the area below the header. Nodes drawn while scrolled up
+    -- used to paint over the search box and progress bar, and their hit zones
+    -- were registered there too, so header clicks selected hidden research.
+    local treeTop = 86
+    local treeH = sh - treeTop - Layout.BOTTOM_RESERVE
+    Layout.pushClip(0, treeTop, sw, treeH)
+
     for tier = 1, 5 do
         local colX = 10 + (tier - 1) * colW
         local tc = TIER_COLORS[tier]
@@ -137,7 +156,7 @@ function ResearchPanel.draw()
         local ny = baseY + 18
 
         for _, node in ipairs(nodes) do
-            if ny + nodeH > 84 and ny < sh then
+            if ny + nodeH > treeTop and ny < treeTop + treeH then
                 local isComp = Research.isCompleted(node.id)
                 local isAvail = Research.canResearch(node.id)
                 local isCur = (currentId == node.id)
@@ -169,10 +188,10 @@ function ResearchPanel.draw()
                 -- Name
                 local nc = (isComp or isAvail or isCur) and 0.9 or 0.35
                 love.graphics.setColor(nc, nc, nc)
-                local name = node.name
-                local maxC = math.floor(nodeW / 7)
-                if #name > maxC then name = name:sub(1, maxC - 2) .. '..' end
-                love.graphics.print(name, colX + 5, ny + 3)
+                -- Measured, not guessed. The old math.floor(nodeW / 7) assumed
+                -- 7px per character against a 16px font, so long names spilled
+                -- ~35px into the next tier column.
+                love.graphics.print(Layout.truncate(node.name, nodeW - 10), colX + 5, ny + 3)
 
                 -- Status
                 if isComp then
@@ -193,26 +212,28 @@ function ResearchPanel.draw()
                 end
 
                 -- Desc
-                local desc = node.desc or ''
-                local maxD = math.floor(nodeW / 6)
-                if #desc > maxD then desc = desc:sub(1, maxD - 2) .. '..' end
                 love.graphics.setColor(0.3, 0.3, 0.3)
-                love.graphics.print(desc, colX + 5, ny + 40)
+                love.graphics.print(Layout.truncate(node.desc or '', nodeW - 10), colX + 5, ny + 40)
 
-                nodeRects[#nodeRects + 1] = {
-                    x = colX, y = ny, w = nodeW, h = nodeH, id = node.id
-                }
+                -- Only register a node the player can actually see.
+                if ny >= treeTop and ny + nodeH <= treeTop + treeH then
+                    nodeRects[#nodeRects + 1] = {
+                        x = colX, y = ny, w = nodeW, h = nodeH, id = node.id
+                    }
+                end
             end
             ny = ny + nodeH + gapY
         end
     end
+
+    Layout.popClip()
 end
 
 function ResearchPanel.keypressed(key)
     if not visible then return false end
     if searchFocused then
         if key == 'backspace' then
-            searchTerm = searchTerm:sub(1, -2)
+            searchTerm = Layout.dropLastChar(searchTerm)
             scrollY = 0
             return true
         end
@@ -262,7 +283,7 @@ end
 
 function ResearchPanel.textinput(text)
     if not visible or not searchFocused then return false end
-    if text:match('%S') or text == ' ' then
+    if (text:match('%S') or text == ' ') and #searchTerm < 40 then
         searchTerm = searchTerm .. text
         scrollY = 0
     end

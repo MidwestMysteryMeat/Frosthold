@@ -2,6 +2,8 @@
 -- Shows the 4 endgame victory paths with research/building/charge progress.
 -- Toggle with I key.
 
+local Layout = require('src.ui.ui_layout')
+
 local GoalsOverlay = {}
 
 local visible = false
@@ -209,9 +211,18 @@ function GoalsOverlay.draw()
                 drawEmptyBox(innerX, stepY + 1, checkSize)
             end
 
-            -- Step label
+            -- Step label. The percentage is laid out first so the label's
+            -- width budget excludes it: a full-width label used to be drawn
+            -- straight under the right-aligned percentage on the same line.
+            local pctText = nil
+            local pctW = 0
+            if not step.done and step.progress > 0 then
+                pctText = string.format('%d%%', math.floor(step.progress * 100 + 0.5))
+                pctW = fSmall:getWidth(pctText) + Layout.MIN_GAP
+            end
+
             local labelX = innerX + checkSize + 6
-            local maxLabelW = innerW - checkSize - 6
+            local maxLabelW = innerW - checkSize - 6 - pctW
 
             if step.done then
                 love.graphics.setColor(C.stepDone)
@@ -220,15 +231,14 @@ function GoalsOverlay.draw()
             else
                 love.graphics.setColor(C.stepPending)
             end
-            love.graphics.printf(step.label, labelX, stepY, maxLabelW, 'left')
+            -- One line per step: the card height assumes exactly stepH per step,
+            -- so a wrapped label would have overrun into the next card.
+            love.graphics.print(Layout.truncate(step.label, maxLabelW, fBody), labelX, stepY)
 
-            -- Inline progress % for partially complete steps
-            if not step.done and step.progress > 0 then
-                local pctText = string.format('%d%%', math.floor(step.progress * 100 + 0.5))
-                local pctW = fSmall:getWidth(pctText)
+            if pctText then
                 love.graphics.setFont(fSmall)
                 love.graphics.setColor(C.stepActive)
-                love.graphics.print(pctText, innerX + innerW - pctW, stepY + 1)
+                love.graphics.print(pctText, innerX + innerW - fSmall:getWidth(pctText), stepY + 1)
                 love.graphics.setFont(fBody)
             end
         end

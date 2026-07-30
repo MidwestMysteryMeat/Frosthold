@@ -3,6 +3,7 @@
 -- Displays manual slots, quicksave, and auto-saves with metadata.
 
 local GameState = require('src.game_state')
+local Layout = require('src.ui.ui_layout')
 
 local SaveMenu = {}
 
@@ -378,7 +379,7 @@ function SaveMenu.keypressed(key, closeFn, toastFn)
             end
             return true
         elseif key == 'backspace' then
-            namingText = namingText:sub(1, -2)
+            namingText = Layout.dropLastChar(namingText)
             return true
         end
     end

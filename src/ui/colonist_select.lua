@@ -2,6 +2,7 @@
 -- Generates a pool of candidates; player picks their starting crew.
 
 local Adlib      = require('src.util.adlib')
+local Layout = require('src.ui.ui_layout')
 local Difficulty = require('src.ui.difficulty')
 local GameState  = require('src.game_state')
 
@@ -254,7 +255,7 @@ local function drawCard(cand, cx, cy, isSelected, isHovered)
     love.graphics.setColor(0.65, 0.7, 0.8)
     local backstory = cand.backstory
     if #backstory > 120 then
-        backstory = backstory:sub(1, 117) .. '...'
+        backstory = Layout.truncate(backstory, (CARD_W - pad * 2) * 3)
     end
     love.graphics.printf(backstory, cx + pad, y, CARD_W - pad * 2, 'left')
     -- Measure actual wrapped height so longer backstories don't overlap skills
