@@ -396,6 +396,57 @@ local function pickBreakType(col)
 end
 
 ---------------------------------------------------------------------------
+-- Survival outranks the breakdown
+---------------------------------------------------------------------------
+-- 'mental_break' is a total AI blackout: work_ai returns immediately (no
+-- warmth search, no food, no water), movementSystem refuses to move the
+-- colonist at all, and combat_ai stands down so the colonist will not defend
+-- itself. On this planet a 120-second break at -80C is enough to take someone
+-- from chilly to dead, and the death line reads "state=idle, warmth 0, no
+-- wounds" because the break had already ended by then. It also made a
+-- breaking colonist free food for any animal that wandered past.
+--
+-- A break therefore ends early when something is actively killing the
+-- colonist. The morale penalty still lands in full, so this is not a way to
+-- shrug off breaks — it just stops the breakdown being the cause of death.
+
+-- Seconds of warmth left below which the cold takes priority. Matches the
+-- lead time work_ai uses to start walking for a fire.
+local COLD_ABORT_LEAD = 200
+-- A hostile this close is about to start biting.
+local THREAT_ABORT_RANGE = 6
+
+local function survivalOverride(id, col, pos, needs)
+    if needs then
+        local World = require('src.world.tilemap')
+        local tok, temp = pcall(World.getTemp, pos.x, pos.y, pos.depth or 0)
+        if tok and temp and temp < 10 then
+            local drain = (10 - temp) * 0.005
+            if drain > 0 and (needs.warmth or 100) / drain < COLD_ABORT_LEAD then
+                return 'cold'
+            end
+        end
+        if (needs.food or 100) <= 0 or (needs.water or 100) <= 0 then
+            return 'starving'
+        end
+    end
+
+    local rangeSq = THREAT_ABORT_RANGE * THREAT_ABORT_RANGE
+    for _, comps in ECS.query('creature', 'pos') do
+        local cr, cpos = comps.creature, comps.pos
+        if cr.hostile and cr.state ~= 'dead'
+            and (cpos.depth or 0) == (pos.depth or 0) then
+            local dx, dy = cpos.x - pos.x, cpos.y - pos.y
+            if dx * dx + dy * dy <= rangeSq then return 'threat' end
+        end
+    end
+
+    return nil
+end
+
+MentalBreaks.survivalOverride = survivalOverride
+
+---------------------------------------------------------------------------
 -- ECS system: mental break management
 ---------------------------------------------------------------------------
 
@@ -439,8 +490,9 @@ local function mentalBreakSystem(dt, id, comps)
             breakDef.tick(dt, id, col, pos, mb)
         end
 
-        -- Break ends
-        if mb.timer <= 0 then
+        -- Break ends: either it ran its course, or survival cut it short.
+        local override = survivalOverride(id, col, pos, needs)
+        if mb.timer <= 0 or override then
             col.sanity = 30
             needs.morale = math.max(0, needs.morale - mb.penalty)
             -- Scar trait: mental break recovery
@@ -452,7 +504,15 @@ local function mentalBreakSystem(dt, id, comps)
                 Storyteller.logEvent('mental_break_end', (col.name or 'A colonist') .. ' has recovered from a mental break.')
             end
             col._mentalBreak = nil
+            col._breakCutShortBy = override
             col.state = 'idle'
+            -- The path the break laid down (flee to the map edge, chase a
+            -- colonist) must not survive the break: the colonist needs to be
+            -- free to walk to a fire instead.
+            if override then
+                local pathC = ECS.get(id, 'path')
+                if pathC then pathC.nodes = nil end
+            end
         end
         return
     end
