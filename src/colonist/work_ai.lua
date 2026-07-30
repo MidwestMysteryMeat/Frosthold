@@ -1292,7 +1292,15 @@ local function workAISystem(dt, id, comps)
 
     if col.state == 'seeking_warmth' then
         col._warmSeekTime = (col._warmSeekTime or 0) + dt
-        if not coldNeeds or coldNeeds.warmth >= coldRelease or criticallyHungry then
+        -- A colonist walking to a warm tile to SLEEP on it is not waiting to
+        -- recover, so the warmth-release check must not apply: it leaves at
+        -- warmth 100 and would be sent straight back by _wantWarmBed, resetting
+        -- its route every tick and never taking a step. The trip ends when the
+        -- colonist is standing somewhere warm (which clears the flag above) or
+        -- when the 120 s give-up below fires.
+        local recovered = coldNeeds and coldNeeds.warmth >= coldRelease
+            and not col._wantWarmBed
+        if not coldNeeds or recovered or criticallyHungry then
             -- Recovered (or eating matters more) — resume normal AI
             col.state = 'idle'
             col._warmSeekTime = nil
@@ -1335,6 +1343,12 @@ local function workAISystem(dt, id, comps)
                 path.nodes = route
                 path.index = 1
                 path.moveTimer = 0
+                -- Floor on how often a colonist may re-target. Committing to a
+                -- route resets moveTimer, so any hole in the state machine that
+                -- re-enters the search every tick leaves the colonist standing
+                -- still recomputing the same path forever. One second of
+                -- commitment makes that class of bug slow, not fatal.
+                col._warmSearchCd = 1.0
             end
 
             -- One outward scan, four tiers of target, in order of preference.

@@ -166,6 +166,37 @@ T.test('a colonist with no bed stays awake on a freezing tile', function()
         .. tostring(col.state) .. ')')
 end)
 
+T.test('a bedless colonist walks to warmth to sleep instead of re-routing forever',
+function()
+    H.resetAll()
+    local ECS       = require('src.ecs.ecs')
+    local GameState = require('src.game_state')
+    local WorkAI    = require('src.colonist.work_ai')
+    local Colonist  = require('src.colonist.colonist')
+    local World     = coldWorld(32, -50)
+
+    GameState.hour = 2                -- sleep block
+    GameState.startX, GameState.startY = 16, 16
+    for x = 14, 18 do
+        for y = 14, 18 do World.setTemp(x, y, 22.0, 0) end
+    end
+
+    -- Full warmth: nothing about the cold is urgent, the colonist simply has
+    -- nowhere to lie down. Committing to a route resets the movement timer, so
+    -- a colonist that re-targets every tick never takes a step - it stood on one
+    -- tile recomputing the same 23-node path for an entire in-game night.
+    local id = H.spawnTestColonist(4, 16, { warmth = 100, food = 90, water = 90 })
+    require('src.util.occupancy').rebuild()
+    WorkAI.registerSystems()
+    Colonist.registerSystems()
+
+    local pos = ECS.get(id, 'pos')
+    local startX = pos.x
+    for _ = 1, 200 do ECS.update(0.05) end
+    T.ok(pos.x > startX, 'colonist actually moved toward the warm ground (x '
+        .. tostring(startX) .. ' -> ' .. tostring(pos.x) .. ')')
+end)
+
 T.test('a colonist with no bed does sleep on a warm tile', function()
     H.resetAll()
     local ECS       = require('src.ecs.ecs')
