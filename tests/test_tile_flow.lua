@@ -10,6 +10,13 @@ local function initLineWorld(doorTile)
     World.setTile(0, 0, Tiles.FLOOR_STONE, 0)
     World.setTile(1, 0, doorTile, 0)
     World.setTile(2, 0, Tiles.FLOOR_STONE, 0)
+    -- These tests are about door permeability inside a building, so the
+    -- corridor must be an enclosed room. Tiles with room id 0 count as open
+    -- sky and now dissipate gas to the wind, which would clear the gas before
+    -- the assertion could observe it crossing the door.
+    for x = 0, 2 do
+        World.setRoom(x, 0, 1, 0)
+    end
     return World, Tiles
 end
 

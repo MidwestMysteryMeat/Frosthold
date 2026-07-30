@@ -220,13 +220,20 @@ function TileGas.step(dt)
         local surfaceGas = World.rawGasData(0)
         if surfaceGas then
             local surfaceTiles = World.rawTileData(0)
+            local surfaceRooms = World.rawRoomData and World.rawRoomData(0)
             local size = w * h
             for idx = 1, size do
                 local gl = surfaceGas[idx] or 0
                 if gl > 0 then
                     local tile = surfaceTiles[idx]
-                    -- Outdoor tiles dissipate (wind clears surface gas)
-                    if tile == Tiles.SNOW or tile == Tiles.PERMAFROST
+                    -- Open sky dissipates gas (wind clears surface gas).
+                    -- Enclosure, not tile material, decides this: a built
+                    -- floor out in the open used to trap gas forever, so a
+                    -- campfire or generator on a metal pad slowly suffocated
+                    -- anyone nearby. Tiles inside a room still need a vent.
+                    local openSky = (surfaceRooms and (surfaceRooms[idx] or 0) == 0)
+                    if openSky
+                        or tile == Tiles.SNOW or tile == Tiles.PERMAFROST
                         or tile == Tiles.DIRT or tile == Tiles.DEBRIS
                         or tile == Tiles.TUNDRA_MARSH or tile == Tiles.ASH_GROUND
                         or tile == Tiles.VOLCANIC_FLOOR or tile == Tiles.CAVE_ENTRANCE

@@ -151,8 +151,9 @@ function Atmosphere.step(dt)
             atmo.co2 = clamp(atmo.co2, 0, 100)
 
             -- Ordinary doors are not airtight: each normal door leaks air
-            -- toward the neighboring room (or ambient). Sealed/lead doors
-            -- remain airtight.
+            -- toward the neighboring room (or ambient). Without this, any
+            -- enclosed bedroom slowly suffocated its occupants — rooms had
+            -- NO air exchange at all. Sealed/lead doors stay airtight.
             local doorSegs = room.doorSegs
             if doorSegs then
                 local TilesMod = require('src.world.tiles')
@@ -189,9 +190,12 @@ function Atmosphere.step(dt)
                 local atmo = roomAtmo[rid]
                 atmo.o2 = clamp(atmo.o2 - (COLONIST_O2_RATE * dt * 18) / volume, 0, 100)
                 atmo.co2 = clamp(atmo.co2 + (COLONIST_CO2_RATE * dt * 18) / volume, 0, 100)
-                -- Breathing is represented by the room mixture above. Adding
-                -- tile CO2 here double-counted it, and indoor tile gas does
-                -- not dissipate, permanently fouling occupied bedrooms.
+                -- NOTE: breathing no longer injects tile CO2 gas. The room
+                -- O2/CO2 above already accounts for breathing; injecting
+                -- tile gas too double-counted it, and indoor tile gas never
+                -- dissipates — so every occupied bedroom permanently fouled
+                -- until the min()-merged room O2 suffocated its sleeper.
+                -- Tile CO2 remains for real emitters (generators, hazards).
             end
         end
     end
