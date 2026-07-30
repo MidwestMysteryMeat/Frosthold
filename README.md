@@ -57,13 +57,18 @@ Developed with AI assistance — **Anthropic Claude** (Claude Code) for implemen
 
 Proprietary — see [LICENSE](LICENSE). Licensed under the **Ephemeral / Proprietary License** (All Rights Reserved with a Sharing Exception). Sprites were generated for this project (see `ART_MVP_PROMPT.md` for the pipeline).
 
-## Art & audio licensing
+## Art & audio
 
-This repo intentionally contains **no art or audio**. Those assets are
-purchased packs licensed to the project owner only and are stripped from
-version control (`.gitignore` + `assets/ASSETS_PLACEHOLDER.md`). The code
-expects them at their original `assets/` paths on the owner's machine;
-fresh clones run with placeholders/silence where the engine allows.
+**Art ships with the repo.** `assets/sprites/` (365 PNGs) was generated for this
+project with the pipeline in `tools/comfyui/` and `tools/slice_sprites.py`, so it
+is distributed under the repo's LICENSE.
+
+**Audio does not.** `assets/audio/` is purchased packs licensed to the owner only
+and is excluded from version control. The game does not need it — the loader
+tolerates every missing file, so a fresh clone simply runs silent.
+
+See [`ASSETS_NEEDED.md`](ASSETS_NEEDED.md) for the full manifest, the remaining
+art gaps, and how to regenerate sprites.
 
 ---
 
