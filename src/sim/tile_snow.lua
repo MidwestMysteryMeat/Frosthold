@@ -34,10 +34,15 @@ local MELT_TEMP        = -2    -- snow melts above this (Celsius)
 local FAST_MELT_TEMP   = 5     -- snow melts rapidly above this
 
 -- Movement multipliers by snow depth
+-- Deep snow is slow, not paralysing. The old curve bottomed out at 0.25 for
+-- depth 6, which a severely hypothermic colonist (moveMult 0.5) turned into
+-- 0.375 tiles/second — too slow to cross a map and reach a fire before dying.
+-- Depth 7 stays "impassable" for the systems that ask (isImpassable), but
+-- carries a real multiplier so anyone caught standing in it can still wade out.
 local MOVE_MULT = {
     [0] = 1.0, [1] = 0.95, [2] = 0.85,
-    [3] = 0.7, [4] = 0.55, [5] = 0.4,
-    [6] = 0.25, [7] = 0.0,  -- impassable
+    [3] = 0.75, [4] = 0.65, [5] = 0.55,
+    [6] = 0.45, [7] = 0.3,
 }
 
 -- Snow depth at which doors are blocked
@@ -122,13 +127,20 @@ function TileSnow.processAccumulation(World, w, h, snowRate, windAngle, windSpee
         end
 
         local current = snowData[idx] or 0
-        if current >= MAX_SNOW then goto acc_next end
+        -- Falling snow stops one level BELOW the impassable depth. Only wind
+        -- drift (which piles against walls, i.e. locally) may reach MAX_SNOW.
+        -- A long storm otherwise buried every outdoor tile on the map to the
+        -- impassable depth at once, which is a colony-ending state: colonists
+        -- caught in the open crawled home at 0.22 tiles/second and froze to
+        -- death 70 tiles short of the fire. Deep snow should be a wall you
+        -- shovel in specific places, not a map-wide freeze.
+        if current >= MAX_SNOW - 1 then goto acc_next end
 
         -- Base accumulation chance scaled by snowRate
         -- snowRate: 0.01 (overcast) to 0.3 (whiteout)
         local chance = snowRate * 0.6
         if math.random() < chance then
-            snowData[idx] = math.min(MAX_SNOW, current + 1)
+            snowData[idx] = math.min(MAX_SNOW - 1, current + 1)
         end
 
         ::acc_next::

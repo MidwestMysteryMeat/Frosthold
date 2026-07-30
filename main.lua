@@ -807,6 +807,14 @@ local function initGameWorld()
         -- Reduce global food pool (food is now physical items; keep small seed budget)
         GameState.resources.food = 10
 
+        -- Drinking water still comes from the shared colony pool, and the only
+        -- early source is mining ice and hauling it home. Each colonist drinks
+        -- roughly 1.2 water per full thirst cycle, so the default seed of 10
+        -- ran three colonists dry on about day 3 and they died of dehydration
+        -- with full bellies. 30 is a ~8 day buffer: enough time to get ice
+        -- mining running, not enough to ignore it.
+        GameState.resources.water = math.max(GameState.resources.water or 0, 30)
+
         -- Add a torch inside the shelter for initial light/warmth reference
         Lighting.addLight(sx + 2, sy + 2, 'torch')
     end
