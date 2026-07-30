@@ -290,6 +290,20 @@ local function creatureAI(dt, id, comps)
                             finalDmg = math.max(1, finalDmg - _Equipment.getArmorReduction(nearestId))
                         end
 
+                        -- Attribution for the headless death triage log: which
+                        -- animal, and how hard it actually hit after armour.
+                        tCol._lastMauledBy = cr.species
+                        tCol._lastMauledDmg = finalDmg
+
+                        -- Being bitten spins you round. Colonist detection is
+                        -- vision-cone limited, so without this a colonist
+                        -- attacked from behind never turned to look and stayed
+                        -- 'idle' while it was eaten.
+                        local tPosF = ECS.get(nearestId, 'pos')
+                        if tPosF then
+                            tCol.facing = math.atan2(pos.y - tPosF.y, pos.x - tPosF.x)
+                        end
+
                         if _Body then
                             local partName = _Body.randomPart()
                             local killed = _Body.damagePart(nearestId, partName, finalDmg)
@@ -326,9 +340,17 @@ local function creatureAI(dt, id, comps)
                 return
             end
 
-            -- Path toward target
+            -- Path toward target.
+            --
+            -- Backed off on failure, for the same reason the leash-return path
+            -- below is: a failed A* burns the whole node budget, and a colonist
+            -- who has shut a door behind them is an UNREACHABLE target. Once
+            -- colonists stopped dying in the open, packs of animals ringed the
+            -- base and re-ran that doomed search every tick each — one
+            -- acceptance seed crawled at ~43 ticks/second instead of ~300.
             local tPos = ECS.get(nearestId, 'pos')
-            if tPos then
+            cr._chaseRetryCd = (cr._chaseRetryCd or 0) - dt
+            if tPos and cr._chaseRetryCd <= 0 then
                 local pd = pos.depth or 0
                 local route = Pathfind.find(pos.x, pos.y, tPos.x, tPos.y, _World, id, pd, tPos.depth or 0)
                 if route and #route > 0 then
@@ -339,6 +361,8 @@ local function creatureAI(dt, id, comps)
                     path.index = 1
                     path.moveTimer = 0
                 elseif sp and sp.breacher then
+                    -- A breacher makes its own path, so it keeps trying often.
+                    cr._chaseRetryCd = 1.0
                     -- Breacher: no path found — attack adjacent wall/door tiles
                     cr.attackCooldown = cr.attackCooldown - dt
                     if cr.attackCooldown <= 0 then
@@ -357,6 +381,9 @@ local function creatureAI(dt, id, comps)
                             end
                         end
                     end
+                else
+                    -- Cannot reach the colonist and cannot break in: wait.
+                    cr._chaseRetryCd = 3.0
                 end
             end
             return
