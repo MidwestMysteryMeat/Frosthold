@@ -75,3 +75,8 @@ _simruns/
 
 # Dev panel screenshots (tools/collect_uishots.ps1)
 _uishots/
+
+# Generator output, staged for human review and cherry-picking.
+# tools/gen_v3.py and tools/lore_generator.py write here; nothing reads it.
+# 76 files / 103k lines were tracked by mistake - regenerate rather than commit.
+proposals/
