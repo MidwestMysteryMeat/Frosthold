@@ -24,7 +24,14 @@ Jobs.TYPES = {
     cook     = { name = 'Cook',     skill = 'cooking',   priority = 'cooking',  duration = 0 },
     hunt     = { name = 'Hunt',     skill = 'hunting',   priority = 'hunting',  duration = 2.0 },
     research = { name = 'Research', skill = 'research',  priority = 'research', duration = 0 },
-    medical  = { name = 'Medical',  skill = 'medical',   priority = 'medical',  duration = 3.0 },
+    -- unskilledOk: treating a wound is life-critical and must never be gated
+    -- behind medical skill > 0. Three random starting colonists frequently all
+    -- have medical 0, and the hard skill gate meant NOBODY could ever claim a
+    -- medical task: wounds stayed untreated for thousands of seconds, went
+    -- septic, and colonists died of infection beside idle housemates.
+    -- Wounds.treat already scales with skill (an unskilled tender only reaches
+    -- 'bandaged', which stops the bleeding), so letting them try is correct.
+    medical  = { name = 'Medical',  skill = 'medical',   priority = 'medical',  duration = 3.0, unskilledOk = true },
     clean    = { name = 'Clean',    skill = nil,         priority = 'cleaning', duration = 1.5 },
     harvest  = { name = 'Harvest',  skill = 'cooking',   priority = 'cooking',  duration = 2.0 },
     forage   = { name = 'Forage',   skill = 'cooking',   priority = 'cooking',  duration = 3.0 },
@@ -211,7 +218,7 @@ function Jobs.findBestTask(colonistId)
             if level and level > 0 and prioCol:sub(1, 1) ~= '_' then
                 -- Skill check + trait disabledWork
                 local canDo = true
-                if task.def.skill then
+                if task.def.skill and not task.def.unskilledOk then
                     local skillLevel = col.skills[task.def.skill] or 0
                     if skillLevel <= 0 then canDo = false end
                 end

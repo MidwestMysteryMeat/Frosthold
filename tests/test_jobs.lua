@@ -121,3 +121,31 @@ T.test('findBestTask picks nearest unclaimed', function()
     T.eq(best.x, 65, 'picked nearer task')
     T.eq(best.y, 64)
 end)
+
+T.test('a colonist with zero medical skill can still claim medical tasks', function()
+    H.resetAll()
+    local Jobs = require('src.colonist.jobs')
+
+    -- Three random starting colonists frequently all roll medical 0. The hard
+    -- skill gate meant nobody could ever tend a wound, so injuries went septic
+    -- and killed colonists beside idle housemates.
+    local cid = H.spawnTestColonist(64, 64, {
+        skills = { mining = 0, building = 0, cooking = 0,
+                   hunting = 0, research = 0, medical = 0 },
+    })
+
+    Jobs.createTask('medical', 65, 64, { patientId = cid })
+    local best = Jobs.findBestTask(cid)
+    T.notnil(best, 'unskilled colonist may still tend wounds')
+    T.eq(best.type, 'medical', 'and the task offered is the medical one')
+
+    -- The skill gate still applies to ordinary work
+    Jobs.createTask('mine', 65, 64)
+    local mineTask = nil
+    for _, t in pairs(Jobs.getAllTasks()) do
+        if t.type == 'mine' then mineTask = t end
+    end
+    T.notnil(mineTask, 'mine task was created')
+    Jobs.claimTask(best.id, cid)
+    T.eq(Jobs.findBestTask(cid), nil, 'mining still requires mining skill')
+end)
