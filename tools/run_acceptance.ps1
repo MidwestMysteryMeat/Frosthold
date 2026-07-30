@@ -11,13 +11,23 @@
 #
 # Then summarise with:
 #   pwsh tools/summarize_acceptance.ps1 -Label after-fix
+#
+# NEVER run two batches at once. This script kills every love/lovec process at
+# both ends of its run, so a second batch decapitates the first: you get logs
+# that stop mid-line, and summarize_acceptance reads the truncated day count as
+# though the colony had simply stopped there. Wait for one to print ALL DONE.
+#
+# TimeoutSec is a safety net for a wedged run, not a budget. A 5-day quick run
+# takes 350-700s at -Parallel 4 depending on how much pathfinding the colony
+# ends up doing, and a truncated log is indistinguishable from a bad result, so
+# the default leaves plenty of headroom.
 
 param(
   [string]$Label      = 'run',
   [string]$Scenario   = 'quick',
   [int[]] $Seeds      = @(101,202,303,404,505,606,707,808),
   [int]   $Parallel   = 4,
-  [int]   $TimeoutSec = 900,
+  [int]   $TimeoutSec = 1800,
   [string]$LoveExe    = 'F:\LOVE\lovec.exe',  # console build, so stdout redirects
   [switch]$Trace                              # add --coldtrace to every run
 )

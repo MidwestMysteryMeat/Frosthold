@@ -26,8 +26,11 @@ foreach ($f in Get-ChildItem "$dir\seed_*.log" | Sort-Object Name) {
     continue
   }
 
+  # No "Days: n/m" line means the process never printed its summary: it was
+  # killed (timeout, or a second batch stopping every lovec). Say so loudly —
+  # a truncated log otherwise reads as a colony that merely stalled.
   $days    = [regex]::Match($txt, '(?m)^Days: (\d+)/(\d+)')
-  $reached = if ($days.Success) { $days.Groups[1].Value } else { '?' }
+  $reached = if ($days.Success) { $days.Groups[1].Value } else { 'TRUNCATED' }
   $deaths  = ([regex]::Matches($txt, '\[SimDeath\]')).Count
   $wiped   = if ($txt -match 'Colony wiped on day (\d+)') { "day $($Matches[1])" } else { '' }
 
@@ -68,4 +71,8 @@ $rows | Format-Table -AutoSize | Out-String -Width 240
 $reached5 = ($rows | Where-Object { $_.Days -eq '5' }).Count
 $wipes    = ($rows | Where-Object { $_.Wiped -ne '' }).Count
 $zero     = ($rows | Where-Object { $_.Deaths -eq 0 }).Count
+$trunc    = ($rows | Where-Object { $_.Days -eq 'TRUNCATED' -or $_.Days -eq 'NO OUTPUT' }).Count
 Write-Host "runs=$($rows.Count) reachedDay5=$reached5 zeroDeathRuns=$zero wipes=$wipes"
+if ($trunc -gt 0) {
+  Write-Host "WARNING: $trunc run(s) never finished - this batch is not a result. Re-run them." -ForegroundColor Yellow
+}
