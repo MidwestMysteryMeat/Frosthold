@@ -1246,6 +1246,17 @@ local function workAISystem(dt, id, comps)
         wantsWarmth, coldTrigger =
             needsWarmth(id, col, coldNeeds.warmth, coldHereTemp)
     end
+    -- Bedtime with no bed and freezing ground under us (set by the sleep block
+    -- below). Walk to the fire and sleep THERE rather than working through the
+    -- night: the colonist gets its rest, and it is not burning warmth on a task
+    -- it only took because lying down was refused.
+    if col._wantWarmBed then
+        if coldHereTemp > 10 then
+            col._wantWarmBed = nil
+        else
+            wantsWarmth = true
+        end
+    end
     -- Release must sit above whatever triggered, or the two fight each tick.
     local coldRelease = math.max(COLD_RELEASE, coldTrigger + 15)
 
@@ -1354,6 +1365,12 @@ local function workAISystem(dt, id, comps)
                                         warmRoute = Pathfind.find(pos.x, pos.y, wx, wy,
                                             World, id, wsDepth, wsDepth, WARM_PATH_OPTS)
                                         if warmRoute then break end
+                                        -- Exhausted the whole reachable
+                                        -- component: nothing further out can be
+                                        -- reached either. Stop paying for proof.
+                                        if Pathfind.lastFail == 'unreachable' then
+                                            warmTries = math.min(warmTries, 1)
+                                        end
                                     elseif #recover < WARM_PATH_TRIES * 2 then
                                         -- Out of tier-1 attempts: keep it as a
                                         -- tier-2 candidate rather than lose it.
@@ -1386,15 +1403,23 @@ local function workAISystem(dt, id, comps)
             end
 
             --- Try a list of candidate tiles, nearest first, and take the first
-            --- one we can actually reach. Bounded so a stranded colonist cannot
-            --- spend the frame pathfinding.
+            --- one we can actually reach.
+            ---
+            --- Bounded twice over, because these searches are allowed to flood
+            --- the whole map. `pathBudget` is shared across the remaining tiers
+            --- so one stranded colonist cannot spend the frame pathfinding, and
+            --- an 'unreachable' verdict means A* exhausted the colonist's whole
+            --- connected component: after two of those, the colonist is walled
+            --- in and every remaining distant candidate is hopeless too, so give
+            --- up on them and let the near tier take over.
+            local pathBudget = WARM_PATH_TRIES
+            local walledIn = 0
             local function tryCandidates(list, tier, reverse)
-                local tries = WARM_PATH_TRIES
                 local first, last, step = 1, #list, 1
                 if reverse then first, last, step = #list, 1, -1 end
                 for i = first, last, step do
-                    if tries <= 0 then break end
-                    tries = tries - 1
+                    if pathBudget <= 0 or walledIn >= 2 then break end
+                    pathBudget = pathBudget - 1
                     local c = list[i]
                     local route = Pathfind.find(pos.x, pos.y, c[1], c[2],
                         World, id, wsDepth, wsDepth, WARM_PATH_OPTS)
@@ -1403,6 +1428,9 @@ local function workAISystem(dt, id, comps)
                             tier, tostring(col.name), id, c[1], c[2], c[3], #route)
                         goWarm(route)
                         return true
+                    end
+                    if Pathfind.lastFail == 'unreachable' then
+                        walledIn = walledIn + 1
                     end
                 end
                 return false
@@ -1453,6 +1481,11 @@ local function workAISystem(dt, id, comps)
             for _, c in ipairs(warmest) do
                 if c[3] >= hereTemp + WARM_FALLBACK_GAIN then viable[#viable + 1] = c end
             end
+            -- This tier gets its own allowance. A walled-in colonist has just
+            -- spent the shared budget proving it cannot get out, and these
+            -- candidates are the ones most likely to be inside with it.
+            pathBudget = math.max(pathBudget, 4)
+            walledIn = 0
             if tryCandidates(viable, 'tier4', true) then return end
 
             ctrace('ALL TIERS FAIL %s(%d) warmth=%.1f here=%.1f best=%.1f',
@@ -1535,10 +1568,14 @@ local function workAISystem(dt, id, comps)
             end
         end
         if col.state ~= 'sleeping' and col.state ~= 'going_to_bed' then
-            -- Awake on freezing ground with nowhere to lie down: skip the sleep
-            -- block entirely and let the work/warmth AI below keep us moving.
+            -- Nowhere to lie down and the ground is freezing. Ask the cold
+            -- emergency (which runs before this block) to walk us somewhere warm
+            -- enough to sleep, and work in the meantime rather than stand still.
+            col._wantWarmBed = true
             block = 'work'
         end
+    elseif block ~= 'sleep' then
+        col._wantWarmBed = nil   -- the sleep block is over; stand down
     end
     if block == 'sleep' and not tooColdToSleep then
         if col.state == 'going_to_bed' and not path.nodes then
