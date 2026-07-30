@@ -237,40 +237,36 @@ end
 -- Panel opener (finds the panel module and toggles it)
 ---------------------------------------------------------------------------
 
-local panelCache = {}
+-- Toolbar entries name panels the way main.lua's locals did; the panel manager
+-- keys them by short id.
+local PANEL_IDS = {
+    ResearchPanel  = 'research',
+    PolicyPanel    = 'policy',
+    DoctrinePanel  = 'doctrine',
+    LawsPanel      = 'laws',
+    FactionPanel   = 'factions',
+    FarmPanel      = 'farm',
+    TradePanel     = 'trade',
+    EquipPanel     = 'equip',
+    TamingPanel    = 'taming',
+    MedPanel       = 'medical',
+    ColonyPanel    = 'colony',
+    QuestPanel     = 'quests',
+    GoalsOverlay   = 'goals',
+    ExpView        = 'expedition',
+    StarMap        = 'starmap',
+    ContractsPanel = 'contracts',
+}
 
+--- Open a panel from a toolbar entry. Routed through the panel manager so
+--- picking a second entry replaces the open panel instead of drawing another
+--- full-screen panel over the top of it.
 function Toolbar.openPanel(panelName)
-    if not panelCache[panelName] then
-        -- Try to find the panel in main.lua's locals via require
-        local paths = {
-            ResearchPanel = 'src.ui.research_panel',
-            PolicyPanel   = 'src.ui.policy_panel',
-            DoctrinePanel = 'src.ui.doctrine_panel',
-            LawsPanel     = 'src.ui.laws_panel',
-            FactionPanel  = 'src.ui.faction_panel',
-            FarmPanel     = 'src.ui.farm_panel',
-            TradePanel    = 'src.ui.trade_panel',
-            EquipPanel    = 'src.ui.equip_panel',
-            TamingPanel   = 'src.ui.taming_panel',
-            MedPanel      = 'src.ui.medical_panel',
-            ColonyPanel   = 'src.ui.colony_panel',
-            QuestPanel    = 'src.quest.quest_panel',
-            GoalsOverlay  = 'src.ui.goals_overlay',
-            ExpView       = 'src.ui.expedition_view',
-            StarMap       = 'src.ui.star_map',
-            ContractsPanel = 'src.ui.contracts_panel',
-        }
-        local path = paths[panelName]
-        if path then
-            local ok, mod = pcall(require, path)
-            if ok then panelCache[panelName] = mod end
-        end
-    end
-
-    local panel = panelCache[panelName]
-    if panel and panel.toggle then
-        panel.toggle()
-    end
+    local id = PANEL_IDS[panelName]
+    if not id then return false end
+    local ok, PanelManager = pcall(require, 'src.ui.panel_manager')
+    if not ok then return false end
+    return PanelManager.toggle(id)
 end
 
 ---------------------------------------------------------------------------

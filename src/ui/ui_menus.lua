@@ -66,8 +66,13 @@ function Menus.drawSaveToast()
         local font = love.graphics.getFont()
         local tw = font:getWidth(saveToast.text)
         local tx = screenW / 2 - tw / 2
-        love.graphics.setColor(0, 0, 0, 0.7 * alpha)
+        -- Opaque, with a border: the toast is drawn on top of whatever panel
+        -- triggered it, and at 0.7 alpha the panel's content read straight
+        -- through the message.
+        love.graphics.setColor(0.04, 0.05, 0.07, 0.96 * alpha)
         love.graphics.rectangle('fill', tx - 12, 120, tw + 24, 26, 4, 4)
+        love.graphics.setColor(0.3, 0.9, 0.4, 0.7 * alpha)
+        love.graphics.rectangle('line', tx - 12, 120, tw + 24, 26, 4, 4)
         love.graphics.setColor(0.3, 0.9, 0.4, alpha)
         love.graphics.print(saveToast.text, tx, 124)
     else

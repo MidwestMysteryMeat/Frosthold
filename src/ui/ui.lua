@@ -37,6 +37,14 @@ end
 function UI.draw()
     love.graphics.setColor(1, 1, 1, 1)
 
+    -- A major panel is modal and covers the screen, but the HUD is drawn first,
+    -- so every bar, letter card and tooltip below used to bleed through the
+    -- panel's semi-transparent backdrop and read as two UIs on top of each
+    -- other. Nothing here is clickable while a panel is open anyway — the panel
+    -- manager consumes the input.
+    local pmOk, PanelManager = pcall(require, 'src.ui.panel_manager')
+    if pmOk and PanelManager.anyOpen() then return end
+
     HUD.drawResourceBar()
     HUD.drawTimeBar()
     HUD.drawAlerts()
@@ -70,8 +78,13 @@ function UI.draw()
     if Menus.isMenuOpen() then
         Menus.drawMenu()
     end
+end
 
-    -- Save toast (always visible regardless of menu state)
+--- Toasts draw last of all, from main.lua, after the panels.
+--- They are the only feedback a panel action gives ("Sent 5 fuel (+5 rep)"),
+--- and drawn inside UI.draw they landed underneath the panel that triggered
+--- them — so a gift that worked looked like a gift that did nothing.
+function UI.drawToast()
     Menus.drawSaveToast()
 end
 

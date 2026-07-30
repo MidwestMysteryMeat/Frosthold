@@ -128,6 +128,7 @@ local LawsPanel      = require('src.ui.laws_panel')
 local GoalsOverlay   = require('src.ui.goals_overlay')
 local StarMap         = require('src.ui.star_map')
 local BottomToolbar   = require('src.ui.bottom_toolbar')
+local PanelManager    = require('src.ui.panel_manager')
 local Seasons         = require('src.world.seasons')
 
 local Corrosion     = require('src.sim.corrosion')
@@ -143,6 +144,7 @@ local function loadOptional(path)
 end
 
 local SimRunner = loadOptional('src.testing.run_simulation')
+local UIShots   = loadOptional('src.testing.ui_shots')
 
 -- Space UI panels (optional)
 local ShipHUD         = loadOptional('src.ui.ship_hud')
@@ -366,6 +368,11 @@ function love.load()
     if SIMULATION_TEST and SimRunner then
         local scenario = SIMULATION_SCENARIO or 'survival'
         SimRunner.setup(scenario)
+        GameState.phase = 'starting'
+    end
+
+    -- Panel screenshot pass: boot straight into a colony, no agents driving it
+    if UI_SHOTS and UIShots then
         GameState.phase = 'starting'
     end
 end
@@ -1064,6 +1071,11 @@ function love.update(dt)
         end
     end
 
+    -- Panel screenshot pass
+    if UI_SHOTS and UIShots and UIShots.isActive() then
+        UIShots.step()
+    end
+
     -- Simulation test tick
     if SIMULATION_TEST and SimRunner and SimRunner.isRunning then
         -- Start simulation after game is playing
@@ -1199,37 +1211,38 @@ function love.draw()
     local sw, sh = love.graphics.getDimensions()
     Weather.drawOverlay(sw, sh)
     Profiler.call('UI:Draw', UI.draw)
-    QuestPanel.draw()
-    Profiler.call('Minimap:Draw', Minimap.draw)
-    Tutorial.draw()
-    Advisor.draw()
-    ExpView.draw()
-    ResearchPanel.draw()
-    PolicyPanel.draw()
-    DoctrinePanel.draw()
-    TradePanel.draw()
-    FarmPanel.draw()
-    EquipPanel.draw()
-    MedPanel.draw()
-    ColonyPanel.draw()
-    FactionPanel.draw()
-    LawsPanel.draw()
-    GoalsOverlay.draw()
-    StarMap.draw()
-    if TamingPanel and TamingPanel.draw then TamingPanel.draw() end
-    if StationPanel and StationPanel.draw then StationPanel.draw() end
-    if ContractsPanel and ContractsPanel.draw then ContractsPanel.draw() end
-    if ShipHUD and ShipHUD.draw then ShipHUD.draw() end
-    if CombatHUD and CombatHUD.draw then CombatHUD.draw() end
-    if ShipyardPanel and ShipyardPanel.draw then ShipyardPanel.draw() end
-    Renderer.drawEventToast(Storyteller)
+
+    -- A major panel is modal. The HUD chrome below used to keep drawing over
+    -- the top of it — the minimap, the advisor popup and the event toast all
+    -- landed inside the panel body, which is most of what "overlays on top of
+    -- other UIs" meant.
+    local panelOpen = PanelManager.anyOpen()
+    if not panelOpen then
+        Profiler.call('Minimap:Draw', Minimap.draw)
+        Tutorial.draw()
+        Advisor.draw()
+        if ShipHUD and ShipHUD.draw then ShipHUD.draw() end
+        if CombatHUD and CombatHUD.draw then CombatHUD.draw() end
+        Renderer.drawEventToast(Storyteller)
+    end
+
+    -- Every major panel draws through the manager: one open at a time, and the
+    -- focused panel draws last so z-order matches input focus.
+    PanelManager.draw()
+
+    -- The toolbar stays live so panels remain navigable; panels reserve
+    -- Layout.BOTTOM_RESERVE at their bottom edge so nothing collides with it.
     BottomToolbar.draw()
+
+    -- Toasts last, so panel feedback is visible on top of the panel that
+    -- produced it.
+    UI.drawToast()
+
     GameOverScreen.draw()
-    if Optional.debugPanel and Optional.debugPanel.draw then Optional.debugPanel.draw() end
     drawFade()
 
-    -- Debug info (F3 to toggle)
-    if GameState.showDebug then
+    -- Debug info (F12 to toggle) — never across an open panel
+    if GameState.showDebug and not panelOpen then
         local weatherName, weatherDef = Weather.getCurrent()
         love.graphics.setColor(1, 1, 1, 0.7)
         local raidStatus = Raids.isRaidActive() and 'RAID!' or ''
@@ -1255,12 +1268,14 @@ function love.draw()
     end
 
     -- Autoplay overlay
-    if AUTOPLAY and Autoplay.isActive() then
+    if AUTOPLAY and Autoplay.isActive() and not panelOpen then
         Autoplay.draw()
     end
 
-    -- Simulation test overlay
-    if SIMULATION_TEST and SimRunner and SimRunner.isRunning and SimRunner.isRunning() then
+    -- Simulation test overlay — suppressed behind a panel; it used to print
+    -- straight across the roster's header and first rows.
+    if SIMULATION_TEST and SimRunner and SimRunner.isRunning and SimRunner.isRunning()
+       and not PanelManager.anyOpen() then
         local results = SimRunner.getResults()
         love.graphics.setColor(0, 0, 0, 0.7)
         love.graphics.rectangle('fill', 4, 20, 350, 80, 4)
@@ -1347,6 +1362,10 @@ function love.keypressed(key)
             GameState.selectedTool = nil
             return
         end
+        -- ESC closes the focused panel before it reaches for the pause menu.
+        -- It used to skip straight past every open panel and open the pause
+        -- menu on top of one, which is how three layers ended up on screen.
+        if PanelManager.closeTop() then return end
         if UI.isMenuOpen() then
             UI.closeMenu()
             GameState.paused = false
@@ -1359,26 +1378,17 @@ function love.keypressed(key)
     -- Route to menu system (save slot naming, etc.)
     if Optional.uiMenus and Optional.uiMenus.keypressed and Optional.uiMenus.keypressed(key) then return end
 
-    if Optional.debugPanel and Optional.debugPanel.keypressed and Optional.debugPanel.keypressed(key) then return end
     if GameOverScreen.keypressed(key) then return end
-    if ResearchPanel.keypressed(key) then return end
-    if PolicyPanel.keypressed(key) then return end
-    if DoctrinePanel.keypressed(key) then return end
-    if TradePanel.keypressed(key) then return end
-    if FarmPanel.keypressed(key) then return end
-    if EquipPanel.keypressed(key) then return end
-    if MedPanel.keypressed(key) then return end
-    if ColonyPanel.keypressed(key) then return end
-    if FactionPanel.keypressed(key) then return end
-    if LawsPanel.keypressed(key) then return end
-    if GoalsOverlay.keypressed(key) then return end
-    if ExpView.keypressed(key) then return end
-    if QuestPanel.keypressed(key) then return end
-    if StarMap.keypressed(key) then return end
-    if TamingPanel and TamingPanel.keypressed and TamingPanel.keypressed(key) then return end
-    if StationPanel and StationPanel.keypressed and StationPanel.keypressed(key) then return end
-    if ContractsPanel and ContractsPanel.keypressed and ContractsPanel.keypressed(key) then return end
-    if ShipyardPanel and ShipyardPanel.keypressed and ShipyardPanel.keypressed(key) then return end
+
+    -- F11 opens the dev panel. It is registered with the panel manager, so it
+    -- closes whatever else is open rather than drawing across it.
+    if key == 'f11' then PanelManager.toggle('debug') return end
+
+    -- The focused panel gets the key, and nothing behind it does. Asking every
+    -- panel in turn meant whichever sat first in this list ate the keys meant
+    -- for the panel actually drawn on top.
+    if PanelManager.keypressed(key) then return end
+
     if key == 'r' and not GameState.buildMode and not love.keyboard.isDown('lshift', 'rshift') then
         -- Draft toggle takes priority when a single colonist is selected
         local selCount, selId = 0, nil
@@ -1391,23 +1401,27 @@ function love.keypressed(key)
                 return
             end
         end
-        ResearchPanel.toggle() return
+        PanelManager.toggle('research') return
     end
-    if key == 'p' and not GameState.buildMode then PolicyPanel.toggle() return end
-    if key == 'o' and not GameState.buildMode then DoctrinePanel.toggle() return end
-    if key == 't' and not GameState.buildMode then TradePanel.toggle() return end
-    if key == 'e' and not GameState.buildMode then ExpView.toggle() return end
-    if key == 'g' and not GameState.buildMode then FarmPanel.toggle() return end
-    if key == 'v' and not GameState.buildMode then EquipPanel.toggle() return end
-    if key == 'h' and not GameState.buildMode and not love.keyboard.isDown('lshift', 'rshift') then MedPanel.toggle() return end
-    if key == 'c' and not GameState.buildMode and not love.keyboard.isDown('lshift', 'rshift') then ColonyPanel.toggle() return end
-    if key == 'l' and not GameState.buildMode then LawsPanel.toggle() return end
-    if key == 'i' and not GameState.buildMode then GoalsOverlay.toggle() return end
-    if key == 'f' and not GameState.buildMode and love.keyboard.isDown('lshift', 'rshift') then FactionPanel.toggle() return end
-    if key == 'y' and not GameState.buildMode then if TamingPanel and TamingPanel.toggle then TamingPanel.toggle() end return end
-    if key == 'm' and not GameState.buildMode and GameState.activeMap == 'space' then StarMap.toggle() return end
+    -- Panel hotkeys. The guards stay here because they depend on game state
+    -- (build mode, modifier keys, being in space); the manager owns which panel
+    -- ends up visible.
+    if key == 'p' and not GameState.buildMode then PanelManager.toggle('policy') return end
+    if key == 'o' and not GameState.buildMode then PanelManager.toggle('doctrine') return end
+    if key == 't' and not GameState.buildMode then PanelManager.toggle('trade') return end
+    if key == 'e' and not GameState.buildMode then PanelManager.toggle('expedition') return end
+    if key == 'g' and not GameState.buildMode then PanelManager.toggle('farm') return end
+    if key == 'v' and not GameState.buildMode then PanelManager.toggle('equip') return end
+    if key == 'q' and not GameState.buildMode then PanelManager.toggle('quests') return end
+    if key == 'h' and not GameState.buildMode and not love.keyboard.isDown('lshift', 'rshift') then PanelManager.toggle('medical') return end
+    if key == 'c' and not GameState.buildMode and not love.keyboard.isDown('lshift', 'rshift') then PanelManager.toggle('colony') return end
+    if key == 'l' and not GameState.buildMode then PanelManager.toggle('laws') return end
+    if key == 'i' and not GameState.buildMode then PanelManager.toggle('goals') return end
+    if key == 'f' and not GameState.buildMode and love.keyboard.isDown('lshift', 'rshift') then PanelManager.toggle('factions') return end
+    if key == 'y' and not GameState.buildMode then PanelManager.toggle('taming') return end
+    if key == 'm' and not GameState.buildMode and GameState.activeMap == 'space' then PanelManager.toggle('starmap') return end
     if key == 'k' and not GameState.buildMode and GameState.activeMap == 'space' then
-        if ContractsPanel and ContractsPanel.toggle then ContractsPanel.toggle() end
+        PanelManager.toggle('contracts')
         return
     end
     if key == 'f3' then Renderer.togglePollutionOverlay() return end
@@ -1477,27 +1491,18 @@ function love.mousepressed(x, y, button)
         ColonistSelect.mousepressed(x, y, button)
         return
     end
-    if Optional.debugPanel and Optional.debugPanel.mousepressed and Optional.debugPanel.mousepressed(x, y, button) then return end
+    -- The toolbar is drawn above the panels and stays clickable, so it is asked
+    -- first. Selecting an entry from it routes through the panel manager, which
+    -- swaps the open panel instead of stacking a second one on top.
     if BottomToolbar.mousepressed(x, y, button) then return end
-    if ResearchPanel.mousepressed(x, y, button) then return end
-    if PolicyPanel.mousepressed(x, y, button) then return end
-    if DoctrinePanel.mousepressed(x, y, button) then return end
-    if TradePanel.mousepressed(x, y, button) then return end
-    if FarmPanel.mousepressed(x, y, button) then return end
-    if EquipPanel.mousepressed(x, y, button) then return end
-    if MedPanel.mousepressed(x, y, button) then return end
-    if ColonyPanel.mousepressed(x, y, button) then return end
-    if FactionPanel.mousepressed(x, y, button) then return end
-    if LawsPanel.mousepressed(x, y, button) then return end
-    if GoalsOverlay.mousepressed(x, y, button) then return end
-    if ExpView.mousepressed(x, y, button) then return end
-    if QuestPanel.mousepressed(x, y, button) then return end
-    if StarMap.mousepressed(x, y, button) then return end
-    if TamingPanel and TamingPanel.mousepressed and TamingPanel.mousepressed(x, y, button) then return end
-    if StationPanel and StationPanel.mousepressed and StationPanel.mousepressed(x, y, button) then return end
-    if ContractsPanel and ContractsPanel.mousepressed and ContractsPanel.mousepressed(x, y, button) then return end
+
+    -- Only the focused panel sees the click. Every panel used to be asked in
+    -- this fixed order and each one consumed anything while visible, so a panel
+    -- earlier in the list swallowed clicks aimed at the panel on top — that is
+    -- why the gift and trade-route buttons did nothing.
+    if PanelManager.mousepressed(x, y, button) then return end
+
     if CombatHUD and CombatHUD.mousepressed and CombatHUD.mousepressed(x, y, button) then return end
-    if ShipyardPanel and ShipyardPanel.mousepressed and ShipyardPanel.mousepressed(x, y, button) then return end
     if Minimap.mousepressed(x, y, button) then return end
     if Advisor.mousepressed(x, y, button) then return end
     if UI.mousepressed(x, y, button) then return end
@@ -1547,22 +1552,8 @@ function love.wheelmoved(dx, dy)
     end
     if GameState.phase ~= 'playing' then return end
     if Optional.uiMenus and Optional.uiMenus.wheelmoved and Optional.uiMenus.wheelmoved(dx, dy) then return end
-    if Optional.debugPanel and Optional.debugPanel.wheelmoved and Optional.debugPanel.wheelmoved(dx, dy) then return end
-    if ResearchPanel.wheelmoved(dx, dy) then return end
-    if PolicyPanel.wheelmoved(dx, dy) then return end
-    if DoctrinePanel.wheelmoved(dx, dy) then return end
-    if TradePanel.wheelmoved(dx, dy) then return end
-    if FarmPanel.wheelmoved(dx, dy) then return end
-    if EquipPanel.wheelmoved(dx, dy) then return end
-    if MedPanel.wheelmoved(dx, dy) then return end
-    if ColonyPanel.wheelmoved(dx, dy) then return end
-    if FactionPanel.wheelmoved(dx, dy) then return end
-    if LawsPanel.wheelmoved(dx, dy) then return end
-    if GoalsOverlay.wheelmoved(dx, dy) then return end
-    if ExpView.wheelmoved(dx, dy) then return end
-    if QuestPanel.wheelmoved(dx, dy) then return end
-    if TamingPanel and TamingPanel.wheelmoved and TamingPanel.wheelmoved(dx, dy) then return end
-    if ShipyardPanel and ShipyardPanel.wheelmoved and ShipyardPanel.wheelmoved(dx, dy) then return end
+    -- Scroll goes to the focused panel, never to the camera behind it.
+    if PanelManager.wheelmoved(dx, dy) then return end
     if UI.wheelmoved(dx, dy) then return end
     Camera.zoom(dy)
 end

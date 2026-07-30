@@ -1,5 +1,5 @@
 -- debug_panel.lua — Developer tools panel
--- Toggle with F7. Tabs: God Mode, Events, Raids, Creatures, Colonists, Weather, Resources, World.
+-- Toggle with F11 (F7 belongs to the logistics overlay). Tabs: God Mode, Events, Raids, Creatures, Colonists, Weather, Resources, World.
 -- All actions are immediate. Click to trigger.
 
 local ECS       = require('src.ecs.ecs')
@@ -1056,7 +1056,7 @@ function DebugPanel.draw()
     love.graphics.print('DEBUG TOOLS', panelX + PANEL_PAD, panelY + 8)
     love.graphics.setColor(0.5, 0.5, 0.5)
     love.graphics.setFont(fonts.small)
-    love.graphics.print('F7 to close', panelX + 120, panelY + 10)
+    love.graphics.print('F11 to close', panelX + 120, panelY + 10)
 
     -- Status message
     if statusMsg and statusTimer > 0 then
@@ -1187,7 +1187,7 @@ function DebugPanel.wheelmoved(dx, dy)
 end
 
 function DebugPanel.keypressed(key)
-    if key == 'f7' then
+    if key == 'f11' then
         DebugPanel.toggle()
         return true
     end
