@@ -88,10 +88,18 @@ end
 -- Find nearest hostile creature to a colonist
 ---------------------------------------------------------------------------
 
+-- Detection is normally sight, restricted to the colonist's vision cone. But
+-- sight is not the only sense: an animal chewing on your arm does not need to be
+-- in front of you to be noticed. Without this, a colonist attacked from behind
+-- stayed in state 'idle' and was eaten over a dozen bites without ever turning
+-- around — the single most common mauling in acceptance runs.
+local CONTACT_RANGE = 2.5
+
 local function findNearestHostile(posX, posY, posDepth, detectionRange, facing)
     local bestId, bestDist = nil, math.huge
     local losOk, LOS = pcall(require, 'src.sim.line_of_sight')
     local halfFov = losOk and LOS.COLONIST_FOV / 2 or math.pi
+    local contactSq = CONTACT_RANGE * CONTACT_RANGE
 
     for id, comps in ECS.query('creature', 'pos') do
         local cr   = comps.creature
@@ -99,8 +107,8 @@ local function findNearestHostile(posX, posY, posDepth, detectionRange, facing)
         if cr.hostile and cr.state ~= 'dead' and (cpos.depth or 0) == (posDepth or 0) then
             local d = distSq(posX, posY, cpos.x, cpos.y)
             if d < bestDist and d <= detectionRange * detectionRange then
-                -- Check vision cone + LOS
-                if losOk and facing then
+                -- Check vision cone + LOS, unless it is close enough to touch
+                if losOk and facing and d > contactSq then
                     if LOS.canSee(posX, posY, cpos.x, cpos.y, facing, halfFov, detectionRange) then
                         bestDist = d
                         bestId = id
@@ -182,6 +190,74 @@ local function meleeAttack(colonistId, targetId, col)
 
     local killed = Creatures.damageCreature(targetId, damage, colonistId)
     return killed
+end
+
+---------------------------------------------------------------------------
+-- Escape assessment
+---------------------------------------------------------------------------
+-- Colonists move at 3.0 tiles/s. Almost every predator that shows up near a
+-- young colony is faster: ice stalker 3.5, dire wolf and char hound 4.5,
+-- stalker and sabertooth 5.0. Against those, "path 10 tiles away from the
+-- threat" is a footrace the colonist always loses, and it loses it in the open
+-- with its back turned. Working out whether escape is even possible lets the
+-- AI pick the least-bad option instead of the reflex one.
+
+local _ColMod
+local function colonistMoveSpeed(colonistId)
+    if _ColMod == nil then
+        local ok, mod = pcall(require, 'src.colonist.colonist')
+        _ColMod = (ok and mod and mod.getMoveSpeed) and mod or false
+    end
+    if _ColMod then return _ColMod.getMoveSpeed(colonistId) end
+    return 3.0
+end
+
+--- Can this colonist actually break contact on foot?
+local function canOutrun(colonistId, threatId)
+    local cr = ECS.get(threatId, 'creature')
+    if not cr then return true end
+    return colonistMoveSpeed(colonistId) > (cr.speed or 0)
+end
+
+--- Path to the nearest enclosed tile (a room — inside walls, behind a door)
+--- that is no closer to the threat than the colonist already is. Ducking into
+--- the crash shelter beats sprinting across open snow, because the animal has
+--- to come through a doorway and other colonists get a chance to help.
+local function shelterPath(colonistId, pos, threatPos, path)
+    local World = require('src.world.tilemap')
+    if not World.getRoom then return false end
+
+    local pd = pos.depth or 0
+    local RADIUS = 10
+    local bestX, bestY, bestD
+
+    for dy = -RADIUS, RADIUS do
+        for dx = -RADIUS, RADIUS do
+            local tx, ty = pos.x + dx, pos.y + dy
+            local d = dx * dx + dy * dy
+            if d > 0 and d <= RADIUS * RADIUS and (not bestD or d < bestD) then
+                local room = World.getRoom(tx, ty, pd)
+                if room and room ~= 0 and World.isWalkable(tx, ty, pd) then
+                    -- Never run toward the animal to get indoors.
+                    local tds = distSq(tx, ty, threatPos.x, threatPos.y)
+                    if tds >= distSq(pos.x, pos.y, threatPos.x, threatPos.y) then
+                        bestX, bestY, bestD = tx, ty, d
+                    end
+                end
+            end
+        end
+    end
+
+    if not bestX then return false end
+
+    local route = Pathfind.find(pos.x, pos.y, bestX, bestY, World, colonistId, pd, pd)
+    if route and #route > 0 then
+        path.nodes = route
+        path.index = 1
+        path.moveTimer = 0
+        return true
+    end
+    return false
 end
 
 ---------------------------------------------------------------------------
@@ -291,6 +367,34 @@ local function combatAISystem(dt, id, comps)
     local dok, Director = pcall(require, 'src.ai.director')
     if dok then Director.reportThreat(threatPos.x, threatPos.y, threatDist < 5 and 2 or 1) end
 
+    -- Survival needs can outrank a creature entirely.
+    --
+    -- work_ai returns early while a colonist is in a combat state, so a
+    -- colonist locked in 'fighting' or 'fleeing' never eats, drinks or warms
+    -- up. Acceptance runs were being lost to hypothermia and dehydration at
+    -- full HP while the colonist traded blows with an animal that was never
+    -- going to finish it. Breaking off hands control back to work_ai, which
+    -- then paths to a fire, a meal or the water store.
+    --   * critical  + threat more than 6 tiles away -> break off now
+    --   * desperate (already losing HP, or about to) -> break off regardless,
+    --     because the need is the more certain death
+    local needs = ECS.get(id, 'needs')
+    if needs then
+        local warmth = needs.warmth or 100
+        local water  = needs.water  or 100
+        local food   = needs.food   or 100
+        local desperate = warmth < 12 or water < 5  or food < 5
+        local critical  = warmth < 25 or water < 15 or food < 15
+        if desperate or (critical and threatDist > 6) then
+            if col.state == 'fleeing' or col.state == 'fighting' then
+                col.state = 'idle'
+                col.task = nil
+                path.nodes = nil
+            end
+            return
+        end
+    end
+
     -- Fight-or-flee decision
     local hpRatio = col.maxHealth > 0 and (col.health / col.maxHealth) or 0
     local fleeThreshold = getFleeThreshold(col)
@@ -300,37 +404,49 @@ local function combatAISystem(dt, id, comps)
     local forceF = (not hasWeapon and not hasTrait(col, 'brave'))
 
     if hpRatio <= fleeThreshold or forceF then
-        -- Exposure outranks a creature once it is the more certain death.
-        -- work_ai returns early for state 'fleeing', so its cold-emergency
-        -- block never runs while a colonist is running away: a colonist chased
-        -- by a lingering predator froze solid at warmth 0 without ever trying
-        -- to reach a fire. Breaking off hands control back to work_ai, which
-        -- then paths to warmth.
-        --   * warmth < 25: break off from a DISTANT threat (> 6 tiles)
-        --   * warmth < 12: break off regardless of distance — at this point
-        --     hypothermia is draining 1 HP/s and will finish the job first
-        local fleeNeeds = ECS.get(id, 'needs')
-        if fleeNeeds and (fleeNeeds.warmth < 12
-            or (fleeNeeds.warmth < 25 and threatDist > 6)) then
-            if col.state == 'fleeing' then
-                col.state = 'idle'
+        -- A pacifist runs regardless; everyone else only benefits from running
+        -- if they are the faster animal. Evaluated here, not above, so the
+        -- common stand-and-fight path pays nothing for it.
+        local escapable = hasTrait(col, 'pacifist') or canOutrun(id, threatId)
+
+        -- Losing footrace: break for cover instead. If there is no room within
+        -- reach, fall through and fight — a colonist who dies swinging at least
+        -- costs the animal health and buys the rest of the crew time, whereas
+        -- one who runs from something faster dies having done nothing.
+        if not escapable then
+            -- Already running for a specific tile: let it finish.
+            if col.state == 'fleeing' and path.nodes then return end
+            -- Already indoors — this IS the defensible tile. Fight here.
+            local World = require('src.world.tilemap')
+            local room = World.getRoom and World.getRoom(pos.x, pos.y, pos.depth or 0)
+            if not room or room == 0 then
+                -- Throttled: a failed search scans a 21x21 window, and this
+                -- branch is re-entered every tick while the colonist holds.
+                col._shelterCd = (col._shelterCd or 0) - dt
+                if col._shelterCd <= 0 then
+                    col._shelterCd = 2.0
+                    if shelterPath(id, pos, threatPos, path) then
+                        col.state = 'fleeing'
+                        col.task = nil
+                        return
+                    end
+                end
+            end
+            -- No cover in reach: hold and fight (handled below).
+        else
+            -- FLEE
+            if col.state ~= 'fleeing' then
+                col.state = 'fleeing'
+                col.task = nil
                 path.nodes = nil
+            end
+
+            -- Only repath if not already moving
+            if not path.nodes then
+                fleePath(id, pos, threatPos, path)
             end
             return
         end
-
-        -- FLEE
-        if col.state ~= 'fleeing' then
-            col.state = 'fleeing'
-            col.task = nil
-            path.nodes = nil
-        end
-
-        -- Only repath if not already moving
-        if not path.nodes then
-            fleePath(id, pos, threatPos, path)
-        end
-        return
     end
 
     -- FIGHT
@@ -366,8 +482,18 @@ local function combatAISystem(dt, id, comps)
         return
     end
 
-    -- Out of range: close distance (melee) or hold position (ranged, find better spot)
-    if not path.nodes then
+    -- Out of range: close distance (melee) or hold position (ranged, find better spot).
+    --
+    -- Throttled, and backed off hard on failure. An A* that fails burns its
+    -- whole node budget before giving up, and a colonist standing inside a
+    -- sealed room with an animal prowling outside has an UNREACHABLE target: it
+    -- used to re-run that doomed search every single tick. One acceptance seed
+    -- dropped from ~300 to well under 100 ticks/second and never finished.
+    -- (The creature AI already learned this lesson for its leash-return path.)
+    col._chaseRetryCd = (col._chaseRetryCd or 0) - dt
+    if not path.nodes and col._chaseRetryCd <= 0 then
+        col._chaseRetryCd = 0.5
+        local found = false
         if isRanged then
             -- Ranged: try to get within weapon range but not too close
             local idealDist = weaponRange - 1
@@ -391,6 +517,7 @@ local function combatAISystem(dt, id, comps)
                     path.nodes = trimmed
                     path.index = 1
                     path.moveTimer = 0
+                    found = true
                 end
             end
         else
@@ -405,8 +532,12 @@ local function combatAISystem(dt, id, comps)
                 path.nodes = trimmed
                 path.index = 1
                 path.moveTimer = 0
+                found = true
             end
         end
+
+        -- Unreachable target: wait before trying again.
+        if not found then col._chaseRetryCd = 3.0 end
     end
 end
 
