@@ -66,7 +66,7 @@ local maxSelect     = 3
 local poolSize      = 8
 
 -- Fonts
-local titleFont, headerFont, bodyFont, smallFont, tinyFont
+local titleFont, headerFont, smallFont, tinyFont
 
 -- Tooltip
 local tooltipTrait = nil
@@ -120,7 +120,6 @@ local MODIFIER_DEFS = {
 function ColonistSelect.init()
     titleFont  = love.graphics.newFont(24)
     headerFont = love.graphics.newFont(14)
-    bodyFont   = love.graphics.newFont(11)
     smallFont  = love.graphics.newFont(10)
     tinyFont   = love.graphics.newFont(9)
 

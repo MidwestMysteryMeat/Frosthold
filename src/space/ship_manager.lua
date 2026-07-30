@@ -170,10 +170,9 @@ end
 ---------------------------------------------------------------------------
 
 function ShipManager.getShipAnchor()
-    for id, comps in ECS.query('ship') do
-        return id, comps.ship
-    end
-    return nil
+    local firstShip = ECS.query('ship')
+    local id, comps = firstShip()
+    return id, comps and comps.ship or nil
 end
 
 function ShipManager.getShipModules(shipId)

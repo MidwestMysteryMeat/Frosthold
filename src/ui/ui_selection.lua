@@ -439,11 +439,11 @@ function Selection.drawPrisonerPanel(id, prisoner, panelY)
     }) + 6
 
     -- Execute button
-    btnX = btnX + BuildingInfo.addPrisonerBtn(btnX, btnY, 'Execute', 'prisoner', id, 'execute', {
+    BuildingInfo.addPrisonerBtn(btnX, btnY, 'Execute', 'prisoner', id, 'execute', {
         fill = {0.3, 0.1, 0.1},
         line = {0.8, 0.3, 0.3},
         text = {0.95, 0.4, 0.4},
-    }) + 6
+    })
 
     -- Traits
     if prisoner.traits and #prisoner.traits > 0 then

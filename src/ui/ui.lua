@@ -14,8 +14,6 @@ local function playClick() if sok_snd then Sound.play('click') end end
 
 local UI = {}
 
-local screenW, screenH = 1280, 720
-
 ---------------------------------------------------------------------------
 -- Lifecycle
 ---------------------------------------------------------------------------
@@ -113,10 +111,7 @@ end
 
 local function getSingleKey(filterTable)
     if not filterTable then return nil end
-    for key in pairs(filterTable) do
-        return key
-    end
-    return nil
+    return next(filterTable)
 end
 
 local function getItemChoices()
@@ -503,8 +498,6 @@ function UI.wheelmoved(dx, dy)
 end
 
 function UI.resize(w, h)
-    screenW = w
-    screenH = h
     HUD.resize(w, h)
     Selection.resize(w, h)
     Context.resize(w, h)

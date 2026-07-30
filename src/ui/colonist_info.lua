@@ -104,8 +104,8 @@ function ColonistInfo.drawBioTab(id, col, y)
     end
 
     -- Skills with passions (right column)
-    local sok, Skills = pcall(require, 'src.colonist.skills')
-    if sok and col.skills then
+    local skillsOk, Skills = pcall(require, 'src.colonist.skills')
+    if skillsOk and col.skills then
         local sy = y - (#(col.traits or {}) * 13 + 14)
         if sy < y - 100 then sy = y - 100 end  -- clamp
         sy = math.max(sy, (screenH - 200) + 76)  -- don't go above tab content area

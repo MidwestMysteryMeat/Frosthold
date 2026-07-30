@@ -334,11 +334,11 @@ function Invariants.checkAll()
         { name = 'Combat', fn = Invariants.checkCombat },
     }
 
-    for _, check in ipairs(checks) do
-        local ok, violations = pcall(check.fn)
+    for _, checkSpec in ipairs(checks) do
+        local ok, violations = pcall(checkSpec.fn)
         if ok and violations then
             for _, v in ipairs(violations) do
-                v.checkName = check.name
+                v.checkName = checkSpec.name
                 allViolations[#allViolations + 1] = v
             end
         elseif not ok then

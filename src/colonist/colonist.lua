@@ -219,7 +219,6 @@ function Colonist.kill(entityId)
     -- so we check ALL hauled items and drop them at colonist's death location.
     local deathPos = ECS.get(entityId, 'pos')
     if deathPos then
-        local Jobs = require('src.colonist.jobs')
         for eid, itemComp in pairs(ECS.getAll('item') or {}) do
             if itemComp.hauled then
                 -- Check if this item's haul task is claimed by the dying colonist
@@ -917,9 +916,9 @@ local function needsDecaySystem(dt, id, comps)
         if _Laws and _Laws.isMentalBreakBlocked() then blocked = true end
         if not blocked then
             -- Release current task before entering mental break
-            local jok, Jobs = pcall(require, 'src.colonist.jobs')
-            if jok and col.task and Jobs.unclaimTask then
-                Jobs.unclaimTask(col.task.taskId)
+            local jok, LoadedJobs = pcall(require, 'src.colonist.jobs')
+            if jok and col.task and LoadedJobs.unclaimTask then
+                LoadedJobs.unclaimTask(col.task.taskId)
             end
             col.task = nil
             col.state = 'mental_break'

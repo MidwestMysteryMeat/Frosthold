@@ -307,7 +307,6 @@ function Anomaly.restoreState(saved)
     state.bossDefeated     = saved.bossDefeated or false
     state.extractionReady  = saved.extractionReady or false
     -- Validate boss entity still exists before restoring reference
-    local ECS = require('src.ecs.ecs')
     if saved.bossEntityId and ECS.isAlive(saved.bossEntityId) then
         state.bossEntityId = saved.bossEntityId
     else

@@ -176,15 +176,12 @@ T.test('colonist agent detects death events', function()
     agent:init()
 
     -- Find a colonist
-    local colonistId = nil
-    local colonistComp = nil
-    for id, comps in ECS.query('colonist') do
-        colonistId = id
-        colonistComp = comps.colonist
-        break
-    end
+    local firstColonist = ECS.query('colonist')
+    local colonistId = firstColonist()
 
     T.notnil(colonistId, 'should have a colonist')
+    local colonistComp = ECS.get(colonistId, 'colonist')
+    T.notnil(colonistComp, 'colonist component should exist')
 
     -- Snapshot initial state
     agent:snapshotColonists()

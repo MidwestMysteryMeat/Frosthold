@@ -122,6 +122,27 @@ T.test('findBestTask picks nearest unclaimed', function()
     T.eq(best.y, 64)
 end)
 
+T.test('findBestTask excludes work outside the colonist allowed area', function()
+    H.resetAll()
+    local Jobs = require('src.colonist.jobs')
+    local Zones = require('src.world.zones')
+    local cid = H.spawnTestColonist(64, 64)
+
+    -- The forbidden task is closer. Before this regression fix it was marked
+    -- canDo=false, then inserted into the priority bucket anyway.
+    Zones.create('restricted', {
+        { x = 64, y = 64, depth = 0 },
+        { x = 66, y = 64, depth = 0 },
+    })
+    Jobs.createTask('mine', 65, 64)
+    Jobs.createTask('mine', 66, 64)
+
+    local best = Jobs.findBestTask(cid)
+    T.notnil(best, 'an allowed task remains available')
+    T.eq(best.x, 66, 'closer forbidden task is excluded')
+    T.eq(best.y, 64)
+end)
+
 T.test('a colonist with zero medical skill can still claim medical tasks', function()
     H.resetAll()
     local Jobs = require('src.colonist.jobs')

@@ -33,7 +33,7 @@ local currentSignature = 0
 function Stealth.calculateSignature()
     if GameState.activeMap ~= 'space' then return 0 end
 
-    local signature = 0
+    local signature
     local shipTier = 'scout'
 
     -- Find player ship

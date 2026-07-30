@@ -10,7 +10,7 @@ Everything is driven by a sparse-set ECS (`src/ecs/ecs.lua`) over a fixed 20 Hz 
 
 ## Status
 
-**Systems-complete, art-incomplete.** All major systems are implemented and covered by a 443-assertion-passing test suite (443/443 as of 2026-07-02). The big rough edges:
+**Systems-complete, art-incomplete.** All major systems are implemented and covered by a 543-assertion headless test suite. The big rough edges:
 
 - ~216 of 295 buildings, ~96 of 127 creatures, and most items render as colored shapes (no sprite yet)
 - Colonists don't visually render their equipped clothing/weapons
@@ -26,6 +26,9 @@ love .
 
 # run the full test suite (no LÖVE needed — plain Lua 5.1+ works)
 lua tests/run_all.lua
+
+# static analysis (must report 0 warnings / 0 errors)
+luacheck .
 
 # scripted simulation scenarios
 run_simulation_test.bat [quick|survival|endurance|combat|building|persistence|full]
@@ -45,13 +48,13 @@ See [`docs/GAP_ANALYSIS.md`](docs/GAP_ANALYSIS.md) for the full prioritized road
 2. Building-art batch + pawn apparel rendering (the felt gap)
 3. Craftable art economy, underground belts, production stats screen
 4. Romance/family, then blueprint copy-paste
-5. `ui.lua`/`building.lua` are over the project's own 2000-line limit and need splitting (tracked in `CLAUDE.md`)
+5. Large UI/building coordinators still need splitting (tracked in `docs/GAP_ANALYSIS.md`)
 
-Project conventions live in `CLAUDE.md`; the shared task board is `TASKS.md`.
+Architecture notes, remaining gaps, and priorities live in `docs/GAP_ANALYSIS.md`.
 
 ## AI development note
 
-Developed with AI assistance — **Anthropic Claude** (Claude Code) for implementation and **OpenAI Codex** for review — following the strict ECS/persistence conventions in `CLAUDE.md`. Human direction owned the architecture, design, and priorities. The 2026-07-02 pass took the test suite from 380/443 to 443/443 (fixing free merchant purchases, missing victory triggers, and junk item spawns) with Claude. The code is well-covered by tests but has not been professionally security-audited.
+Developed with AI assistance — **Anthropic Claude** (Claude Code) for implementation and **OpenAI Codex** for review. Human direction owned the architecture, design, and priorities. The 2026-07-02 pass took the test suite from 380/443 to 443/443 (fixing free merchant purchases, missing victory triggers, and junk item spawns) with Claude. The code is well-covered by tests but has not been professionally security-audited.
 
 ## License
 

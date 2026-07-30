@@ -8,7 +8,7 @@ local GameState = require('src.game_state')
 local Defenses = {}
 
 -- Lazy-loaded modules (avoid pcall in ECS tick functions)
-local _Ordnance, _CreaturesMod, _Fire, _Power, _TrapsMod, _VFX
+local _Ordnance, _CreaturesMod, _Fire, _Power, _VFX
 local function lazyLoadDefenses()
     if _Power ~= nil then return end
     local ok
@@ -20,8 +20,6 @@ local function lazyLoadDefenses()
     if not ok then _Fire = false end
     ok, _Power = pcall(require, 'src.sim.power')
     if not ok then _Power = false end
-    ok, _TrapsMod = pcall(require, 'src.combat.traps')
-    if not ok then _TrapsMod = false end
     ok, _VFX = pcall(require, 'src.render.vfx')
     if not ok then _VFX = false end
 end

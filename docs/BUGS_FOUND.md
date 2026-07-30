@@ -105,6 +105,26 @@ control-flow path that no longer exists.
 
 ---
 
+## 5. `src/colonist/jobs.lua` — allowed-area restriction was calculated, then ignored
+
+| | |
+|---|---|
+| **Severity** | Silent |
+| **Code** | `W311` value assigned but never used |
+
+`Jobs.findBestTask` correctly set `canDo = false` when a task or its drop-off
+was outside the active allowed area. It then inserted the task into the
+candidate bucket unconditionally, without checking `canDo` again. Colonists
+therefore selected forbidden work whenever it otherwise won priority/distance
+sorting.
+
+**Fix:** only insert the task after the allowed-area result passes. A regression
+test puts a forbidden task closer than an allowed one and verifies the farther
+allowed task wins. The test also exposed cross-test zone leakage, so
+`H.resetAll()` now resets zones.
+
+---
+
 ## Verified NOT bugs
 
 Worth recording, because each looked like one:
@@ -148,9 +168,18 @@ locally. `tools/run_autoplay.py` did the same and now prints local paths.
 
 ---
 
-## Remaining lint debt
+## Follow-up verification
 
-`luacheck .` reports **0 errors, 120 warnings** on this branch: 77 × `W431`
-(shadowed upvalue), plus `W231`/`W311` dead stores. All style debt, deliberately
-left visible rather than suppressed — see `.luacheckrc` for what *is* muted and
-why.
+The original pass stopped at **0 errors / 120 warnings**, so the documented
+`luacheck .` command still exited nonzero and was not yet a usable gate. The
+follow-up pass resolved all 120:
+
+- 61 intentional `main.lua` startup shadows are now scoped with a local
+  luacheck directive and an explanation of the LuaJIT upvalue limit.
+- The other 16 `W431` sites now reuse or clearly rename their cached modules.
+- Dead stores/imports were removed, deliberate take-first loops use `next()` or
+  a single iterator call, and Lua 5.1/5.2 `unpack` compatibility remains intact.
+- The `W311` in `jobs.lua` was the real allowed-area bug described above.
+
+**Current verification:** `luacheck .` reports **0 warnings / 0 errors** and the
+headless suite passes **543/543**.

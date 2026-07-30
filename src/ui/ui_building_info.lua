@@ -43,10 +43,7 @@ end
 
 local function getSingleFilterKey(filterTable)
     if not filterTable then return nil end
-    for key in pairs(filterTable) do
-        return key
-    end
-    return nil
+    return next(filterTable)
 end
 
 local function getSortedItemChoices()

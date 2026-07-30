@@ -30,7 +30,6 @@ local smallFont
 
 -- State
 local selectedPlanet = 'erebus'
-local hoveredPlanet  = nil
 
 ---------------------------------------------------------------------------
 -- Init
@@ -213,7 +212,6 @@ function PlanetSelect.draw()
 
     -- Planet cards
     local mx, my = love.mouse.getPosition()
-    hoveredPlanet = nil
 
     for i, planetId in ipairs(PlanetDefs.PLANET_ORDER) do
         local def = PlanetDefs.get(planetId)
@@ -221,7 +219,6 @@ function PlanetSelect.draw()
         local cy = L.baseY
         local isSel = (selectedPlanet == planetId)
         local isHov = pointInRect(mx, my, cx, cy, CARD_W, CARD_H)
-        if isHov then hoveredPlanet = planetId end
         drawCard(cx, cy, def, isSel, isHov)
     end
 

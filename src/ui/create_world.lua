@@ -431,7 +431,6 @@ local function drawRightPanel(L, mx, my)
     love.graphics.setFont(smallFont)
     love.graphics.setColor(0.36, 0.44, 0.56)
     love.graphics.print(string.format('%d active  (min 2)', #activeFactions), rx, ry)
-    ry = ry + smallFont:getHeight() + 6
 
     ---------------------------------------------------------------------------
     -- Scrollable faction list

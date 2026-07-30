@@ -336,7 +336,6 @@ local function drawLeftPanel(L, mx, my)
     love.graphics.setFont(smallFont)
     love.graphics.setColor(0.48, 0.62, 0.82)
     love.graphics.print('CUSTOM TUNING', rx, ry)
-    ry = ry + smallFont:getHeight() + 8
 
     -- sliderAreaY must equal getSliderAreaTopY(L) — both computed the same way.
     for i, axis in ipairs(AXES) do

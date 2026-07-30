@@ -100,9 +100,10 @@ function ShipMovement.setThrust(active)
 end
 
 function ShipMovement.setHeading(radians)
-    for id, comps in ECS.query('ship') do
+    local firstShip = ECS.query('ship')
+    local _, comps = firstShip()
+    if comps then
         comps.ship.heading = radians
-        break
     end
 end
 

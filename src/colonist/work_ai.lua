@@ -546,8 +546,6 @@ local function executeHaul(dt, id, col, task)
             local colPos = ECS.get(id, 'pos')
             local pathComp = ECS.get(id, 'path')
             if colPos and pathComp and task.data.toX and task.data.toY then
-                local World = require('src.world.tilemap')
-                local Pathfind = require('src.util.pathfind')
                 local route = Pathfind.find(colPos.x, colPos.y,
                     task.data.toX, task.data.toY, World, id,
                     colPos.depth or 0, task.data.toDepth or 0)
@@ -1863,7 +1861,6 @@ local function workAISystem(dt, id, comps)
             if _Rec and _Rec.findNearest then
                 local recId, rpos = _Rec.findNearest(id)
                 if recId and rpos then
-                    local World = require('src.world.tilemap')
                     local wd = pos.depth or 0
                     local tx, ty = rpos.x, rpos.y
                     if math.abs(pos.x - tx) <= 1 and math.abs(pos.y - ty) <= 1 then
@@ -1898,7 +1895,6 @@ local function workAISystem(dt, id, comps)
 
         -- Random wander (fallback when no rec building or joy is fine)
         if not path.nodes and col.state ~= 'recreating' and math.random() < 0.008 then
-            local World = require('src.world.tilemap')
             local dx = pos.x + math.random(-4, 4)
             local dy = pos.y + math.random(-4, 4)
             local wd = pos.depth or 0
@@ -1985,7 +1981,6 @@ local function workAISystem(dt, id, comps)
             col.state = 'moving_to_task'
 
             -- Path to task location (adjacent tile if task tile is solid)
-            local World = require('src.world.tilemap')
             local tx, ty = task.x, task.y
             local taskDepth = task.depth or 0
             local posDepth = pos.depth or 0
@@ -2016,7 +2011,6 @@ local function workAISystem(dt, id, comps)
                 -- Already standing next to the target (or on it): no walk needed
                 if math.abs(pos.x - tx) + math.abs(pos.y - ty) <= 1
                     and posDepth == taskDepth then
-                    best = nil
                     tx, ty = pos.x, pos.y
                 elseif best then
                     tx, ty = best.x, best.y
@@ -2052,7 +2046,6 @@ local function workAISystem(dt, id, comps)
     col._idleReason = 'no_tasks'
     if col.state ~= 'idle' then col.state = 'idle' end
     if not path.nodes and math.random() < 0.005 then
-        local World = require('src.world.tilemap')
         local posDepth = pos.depth or 0
         local dx = pos.x + math.random(-5, 5)
         local dy = pos.y + math.random(-5, 5)

@@ -59,6 +59,12 @@ function H.resetJobs()
     Jobs.reset()
 end
 
+-- Reset map zones so allowed-area state cannot leak between tests.
+function H.resetZones()
+    local Zones = require('src.world.zones')
+    Zones.reset()
+end
+
 -- Reset social module state (opinions, grieving, event log)
 function H.resetSocial()
     local ok, Social = pcall(require, 'src.colonist.social')
@@ -97,6 +103,7 @@ function H.resetAll()
     H.resetGameState()
     H.resetECS()
     H.resetJobs()
+    H.resetZones()
     H.resetSocial()
     H.resetRaids()
     H.resetHermes()

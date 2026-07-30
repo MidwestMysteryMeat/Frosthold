@@ -8,12 +8,10 @@ local ContractsPanel = {}
 
 local visible = false
 local hitZones = {}
-local scrollY = 0
 
 function ContractsPanel.toggle()
     visible = not visible
     hitZones = {}
-    scrollY = 0
 end
 
 function ContractsPanel.isVisible()
@@ -114,7 +112,6 @@ function ContractsPanel.draw()
             if #available == 0 then
                 love.graphics.setColor(0.4, 0.4, 0.4)
                 love.graphics.print('No contracts available.', 30, y)
-                y = y + 20
             else
                 for i, contract in ipairs(available) do
                     love.graphics.setColor(0.08, 0.1, 0.14, 0.9)

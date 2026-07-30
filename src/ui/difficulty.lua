@@ -383,7 +383,6 @@ end
 
 -- Apply scenario resources (call after Difficulty.apply() to override with scenario-specific resources)
 function Difficulty.applyScenario()
-    local GameState = require('src.game_state')
     local scenDef = Difficulty.SCENARIOS[settings.scenario]
     if not scenDef then return end
 

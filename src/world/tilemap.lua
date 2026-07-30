@@ -257,7 +257,6 @@ end
 ---------------------------------------------------------------------------
 
 local function generatePlanetTerrain(surface, w, h, seed, planetId)
-    local Tiles = require('src.world.tiles')
     local tiles = surface.tiles
     local temps = surface.temps
 
@@ -552,18 +551,15 @@ end
 -- Init / generation (surface layer only; underground created on demand)
 ---------------------------------------------------------------------------
 
-function Tilemap.init(w, h, seed)
+function Tilemap.init(w, h, requestedSeed)
     mapW = w
     mapH = h
     layers = {}
     maxDepth = 0
     lockedDoors = {}
-    mapSeed = seed or love.math.random(1, 999999)
+    mapSeed = requestedSeed or love.math.random(1, 999999)
 
-    -- Check planet biome profile for generation overrides
-    local planetBiome
     local pok, Planet = pcall(require, 'src.world.planet')
-    if pok then planetBiome = Planet.getBiomeProfile() end
 
     -- Create surface layer
     local surface = { tiles = {}, temps = {}, rooms = {}, water = {}, gas = {}, snow = {} }

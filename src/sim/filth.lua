@@ -196,7 +196,6 @@ function Filth.step(dt)
     -- tasks for wilderness blood trails marched colonists across the map
     -- into predator territory at night.
     local CLEAN_HOME_RADIUS = 24
-    local GameState = require('src.game_state')
     local homeX = GameState.startX
     local homeY = GameState.startY
     if activeCleanTasks < MAX_CLEAN_TASKS then

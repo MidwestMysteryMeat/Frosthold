@@ -157,13 +157,17 @@ function RunSimulation.start(opts)
     opts = opts or {}
 
     SimRunner.start({
+        scenario = opts.scenario,
+        targetTicks = opts.targetTicks,
+        invariantCheckInterval = opts.invariantCheckInterval,
         onIssue = function(issue)
-            -- Could log to file, send webhook, etc.
+            if opts.onIssue then opts.onIssue(issue) end
         end,
         onDayChange = function(day)
-            -- Progress update
+            if opts.onDayChange then opts.onDayChange(day) end
         end,
         onFinish = function(results)
+            if opts.onFinish then opts.onFinish(results) end
             RunSimulation.onFinish(results)
         end,
     })

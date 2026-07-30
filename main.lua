@@ -384,6 +384,9 @@ end
 local function initGameWorld()
     -- Keep startup under LuaJIT's 60-upvalue limit by resolving heavy boot
     -- dependencies locally. `require` is cached, so this is still cheap.
+    -- These names deliberately mirror the module-level bindings: using the
+    -- outer bindings here would make them upvalues and breach LuaJIT's limit.
+    -- luacheck: push ignore 431
     local GameState = require('src.game_state')
     local Difficulty = require('src.ui.difficulty')
     local ECS = require('src.ecs.ecs')
@@ -444,6 +447,7 @@ local function initGameWorld()
     local GameOverScreen = require('src.ui.game_over')
     local Creatures = require('src.creatures.creatures')
     local Jobs = require('src.colonist.jobs')
+    -- luacheck: pop
 
     refreshOptionalModules()
 
@@ -900,9 +904,9 @@ function love.update(dt)
         if RequisitionPanel.isDone() then
             MRP.setRunPicks(RequisitionPanel.getPicksPurchased())
             -- Generate world map and advance
-            local wok, WorldMap = pcall(require, 'src.ui.world_map')
-            if wok and WorldMap.generateForPlanet then
-                WorldMap.generateForPlanet(D.GameState.planet)
+            local wok, LoadedWorldMap = pcall(require, 'src.ui.world_map')
+            if wok and LoadedWorldMap.generateForPlanet then
+                LoadedWorldMap.generateForPlanet(D.GameState.planet)
             end
             D.GameState.phase = 'world_map'
         end
@@ -1586,13 +1590,11 @@ function love.errorhandler(msg)
     end
 
     -- Try to capture screenshot
-    local screenshotSaved = false
     pcall(function()
         local timestamp = os.date('%Y%m%d_%H%M%S')
         local filename = 'crash_' .. timestamp .. '.png'
         love.graphics.captureScreenshot(function(imageData)
             imageData:encode('png', filename)
-            screenshotSaved = filename
         end)
         -- Need a present() to flush the capture
         love.graphics.present()

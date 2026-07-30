@@ -316,14 +316,13 @@ function Fire.getActiveFires()
 end
 
 function Fire.getFirstFirePos()
-    for key in pairs(activeFires) do
-        local d   = math.floor(key / 100000000)
-        local rem = key - d * 100000000
-        local fx  = rem % 10000
-        local fy  = math.floor(rem / 10000)
-        return fx, fy
-    end
-    return nil, nil
+    local key = next(activeFires)
+    if not key then return nil, nil end
+    local d   = math.floor(key / 100000000)
+    local rem = key - d * 100000000
+    local fx  = rem % 10000
+    local fy  = math.floor(rem / 10000)
+    return fx, fy
 end
 
 ---------------------------------------------------------------------------

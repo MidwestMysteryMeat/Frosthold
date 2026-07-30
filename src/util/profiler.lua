@@ -14,7 +14,7 @@ local currentFrame = {
     overBudget = {},
 }
 
-local unpackFn = table.unpack or unpack
+local unpackFn = rawget(table, 'unpack') or unpack
 
 local function pack(...)
     return { n = select('#', ...), ... }

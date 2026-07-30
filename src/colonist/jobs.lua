@@ -247,14 +247,14 @@ function Jobs.findBestTask(colonistId)
                         if taskAllowed and task.data and task.data.toX and task.data.toY then
                             taskAllowed = Zones.isTileAllowed(task.data.toX, task.data.toY, task.data.toDepth or task.depth or 0)
                         end
-                        if not taskAllowed then
-                            canDo = false
-                        end
+                        canDo = taskAllowed
                     end
 
-                    if not buckets[level] then buckets[level] = {} end
-                    if not buckets[level][prioCol] then buckets[level][prioCol] = {} end
-                    table.insert(buckets[level][prioCol], task)
+                    if canDo then
+                        if not buckets[level] then buckets[level] = {} end
+                        if not buckets[level][prioCol] then buckets[level][prioCol] = {} end
+                        table.insert(buckets[level][prioCol], task)
+                    end
                 end
             end
         end

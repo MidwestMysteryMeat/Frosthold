@@ -70,19 +70,19 @@ function T.fail(msg)
 end
 
 function T.gt(actual, threshold, msg)
-    if not (actual > threshold) then
+    if actual ~= actual or threshold ~= threshold or actual <= threshold then
         error('ASSERTION: ' .. (msg or '') .. ' expected ' .. tostring(actual) .. ' > ' .. tostring(threshold), 2)
     end
 end
 
 function T.lt(actual, threshold, msg)
-    if not (actual < threshold) then
+    if actual ~= actual or threshold ~= threshold or actual >= threshold then
         error('ASSERTION: ' .. (msg or '') .. ' expected ' .. tostring(actual) .. ' < ' .. tostring(threshold), 2)
     end
 end
 
 function T.gte(actual, threshold, msg)
-    if not (actual >= threshold) then
+    if actual ~= actual or threshold ~= threshold or actual < threshold then
         error('ASSERTION: ' .. (msg or '') .. ' expected ' .. tostring(actual) .. ' >= ' .. tostring(threshold), 2)
     end
 end

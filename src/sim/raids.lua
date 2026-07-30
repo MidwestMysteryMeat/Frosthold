@@ -1571,12 +1571,11 @@ function Raids.endRaid()
     if not activeRaid then return end
     -- Kill remaining raid creatures properly via Creatures.kill or ECS.destroy
     if activeRaid.raidCreatures then
-        local crok, Creatures = pcall(require, 'src.creatures.creatures')
         for eid in pairs(activeRaid.raidCreatures) do
             if ECS.isAlive(eid) then
                 local cr = ECS.get(eid, 'creature')
                 if cr and cr.state ~= 'dead' then
-                    if crok and Creatures.kill then
+                    if Creatures.kill then
                         Creatures.kill(eid)
                     else
                         cr.health = 0

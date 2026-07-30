@@ -18,7 +18,6 @@ local selectedSlot = nil      -- 'weapon' | 'under' | 'outer' | 'head' | 'hands'
 local colonistBtns = {}
 local slotBtns = {}
 local itemBtns = {}
-local unequipBtn = nil
 
 -- Clothing slots set for picker routing
 local CLOTHING_SLOTS = { under = true, outer = true, head = true, hands = true, feet = true }
@@ -396,7 +395,6 @@ function EquipPanel.draw()
     colonistBtns = {}
     slotBtns = {}
     itemBtns = {}
-    unequipBtn = nil
 
     -- Backdrop
     love.graphics.setColor(0, 0, 0, 0.92)

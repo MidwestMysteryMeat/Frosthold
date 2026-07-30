@@ -15,7 +15,6 @@ local open       = false
 local activeTab  = 'god'
 local scrollY    = 0        -- per-tab scroll offset
 local MAX_SCROLL = 0        -- recalculated per draw
-local hoverItem  = nil      -- { tab, id } for highlight
 local statusMsg  = nil      -- brief feedback message
 local statusTimer = 0
 
@@ -64,7 +63,6 @@ local BTN_H       = 22
 function DebugPanel.toggle()
     open = not open
     scrollY = 0
-    hoverItem = nil
 end
 
 function DebugPanel.isOpen()
@@ -646,13 +644,7 @@ local function drawColonistsTab(cx, cy, cw, mx, my)
     y = y + HEADER_H
 
     -- selectedEntities is a dictionary keyed by entity ID, not an array
-    local selId = nil
-    if GameState.selectedEntities then
-        for id in pairs(GameState.selectedEntities) do
-            selId = id
-            break
-        end
-    end
+    local selId = GameState.selectedEntities and next(GameState.selectedEntities) or nil
     if not selId or not ECS.get(selId, 'colonist') then
         love.graphics.setColor(0.5, 0.5, 0.5)
         love.graphics.print('Select a colonist first.', cx, y)

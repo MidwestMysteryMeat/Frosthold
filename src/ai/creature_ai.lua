@@ -12,7 +12,7 @@ local CreatureAI = {}
 -- Lazy-loaded modules: avoids circular require and keeps pcall out of hot path
 local SPECIES = nil
 local _World, _LOS, _Ranged, _Equipment, _Body, _Wounds
-local _Hope, _Social, _ElasticD, _Items, _Tiles, _Director, _ColMod
+local _ElasticD, _Tiles, _Director, _ColMod
 
 local function getSpecies()
     if not SPECIES then
@@ -36,14 +36,8 @@ local function lazyLoad()
     if not ok then _Body = nil end
     ok, _Wounds     = pcall(require, 'src.combat.wounds')
     if not ok then _Wounds = nil end
-    ok, _Hope       = pcall(require, 'src.colony.hope')
-    if not ok then _Hope = nil end
-    ok, _Social     = pcall(require, 'src.colonist.social')
-    if not ok then _Social = nil end
     ok, _ElasticD   = pcall(require, 'src.sim.elastic_difficulty')
     if not ok then _ElasticD = nil end
-    ok, _Items      = pcall(require, 'src.world.items')
-    if not ok then _Items = nil end
     ok, _Tiles      = pcall(require, 'src.world.tiles')
     if not ok then _Tiles = nil end
     ok, _Director   = pcall(require, 'src.ai.director')

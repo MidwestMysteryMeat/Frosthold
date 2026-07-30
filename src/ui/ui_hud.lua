@@ -895,7 +895,6 @@ function HUD.drawColonistBar()
         if c.col.hypothermia and c.col.hypothermia >= 2 then
             love.graphics.setColor(0.4, 0.7, 1)
             love.graphics.print('#', iconX, iconY)
-            iconX = iconX - iconW
         end
 
         -- Task label (show job type when working, state otherwise)

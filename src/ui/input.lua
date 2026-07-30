@@ -11,11 +11,9 @@ local BuildMenu = require('src.ui.build_menu')
 local Input = {}
 
 local selectionBox = nil  -- {x1, y1, x2, y2} in screen coords during drag
-local zoneDragStart = nil -- {x, y} tile coords for zone painting
 
 function Input.init()
     selectionBox = nil
-    zoneDragStart = nil
 end
 
 function Input.update(dt)
@@ -188,7 +186,6 @@ function Input.keypressed(key)
         GameState.selectedTool = nil
         GameState.selectedEntities = {}
         GameState.selectedZoneId = nil
-        zoneDragStart = nil
     end
 
     -- N: cycle selected colonist
@@ -201,11 +198,7 @@ function Input.keypressed(key)
         end
         if #colonists > 0 then
             table.sort(colonists)
-            local current = nil
-            for id in pairs(GameState.selectedEntities) do
-                current = id
-                break
-            end
+            local current = next(GameState.selectedEntities)
             local nextIdx = 1
             if current then
                 for i, id in ipairs(colonists) do
@@ -317,7 +310,6 @@ function Input.keypressed(key)
 
         -- Land on planet (Shift+L in space near planet orbit)
         if key == 'l' and love.keyboard.isDown('lshift', 'rshift') then
-            local ECS = require('src.ecs.ecs')
             local playerX, playerY = 0, 0
             for id, comps in ECS.query('ship', 'pos') do
                 if not ECS.has(id, 'npc_ship') then
@@ -381,7 +373,6 @@ function Input.keypressed(key)
                     local csOk, ContextSwap = pcall(require, 'src.space.context_swap')
                     if csOk then
                         -- Extract ship from colony and launch to space
-                        local ECS = require('src.ecs.ecs')
                         local shipComp = ECS.get(shipId, 'ship')
                         local pos = ECS.get(shipId, 'pos')
                         if shipComp and pos then

@@ -670,8 +670,7 @@ local function generateThreatQuest(diffMult)
     local threatType = math.random() < 0.6 and 'threatened_joiner' or 'defend_contract'
     local def = THREAT_TYPES[threatType]
 
-    local objectives = {}
-    local reward = {}
+    local objectives, reward
     local title, desc
 
     if threatType == 'threatened_joiner' then

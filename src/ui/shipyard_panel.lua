@@ -15,7 +15,7 @@ local scrollY = 0
 local statusMsg, statusTimer = nil, 0
 
 -- Lazy-loaded modules
-local _ShipDefs, _ShipConstruction, _ECS
+local _ShipDefs, _ShipConstruction
 local function lazyLoad()
     if _ShipDefs ~= nil then return end
     local ok
@@ -23,8 +23,6 @@ local function lazyLoad()
     if not ok then _ShipDefs = false end
     ok, _ShipConstruction = pcall(require, 'src.space.ship_construction')
     if not ok then _ShipConstruction = false end
-    ok, _ECS = pcall(require, 'src.ecs.ecs')
-    if not ok then _ECS = false end
 end
 
 -- Colors (dark theme, matching station_panel)
