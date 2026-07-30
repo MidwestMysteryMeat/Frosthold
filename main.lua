@@ -336,7 +336,8 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
     love.graphics.setLineStyle('rough')
     love.graphics.setNewFont(16)
-    math.randomseed(os.time())
+    math.randomseed(RUN_SEED or os.time())
+    if RUN_SEED then print('[Frosthold] RNG seed pinned to ' .. RUN_SEED) end
     registerProfilerTargets()
 
     -- Load campaign persistence (MRP) before any game state init
@@ -664,6 +665,10 @@ local function initGameWorld()
             end
         end
     end
+
+    -- Standard drop-pod loadout: a hand weapon and cold gear per colonist.
+    -- Must run after the crew exists and before scenario wounds are applied.
+    Colonists.applyStartingLoadout(scenDef)
 
     -- Apply MRP per-run picks and permanent resource unlocks
     local mok, MRPWorld = pcall(require, 'src.sim.mrp')

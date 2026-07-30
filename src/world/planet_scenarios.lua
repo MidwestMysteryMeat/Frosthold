@@ -55,6 +55,7 @@ local EREBUS = {
         wounded = 0,
         sick = 0,
         skillBoost = nil,
+        startingGear = false,  -- "nothing" means nothing: no weapon, no coat
     },
     frozen_siege = {
         name = 'Hot Drop (Alt)',
@@ -95,6 +96,7 @@ local RHEA2 = {
         desc = 'Dumped in the open desert with nothing. The twin suns are already overhead.',
         resources = { thermalCores = 0, wood = 0, stone = 0, metal = 0, food = 3, fuel = 0, components = 0, hide = 0, water = 5 },
         wounded = 0, sick = 0, skillBoost = nil,
+        startingGear = false,
     },
 }
 local RHEA2_ORDER = { 'crashlanded', 'lone_wanderer', 'naked_brutality' }
@@ -182,6 +184,7 @@ local PAXTERA = {
         desc = 'Nothing but temperate air and fertile ground. At least you will not freeze.',
         resources = { thermalCores = 0, wood = 0, stone = 0, metal = 0, food = 5, fuel = 0, components = 0, hide = 0 },
         wounded = 0, sick = 0, skillBoost = nil,
+        startingGear = false,
     },
 }
 local PAXTERA_ORDER = { 'crashlanded', 'lone_wanderer', 'lost_tribe', 'rich_explorer', 'naked_brutality' }

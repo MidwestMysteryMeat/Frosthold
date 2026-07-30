@@ -128,14 +128,22 @@ function Colonist.kill(entityId)
                     w.age or 0, w.infected and '/INF' or '')
             end
         end
-        print(string.format('[SimDeath] %s state=%s pos=(%s,%s) warmth=%.0f food=%.0f water=%.0f suff=%s hypo=%s heat=%s rad=%s tox=%s wounds[%s]',
+        -- Was this a mauling, and was the colonist even able to hit back?
+        local equip = ECS.get(entityId, 'equipment')
+        local weaponId = (equip and equip.weapon and equip.weapon.id) or 'none'
+        local maul = 'none'
+        if col._lastMauledBy then
+            maul = string.format('%s/%.1f', col._lastMauledBy, col._lastMauledDmg or 0)
+        end
+        print(string.format('[SimDeath] %s state=%s pos=(%s,%s) warmth=%.0f food=%.0f water=%.0f suff=%s hypo=%s heat=%s rad=%s tox=%s mauledBy=%s weapon=%s wounds[%s]',
             tostring(col.name), tostring(col.state),
             pos and pos.x or '?', pos and pos.y or '?',
             needs and needs.warmth or -1, needs and needs.food or -1,
             needs and (needs.water or -1) or -1,
             tostring(col._suffocating), tostring(col._hypothermia),
             tostring(col._heatstroke), tostring(col._radiationSickness),
-            tostring(col._toxicExposure), woundInfo))
+            tostring(col._toxicExposure),
+            maul, weaponId, woundInfo))
     end
 
     col.state  = 'dead'
@@ -480,6 +488,87 @@ function Colonist._attachCombatComponents(id)
     if eok then EquipMod.attach(id) end
     local cok, ClothingMod = pcall(require, 'src.colonist.clothing')
     if cok then ClothingMod.attach(id) end
+end
+
+---------------------------------------------------------------------------
+-- Starting loadout
+---------------------------------------------------------------------------
+-- The crew used to land with an empty equipment component and five empty
+-- clothing slots: no weapon, no armour, no cold gear. That made the opening
+-- hours unwinnable rather than hard. An unarmed colonist is forced to flee by
+-- combat_ai, and every predator that dens near the landing site outruns a
+-- colonist's 3.0 tiles/s (ice stalker 3.5, sabertooth and stalker 5.0), so the
+-- only available option was a footrace they always lost while being bitten for
+-- 18-28 damage a second.
+--
+-- Every drop-pod scenario already advertises "a standard loadout" in its own
+-- description, so this is that loadout and nothing more: one tier-0/1 hand
+-- weapon each, a bow for one crew member once there are three of them, and a
+-- coat plus boots. It is deliberately weak gear — 6-10 damage melee against
+-- 80-120 HP animals — so surviving day one still needs the crew to group up,
+-- and it does nothing at all for the mid/late-game threats.
+
+local STARTING_MELEE  = { 'knife', 'hatchet', 'club' }
+local STARTING_RANGED = 'shortbow'   -- no ammo item required by ranged.lua
+
+-- Outer + feet only. A full head/hands kit would push cold resistance past 60%
+-- and hollow out the freezing game that the rest of the sim is built around.
+local COLD_KIT = { 'parka', 'boots' }
+local WARM_KIT = { 'cooling_vest', 'boots' }
+
+--- Give one colonist their starting weapon and clothing.
+--- @param id     number  colonist entity id
+--- @param index  number  1-based position in the crew (varies the weapon)
+--- @param crew   number  total crew size
+--- @param cold   boolean landing site is freezing (parka) or not (cooling vest)
+function Colonist.equipStartingGear(id, index, crew, cold)
+    local eok, EquipMod = pcall(require, 'src.colonist.equipment')
+    if eok then
+        -- One crew member in three carries the bow: enough to soften an
+        -- approaching animal, not enough to make melee gear irrelevant.
+        local wanted = STARTING_MELEE[((index - 1) % #STARTING_MELEE) + 1]
+        if crew >= 3 and index == crew then wanted = STARTING_RANGED end
+        if not EquipMod.equipWeapon(id, wanted) then
+            EquipMod.equipWeapon(id, 'knife')  -- two-handed refusal fallback
+        end
+    end
+
+    local cok, ClothingMod = pcall(require, 'src.colonist.clothing')
+    if cok then
+        for _, itemId in ipairs(cold and COLD_KIT or WARM_KIT) do
+            ClothingMod.equip(id, itemId, 'normal')
+        end
+    end
+end
+
+--- Kit out every colonist that has no weapon yet. Called once at worldgen,
+--- after the crew is spawned. Scenarios opt out with `startingGear = false`
+--- (Abandoned/naked-brutality starts are supposed to have nothing).
+function Colonist.applyStartingLoadout(scenDef)
+    if scenDef and scenDef.startingGear == false then return end
+
+    -- Cold or hot landing site decides the coat. Read the actual tile so this
+    -- stays correct on desert/temperate planets as well as Erebus.
+    local cold = true
+    local wok, World = pcall(require, 'src.world.tilemap')
+    if wok and World.getTemp then
+        local t = World.getTemp(GameState.startX, GameState.startY, 0)
+        if t and t > 5 then cold = false end
+    end
+
+    local crew = {}
+    for id, comps in ECS.query('colonist') do
+        if comps.colonist.state ~= 'dead' then crew[#crew + 1] = id end
+    end
+    table.sort(crew)  -- stable order so a pinned seed produces the same kit
+
+    for i, id in ipairs(crew) do
+        local equip = ECS.get(id, 'equipment')
+        if not equip or not equip.weapon then
+            Colonist.equipStartingGear(id, i, #crew, cold)
+        end
+    end
+    return #crew
 end
 
 ---------------------------------------------------------------------------
@@ -916,6 +1005,24 @@ end
 
 -- Movement system — follows pathfinding nodes
 local BASE_MOVE_SPEED = 3  -- tiles per second
+
+--- Intrinsic movement speed in tiles/second: traits, limb damage, armour
+--- penalty, hypothermia and status effects. Deliberately excludes terrain and
+--- carry weight, which depend on the exact tile the colonist stands on.
+--- combat_ai uses this to decide whether fleeing an animal is even possible.
+function Colonist.getMoveSpeed(id, col)
+    col = col or ECS.get(id, 'colonist')
+    if not col then return BASE_MOVE_SPEED end
+
+    local speed = BASE_MOVE_SPEED * (1 + getTraitMod(col, 'speedMod'))
+    lazyLoadMovement()
+    if _BodyMod then speed = speed * _BodyMod.getMoveSpeedMultiplier(id) end
+    if _EquipMod then speed = speed * (1 - _EquipMod.getSpeedPenalty(id)) end
+    if col._hypoMoveMult then speed = speed * col._hypoMoveMult end
+    if _StatusFx then speed = speed * _StatusFx.getMoveSpeedMult(id) end
+    return speed
+end
+
 local function movementSystem(dt, id, comps)
     local pos  = comps.pos
     local path = comps.path
@@ -931,22 +1038,9 @@ local function movementSystem(dt, id, comps)
         return
     end
 
-    -- Speed modified by traits (quick, clumsy, etc)
-    local speedMod = getTraitMod(col, 'speedMod')
-    local speed = BASE_MOVE_SPEED * (1 + speedMod)
-
-    -- Phase 5: leg destruction halves speed, armor may penalize
+    -- Traits, limb damage, armour penalty, hypothermia and status effects
     lazyLoadMovement()
-    if _BodyMod then speed = speed * _BodyMod.getMoveSpeedMultiplier(id) end
-    if _EquipMod then speed = speed * (1 - _EquipMod.getSpeedPenalty(id)) end
-
-    -- Hypothermia slows movement
-    if col._hypoMoveMult then
-        speed = speed * col._hypoMoveMult
-    end
-
-    -- Status effects slow movement (frostbite, exhaustion)
-    if _StatusFx then speed = speed * _StatusFx.getMoveSpeedMult(id) end
+    local speed = Colonist.getMoveSpeed(id, col)
     local posDepth = pos.depth or 0
     do
         local envMult = 1.0
