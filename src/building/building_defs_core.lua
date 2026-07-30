@@ -39,8 +39,13 @@ return {
         heatOutput = 40,
         heatTarget = 25,
         -- Warmth zone: heats nearby tiles even outdoors (capped so it never
-        -- overheats an already-warm room).
-        heatDanger = { radius = 4, tempOffset = 60, maxTemp = 25 },
+        -- overheats an already-warm room). tempOffset must be large enough to
+        -- clear the 10C warmth-recovery threshold several tiles out against a
+        -- -40C ambient: linear falloff is 1 - dist/(radius+1), so at -43C
+        -- ambient tiles 0-3 away land above 15C and tile 6 is still ~+16C
+        -- warmer than open ground. At offset 60 only the fire tile itself was
+        -- survivable, so colonists standing beside a fire still froze.
+        heatDanger = { radius = 6, tempOffset = 110, maxTemp = 25 },
         fuelRate = 0.05,
         lightPreset = 'campfire',
     },

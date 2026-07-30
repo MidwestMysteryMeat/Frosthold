@@ -145,8 +145,9 @@ return {
         cost = { wood = 8 },
         heatOutput = 30,
         -- Warmth zone: heats nearby tiles even outdoors (capped so it never
-        -- overheats an already-warm room).
-        heatDanger = { radius = 4, tempOffset = 60, maxTemp = 25 },
+        -- overheats an already-warm room). See campfire in building_defs_core
+        -- for why tempOffset must exceed the ambient deficit.
+        heatDanger = { radius = 6, tempOffset = 110, maxTemp = 25 },
         lightPreset = 'campfire',
         sightRadius = 5,
         entitySpawn = 'recreation',

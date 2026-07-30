@@ -14,8 +14,11 @@ local ThermalDeepening = {}
 ---------------------------------------------------------------------------
 
 -- Colonists in tiles colder than this without a thermal suit take cold damage.
--- Keep the gate below normal outdoor ambient so ordinary weather does not
--- turn the entire starting surface into a deep-cold damage zone.
+-- The gate must sit well BELOW normal outdoor ambient: with the old fixed
+-- -40C threshold, default difficulty (baseTemp -40) plus any weather dip
+-- turned the ENTIRE surface into a damage zone that killed unprotected
+-- colonists in ~80 seconds. Deep-cold zones are meant for extreme regions
+-- that require thermal suits, not the starting map.
 local HEAT_GATE_MARGIN    = 25   -- degrees below planet ambient
 local HEAT_GATE_FLOOR     = -60  -- never gate warmer than this
 local COLD_DAMAGE_RATE    = 0.5  -- HP per sim-second without suit
