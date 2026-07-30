@@ -43,12 +43,30 @@ local COLD_RELEASE     = 70
 local COLD_LEAD_MIN = 150  -- seconds of warmth left before heading for a fire
 local COLD_LEAD_MAX = 210
 
--- A tile at/above this temperature restores warmth (colonist.lua warms above
--- 10C); the seek target uses a margin so colonists do not park on a tile that
--- merely breaks even.
-local WARM_TILE_TEMP   = 15
--- Fallback: settle for any reachable tile at least this much warmer than here.
+-- Two temperatures matter, and conflating them was killing colonists.
+--   WARM_TILE_TEMP    the preferred target: comfortably inside a fire's zone,
+--                     warmth climbs fast, no risk of parking on a tile that
+--                     merely breaks even.
+--   WARM_RECOVER_TEMP the temperature at which colonist.lua actually STARTS
+--                     restoring warmth (> 10C). A campfire's outdoor falloff
+--                     ring is a band of 10-15C tiles, and in deep cold that
+--                     band is all that is left — the >15C core shrinks to the
+--                     fire tile itself. The old search accepted only >15C, so
+--                     a colonist stood 20 tiles from a 12C tile that would
+--                     have saved it and froze instead.
+local WARM_TILE_TEMP    = 15
+local WARM_RECOVER_TEMP = 10.5
+-- Last resort: settle for any reachable tile at least this much warmer.
 local WARM_FALLBACK_GAIN = 6
+-- How many A* attempts each fallback tier may spend. One attempt was not
+-- enough: the single warmest tile is usually the one another colonist is
+-- already huddling on, and Pathfind refuses an occupied goal.
+local WARM_PATH_TRIES = 8
+-- Emergency routes get a bigger node budget and ignore the deep-snow
+-- surcharge. During a blizzard every outdoor tile carries that surcharge,
+-- which flattens the Manhattan heuristic and degenerates A* into Dijkstra, so
+-- the default 3000-node budget could not reach a fire 25 tiles away.
+local WARM_PATH_OPTS = { maxNodes = 20000, ignoreSnowCost = true }
 
 -- Deterministic per-entity stagger (no RNG: survives save/load)
 local function coldTriggerWarmth(id, col)
@@ -74,6 +92,22 @@ local function needsWarmth(id, col, warmth, tileTemp)
         end
     end
     return false, base
+end
+
+---------------------------------------------------------------------------
+-- Cold trace (dev diagnostic, `--coldtrace`)
+---------------------------------------------------------------------------
+-- Freezing deaths are hard to read from a corpse: the [SimDeath] line says
+-- "warmth 0, no wounds" but not why nobody walked to a fire. This prints the
+-- decision trail — who went cold, where, what the warmth search returned.
+local function ctrace(fmt, ...)
+    if not _G.COLD_TRACE then return end
+    print(string.format('[Cold] d%d %05.2f ' .. fmt, GameState.day or 0,
+        GameState.hour or 0, ...))
+end
+
+local function ctraceOn()
+    return _G.COLD_TRACE == true
 end
 
 local OptionalModules = {}
@@ -1192,8 +1226,20 @@ local function workAISystem(dt, id, comps)
     local coldNeeds = ECS.get(id, 'needs')
     -- Eating/drinking outranks warming up. Without this a colonist parked at a
     -- bonfire starved to death standing next to the food pile.
-    local criticallyHungry = coldNeeds and (coldNeeds.food < URGENT_FOOD
-        or (coldNeeds.water or 80) < URGENT_WATER)
+    --
+    -- But ONLY while there is something to eat. When the last meal is gone the
+    -- eat block's search comes up empty and sets _noFoodUntil; if hunger still
+    -- outranked warmth at that point, the cold emergency stayed switched off and
+    -- the colonist stood on one tile waiting for food that was never coming.
+    -- That is how an acceptance run lost a colonist at FULL HP six tiles from a
+    -- lit campfire: it froze holding out for a meal. Hunger at zero food costs
+    -- 0.5 HP/s; severe hypothermia costs 1.0 HP/s. The cold is the more urgent
+    -- death, so it takes priority whenever food is unobtainable.
+    local foodUnavailable = col._noFoodUntil ~= nil
+        and (GameState.simTick or 0) < col._noFoodUntil
+    local criticallyHungry = coldNeeds and not foodUnavailable
+        and (coldNeeds.food < URGENT_FOOD
+            or (coldNeeds.water or 80) < URGENT_WATER)
     local coldHereTemp = World.getTemp(pos.x, pos.y, pos.depth or 0)
     local wantsWarmth, coldTrigger = false, coldTriggerWarmth(id, col)
     if coldNeeds then
@@ -1202,6 +1248,36 @@ local function workAISystem(dt, id, comps)
     end
     -- Release must sit above whatever triggered, or the two fight each tick.
     local coldRelease = math.max(COLD_RELEASE, coldTrigger + 15)
+
+    if ctraceOn() and coldNeeds then
+        -- Heartbeat every 10 s once a colonist is meaningfully cold, plus an
+        -- immediate line the moment the emergency trips.
+        if wantsWarmth and not col._ctWanted then
+            col._ctWanted = true
+            ctrace('TRIGGER %s(%d) pos=(%d,%d) tile=%.1f warmth=%.1f state=%s task=%s '
+                .. 'distHome=%d trig=%.0f lead=%.0f',
+                tostring(col.name), id, pos.x, pos.y, coldHereTemp, coldNeeds.warmth,
+                tostring(col.state), col.task and tostring(col.task.type) or 'none',
+                math.max(math.abs(pos.x - (GameState.startX or 0)),
+                         math.abs(pos.y - (GameState.startY or 0))),
+                coldTrigger, col._coldLead or 0)
+        elseif not wantsWarmth then
+            col._ctWanted = false
+        end
+        col._ctBeat = (col._ctBeat or 0) - dt
+        if coldNeeds.warmth < 55 and col._ctBeat <= 0 then
+            col._ctBeat = 10.0
+            ctrace('beat %s(%d) pos=(%d,%d) tile=%.1f warmth=%.1f hp=%.0f state=%s '
+                .. 'task=%s path=%s seek=%.0f wood=%.0f amb=%.1f',
+                tostring(col.name), id, pos.x, pos.y, coldHereTemp, coldNeeds.warmth,
+                col.health or -1, tostring(col.state),
+                col.task and tostring(col.task.type) or 'none',
+                path.nodes and (#path.nodes - (path.index or 1)) or 'nil',
+                col._warmSeekTime or -1,
+                (GameState.resources and GameState.resources.wood) or -1,
+                GameState.getEffectiveTemp())
+        end
+    end
 
     if col.state == 'seeking_warmth' then
         col._warmSeekTime = (col._warmSeekTime or 0) + dt
@@ -1250,12 +1326,19 @@ local function workAISystem(dt, id, comps)
                 path.moveTimer = 0
             end
 
-            -- Pass 1: nearest reachable genuinely warm tile (radius 40 —
-            -- idle wander can drift colonists well away from the nearest fire).
-            -- Track the warmest tile seen for the fallback pass so the scan is
-            -- only walked once.
+            -- One outward scan, four tiers of target, in order of preference.
+            -- The scan is walked once and every tier it can serve is filled
+            -- from it, so the cost is a single ring sweep plus a bounded
+            -- number of A* attempts.
             local warmRoute = nil
-            local bestTemp, bestX, bestY = hereTemp, nil, nil
+            local recover = {}   -- tiles above WARM_RECOVER_TEMP, nearest first
+            local warmest = {}   -- progressively less-cold tiles, coldest first
+            local bestTemp = hereTemp
+            -- Warm tiles cluster: a fire produces dozens of them, and if the
+            -- colonist is walled off from all of them every A* attempt floods
+            -- the whole node budget. Cap the attempts, then let the cheaper
+            -- tiers take over (the scan below still records their positions).
+            local warmTries = WARM_PATH_TRIES
             for r = 1, 40 do
                 for dx = -r, r do
                     for dy = -r, r do
@@ -1266,11 +1349,26 @@ local function workAISystem(dt, id, comps)
                                 and Zones.isTileAllowed(wx, wy, wsDepth) then
                                 local t = World.getTemp(wx, wy, wsDepth)
                                 if t > WARM_TILE_TEMP then
-                                    warmRoute = Pathfind.find(pos.x, pos.y, wx, wy,
-                                        World, id, wsDepth, wsDepth)
-                                    if warmRoute then break end
+                                    if warmTries > 0 then
+                                        warmTries = warmTries - 1
+                                        warmRoute = Pathfind.find(pos.x, pos.y, wx, wy,
+                                            World, id, wsDepth, wsDepth, WARM_PATH_OPTS)
+                                        if warmRoute then break end
+                                    elseif #recover < WARM_PATH_TRIES * 2 then
+                                        -- Out of tier-1 attempts: keep it as a
+                                        -- tier-2 candidate rather than lose it.
+                                        recover[#recover + 1] = { wx, wy, t }
+                                    end
+                                elseif t > WARM_RECOVER_TEMP then
+                                    if #recover < WARM_PATH_TRIES * 2 then
+                                        recover[#recover + 1] = { wx, wy, t }
+                                    end
                                 elseif t > bestTemp then
-                                    bestTemp, bestX, bestY = t, wx, wy
+                                    bestTemp = t
+                                    warmest[#warmest + 1] = { wx, wy, t }
+                                    if #warmest > WARM_PATH_TRIES * 2 then
+                                        table.remove(warmest, 1)
+                                    end
                                 end
                             end
                         end
@@ -1279,46 +1377,87 @@ local function workAISystem(dt, id, comps)
                 end
                 if warmRoute then break end
             end
+
+            -- Tier 1: nearest reachable genuinely warm tile.
             if warmRoute then
+                ctrace('tier1 OK %s(%d) route=%d', tostring(col.name), id, #warmRoute)
                 goWarm(warmRoute)
                 return
             end
 
-            -- Pass 2: nothing above WARM_TILE_TEMP exists yet (no fire built,
-            -- or a brutal cold snap). Head for the WARMEST reachable tile
-            -- anyway — standing in the least-cold spot slows the death spiral
-            -- and keeps the colonist visibly doing something.
-            if bestX and bestTemp >= hereTemp + WARM_FALLBACK_GAIN then
-                local route = Pathfind.find(pos.x, pos.y, bestX, bestY,
-                    World, id, wsDepth, wsDepth)
-                if route and #route > 0 then
-                    goWarm(route)
-                    return
+            --- Try a list of candidate tiles, nearest first, and take the first
+            --- one we can actually reach. Bounded so a stranded colonist cannot
+            --- spend the frame pathfinding.
+            local function tryCandidates(list, tier, reverse)
+                local tries = WARM_PATH_TRIES
+                local first, last, step = 1, #list, 1
+                if reverse then first, last, step = #list, 1, -1 end
+                for i = first, last, step do
+                    if tries <= 0 then break end
+                    tries = tries - 1
+                    local c = list[i]
+                    local route = Pathfind.find(pos.x, pos.y, c[1], c[2],
+                        World, id, wsDepth, wsDepth, WARM_PATH_OPTS)
+                    if route and #route > 0 then
+                        ctrace('%s OK %s(%d) -> (%d,%d) %.1fC route=%d',
+                            tier, tostring(col.name), id, c[1], c[2], c[3], #route)
+                        goWarm(route)
+                        return true
+                    end
                 end
+                return false
             end
 
-            -- Pass 3: desperation — head for the colony landing site (the
-            -- starting fire). Handles colonists chased/stranded far outside
-            -- the search radius, where even the warmest nearby tile is ambient.
-            if coldNeeds.warmth < 30 and GameState.startX and GameState.startY then
-                for _, t in ipairs({
-                    { GameState.startX,     GameState.startY },
-                    { GameState.startX + 1, GameState.startY },
-                    { GameState.startX - 1, GameState.startY },
-                    { GameState.startX,     GameState.startY + 1 },
-                    { GameState.startX,     GameState.startY - 1 },
-                }) do
-                    if World.inBounds(t[1], t[2]) and World.isWalkable(t[1], t[2], wsDepth) then
-                        local homeRoute = Pathfind.find(pos.x, pos.y, t[1], t[2],
-                            World, id, wsDepth, wsDepth)
-                        if homeRoute and #homeRoute > 0 then
-                            goWarm(homeRoute)
-                            return
+            -- Tier 2: any tile that actually restores warmth. colonist.lua
+            -- gains warmth above 10C, so a 12C tile in a campfire's outer ring
+            -- is survival even though it is not comfortable — and in a deep
+            -- cold snap that ring is the only thing left.
+            if tryCandidates(recover, 'tier2') then return end
+            ctrace('tier2 FAIL %s(%d) here=%.1f cands=%d lastFail=%s',
+                tostring(col.name), id, hereTemp, #recover,
+                tostring(Pathfind.lastFail))
+
+            -- Tier 3: the landing site. It is the one place the colony is
+            -- guaranteed to have a fire, so it is worth a long walk. This used
+            -- to be gated behind warmth < 30, which meant it only unlocked
+            -- after hypothermia had already started draining HP and slowed the
+            -- colonist below the speed needed to finish the walk. A colonist
+            -- that cannot see warmth from where it stands should start walking
+            -- home immediately, not once it is dying.
+            if GameState.startX and GameState.startY then
+                local home = {}
+                for hr = 0, 3 do
+                    for hdx = -hr, hr do
+                        for hdy = -hr, hr do
+                            if hr == 0 or math.abs(hdx) == hr or math.abs(hdy) == hr then
+                                local hx, hy = GameState.startX + hdx, GameState.startY + hdy
+                                if World.inBounds(hx, hy)
+                                    and World.isWalkable(hx, hy, wsDepth) then
+                                    home[#home + 1] = { hx, hy,
+                                        World.getTemp(hx, hy, wsDepth) }
+                                end
+                            end
                         end
                     end
                 end
+                if tryCandidates(home, 'tier3') then return end
+                ctrace('tier3 FAIL %s(%d) cands=%d lastFail=%s',
+                    tostring(col.name), id, #home, tostring(Pathfind.lastFail))
             end
-            -- No warm tile exists yet — back off before searching again
+
+            -- Tier 4: no warmth anywhere reachable (no fire built yet, or a
+            -- brutal cold snap). Head for the least-cold tile found — standing
+            -- in the shallowest cold slows the spiral and keeps the colonist
+            -- visibly doing something. Walked warmest-first.
+            local viable = {}
+            for _, c in ipairs(warmest) do
+                if c[3] >= hereTemp + WARM_FALLBACK_GAIN then viable[#viable + 1] = c end
+            end
+            if tryCandidates(viable, 'tier4', true) then return end
+
+            ctrace('ALL TIERS FAIL %s(%d) warmth=%.1f here=%.1f best=%.1f',
+                tostring(col.name), id, coldNeeds.warmth, hereTemp, bestTemp)
+            -- Nothing reachable is warmer — back off before searching again
             col._warmSearchCd = 5.0
         end
     end
@@ -1349,34 +1488,59 @@ local function workAISystem(dt, id, comps)
     -- Never bed down while critically cold on a freezing tile: sleeping in
     -- place outdoors was a death sentence. The cold-emergency block above
     -- keeps retrying to reach warmth instead.
+    --
+    -- The warmth < 40 half of that rule was not enough on its own. A colonist
+    -- caught by the sleep block 25 tiles from base has no bed to walk to, so it
+    -- lay down on open ground at -50C at warmth 55 and slept off the first 15
+    -- points of the drain before any guard engaged. Lying down WITHOUT A BED on
+    -- a tile that is taking warmth away is now refused outright, whatever the
+    -- current warmth: the colonist stays on its feet and the work/warmth AI
+    -- keeps it moving. A bed in a cold room is still allowed (that is a room to
+    -- heat, not an exposure death), and rest lost to a cold night is recovered
+    -- the next time the colonist sleeps somewhere survivable.
+    local sleepTileTemp = World.getTemp(pos.x, pos.y, pos.depth or 0)
+    local hasOwnBed = col._bedId ~= nil and ECS.isAlive(col._bedId)
+    -- Already asleep on bare ground (no bed) — get up if the ground turns lethal.
+    local sleepingRough = col.state == 'sleeping' and not hasOwnBed
     local tooColdToSleep = block == 'sleep'
-        and coldNeeds and coldNeeds.warmth < 40
-        and World.getTemp(pos.x, pos.y, pos.depth or 0) <= 10
+        and sleepTileTemp <= 10
+        and ((coldNeeds and coldNeeds.warmth < 40) or sleepingRough)
     if block == 'sleep' and not tooColdToSleep then
         if col.state ~= 'sleeping' and col.state ~= 'going_to_bed' then
-            if col.task then Jobs.unclaimTask(col.task.taskId) end
-            col.task = nil
-            -- Try to find a bed
-            local bedId, bedPos, bed = Beds.findForColonist(id)
+            -- Bedding down where we stand is only survivable on a tile that is
+            -- not draining warmth. Work out where we are sleeping BEFORE
+            -- dropping the current task: a colonist that ends up staying awake
+            -- must keep its task, or it unclaims and re-claims every tick and
+            -- never finishes anything.
+            local canSleepRough = sleepTileTemp > 10
+            local bedId, bedPos = Beds.findForColonist(id)
+            local route = nil
             if bedId and bedPos then
-                local World = require('src.world.tilemap')
-                local route = Pathfind.find(pos.x, pos.y, bedPos.x, bedPos.y, World, id,
+                route = Pathfind.find(pos.x, pos.y, bedPos.x, bedPos.y, World, id,
                     pos.depth or 0, bedPos.depth or 0, getRestrictedPathOpts(pos))
-                if route then
-                    Beds.assign(bedId, id)
-                    col.state = 'going_to_bed'
-                    path.nodes = route
-                    path.index = 1
-                    path.moveTimer = 0
-                else
-                    col.state = 'sleeping'
-                    path.nodes = nil
-                end
-            else
+            end
+            if route or canSleepRough then
+                if col.task then Jobs.unclaimTask(col.task.taskId) end
+                col.task = nil
+            end
+            if route then
+                Beds.assign(bedId, id)
+                col.state = 'going_to_bed'
+                path.nodes = route
+                path.index = 1
+                path.moveTimer = 0
+            elseif canSleepRough then
                 col.state = 'sleeping'
                 path.nodes = nil
             end
         end
+        if col.state ~= 'sleeping' and col.state ~= 'going_to_bed' then
+            -- Awake on freezing ground with nowhere to lie down: skip the sleep
+            -- block entirely and let the work/warmth AI below keep us moving.
+            block = 'work'
+        end
+    end
+    if block == 'sleep' and not tooColdToSleep then
         if col.state == 'going_to_bed' and not path.nodes then
             col.state = 'sleeping'
             if col._bedId and ECS.isAlive(col._bedId) then
@@ -1419,7 +1583,11 @@ local function workAISystem(dt, id, comps)
         -- Hysteresis thresholds
         local isEatState = col.state == 'eating' or col.state == 'moving_to_food'
         local fullThreshold = isEatState and 98 or 90
-        local hungry = needs.food < fullThreshold
+        -- A recent failed food search parks the whole eat branch for a few
+        -- seconds. Re-scanning the map for a meal that does not exist, every
+        -- tick, is what kept the colonist standing still; falling through to
+        -- work sends it hunting and foraging, which is how food gets made.
+        local hungry = needs.food < fullThreshold and not foodUnavailable
         local thirsty = (needs.water or 80) < fullThreshold
 
         -- Water: still consumed from colony stores (piped water system)
@@ -1578,18 +1746,23 @@ local function workAISystem(dt, id, comps)
                     end
                     local route = Pathfind.find(pos.x, pos.y, tx, ty, World, id, pd, fd, getRestrictedPathOpts(pos))
                     if route and #route > 0 then
+                        col._noFoodUntil = nil
                         path.nodes = route
                         path.index = 1
                         path.moveTimer = 0
-                    else
-                        col.state = 'idle'
-                        col._eatTarget = nil
+                        return
                     end
-                    return
+                    -- Found food but cannot reach it: treat as no food.
+                    col.state = 'idle'
+                    col._eatTarget = nil
                 end
-                -- No food found anywhere — colonist stays hungry
+                -- Nothing edible within reach. Remember that for a few seconds
+                -- and FALL THROUGH instead of returning: standing still waiting
+                -- for food is how colonists froze at full health beside a fire.
+                col._noFoodUntil = (GameState.simTick or 0) + 200  -- 10 s @ 20 Hz
+            else
+                return
             end
-            return
         end
 
         -- Full — clear eat state if we were eating
