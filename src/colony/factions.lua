@@ -296,17 +296,50 @@ end
 -- Gift resources to a faction (warmth sharing / tribute)
 ---------------------------------------------------------------------------
 
+--- Everything the colony could hand over: crates wired to the power grid plus
+--- the loose GameState counter. Checking only the counter is what made the
+--- gift button report "Not enough thermalCores" while a stockpile sat full of
+--- them — most factions prefer cores, metal or components, and all three start
+--- at zero in the counter now that goods are physical items.
+function Factions.getGiftableAmount(resourceName)
+    if not resourceName then return 0 end
+    local total = GameState.resources[resourceName] or 0
+    local SNet = getStorageNet()
+    if SNet and SNet.getTotal then
+        total = total + (SNet.getTotal(resourceName, GameState.startX, GameState.startY) or 0)
+    end
+    return total
+end
+
 function Factions.sendGift(factionId, resourceName, amount)
     local def = FACTION_DEFS[factionId]
     if not def then return false, 'Unknown faction' end
+    if not resourceName then return false, 'No gift selected' end
+    amount = math.floor(amount or 0)
+    if amount <= 0 then return false, 'Nothing to send' end
 
-    if (GameState.resources[resourceName] or 0) < amount then
-        return false, 'Not enough ' .. resourceName
+    local available = Factions.getGiftableAmount(resourceName)
+    if available < amount then
+        return false, string.format('Not enough %s (have %d, need %d)',
+            resourceName, available, amount)
     end
 
+    -- Drain the crates first, then take the shortfall from the counter. The old
+    -- code called SNet.withdraw and ignored its return, so a gift paid from the
+    -- counter cost nothing at all and bought free reputation.
+    local taken = 0
     local SNet = getStorageNet()
-    if SNet then SNet.withdraw(resourceName, amount, GameState.startX, GameState.startY)
-    else GameState.spendResource(resourceName, amount) end
+    if SNet then
+        taken = SNet.withdraw(resourceName, amount, GameState.startX, GameState.startY) or 0
+    end
+    if taken < amount then
+        if not GameState.spendResource(resourceName, amount - taken) then
+            -- Should be unreachable: getGiftableAmount already proved the
+            -- counter covers whatever storage could not. Bail out instead of
+            -- handing out reputation for goods that were never paid.
+            return false, 'Not enough ' .. resourceName
+        end
+    end
 
     -- Rep gain: preferred gifts worth more
     local repGain = amount * 0.5
