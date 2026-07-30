@@ -1,5 +1,11 @@
 # FROSTHOLD
 
+
+<!-- wip-contact-banner -->
+> **Work in progress.** This is an active side project alongside my main game development, so progress is intermittent — expect bugs, missing features, and rough edges.
+>
+> Bug reports, feedback, or contributions are welcome via GitHub issues/PRs, or email **midwestmysterymeatstudios@gmail.com**. If you'd like to support the work, tips are appreciated but never expected.
+
 **A Frostpunk × RimWorld colony survival sim built in Love2D — keep a crew alive on a frozen corporate deathworld, feed the quota, and decide how the run ends.**
 
 ## What it does
