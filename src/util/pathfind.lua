@@ -89,6 +89,11 @@ end
 
 local MAX_NODES = 3000  -- search limit (increased for cross-depth paths)
 
+-- Why the last failed query gave up. Purely diagnostic (the cold trace prints
+-- it): a route that fails because the goal tile is occupied needs a different
+-- answer from one that fails because the search ran out of budget.
+Pathfind.lastFail = nil
+
 -- Key encoding: depth * 100_000_000 + y * 10_000 + x
 -- Supports x,y up to 9999 and depth up to ~90
 local function key(x, y, d)
@@ -125,10 +130,20 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
         return true
     end
 
+    Pathfind.lastFail = nil
     if sx == gx and sy == gy and sd == gd then return {} end
-    if not world.isWalkable(gx, gy, gd) then return nil end
-    if not tileAllowed(gx, gy, gd) then return nil end
-    if moverId and Occupancy.isOccupiedBy(gx, gy, moverId, gd) then return nil end
+    if not world.isWalkable(gx, gy, gd) then
+        Pathfind.lastFail = 'unwalkable'
+        return nil
+    end
+    if not tileAllowed(gx, gy, gd) then
+        Pathfind.lastFail = 'blocked'
+        return nil
+    end
+    if moverId and Occupancy.isOccupiedBy(gx, gy, moverId, gd) then
+        Pathfind.lastFail = 'occupied'
+        return nil
+    end
 
     local open = {}
     local openMap = {}
@@ -189,10 +204,17 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
 
     local dirs = { {-1,0}, {1,0}, {0,-1}, {0,1} }
     local explored = 0
+    -- Callers with a survival stake in the answer (the cold-emergency walk to
+    -- a fire) can buy a bigger budget; everyday work routing keeps the cheap
+    -- default so the sim stays fast.
+    local nodeBudget = opts.maxNodes or MAX_NODES
 
     while #open > 0 do
         explored = explored + 1
-        if explored > MAX_NODES then return nil end
+        if explored > nodeBudget then
+            Pathfind.lastFail = 'budget'
+            return nil
+        end
 
         local cur = heapPop()
         local ck = cur.k
@@ -252,9 +274,17 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
                 -- surcharge, so ~93% of queries blew the MAX_NODES budget and
                 -- the sim dropped from ~250 to ~17 ticks/second. Real traversal
                 -- slowness is modelled by TileSnow.getMovementMult, not here.
-                if snowDepth >= 7 then moveCost = moveCost + 3
-                elseif snowDepth >= 5 then moveCost = moveCost + 2
-                elseif snowDepth >= 3 then moveCost = moveCost + 1
+                -- ignoreSnowCost: a colonist walking to a fire before it
+                -- freezes does not care that the route is knee-deep. Dropping
+                -- the surcharge also keeps the Manhattan heuristic tight, which
+                -- is what lets these long emergency routes finish inside the
+                -- node budget during a blizzard (when every outdoor tile
+                -- carries a surcharge and A* otherwise degenerates).
+                if not opts.ignoreSnowCost then
+                    if snowDepth >= 7 then moveCost = moveCost + 3
+                    elseif snowDepth >= 5 then moveCost = moveCost + 2
+                    elseif snowDepth >= 3 then moveCost = moveCost + 1
+                    end
                 end
                 if respectHazards then
                     moveCost = moveCost + getWaterHazardCost(world, nx, ny, cur.d)
@@ -310,6 +340,7 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
         end
     end
 
+    Pathfind.lastFail = 'unreachable'
     return nil
 end
 
