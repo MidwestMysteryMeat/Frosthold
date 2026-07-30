@@ -49,9 +49,15 @@ foreach ($f in Get-ChildItem "$dir\seed_*.log" | Sort-Object Name) {
     }
   }
 
+  # Surviving population: the last figure the colonist agent reported, or the
+  # scenario's starting crew if nobody ever died.
+  $popMatches = [regex]::Matches($txt, 'now at (\d+)')
+  $alive = if ($popMatches.Count -gt 0) { $popMatches[$popMatches.Count - 1].Groups[1].Value } else { '3 (no losses)' }
+
   $rows += [pscustomobject]@{
     Seed   = $seed
     Days   = $reached
+    Alive  = $alive
     Deaths = $deaths
     Wiped  = $wiped
     Causes = ($causes -join ', ')

@@ -118,7 +118,7 @@ T.test('apex dens must sit beyond their own leash range from camp', function()
         'non-apex dens keep the original margin')
 end)
 
-T.test('no den releases a pack during day 1, apex dens wait until day 4', function()
+T.test('no den releases a pack during day 1, apex dens wait until day 5', function()
     H.resetAll()
     local ECS       = require('src.ecs.ecs')
     local GameState = require('src.game_state')
@@ -145,7 +145,8 @@ T.test('no den releases a pack during day 1, apex dens wait until day 4', functi
     T.ok(packsAfterOneTick('tundra_wolf', 2) > 0, 'day 2: wolf den active')
     T.eq(packsAfterOneTick('ice_stalker', 2), 0, 'day 2: apex den still shut')
     T.eq(packsAfterOneTick('ice_stalker', 3), 0, 'day 3: apex den still shut')
-    T.ok(packsAfterOneTick('ice_stalker', 4) > 0, 'day 4: apex den active')
+    T.eq(packsAfterOneTick('ice_stalker', 4), 0, 'day 4: apex den still shut')
+    T.ok(packsAfterOneTick('ice_stalker', 5) > 0, 'day 5: apex den active')
 end)
 
 T.test('dens release one animal at a time until the grace window closes', function()
@@ -172,7 +173,8 @@ T.test('dens release one animal at a time until the grace window closes', functi
 
     T.eq(releasedOn(2), 1, 'day 2: single animal despite a pack size of 4')
     T.eq(releasedOn(3), 1, 'day 3: still a single animal')
-    T.ok(releasedOn(4) > 1, 'day 4: full pack')
+    T.eq(releasedOn(4), 1, 'day 4: still a single animal')
+    T.ok(releasedOn(5) > 1, 'day 5: full pack')
 end)
 
 T.suite('Early survival: flee decisions')

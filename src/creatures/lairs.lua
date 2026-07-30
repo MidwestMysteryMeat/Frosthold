@@ -56,13 +56,13 @@ Lairs.LAIR_TYPES = LAIR_TYPES
 --                  tether reaches (plus a margin) instead of the flat 25.
 --   * day 1      — no den releases anything at all. The crew gets one full day
 --                  to raise walls and light a fire.
---   * days 2-3   — apex dens stay shut; the wolf dens that do open release one
+--   * days 2-4   — apex dens stay shut; the wolf dens that do open release one
 --                  animal at a time. Pack size was as deadly as raw damage: a
 --                  char hound only does 14, but a den lets out up to four of
 --                  them, and four animals focusing one colonist is 40+ damage
 --                  a second no matter what the crew is holding.
--- From day 4 every den is live at full pack size, so the back half of a 5-day
--- run is still a genuine test rather than a guaranteed pass.
+-- From day 5 every den is live at full pack size — the same day the rest of the
+-- game already opens up, so nothing about mid or late game threat changes.
 
 -- Apex threshold. Measured against the standard drop-pod loadout, which gives
 -- roughly 4 points of armour and a 6-10 damage hand weapon: a 14-damage animal
@@ -71,7 +71,11 @@ Lairs.LAIR_TYPES = LAIR_TYPES
 -- hounds are not.
 local APEX_DAMAGE      = 14
 local ANY_GRACE_DAYS   = 2   -- no den spawns during day 1
-local APEX_GRACE_DAYS  = 4   -- apex dens shut, and packs capped at 1, until day 4
+-- Day 5 is not an arbitrary number: it is the threshold the rest of the game
+-- already uses. Creatures.tryNaturalSpawn only rolls the small/passive pool
+-- before day 5, and beast_assault (the first creature raid) is minDay 5. Lairs
+-- now agree with both instead of being the one system that opened on day one.
+local APEX_GRACE_DAYS  = 5   -- apex dens shut, and packs capped at 1, until day 5
 local APEX_LEASH_PAD   = 12  -- tiles of slack beyond the den's tether
 
 local function speciesOf(speciesId)
