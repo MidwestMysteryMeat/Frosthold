@@ -308,7 +308,6 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
                     end
                 end
 
-                ::skip_neighbor::
             end
         end
 

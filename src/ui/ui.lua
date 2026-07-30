@@ -428,7 +428,7 @@ function UI.mousepressed(x, y, button)
                 elseif btn.kind == 'barrier' then
                     local fence = ECS.get(btn.entityId, 'laser_fence')
                     if fence and btn.action == 'toggle_barrier' then
-                        fence.toggled = not (fence.toggled ~= false)
+                        fence.toggled = (fence.toggled == false)
                     end
                 elseif btn.kind == 'prisoner' then
                     local rok, Recruitment = pcall(require, 'src.colonist.recruitment')

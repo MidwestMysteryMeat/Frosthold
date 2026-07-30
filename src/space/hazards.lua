@@ -58,12 +58,15 @@ local function checkTileHazards(dt)
             ship.hullHP = math.max(0, ship.hullHP - 20)
         elseif tile == 102 then  -- STAR_CORONA — extreme heat damage
             ship.hullHP = math.max(0, ship.hullHP - dt * 10)
+            -- Corona heat is an area effect: it burns every living colonist.
+            -- A stray `break` here used to stop after the first entity, so only
+            -- one colonist ever took damage -- and none at all if that first
+            -- entity happened to be dead.
             for cid in ECS.query('colonist') do
                 local col = ECS.get(cid, 'colonist')
                 if col and not col.dead then
                     col.health = math.max(1, (col.health or 100) - dt * 3)
                 end
-                break
             end
         elseif tile == 103 then  -- DYSON_INTACT — impassable structure
             if ship.velocity > 0 then

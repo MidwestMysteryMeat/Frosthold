@@ -1405,6 +1405,8 @@ local ITEM_TO_RES = {
     iron_ore = 'metal', copper_ore = 'metal', uranium_ore = 'metal',
     stone_chunk = 'stone', logs = 'wood', ice_block = 'stone',
     iron_ingot = 'metal', lead_ingot = 'lead', copper_ingot = 'metal',
+    -- Lead: was only present in the production_runtime duplicate of this table
+    lead = 'lead', lead_ore = 'lead',
     fuel = 'fuel',
 }
 

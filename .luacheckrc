@@ -27,6 +27,8 @@ globals = {
     "RUN_SEED",             -- pinned RNG seed for reproducible runs
     "COLD_TRACE",           -- verbose cold/thermal logging
     "UI_SHOTS",             -- headless UI screenshot capture
+    "jit",                  -- LuaJIT introspection table; nil under plain Lua 5.1,
+                            -- and settings_panel.lua type-checks it before use
 }
 
 -- Not enforced yet. Style debt, not defects:
