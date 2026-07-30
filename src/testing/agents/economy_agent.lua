@@ -56,6 +56,35 @@ function EconomyAgent.new(config)
     end
 
     -----------------------------------------------------------------
+    -- Edible stock on the map (ground items + stockpile zones), counted in
+    -- units. Food lives as items now, so any real shortage check needs these.
+    -----------------------------------------------------------------
+    function agent:countFoodItems()
+        local pok, Prod = pcall(require, 'src.building.production')
+        if not pok or not Prod.FOOD_QUALITY then return 0 end
+        local fq = Prod.FOOD_QUALITY
+        local total = 0
+
+        local eok, ECS = pcall(require, 'src.ecs.ecs')
+        if eok then
+            for _, comps in ECS.query('pos', 'item') do
+                local item = comps.item
+                if fq[item.itemId] then total = total + (item.amount or 1) end
+            end
+        end
+
+        local zok, Zones = pcall(require, 'src.world.zones')
+        if zok and Zones.getByType then
+            for _, zone in ipairs(Zones.getByType('stockpile')) do
+                for _, item in pairs(zone.items or {}) do
+                    if fq[item.itemId] then total = total + (item.amount or 1) end
+                end
+            end
+        end
+        return total
+    end
+
+    -----------------------------------------------------------------
     -- Tick
     -----------------------------------------------------------------
     function agent:onTick(dt)
@@ -77,11 +106,19 @@ function EconomyAgent.new(config)
                 self:trackMetric('resource_' .. name, amount)
             end
 
-            -- Check critical thresholds
-            if self.criticalThresholds[name] and amount < self.criticalThresholds[name] then
+            -- Check critical thresholds.
+            -- 'food' is special: it became physical items, and the crashlanded
+            -- start deliberately pins the legacy global pool at 10. Counting
+            -- only the pool reported a critical shortage 544 times in a
+            -- 5-day run while the colony had a week of rations on the ground.
+            local effective = amount
+            if name == 'food' then
+                effective = amount + self:countFoodItems()
+            end
+            if self.criticalThresholds[name] and effective < self.criticalThresholds[name] then
                 self:high('critical_resource',
-                    'Critical ' .. name .. ' shortage: ' .. amount,
-                    { resource = name, amount = amount, threshold = self.criticalThresholds[name] })
+                    'Critical ' .. name .. ' shortage: ' .. effective,
+                    { resource = name, amount = effective, threshold = self.criticalThresholds[name] })
             end
 
             -- Check for negative resources (bug)
@@ -212,8 +249,8 @@ function EconomyAgent.new(config)
         local score = 100
         local issues = {}
 
-        -- Food security
-        local food = resources.food or 0
+        -- Food security (pool + edible items on the map)
+        local food = (resources.food or 0) + self:countFoodItems()
         if food < 20 then
             score = score - 30
             issues[#issues + 1] = 'critical food shortage'
