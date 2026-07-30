@@ -1,6 +1,5 @@
 # V3 Procedural Lore Generator — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a lore-accurate procedural content generator that produces interconnected NPCs, quests, datapads, locations, factions, and more with divergence tracking and overnight batch capability.
 
@@ -8,7 +7,7 @@
 
 **Tech Stack:** Python 3.x stdlib only (random, json, argparse, time, pathlib, os, shutil). No external dependencies.
 
-**Spec:** `docs/superpowers/specs/2026-03-18-v3-procedural-generator-design.md`
+**Spec:** `docs/design/v3-procedural-generator-design.md`
 
 **Lore source of truth:** `lore/LORE_BIBLE.md`
 

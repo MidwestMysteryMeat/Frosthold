@@ -1,6 +1,5 @@
 # Physical Item Entities — Implementation Plan (Sub-Project 1 of 4)
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace abstract GameState resource counters with physical item ECS entities that drop on the ground, get hauled, and stack in storage — making resources visible and tangible.
 
@@ -8,7 +7,7 @@
 
 **Tech Stack:** Love2D 11.4, Lua 5.1/LuaJIT, sparse-set ECS at `src/ecs/ecs.lua`
 
-**Spec:** `docs/superpowers/specs/2026-03-15-physical-items-design.md`
+**Spec:** `docs/design/physical-items-design.md`
 
 ---
 

@@ -1607,31 +1607,6 @@ function love.errorhandler(msg)
             f:write(report)
             f:close()
         end
-
-        -- Find the email script relative to game source
-        local sourceDir = love.filesystem.getSource()
-        local emailScript = sourceDir .. '/tools/send_error_email.py'
-
-        -- Build screenshot path
-        local screenshotPath = ''
-        if screenshotSaved then
-            screenshotPath = saveDir .. '/' .. screenshotSaved
-        end
-
-        -- Fire-and-forget email via Python
-        local cmd
-        if screenshotPath ~= '' then
-            cmd = string.format(
-                'python "%s" "%s" "%s"',
-                emailScript, errFile, screenshotPath
-            )
-        else
-            cmd = string.format(
-                'python "%s" "%s"',
-                emailScript, errFile
-            )
-        end
-        os.execute(cmd)
     end)
 
     -- Fall through to default Love2D error screen

@@ -33,7 +33,6 @@ DEFAULT_LOVE_PATHS = [
     os.path.expanduser(r'~\scoop\apps\love\current\love.exe'),
 ]
 GAME_DIR = str(Path(__file__).resolve().parent.parent)
-SEND_EMAIL_SCRIPT = str(Path(__file__).resolve().parent / 'send_error_email.py')
 
 
 def find_love():
@@ -126,11 +125,10 @@ def send_report(returncode, elapsed, stderr_text, session_num):
         if pngs:
             screenshot = pngs[0]
 
-    # Send email
-    cmd = [sys.executable, SEND_EMAIL_SCRIPT, error_file]
+    # Report locally. Crash artefacts stay on this machine.
+    print(f'[autoplay] crash report: {error_file}')
     if screenshot:
-        cmd.append(screenshot)
-    subprocess.run(cmd)
+        print(f'[autoplay] screenshot:   {screenshot}')
 
 
 def main():

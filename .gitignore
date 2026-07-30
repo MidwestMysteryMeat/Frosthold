@@ -80,3 +80,9 @@ _uishots/
 # tools/gen_v3.py and tools/lore_generator.py write here; nothing reads it.
 # 76 files / 103k lines were tracked by mistake - regenerate rather than commit.
 proposals/
+
+# Agent tooling: session scaffolding, brainstorm servers, PID files.
+# Nothing agent-facing belongs in a public repo.
+.superpowers/
+.claude/
+
