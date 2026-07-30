@@ -7,6 +7,9 @@ SIMULATION_SCENARIO = 'survival'
 -- acceptance run can be replayed exactly, and so a batch of runs launched in
 -- the same wall-clock second still explores different worlds.
 RUN_SEED = nil
+-- Dev-only: boot a colony, screenshot every major panel, quit. See
+-- src/testing/ui_shots.lua.
+UI_SHOTS = false
 
 for i, v in ipairs(arg or {}) do
     if v == '--autoplay' then AUTOPLAY = true end
@@ -14,6 +17,7 @@ for i, v in ipairs(arg or {}) do
     if v == '--simulation' then SIMULATION_TEST = true end
     if v == '--scenario' and arg[i + 1] then SIMULATION_SCENARIO = arg[i + 1] end
     if v == '--seed' and arg[i + 1] then RUN_SEED = tonumber(arg[i + 1]) end
+    if v == '--uishots' then UI_SHOTS = true end
 end
 
 function love.conf(t)
@@ -38,6 +42,15 @@ function love.conf(t)
         t.window.fullscreen = false
         t.window.width  = 640
         t.window.height = 360
+        t.window.vsync  = 0
+    end
+
+    -- Panel screenshots are taken at the documented default window size, so the
+    -- images show the layout a normal player sees.
+    if UI_SHOTS then
+        t.window.fullscreen = false
+        t.window.width  = 1280
+        t.window.height = 720
         t.window.vsync  = 0
     end
 

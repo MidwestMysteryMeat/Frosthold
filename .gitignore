@@ -65,3 +65,6 @@ node_modules/
 
 # Acceptance simulation batch logs (tools/run_acceptance.ps1)
 _simruns/
+
+# Dev panel screenshots (tools/collect_uishots.ps1)
+_uishots/
