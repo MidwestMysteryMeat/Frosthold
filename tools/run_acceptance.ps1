@@ -18,7 +18,8 @@ param(
   [int[]] $Seeds      = @(101,202,303,404,505,606,707,808),
   [int]   $Parallel   = 4,
   [int]   $TimeoutSec = 900,
-  [string]$LoveExe    = 'F:\LOVE\lovec.exe'   # console build, so stdout redirects
+  [string]$LoveExe    = 'F:\LOVE\lovec.exe',  # console build, so stdout redirects
+  [switch]$Trace                              # add --coldtrace to every run
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,8 +40,10 @@ while ($queue.Count -gt 0 -or $running.Count -gt 0) {
   while ($running.Count -lt $Parallel -and $queue.Count -gt 0) {
     $seed = $queue.Dequeue()
     $log  = Join-Path $out "seed_$seed.log"
+    $args = @('.', '--simulation', '--scenario', $Scenario, '--seed', "$seed")
+    if ($Trace) { $args += '--coldtrace' }
     $p = Start-Process -FilePath $LoveExe `
-         -ArgumentList '.', '--simulation', '--scenario', $Scenario, '--seed', "$seed" `
+         -ArgumentList $args `
          -WorkingDirectory $repo `
          -RedirectStandardOutput $log -RedirectStandardError "$log.err" `
          -PassThru -WindowStyle Hidden

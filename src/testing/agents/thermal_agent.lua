@@ -69,6 +69,42 @@ function ThermalAgent.new(config)
 
         -- Track room temperatures (sample)
         self:sampleRoomTemps()
+
+        -- Dev diagnostic (--coldtrace): how much warm ground actually exists,
+        -- and what state the fires are in. A freezing death with no reachable
+        -- warm tile looks identical to one where the colonist just walked the
+        -- wrong way; this line separates the two.
+        if _G.COLD_TRACE then
+            self._ctBeat = (self._ctBeat or 0) + 1
+            if self._ctBeat >= 10 then
+                self._ctBeat = 0
+                local World = require('src.world.tilemap')
+                local warm, mild = 0, 0
+                for ty = 0, World.height() - 1 do
+                    for tx = 0, World.width() - 1 do
+                        local t = World.getTemp(tx, ty, 0)
+                        if t > 15 then warm = warm + 1
+                        elseif t > 10 then mild = mild + 1 end
+                    end
+                end
+                local fires = {}
+                local bok, Building = pcall(require, 'src.building.building')
+                if bok and Building.getAll then
+                    for _, info in pairs(Building.getAll()) do
+                        if info.def and info.def.heatDanger and not info.subTile then
+                            fires[#fires + 1] = string.format('%s@(%d,%d) fuel=%.0f active=%s',
+                                tostring(info.id or info.def.name), info.x or -1, info.y or -1,
+                                info.fuel or -1, tostring(info.active))
+                        end
+                    end
+                end
+                print(string.format('[Cold] d%d %05.2f WORLD amb=%.1f warm>15=%d mild>10=%d wood=%.0f fires[%s]',
+                    GameState.day or 0, GameState.hour or 0,
+                    GameState.getEffectiveTemp(), warm, mild,
+                    (GameState.resources and GameState.resources.wood) or -1,
+                    table.concat(fires, ' | ')))
+            end
+        end
     end
 
     -----------------------------------------------------------------

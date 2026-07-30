@@ -10,6 +10,10 @@ RUN_SEED = nil
 -- Dev-only: boot a colony, screenshot every major panel, quit. See
 -- src/testing/ui_shots.lua.
 UI_SHOTS = false
+-- Dev-only: print a per-colonist cold/warmth trace to stdout. Diagnoses
+-- freezing deaths (who went cold, where they were, what the warmth search
+-- found). Off by default because it is chatty.
+COLD_TRACE = false
 
 for i, v in ipairs(arg or {}) do
     if v == '--autoplay' then AUTOPLAY = true end
@@ -18,6 +22,13 @@ for i, v in ipairs(arg or {}) do
     if v == '--scenario' and arg[i + 1] then SIMULATION_SCENARIO = arg[i + 1] end
     if v == '--seed' and arg[i + 1] then RUN_SEED = tonumber(arg[i + 1]) end
     if v == '--uishots' then UI_SHOTS = true end
+    if v == '--coldtrace' then COLD_TRACE = true end
+end
+
+-- Redirected stdout is block-buffered by default, so a long headless run shows
+-- nothing until it exits. Line-buffer it while tracing so progress is visible.
+if COLD_TRACE and io and io.stdout and io.stdout.setvbuf then
+    io.stdout:setvbuf('line')
 end
 
 function love.conf(t)
