@@ -24,6 +24,14 @@ end
 -- Wound type definitions
 ---------------------------------------------------------------------------
 
+-- Untreated bleeding clots naturally over this many seconds, tapering to zero.
+-- Without it an untreated cut bled at a FLAT rate forever: a single mauling
+-- (3 cuts at severity 0.7 = 1.08 HP/s) killed a colonist in ~90 seconds, which
+-- is faster than the medical-task system can notice, claim, walk and treat
+-- three separate wounds. A clotted wound is still untreated: it keeps its pain
+-- and its infection roll, it just stops draining blood.
+local BLEED_CLOT_TIME = 45
+
 local WOUND_TYPES = {
     cut = {
         name        = 'Cut',
@@ -214,9 +222,10 @@ local function woundTickSystem(dt, id, comps)
 
         w.age = w.age + dt
 
-        -- Bleeding (cuts only while untreated)
-        if def.bleedRate > 0 and w.treatment == 'untreated' then
-            bleedTotal = bleedTotal + def.bleedRate * w.severity * dt
+        -- Bleeding (cuts only while untreated), tapering off as it clots
+        if def.bleedRate > 0 and w.treatment == 'untreated' and w.age < BLEED_CLOT_TIME then
+            local clot = 1 - (w.age / BLEED_CLOT_TIME)
+            bleedTotal = bleedTotal + def.bleedRate * w.severity * clot * dt
         end
 
         -- Frostbite progression: worsens when warmth need is critically low

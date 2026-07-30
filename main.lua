@@ -749,6 +749,31 @@ local function initGameWorld()
         Beds.place(sx + 1, sy + 1)
         Beds.place(sx + 2, sy + 1)
 
+        -- A lit campfire inside the shelter keeps the landing zone livable
+        -- while the first walls go up: it heats the bedroom AND casts a
+        -- radius-6 warmth zone over the surrounding camp. It auto-refuels
+        -- from colony wood, and the cold-emergency AI walks freezing
+        -- colonists back to it. Floors are not buildable, so the target
+        -- tile is converted to snow first to guarantee placement.
+        local BuildingMod = require('src.building.building')
+        local fireSpots = {
+            { sx + 2, sy + 2 },  -- inside the shelter (preferred)
+            { sx + 1, sy + 4 },  -- just outside the door
+            { cx,     cy + 2 },
+            { cx + 2, cy },
+        }
+        for _, spot in ipairs(fireSpots) do
+            local fxs, fys = spot[1], spot[2]
+            if World.inBounds(fxs, fys) then
+                if not Tiles.isBuildable(World.getTile(fxs, fys)) then
+                    World.setTile(fxs, fys, Tiles.SNOW)
+                end
+                if BuildingMod.tryPlace('campfire', fxs, fys, nil, true) then
+                    break
+                end
+            end
+        end
+
         -- Scatter salvageable debris tiles around the crash site
         local debrisOffsets = {
             {-2, -3}, {3, -2}, {-3, 0}, {4, -1}, {-2, 1},
@@ -771,10 +796,14 @@ local function initGameWorld()
         ItemsMod.spawn(cx + 2, cy - 2, 'wood',        8, 'raw')
         ItemsMod.spawn(cx - 3, cy,     'fuel',         5, 'raw')
         ItemsMod.spawn(cx + 3, cy - 1, 'components',   1, 'raw')
-        -- Starting food: packaged rations and raw meat from the drop pod
-        ItemsMod.spawn(cx,     cy + 1, 'ration',      8, 'food')
-        ItemsMod.spawn(cx - 1, cy + 1, 'raw_meat',   10, 'food')
-        ItemsMod.spawn(cx + 1, cy + 1, 'berries',     6, 'food')
+        -- Starting food: packaged rations and raw meat from the drop pod.
+        -- 15 rations (30 nutrition) + 20 raw meat (15) + 20 berries (10) =
+        -- 950 nutrition, roughly a 7-day buffer for 3 colonists (each burns
+        -- ~43 nutrition/day), so the colony has time to stand up its own
+        -- food production. Amounts respect each item's max stack size.
+        ItemsMod.spawn(cx,     cy + 1, 'ration',     15, 'food')
+        ItemsMod.spawn(cx - 1, cy + 1, 'raw_meat',   20, 'food')
+        ItemsMod.spawn(cx + 1, cy + 1, 'berries',    20, 'food')
         -- Reduce global food pool (food is now physical items; keep small seed budget)
         GameState.resources.food = 10
 
@@ -878,7 +907,9 @@ function love.update(dt)
 
     if not D.GameState.paused then
         accumulator = accumulator + dt * D.GameState.speed
-        if accumulator > SIM_DT * 8 then accumulator = SIM_DT * 8 end
+        -- Headless simulation tests may burst many more ticks per frame
+        local maxBurst = SIMULATION_TEST and (SIM_DT * 64) or (SIM_DT * 8)
+        if accumulator > maxBurst then accumulator = maxBurst end
     end
 
     while accumulator >= SIM_DT do

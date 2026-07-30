@@ -115,6 +115,29 @@ function Colonist.kill(entityId)
     local col = ECS.get(entityId, 'colonist')
     if not col or col.state == 'dead' then return end
 
+    -- Headless simulation triage: log the vitals snapshot at death
+    if _G.SIMULATION_TEST then
+        local needs = ECS.get(entityId, 'needs')
+        local pos = ECS.get(entityId, 'pos')
+        local woundInfo = ''
+        local wc = ECS.get(entityId, 'wounds')
+        if wc and wc.list then
+            for _, w in ipairs(wc.list) do
+                woundInfo = woundInfo .. string.format(' %s/%s/sev%.2f/age%.0f%s',
+                    tostring(w.type), tostring(w.treatment), w.severity or 0,
+                    w.age or 0, w.infected and '/INF' or '')
+            end
+        end
+        print(string.format('[SimDeath] %s state=%s pos=(%s,%s) warmth=%.0f food=%.0f water=%.0f suff=%s hypo=%s heat=%s rad=%s tox=%s wounds[%s]',
+            tostring(col.name), tostring(col.state),
+            pos and pos.x or '?', pos and pos.y or '?',
+            needs and needs.warmth or -1, needs and needs.food or -1,
+            needs and (needs.water or -1) or -1,
+            tostring(col._suffocating), tostring(col._hypothermia),
+            tostring(col._heatstroke), tostring(col._radiationSickness),
+            tostring(col._toxicExposure), woundInfo))
+    end
+
     col.state  = 'dead'
     col.health = 0
     col.task   = nil
@@ -828,12 +851,51 @@ local function needsDecaySystem(dt, id, comps)
     -- are in good shape. Without this, health lost to cold/hunger was
     -- never regained (only hot springs healed) and colonists ratcheted
     -- toward death across successive cold snaps.
+    -- Gating on "all needs > 50" meant regen never fired during the crisis it
+    -- was added for: a colonist warming up at a fire at warmth 35 healed
+    -- nothing, so the player saw HP fall and never recover. Regen now runs
+    -- whenever the colonist is NOT actively freezing, starving or dehydrated —
+    -- i.e. whenever the situation is being brought under control.
     if col.health > 0 and col.health < col.maxHealth then
-        local needsHealthy = needs.warmth > 50 and needs.food > 50
-            and (needs.water or 80) > 50 and needs.rest > 50
-        if col.state == 'sleeping' or needsHealthy then
-            col.health = math.min(col.maxHealth, col.health + 0.2 * dt)
+        local freezing  = hypoTier.healthDrain > 0        -- warmth < 20
+        local starving  = needs.food <= 0
+        local dehydrated = (needs.water or 80) <= 0
+        local warmingUp = tileTemp > 10                   -- gaining warmth
+        if not (freezing or starving or dehydrated) then
+            local rate
+            if col.state == 'sleeping' then
+                rate = 0.5
+            elseif needs.warmth > 50 and needs.food > 50
+                and (needs.water or 80) > 50 and needs.rest > 50 then
+                rate = 0.2   -- all needs comfortable
+            elseif warmingUp or needs.warmth > 30 then
+                rate = 0.15  -- recovering: visible progress during a crisis
+            end
+            if rate then
+                col.health = math.min(col.maxHealth, col.health + rate * dt)
+            end
         end
+    end
+
+    -- Net HP trend over the last full tick cycle (ALL damage/heal sources,
+    -- including bleed, suffocation, deep-cold — not just the regen above).
+    -- Drives the UI recovering/declining indicator truthfully.
+    do
+        local prevHp = col._hpPrevTick
+        if prevHp then
+            local delta = col.health - prevHp
+            if delta > 0.0001 then
+                col._regening = true
+                col._declining = false
+            elseif delta < -0.0001 then
+                col._regening = false
+                col._declining = true
+            else
+                col._regening = false
+                col._declining = false
+            end
+        end
+        col._hpPrevTick = col.health
     end
 
     -- Tick skill rust timers
@@ -894,8 +956,9 @@ local function movementSystem(dt, id, comps)
         if _TileFluidsMod and _TileFluidsMod.getMovementMult then
             envMult = envMult * _TileFluidsMod.getMovementMult(pos.x, pos.y, posDepth)
         end
-        -- Deep snow/water on the current tile slows escape but must not pin
-        -- a colonist forever after the tile becomes impassable beneath them.
+        -- Deep snow/water on the CURRENT tile slows escape but must never
+        -- pin a colonist in place: a 0x multiplier permanently trapped
+        -- (and killed) anyone whose tile snowed in beneath them.
         speed = speed * math.max(0.15, envMult)
     end
     if _TileGasMod then
@@ -948,8 +1011,9 @@ local function movementSystem(dt, id, comps)
                 end
                 return
             end
-            -- Release persistent blockers back to work AI. Never overlap
-            -- entities: occupancy stores only one entity per tile.
+            -- A persistent blocker should release this path back to the work
+            -- AI. Never overlap entities: Occupancy stores one entity per tile,
+            -- so "squeezing past" would corrupt reservations for both.
             path.stuckCycles = nil
             path.nodes = nil
             path.index = 1
