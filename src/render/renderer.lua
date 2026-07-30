@@ -163,9 +163,9 @@ function Renderer.drawWorld(world, state)
 
     for y = y1, y2 do
         for x = x1, x2 do
-            -- Fog of war: unexplored tiles are black
+            -- Fog of war: unexplored tiles are dark (soft blue-grey, not pitch black)
             if fogActive and not Vis.isExplored(x, y) then
-                love.graphics.setColor(0.02, 0.02, 0.04)
+                love.graphics.setColor(0.05, 0.06, 0.09)
                 love.graphics.rectangle('fill', x * ts, y * ts, ts, ts)
                 goto nextTile
             end
@@ -264,9 +264,9 @@ function Renderer.drawWorld(world, state)
                 love.graphics.rectangle('fill', px + 2, py + 2, ts - 4, ts - 4)
             end
 
-            -- Fog of war: explored but not visible = dimmed + desaturated
+            -- Fog of war: explored but not visible = gently dimmed
             if fogActive and not Vis.isVisible(x, y) then
-                love.graphics.setColor(0, 0, 0.02, 0.45)
+                love.graphics.setColor(0, 0, 0.02, 0.28)
                 love.graphics.rectangle('fill', px, py, ts, ts)
             end
 
@@ -297,7 +297,7 @@ function Renderer.drawWorld(world, state)
                 for x = x1, x2 do
                     local light = _Lighting.getLightAt(x, y)
                     if light < 0.9 then
-                        local dark = (1 - light) * 0.5
+                        local dark = (1 - light) * 0.35
                         love.graphics.setColor(0, 0, 0.03, dark)
                         love.graphics.rectangle('fill', x * ts, y * ts, ts, ts)
                     end

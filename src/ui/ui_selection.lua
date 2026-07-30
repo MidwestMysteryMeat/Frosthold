@@ -149,7 +149,15 @@ function Selection.drawSelectionPanel()
 
             local displayHealth = math.max(0, col.health)
             local hpText = string.format('HP: %.0f/%d', displayHealth, col.maxHealth)
-            love.graphics.setColor(0.7, 0.7, 0.7)
+            if col._regening then
+                hpText = hpText .. '  (+recovering)'
+                love.graphics.setColor(0.4, 0.85, 0.45)
+            elseif col._declining then
+                hpText = hpText .. '  (-declining)'
+                love.graphics.setColor(0.95, 0.45, 0.35)
+            else
+                love.graphics.setColor(0.7, 0.7, 0.7)
+            end
             love.graphics.print(hpText, 16, panelY + 8 + fh + 2)
 
             -- HP bar
