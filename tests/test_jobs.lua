@@ -149,3 +149,40 @@ T.test('a colonist with zero medical skill can still claim medical tasks', funct
     Jobs.claimTask(best.id, cid)
     T.eq(Jobs.findBestTask(cid), nil, 'mining still requires mining skill')
 end)
+
+T.test('a colonist standing on its own task tile still executes it', function()
+    H.resetAll()
+    local ECS = require('src.ecs.ecs')
+    local Jobs = require('src.colonist.jobs')
+    local Wounds = require('src.combat.wounds')
+    local WorkAI = require('src.colonist.work_ai')
+    local World = require('src.world.tilemap')
+    local GameState = require('src.game_state')
+
+    World.init(32, 32)
+    require('src.sim.lighting').init(World)
+    require('src.sim.thermal').init(World)
+    GameState.hour = 10  -- daytime work block
+
+    -- A wounded colonist tends itself. Pathfind.find returns {} when the mover
+    -- is already on the goal tile, and `{}` is truthy, so the colonist used to
+    -- wait forever for a movement that had nothing to do -- while still
+    -- holding the task claim, so nobody else could tend it either.
+    local patient = H.spawnTestColonist(10, 10, {
+        skills = { mining = 0, building = 0, cooking = 0,
+                   hunting = 0, research = 0, medical = 0 },
+    })
+    require('src.util.occupancy').rebuild()
+    Wounds.apply(patient, 'torso', 'cut', 0.8)
+    local wound = ECS.get(patient, 'wounds').list[1]
+    T.eq(wound.treatment, 'untreated', 'wound starts untreated')
+
+    Wounds.requestMedicalTask(patient)
+    WorkAI.registerSystems()
+    require('src.colonist.colonist').registerSystems()
+    for _ = 1, 200 do
+        ECS.update(0.05)
+        if wound.treatment ~= 'untreated' then break end
+    end
+    T.eq(wound.treatment, 'bandaged', 'self-tended wound reaches bandaged')
+end)

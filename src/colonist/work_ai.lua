@@ -1724,8 +1724,15 @@ local function workAISystem(dt, id, comps)
             executor(dt, id, col, task)
             return
         else
-            -- Still pathing to task — wait for movement system
-            if not path.nodes then
+            -- Still pathing to task — wait for movement system.
+            -- An EMPTY node list counts as "no path": Pathfind.find returns {}
+            -- when the mover is already standing on the goal, and `{}` is
+            -- truthy in Lua, so the colonist sat waiting forever for a
+            -- movement that had nothing to do. This is how self-treatment
+            -- deadlocked: a wounded colonist claimed its own medical task,
+            -- got an empty path to its own tile, and stalled — holding the
+            -- claim so no one else could tend it either.
+            if not path.nodes or #path.nodes == 0 then
                 -- Path failed or arrived
                 local dx = math.abs(pos.x - task.x)
                 local dy = math.abs(pos.y - task.y)
@@ -1793,10 +1800,14 @@ local function workAISystem(dt, id, comps)
             end
 
             local route = Pathfind.find(pos.x, pos.y, tx, ty, World, id, posDepth, taskDepth, getRestrictedPathOpts(pos))
-            if route then
+            if route and #route > 0 then
                 path.nodes = route
                 path.index = 1
                 path.moveTimer = 0
+            elseif route then
+                -- Already standing on the target tile: nothing to walk
+                path.nodes = nil
+                col.task.arrived = true
             else
                 -- Can't path — unclaim, and back off from this task for
                 -- 10 s. findBestTask always returns the nearest task, so
