@@ -18,6 +18,21 @@ function love.graphics.setNewFont() end
 function love.graphics.setLineWidth() end
 function love.graphics.setCanvas() end
 function love.graphics.clear() end
+function love.graphics.printf() end
+-- Scissor state is recorded so tests can assert on the clip stack in ui_layout.
+local _scissor = nil
+function love.graphics.setScissor(x, y, w, h)
+    if x == nil then
+        _scissor = nil
+    else
+        assert(w >= 0 and h >= 0, 'setScissor got a negative size')
+        _scissor = { x, y, w, h }
+    end
+end
+function love.graphics.getScissor()
+    if not _scissor then return nil end
+    return _scissor[1], _scissor[2], _scissor[3], _scissor[4]
+end
 function love.graphics.getDimensions() return 1280, 720 end
 function love.graphics.getWidth() return 1280 end
 function love.graphics.getHeight() return 720 end
