@@ -62,3 +62,6 @@ node_modules/
 *.webp
 *.bmp
 *.tga
+
+# Acceptance simulation batch logs (tools/run_acceptance.ps1)
+_simruns/
