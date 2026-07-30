@@ -36,6 +36,66 @@ local LAIR_TYPES = {
 Lairs.LAIR_TYPES = LAIR_TYPES
 
 ---------------------------------------------------------------------------
+-- Lair threat ramp: keep the landing site survivable for the first three days
+---------------------------------------------------------------------------
+-- A lair used to be dropped anywhere at least 25 tiles from the colony and
+-- would let its first pack out after 60-120 seconds — inside game-hour two of
+-- day one. With ice stalkers (18 damage), glacier bears (25) and stalkers (28)
+-- in the same uniform pool as tundra wolves, a fresh crew of three regularly
+-- met an animal that kills an unarmoured colonist in four bites before the
+-- first wall was up.
+--
+-- Lairs were also the one threat source that ignored the difficulty ramp the
+-- rest of the game already agrees on: Creatures.tryNaturalSpawn only rolls the
+-- small/passive pool before day 5, and the beast_assault raid is minDay 5.
+--
+-- Four guards, all derived from the species data so they stay correct if the
+-- numbers move:
+--   * distance   — a lair's creatures are tethered to it by leashRange, so an
+--                  apex den must sit further from the landing site than its
+--                  tether reaches (plus a margin) instead of the flat 25.
+--   * day 1      — no den releases anything at all. The crew gets one full day
+--                  to raise walls and light a fire.
+--   * days 2-3   — apex dens stay shut; the wolf dens that do open release one
+--                  animal at a time. Pack size was as deadly as raw damage: a
+--                  char hound only does 14, but a den lets out up to four of
+--                  them, and four animals focusing one colonist is 40+ damage
+--                  a second no matter what the crew is holding.
+-- From day 4 every den is live at full pack size, so the back half of a 5-day
+-- run is still a genuine test rather than a guaranteed pass.
+
+-- Apex threshold. Measured against the standard drop-pod loadout, which gives
+-- roughly 4 points of armour and a 6-10 damage hand weapon: a 14-damage animal
+-- still lands 10 a bite and out-damages that colonist one-on-one, while a
+-- 12-damage animal does not. So tundra wolves are early-game fauna and char
+-- hounds are not.
+local APEX_DAMAGE      = 14
+local ANY_GRACE_DAYS   = 2   -- no den spawns during day 1
+local APEX_GRACE_DAYS  = 4   -- apex dens shut, and packs capped at 1, until day 4
+local APEX_LEASH_PAD   = 12  -- tiles of slack beyond the den's tether
+
+local function speciesOf(speciesId)
+    return Creatures.SPECIES and Creatures.SPECIES[speciesId] or nil
+end
+
+--- True when this species hits hard enough to kill a starting colonist before
+--- the colony has walls or weapons worth the name.
+function Lairs.isApexSpecies(speciesId)
+    local sp = speciesOf(speciesId)
+    if not sp then return false end
+    return (sp.damage or 0) >= APEX_DAMAGE
+end
+
+--- Minimum distance from the landing site at which a lair of this species may
+--- be placed during worldgen.
+function Lairs.minColonyDistance(speciesId, baseMargin)
+    baseMargin = baseMargin or 25
+    if not Lairs.isApexSpecies(speciesId) then return baseMargin end
+    local sp = speciesOf(speciesId)
+    return math.max(baseMargin, (sp.leashRange or 0) + APEX_LEASH_PAD)
+end
+
+---------------------------------------------------------------------------
 -- Spawn a lair entity at a given position
 ---------------------------------------------------------------------------
 
@@ -103,11 +163,14 @@ function Lairs.generateForWorld(world)
         -- Must be on ROCK tile
         local tile = world.getTile(x, y)
         if tile == Tiles.ROCK then
-            -- Must be far enough from colony start
+            -- Must be far enough from colony start. Apex dens need more room
+            -- than wolf dens: far enough that their leash cannot reach camp.
             local dx = x - cx
             local dy = y - cy
-            if dx * dx + dy * dy >= innerMargin * innerMargin then
-                local lairType = math.random(#LAIR_TYPES)
+            local distSq = dx * dx + dy * dy
+            local lairType = math.random(#LAIR_TYPES)
+            local need = Lairs.minColonyDistance(LAIR_TYPES[lairType].species, innerMargin)
+            if distSq >= need * need then
                 Lairs.spawn(x, y, lairType)
                 placed = placed + 1
             end
@@ -180,13 +243,22 @@ local function lairSpawnSystem(dt, id, comps)
     -- Reset timer
     lair.spawnTimer = lair.spawnMin + math.random(math.max(1, lair.spawnMax - lair.spawnMin))
 
+    -- Grace period. Checked here rather than baked into the initial timer so it
+    -- also holds across a save/load and for lairs created after worldgen.
+    local day = GameState.day or 1
+    if day < ANY_GRACE_DAYS then return end
+    if day < APEX_GRACE_DAYS and Lairs.isApexSpecies(lair.species) then return end
+
     -- Cap total creatures on the map
     local total = ECS.countWith('creature')
     if total >= 40 then return end
 
-    -- Spawn creatures near the lair (on walkable adjacent tiles)
+    -- Spawn creatures near the lair (on walkable adjacent tiles).
+    -- Inside the grace window a den sends out a single animal: the crew gets a
+    -- fight it can win instead of a pack that focus-fires one of them down.
     local World = require('src.world.tilemap')
     local count = math.random(lair.packMin, lair.packMax)
+    if day < APEX_GRACE_DAYS then count = 1 end
 
     for i = 1, count do
         local angle = (i / count) * math.pi * 2 + math.random() * 0.5
