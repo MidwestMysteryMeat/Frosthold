@@ -1,5 +1,5 @@
 -- test_mrp.lua — MRP campaign persistence layer tests
--- Run standalone: cd F:/IceRimworld && luajit tests/test_mrp.lua
+-- Run standalone: cd <repo root> && luajit tests/test_mrp.lua
 
 -- ---------------------------------------------------------------------------
 -- Bootstrap: set package.path so we can be run from any CWD, and load mocks.

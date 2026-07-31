@@ -9,12 +9,14 @@ Usage: python tools/slice_sprites.py [--dry-run] [--sheet NAME]
 
 import os
 import sys
+from pathlib import Path
 import numpy as np
 from PIL import Image
 from collections import deque
 
 DOWNLOADS = 'C:/Users/<you>/Downloads'
-OUTPUT_ROOT = 'F:/IceRimworld/assets/sprites_new'
+REPO_ROOT = Path(__file__).resolve().parent.parent
+OUTPUT_ROOT = str(REPO_ROOT / 'assets' / 'sprites_new')
 
 # ---------------------------------------------------------------------------
 # Utility functions

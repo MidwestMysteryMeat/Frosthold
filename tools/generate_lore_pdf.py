@@ -1,3 +1,4 @@
+from pathlib import Path
 """
 Generates the Frosthold Complete Lore Bible PDF.
 """
@@ -697,7 +698,7 @@ def build_pdf():
         pdf.named_entry(name, desc)
 
     # Save
-    output_path = "F:/IceRimworld/FROSTHOLD_Lore_Bible.pdf"
+    output_path = str(Path(__file__).resolve().parent.parent / "FROSTHOLD_Lore_Bible.pdf")
     pdf.output(output_path)
     print(f"PDF generated: {output_path}")
     return output_path

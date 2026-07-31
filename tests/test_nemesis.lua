@@ -1,5 +1,5 @@
 -- test_nemesis.lua — Nemesis system tests
--- Run standalone: cd F:/IceRimworld && luajit tests/test_nemesis.lua
+-- Run standalone: cd <repo root> && luajit tests/test_nemesis.lua
 
 -- ---------------------------------------------------------------------------
 -- Bootstrap

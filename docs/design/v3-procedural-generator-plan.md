@@ -483,7 +483,7 @@ from gen_pools_text import (
 )
 
 R = random.choice
-PROPOSALS_DIR = Path("F:/IceRimworld/proposals")
+PROPOSALS_DIR = Path(os.environ.get("FROSTHOLD_PROPOSALS_DIR", Path(__file__).parent / "proposals"))
 PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
 STATE_PATH = Path(__file__).parent / "world_state.json"
 ```

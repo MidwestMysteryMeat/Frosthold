@@ -1,3 +1,4 @@
+from pathlib import Path
 """Generate Frosthold Art Asset Checklist PDF with sprite grouping notes."""
 from fpdf import FPDF
 
@@ -1762,8 +1763,9 @@ def build():
     pdf.cell(0, 7, "Love2D 11.4  |  32px tiles  |  RimWorld-style sprite reuse strategy", align="C")
 
     # Save
-    pdf.output("F:/IceRimworld/FROSTHOLD_Art_Assets.pdf")
-    print("PDF saved: F:/IceRimworld/FROSTHOLD_Art_Assets.pdf")
+    _out = str(Path(__file__).resolve().parent.parent / "FROSTHOLD_Art_Assets.pdf")
+    pdf.output(_out)
+    print(f"PDF saved: {_out}")
 
 
 if __name__ == "__main__":

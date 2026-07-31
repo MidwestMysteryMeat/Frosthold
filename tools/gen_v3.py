@@ -50,8 +50,10 @@ from gen_pools_text import (
 
 R = random.choice
 RI = random.randint
-PROPOSALS_DIR = Path("F:/IceRimworld/proposals")
-PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
+# Divergence proposals and generated output are written here. Defaults next to
+# this script so the generator runs from any checkout on any machine; override
+# with FROSTHOLD_PROPOSALS_DIR.
+PROPOSALS_DIR = Path(os.environ.get("FROSTHOLD_PROPOSALS_DIR", Path(__file__).parent / "proposals"))
 STATE_PATH = Path(__file__).parent / "world_state.json"
 
 # ============================================================
@@ -4954,6 +4956,7 @@ def main():
         with open(pending_path, "w", encoding="utf-8") as f:
             json.dump(all_pending, f, indent=2, ensure_ascii=False)
         # Also write to proposals dir for human review
+        PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
         review_path = PROPOSALS_DIR / f"divergences_{time.strftime('%Y%m%d_%H%M%S')}.json"
         with open(review_path, "w", encoding="utf-8") as f:
             json.dump(proposals, f, indent=2, ensure_ascii=False)
@@ -4974,6 +4977,8 @@ def main():
 
     # --- Generation commands ---
 
+    if not args.output:
+        PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
     output_file = args.output or str(
         PROPOSALS_DIR / f"procedural_v3_{time.strftime('%Y%m%d_%H%M')}.md"
     )

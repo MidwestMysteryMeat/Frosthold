@@ -1,5 +1,5 @@
 -- test_ruin_spawner.lua — Tests for src/sim/ruin_spawner.lua
--- Run standalone: cd F:/IceRimworld && luajit tests/test_ruin_spawner.lua
+-- Run standalone: cd <repo root> && luajit tests/test_ruin_spawner.lua
 
 ---------------------------------------------------------------------------
 -- Bootstrap

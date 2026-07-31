@@ -14,14 +14,16 @@ Usage:
   python lore_generator.py --loop --delay 3   # With delay
 """
 
+import os
 import random
 import time
 import argparse
 from pathlib import Path
 from collections import namedtuple
 
-PROPOSALS_DIR = Path("F:/IceRimworld/proposals")
-PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
+# Output written here. Defaults next to this script so the generator runs from
+# any checkout on any machine; override with FROSTHOLD_PROPOSALS_DIR.
+PROPOSALS_DIR = Path(os.environ.get("FROSTHOLD_PROPOSALS_DIR", Path(__file__).parent / "proposals"))
 
 # ============================================================
 # CORE POOLS
@@ -978,6 +980,8 @@ def main():
     parser.add_argument("--output", default=None)
     args = parser.parse_args()
 
+    if not args.output:
+        PROPOSALS_DIR.mkdir(parents=True, exist_ok=True)
     output_file = args.output or str(PROPOSALS_DIR / f"procedural_{time.strftime('%Y%m%d_%H%M')}.md")
     seq = 0
 
