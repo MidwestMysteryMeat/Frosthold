@@ -1354,6 +1354,7 @@ local ITEM_TO_RES = {
     leather = 'hide', cloth = 'cloth', insulation = 'insulation',
     pipe = 'pipe', glass = 'glass', charcoal = 'charcoal',
     medicinal_herb = 'medicinal_herb',
+    lead_ore = 'lead', lead = 'lead',
     -- Corpses & dark processing
     corpse_creature = 'corpse_creature', corpse_human = 'corpse_human',
     human_meat = 'human_meat', human_leather = 'human_leather',

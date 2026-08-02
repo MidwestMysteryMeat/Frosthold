@@ -63,7 +63,6 @@ local function checkTileHazards(dt)
                 if col and not col.dead then
                     col.health = math.max(1, (col.health or 100) - dt * 3)
                 end
-                break
             end
         elseif tile == 103 then  -- DYSON_INTACT — impassable structure
             if ship.velocity > 0 then
