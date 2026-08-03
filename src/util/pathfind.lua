@@ -307,8 +307,6 @@ function Pathfind.find(sx, sy, gx, gy, world, moverId, sd, gd, opts)
                         openMap[nk] = true
                     end
                 end
-
-                ::skip_neighbor::
             end
         end
 

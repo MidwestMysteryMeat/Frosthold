@@ -1,0 +1,43 @@
+name: CI
+
+# Frosthold's test suite runs under LuaJIT against a pure-Lua love mock
+# (tests/mock_love.lua), so it needs no display and no LÖVE install — it runs in
+# seconds on a stock runner. The lint job guards the one bug class the suite
+# cannot catch: a `local function` referenced before it is defined resolves to a
+# nil global, and nothing fails until that path executes.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  suite:
+    name: Headless suite (LuaJIT)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install LuaJIT
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luajit
+
+      - name: Run the test suite
+        run: luajit tests/run_all.lua
+
+  lint:
+    name: Luacheck (undefined globals & the forward-reference trap)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install luacheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.4 liblua5.4-dev luarocks
+          sudo luarocks install luacheck
+
+      - name: Lint
+        run: luacheck src main.lua conf.lua tests
